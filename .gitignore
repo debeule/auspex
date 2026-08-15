@@ -1,0 +1,49 @@
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+.venv*/
+*.egg-info/
+dist/
+build/
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+htmlcov/
+.coverage
+coverage.xml
+
+# uv
+.python-version
+
+# Java / Gradle
+.gradle/
+build/
+target/
+*.class
+*.jar
+out/
+
+# IDE
+.idea/
+.vscode/
+*.iml
+*.iws
+*.ipr
+.DS_Store
+
+# Docker volumes
+docker/volumes/
+
+# Secrets
+*.pem
+*.key
+
+#temp
+*.md
