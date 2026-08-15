@@ -1,6 +1,8 @@
 import io
+import json
 
 from minio import Minio
+from minio.error import S3Error
 
 from ..models import RawDocument
 
@@ -15,9 +17,19 @@ class MinioArchive:
         self._client = client
         self._bucket = bucket
 
-    def put(self, doc: RawDocument) -> str:
+    def put(self, doc: RawDocument) -> tuple[str, bool]:
         key = minio_key(doc)
-        data = doc.model_dump_json().encode()
+
+        is_new = True
+        try:
+            self._client.stat_object(self._bucket, key)
+            is_new = False
+        except S3Error as e:
+            if e.code != "NoSuchKey":
+                raise
+
+        payload = {**json.loads(doc.model_dump_json()), "raw_content": doc.raw_content}
+        data = json.dumps(payload).encode()
         self._client.put_object(
             self._bucket,
             key,
@@ -25,4 +37,4 @@ class MinioArchive:
             len(data),
             content_type="application/json",
         )
-        return key
+        return key, is_new
