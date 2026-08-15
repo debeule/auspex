@@ -1,0 +1,47 @@
+[project]
+name = "auspex-ingest"
+version = "0.1.0"
+description = "Auspex ingestion scraper"
+requires-python = ">=3.14"
+dependencies = []
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/auspex_ingest"]
+
+[dependency-groups]
+dev = [
+    "pytest==9.1.1",
+    "pytest-cov==7.1.0",
+    "confluent-kafka==2.15.0",
+    "minio==7.2.20",
+    "pyyaml>=6.0",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "--strict-markers"
+markers = [
+    "step_0_1: Step 0.1 scaffolding verification",
+    "step_1_1: Step 1.1 connector contract and raw storage",
+    "step_1_2: Step 1.2 mock connector, pre-filter, extraction, pipeline, publish",
+    "step_2_2: Step 2.2 academic papers connector",
+    "step_2_3: Step 2.3 EPO OPS patent filings connector",
+    "step_2_4: Step 2.4 clinical trials connector",
+    "step_2_5: Step 2.5 regulatory connector",
+    "step_2_6: Step 2.6 material disclosures connector",
+    "integration: requires live containers via testcontainers",
+]
+
+[tool.ruff]
+src = ["src"]
+target-version = "py314"
+line-length = 100
+
+[tool.mypy]
+python_version = "3.14"
+strict = true
+packages = ["auspex_ingest"]

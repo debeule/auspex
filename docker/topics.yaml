@@ -1,0 +1,35 @@
+# Kafka topic declarations. Single source of truth for topic names, partition counts, and retention.
+# Read by: docker/provision.sh (compose init), IngestionPipeline startup, Java test fixture.
+# All source topics: 6 partitions, RF 1. DLTs match source partition count (Spring's
+# DeadLetterPublishingRecoverer publishes to the same partition number — a smaller DLT fails).
+
+topics:
+  - name: auspex.raw.ingested
+    partitions: 6
+    replication_factor: 1
+    retention_ms: 604800000       # 7 days
+
+  - name: auspex.signals.extracted
+    partitions: 6
+    replication_factor: 1
+    retention_ms: 7776000000      # 90 days
+
+  - name: auspex.signals.corroborated
+    partitions: 6
+    replication_factor: 1
+    retention_ms: 7776000000      # 90 days
+
+  - name: auspex.raw.ingested.dlt
+    partitions: 6
+    replication_factor: 1
+    retention_ms: 2592000000      # 30 days
+
+  - name: auspex.signals.extracted.dlt
+    partitions: 6
+    replication_factor: 1
+    retention_ms: 2592000000      # 30 days
+
+  - name: auspex.signals.corroborated.dlt
+    partitions: 6
+    replication_factor: 1
+    retention_ms: 2592000000      # 30 days
