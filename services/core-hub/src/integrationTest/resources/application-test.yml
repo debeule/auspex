@@ -1,3 +1,9 @@
 logging:
   level:
     root: INFO
+
+corroboration:
+  # Reduced cap so test_high_degree_entity_is_skipped_by_the_degree_cap needs only 5 signals.
+  degree-cap: 4
+  # Effectively disables the scheduler; tests call runCorroboration() directly.
+  interval-ms: 3600000

@@ -29,7 +29,8 @@ import java.util.concurrent.ExecutionException;
                 "auspex.signals.extracted",
                 "auspex.signals.extracted.dlt",
                 "auspex.raw.ingested",
-                "auspex.raw.ingested.dlt"
+                "auspex.raw.ingested.dlt",
+                "auspex.signals.corroborated"
         }
 )
 @Import(TestContainersConfig.class)
@@ -50,14 +51,18 @@ abstract class AbstractIT {
     @Autowired
     protected TestDltListener testDltListener;
 
+    @Autowired
+    protected TestCorroboratedListener testCorroboratedListener;
+
     @BeforeEach
     void cleanState() throws Exception {
         jdbcTemplate.execute(
-                "TRUNCATE raw_fetch_audit, signal_current, signal_extraction_history, source_observation, corroboration RESTART IDENTITY CASCADE");
+                "TRUNCATE raw_fetch_audit, signal_current, signal_extraction_history, source_observation, corroboration, corroboration_state RESTART IDENTITY CASCADE");
         try (Session session = neo4jDriver.session()) {
             session.run("MATCH (n) WHERE NOT n:GraphSchema DETACH DELETE n");
         }
         testDltListener.clear();
+        testCorroboratedListener.clear();
     }
 
     protected void publish(String topic, String payload) throws ExecutionException, InterruptedException {

@@ -199,6 +199,13 @@ class KafkaConfig {
         return new KafkaTemplate<>(dltJsonProducerFactory);
     }
 
+    @Bean
+    KafkaTemplate<Object, Object> corroboratedKafkaTemplate(
+            @Qualifier("dltJsonProducerFactory") ProducerFactory<Object, Object> dltJsonProducerFactory
+    ) {
+        return new KafkaTemplate<>(dltJsonProducerFactory);
+    }
+
     // ── Shared ────────────────────────────────────────────────────────────────
 
     private Map<String, Object> consumerProps(String groupId) {
