@@ -1,0 +1,51 @@
+spring:
+  application:
+    name: core-hub
+
+  datasource:
+    url: jdbc:postgresql://${POSTGRES_HOST:localhost}:${POSTGRES_PORT:5432}/${POSTGRES_DB:auspex}
+    username: ${POSTGRES_USER:auspex_app}
+    password: ${POSTGRES_PASSWORD:test_placeholder}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+
+  flyway:
+    locations: classpath:db/migration
+    baseline-on-migrate: false
+
+  neo4j:
+    uri: bolt://${NEO4J_HOST:localhost}:${NEO4J_PORT:7687}
+    authentication:
+      username: ${NEO4J_USER:neo4j}
+      password: ${NEO4J_PASSWORD:test_placeholder}
+
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    consumer:
+      auto-offset-reset: earliest
+      max-poll-records: 50
+      enable-auto-commit: false
+    listener:
+      ack-mode: RECORD
+
+  jackson:
+    property-naming-strategy: SNAKE_CASE
+    serialization:
+      write-dates-as-timestamps: false
+    deserialization:
+      fail-on-unknown-properties: false
+
+logging:
+  level:
+    dev.auspex: INFO
+    org.springframework.kafka: INFO
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info

@@ -1,0 +1,12 @@
+[versions]
+springBoot    = "4.1.0"
+testcontainers = "1.21.3"
+archunit      = "1.4.1"
+
+[libraries]
+archunit-junit5         = { module = "com.tngtech.archunit:archunit-junit5",      version.ref = "archunit" }
+testcontainers-core     = { module = "org.testcontainers:testcontainers",          version.ref = "testcontainers" }
+testcontainers-kafka    = { module = "org.testcontainers:kafka",                   version.ref = "testcontainers" }
+testcontainers-postgresql = { module = "org.testcontainers:postgresql",            version.ref = "testcontainers" }
+testcontainers-neo4j    = { module = "org.testcontainers:neo4j",                   version.ref = "testcontainers" }
+

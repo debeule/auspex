@@ -1,0 +1,32 @@
+{
+  "schema_version": "1.0",
+  "event_id": "c1261cdc-1cf0-5bca-922d-7d098c8f0d6f",
+  "extraction_id": "ff46e2f9-35f9-55dc-9d3e-080de1f77cca",
+  "external_id": "ext-contract-001",
+  "canonical_id": "doi:10.1101/2024.06.01.600001",
+  "raw_object_key": "raw/biorxiv/ext-contract-001/20240615T120000Z-abcdef12.json",
+  "source_type": "biorxiv",
+  "source_url": "https://biorxiv.org/content/10.1101/2024.06.01.600001",
+  "published_date": "2024-06-15T12:00:00Z",
+  "published_date_field": "date",
+  "ingested_at": "2024-06-15T12:00:00Z",
+  "title": "CRISPR base editing of BCL11A in sickle cell disease",
+  "raw_text_snippet": "BCL11A base editing of haematopoietic stem cells corrects sickle cell...",
+  "gene_targets": [
+    "BCL11A",
+    "HBB"
+  ],
+  "mechanisms": [
+    "base editing",
+    "CRISPR"
+  ],
+  "companies_mentioned": [
+    "Beam Therapeutics"
+  ],
+  "summary": "BCL11A base editing shows efficacy in sickle cell disease model",
+  "directionality": "positive",
+  "confidence_score": 0.92,
+  "prompt_version": "v1",
+  "prefilter_version": "v1",
+  "extraction_model": "gpt-4o"
+}
