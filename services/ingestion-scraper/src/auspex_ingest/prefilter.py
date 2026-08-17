@@ -9,7 +9,7 @@ class Prefilter:
     @classmethod
     def from_vocab(
         cls, vocab: set[str] | frozenset[str], version: str = "v1"
-    ) -> "Prefilter":
+    ) -> Prefilter:
         return cls(frozenset(vocab), version)
 
     def passes(self, doc: RawDocument) -> bool:

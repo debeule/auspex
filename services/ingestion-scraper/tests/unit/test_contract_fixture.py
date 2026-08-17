@@ -13,15 +13,13 @@ record deserializes every field from the Python-serialized wire format.
 """
 
 import json
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
-
-import pytest
 
 from auspex_ingest.identity import compute_event_id, compute_extraction_id
 from auspex_ingest.models import ResearchSignalEvent
 
-_UTC = timezone.utc
+_UTC = UTC
 _T0 = datetime(2024, 6, 15, 12, 0, 0, tzinfo=_UTC)
 _SCHEMA = "1.0"
 _PROMPT = "v1"

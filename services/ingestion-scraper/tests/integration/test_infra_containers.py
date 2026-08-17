@@ -10,9 +10,9 @@ import socket
 import subprocess
 
 import pytest
+from confluent_kafka import KafkaError, Producer
+from confluent_kafka.admin import AdminClient, ConfigResource
 from minio import Minio
-from confluent_kafka import Producer, Consumer, KafkaError
-from confluent_kafka.admin import AdminClient, ConfigResource, ConfigSource
 
 # ── helpers ────────────────────────────────────────────────────────────────────
 
@@ -35,6 +35,7 @@ def _psql(*args: str) -> subprocess.CompletedProcess[str]:
         capture_output=True,
         text=True,
         timeout=10,
+        check=False,
     )
 
 
@@ -83,8 +84,9 @@ def test_minio_bucket_exists():
 
 @pytest.mark.integration
 def test_topics_created_from_topics_yaml_with_declared_partitions_and_retention():
-    import yaml
     from pathlib import Path
+
+    import yaml
 
     topics_path = Path(__file__).resolve().parents[4] / "docker" / "topics.yaml"
     declared = yaml.safe_load(topics_path.read_text())["topics"]

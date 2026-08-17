@@ -3,7 +3,7 @@
 import hashlib
 import os
 import time
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 import pytest
 from minio import Minio
@@ -16,7 +16,7 @@ os.environ.setdefault("TESTCONTAINERS_RYUK_DISABLED", "true")
 
 # ── fixtures ───────────────────────────────────────────────────────────────────
 
-_UTC = timezone.utc
+_UTC = UTC
 _T1 = datetime(2024, 6, 15, 10, 0, 0, tzinfo=_UTC)
 _T2 = datetime(2024, 6, 15, 10, 0, 1, tzinfo=_UTC)
 _BUCKET = "auspex-test"
@@ -38,7 +38,7 @@ def minio_client():
             try:
                 port = container.get_exposed_port(9000)
                 break
-            except Exception:
+            except Exception:  # noqa: BLE001
                 time.sleep(0.5)
         else:
             pytest.fail("MinIO port never became available")
@@ -56,7 +56,7 @@ def minio_client():
             try:
                 client.list_buckets()
                 break
-            except Exception:
+            except Exception:  # noqa: BLE001
                 time.sleep(0.5)
         else:
             pytest.fail("MinIO never became ready")
@@ -82,16 +82,16 @@ def _sha256(text: str) -> str:
 
 
 def _make_doc(content: str, retrieved_at: datetime, **overrides) -> RawDocument:
-    defaults = dict(
-        schema_version="1.0",
-        external_id="test-ext-001",
-        source_type="biorxiv",
-        source_url="https://example.com/doc/1",
-        published_date=_T1,
-        raw_content=content,
-        content_sha256=_sha256(content),
-        retrieved_at=retrieved_at,
-    )
+    defaults: dict = {
+        "schema_version": "1.0",
+        "external_id": "test-ext-001",
+        "source_type": "biorxiv",
+        "source_url": "https://example.com/doc/1",
+        "published_date": _T1,
+        "raw_content": content,
+        "content_sha256": _sha256(content),
+        "retrieved_at": retrieved_at,
+    }
     defaults.update(overrides)
     return RawDocument(**defaults)
 

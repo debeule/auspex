@@ -1,9 +1,8 @@
-from typing import Optional
-from uuid import UUID, NAMESPACE_URL, uuid5
+from uuid import NAMESPACE_URL, UUID, uuid5
 
 
 def compute_event_id(
-    canonical_id: Optional[str], source_type: str, external_id: str
+    canonical_id: str | None, source_type: str, external_id: str
 ) -> UUID:
     if canonical_id is not None:
         return uuid5(NAMESPACE_URL, canonical_id)

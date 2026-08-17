@@ -1,11 +1,11 @@
 import hashlib
 from collections.abc import Iterator
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from ..models import RawDocument
 from .base import SourceConnector
 
-_UTC = timezone.utc
+_UTC = UTC
 _MOCK_CONTENT = [
     ("mock-001", "CRISPR base editing of BCL11A locus for sickle cell disease"),
     ("mock-002", "AAV gene therapy targeting DMD dystrophin mutations in Duchenne patients"),

@@ -1,28 +1,23 @@
 """Unit tests — ResearchSignalEvent, identity, pre-filter, extractor, pipeline, producer."""
 
 import json
-from collections import defaultdict
-from datetime import datetime, timezone
-from typing import Optional
-from uuid import UUID
+from datetime import UTC, datetime
 
 import pytest
 from pydantic import ValidationError
 
-from auspex_ingest.models import RawDocument, ResearchSignalEvent, RunResult
-from auspex_ingest.identity import compute_event_id, compute_extraction_id
 from auspex_ingest.connectors.base import SourceConnector
 from auspex_ingest.connectors.mock import MockConnector
-from auspex_ingest.prefilter import Prefilter
-from auspex_ingest.extractor import LLMExtractor
+from auspex_ingest.identity import compute_event_id, compute_extraction_id
+from auspex_ingest.models import RawDocument, ResearchSignalEvent
 from auspex_ingest.normalizer import EntityNormalizer, IdentityNormalizer
-from auspex_ingest.kafka_producer import KafkaProducerClient
 from auspex_ingest.pipeline import IngestionPipeline
+from auspex_ingest.prefilter import Prefilter
 from auspex_ingest.storage.minio_client import minio_key
 
 # ── shared fixtures ────────────────────────────────────────────────────────────
 
-_UTC = timezone.utc
+_UTC = UTC
 _T0 = datetime(2024, 6, 15, 12, 0, 0, tzinfo=_UTC)
 _SCHEMA_VERSION = "1.0"
 _PROMPT_VERSION = "v1"
@@ -35,7 +30,7 @@ def _make_raw(
     *,
     external_id: str = "ext-001",
     source_type: str = "biorxiv",
-    canonical_id: Optional[str] = "doi:10.1101/2024.06.01.001",
+    canonical_id: str | None = "doi:10.1101/2024.06.01.001",
     content: str = "CRISPR base editing of BCL11A gene target",
 ) -> RawDocument:
     import hashlib
@@ -55,11 +50,11 @@ def _make_raw(
 
 def _make_event(
     *,
-    gene_targets: list[str] = None,
+    gene_targets: list[str] | None = None,
     confidence_score: float = 0.8,
     source_type: str = "biorxiv",
     external_id: str = "ext-001",
-    canonical_id: Optional[str] = "doi:10.1101/2024.06.01.001",
+    canonical_id: str | None = "doi:10.1101/2024.06.01.001",
 ) -> ResearchSignalEvent:
     event_id = compute_event_id(canonical_id, source_type, external_id)
     extraction_id = compute_extraction_id(event_id, _SCHEMA_VERSION, _PROMPT_VERSION,
@@ -106,12 +101,12 @@ class FakeArchive:
 
 
 class FakeExtractor:
-    def __init__(self, responses: list[Optional[ResearchSignalEvent]]) -> None:
+    def __init__(self, responses: list[ResearchSignalEvent | None]) -> None:
         self.calls: list[RawDocument] = []
         self._responses = iter(responses)
 
     def extract(self, doc: RawDocument, prefilter_version: str,
-                raw_object_key: str) -> Optional[ResearchSignalEvent]:
+                raw_object_key: str) -> ResearchSignalEvent | None:
         self.calls.append(doc)
         return next(self._responses, None)
 
@@ -165,7 +160,7 @@ class SpyNormalizer(EntityNormalizer):
 def _build_pipeline(
     *,
     connector: SourceConnector | None = None,
-    responses: list[Optional[ResearchSignalEvent]] | None = None,
+    responses: list[ResearchSignalEvent | None] | None = None,
     pre_existing: set[str] | None = None,
     delivery_fails: bool = False,
     prefilter: Prefilter | None = None,
@@ -432,7 +427,7 @@ def test_publish_threshold_defaults_to_zero_and_is_counted_when_raised():
             yield _make_raw()
 
     # Default threshold = 0.0 → published
-    pipeline_default, _, _, producer_default = _build_pipeline(
+    pipeline_default, _, _, _ = _build_pipeline(
         connector=SingleDoc(), responses=[low_conf], min_confidence=0.0
     )
     result_default = pipeline_default.run("biorxiv", _T0)
@@ -556,7 +551,7 @@ def test_kafka_delivery_failure_fails_the_run():
         def fetch_since(self, cursor):
             yield _make_raw()
 
-    pipeline, _, _, producer = _build_pipeline(
+    pipeline, _, _, _ = _build_pipeline(
         connector=SingleDoc(),
         responses=[_make_event()],
         delivery_fails=True,
@@ -651,3 +646,81 @@ def test_entity_values_pass_through_the_normalizer():
     pipeline.run("biorxiv", _T0)
     assert "BCL11A" in spy.gene_calls, "BCL11A must pass through the normalizer"
     assert "HBB" in spy.gene_calls, "HBB must pass through the normalizer"
+
+
+# ── RunResult.max_published_date_processed ────────────────────────────────────
+
+def test_max_published_date_processed_is_latest_fetched_date():
+    late = _T0.replace(year=2024, month=7, day=1)
+
+    class TwoDocConnector(SourceConnector):
+        def fetch_since(self, cursor):
+            yield _make_raw(external_id="ext-001")                      # published_date = _T0
+            yield _make_raw(external_id="ext-002", canonical_id=None)   # uses fallback id
+
+    # Patch published_date on the second doc to be later
+    class TwoDocConnectorLate(SourceConnector):
+        def fetch_since(self, cursor):
+            import hashlib
+            sha = hashlib.sha256(b"other").hexdigest()
+            from auspex_ingest.models import RawDocument
+            yield _make_raw(external_id="ext-001")
+            yield RawDocument(
+                schema_version="1.0",
+                external_id="ext-002",
+                source_type="biorxiv",
+                source_url="https://example.com/2",
+                published_date=late,
+                raw_content="CRISPR BCL11A late doc",
+                content_sha256=sha,
+                retrieved_at=late,
+            )
+
+    pipeline, _, _, _ = _build_pipeline(
+        connector=TwoDocConnectorLate(),
+        responses=[_make_event(), _make_event()],
+    )
+    result = pipeline.run("biorxiv", _T0)
+    assert result.max_published_date_processed == late
+
+
+def test_max_published_date_processed_includes_prefiltered_documents():
+    import hashlib
+
+    from auspex_ingest.models import RawDocument
+
+    late = _T0.replace(year=2024, month=8, day=1)
+    sha = hashlib.sha256(b"noise").hexdigest()
+
+    class MixedConnector(SourceConnector):
+        def fetch_since(self, cursor):
+            yield _make_raw(external_id="ext-001", content="CRISPR base editing BCL11A")
+            yield RawDocument(
+                schema_version="1.0",
+                external_id="ext-002",
+                source_type="biorxiv",
+                source_url="https://example.com/2",
+                published_date=late,
+                raw_content="Unrelated content with no biotech terms",
+                content_sha256=sha,
+                retrieved_at=late,
+            )
+
+    pipeline, _, _, _ = _build_pipeline(
+        connector=MixedConnector(),
+        responses=[_make_event()],
+    )
+    result = pipeline.run("biorxiv", _T0)
+    assert result.max_published_date_processed == late, (
+        "Cursor must advance past pre-filtered documents so they are not re-fetched"
+    )
+
+
+def test_max_published_date_processed_is_none_when_no_docs_fetched():
+    class EmptyConnector(SourceConnector):
+        def fetch_since(self, cursor):
+            return iter([])
+
+    pipeline, _, _, _ = _build_pipeline(connector=EmptyConnector(), responses=[])
+    result = pipeline.run("biorxiv", _T0)
+    assert result.max_published_date_processed is None

@@ -38,6 +38,12 @@ class IngestionPipeline:
             try:
                 key, _ = self._archive.put(doc)
 
+                if (
+                    result.max_published_date_processed is None
+                    or doc.published_date > result.max_published_date_processed
+                ):
+                    result.max_published_date_processed = doc.published_date
+
                 if not self._prefilter.passes(doc):
                     result.prefiltered_out += 1
                     continue
@@ -73,12 +79,12 @@ class IngestionPipeline:
                 self._producer.publish_signal(event)
                 result.published += 1
 
-            except Exception:
+            except Exception:  # noqa: BLE001
                 result.failed += 1
 
         try:
             self._producer.flush()
-        except Exception:
+        except Exception:  # noqa: BLE001
             result.failed += 1
 
         return result

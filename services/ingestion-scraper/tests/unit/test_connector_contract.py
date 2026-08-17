@@ -2,32 +2,32 @@
 
 import inspect
 from collections.abc import Iterator
-from datetime import datetime, timezone, timedelta
+from datetime import UTC, datetime, timedelta, timezone
 
 import pytest
 from pydantic import ValidationError
 
-from auspex_ingest.models import RawDocument
 from auspex_ingest.connectors.base import SourceConnector
+from auspex_ingest.models import RawDocument
 from auspex_ingest.storage.minio_client import minio_key
 
 # ── helpers ────────────────────────────────────────────────────────────────────
 
-_UTC = timezone.utc
+_UTC = UTC
 _T0 = datetime(2024, 6, 15, 12, 0, 0, tzinfo=_UTC)
 
 
 def _make_doc(**overrides) -> RawDocument:
-    defaults = dict(
-        schema_version="1.0",
-        external_id="test-ext-001",
-        source_type="biorxiv",
-        source_url="https://example.com/doc/1",
-        published_date=_T0,
-        raw_content="some text",
-        content_sha256="abcdef1234567890",
-        retrieved_at=_T0,
-    )
+    defaults: dict = {
+        "schema_version": "1.0",
+        "external_id": "test-ext-001",
+        "source_type": "biorxiv",
+        "source_url": "https://example.com/doc/1",
+        "published_date": _T0,
+        "raw_content": "some text",
+        "content_sha256": "abcdef1234567890",
+        "retrieved_at": _T0,
+    }
     defaults.update(overrides)
     return RawDocument(**defaults)
 
@@ -35,7 +35,7 @@ def _make_doc(**overrides) -> RawDocument:
 # ── RawDocument ────────────────────────────────────────────────────────────────
 
 def test_rawdocument_rejects_naive_datetime():
-    naive = datetime(2024, 6, 15, 12, 0, 0)  # no tzinfo
+    naive = datetime(2024, 6, 15, 12, 0, 0)  # no tzinfo  # noqa: DTZ001
     with pytest.raises(ValidationError):
         _make_doc(published_date=naive)
     with pytest.raises(ValidationError):

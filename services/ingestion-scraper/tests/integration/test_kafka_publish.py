@@ -2,8 +2,7 @@
 import hashlib
 import os
 import time
-from datetime import datetime, timezone
-from typing import Optional
+from datetime import UTC, datetime
 
 import pytest
 from confluent_kafka import Consumer, KafkaError
@@ -22,7 +21,7 @@ from auspex_ingest.storage.minio_client import minio_key
 
 os.environ.setdefault("TESTCONTAINERS_RYUK_DISABLED", "true")
 
-_UTC = timezone.utc
+_UTC = UTC
 _T0 = datetime(2024, 6, 15, 12, 0, 0, tzinfo=_UTC)
 _SCHEMA = "1.0"
 _PROMPT = "v1"
@@ -78,7 +77,7 @@ class _FakeArchive:
 class _FixedExtractor:
     def extract(
         self, doc: RawDocument, prefilter_version: str, raw_object_key: str
-    ) -> Optional[ResearchSignalEvent]:
+    ) -> ResearchSignalEvent | None:
         return _make_signal(doc.external_id, doc.source_type)
 
 
@@ -118,7 +117,7 @@ def test_pipeline_publishes_correct_message_count_to_each_topic():
             NewTopic(_RAW_TOPIC, num_partitions=3, replication_factor=1),
             NewTopic(_SIG_TOPIC, num_partitions=3, replication_factor=1),
         ])
-        for topic, future in fs.items():
+        for future in fs.values():
             future.result()
 
         time.sleep(1)

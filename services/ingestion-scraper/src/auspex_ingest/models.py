@@ -1,6 +1,5 @@
 from dataclasses import dataclass
-from datetime import datetime, timezone
-from typing import Optional
+from datetime import UTC, datetime
 from uuid import UUID
 
 from pydantic import BaseModel, Field, field_serializer, field_validator
@@ -11,7 +10,7 @@ _CANONICAL_PREFIXES: frozenset[str] = frozenset({"doi:", "nct:", "epo-app:", "ed
 class RawDocument(BaseModel):
     schema_version: str
     external_id: str
-    canonical_id: Optional[str] = None
+    canonical_id: str | None = None
     source_type: str
     source_url: str
     published_date: datetime
@@ -29,11 +28,11 @@ class RawDocument(BaseModel):
     @field_validator("published_date", "retrieved_at", mode="after")
     @classmethod
     def _normalize_utc(cls, v: datetime) -> datetime:
-        return v.astimezone(timezone.utc)
+        return v.astimezone(UTC)
 
     @field_validator("canonical_id", mode="after")
     @classmethod
-    def _typed_prefix(cls, v: Optional[str]) -> Optional[str]:
+    def _typed_prefix(cls, v: str | None) -> str | None:
         if v is not None and not any(v.startswith(p) for p in _CANONICAL_PREFIXES):
             raise ValueError(
                 f"canonical_id must start with one of {sorted(_CANONICAL_PREFIXES)}, got {v!r}"
@@ -46,7 +45,7 @@ class ResearchSignalEvent(BaseModel):
     event_id: UUID
     extraction_id: UUID
     external_id: str
-    canonical_id: Optional[str] = None
+    canonical_id: str | None = None
     raw_object_key: str
     source_type: str
     source_url: str
@@ -75,7 +74,7 @@ class ResearchSignalEvent(BaseModel):
     @field_validator("published_date", "ingested_at", mode="after")
     @classmethod
     def _normalize_utc(cls, v: datetime) -> datetime:
-        return v.astimezone(timezone.utc)
+        return v.astimezone(UTC)
 
     @field_serializer("published_date", "ingested_at")
     def _serialize_dt(self, v: datetime) -> str:
@@ -90,3 +89,4 @@ class RunResult:
     not_signal: int = 0
     below_threshold: int = 0
     failed: int = 0
+    max_published_date_processed: datetime | None = None
