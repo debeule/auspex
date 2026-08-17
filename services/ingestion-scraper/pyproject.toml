@@ -36,6 +36,7 @@ markers = [
     "step_0_1: Step 0.1 scaffolding verification",
     "step_1_1: Step 1.1 connector contract and raw storage",
     "step_1_2: Step 1.2 mock connector, pre-filter, extraction, pipeline, publish",
+    "step_1_7: Step 1.7 Phase 2 readiness review — sources.yaml schema",
     "step_2_2: Step 2.2 academic papers connector",
     "step_2_3: Step 2.3 EPO OPS patent filings connector",
     "step_2_4: Step 2.4 clinical trials connector",
