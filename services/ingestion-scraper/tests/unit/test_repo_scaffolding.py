@@ -1,4 +1,3 @@
-import pytest
 from pathlib import Path
 
 # tests/unit/ -> tests/ -> ingestion-scraper/ -> services/ -> auspex/
@@ -37,7 +36,6 @@ def _parse_env_example() -> dict[str, str]:
     return result
 
 
-@pytest.mark.step_0_1
 def test_env_example_covers_all_referenced_vars():
     defined = set(_parse_env_example().keys())
     required = {
@@ -69,7 +67,6 @@ def test_env_example_covers_all_referenced_vars():
     assert not missing, f"Missing from .env.example: {sorted(missing)}"
 
 
-@pytest.mark.step_0_1
 def test_no_legacy_topic_prefix_remains():
     # Split so the test file itself does not contain the literal string it searches for.
     legacy = "biotech" + "."
@@ -95,7 +92,6 @@ def test_no_legacy_topic_prefix_remains():
     assert not violations, f"Legacy topic prefix found in: {violations}"
 
 
-@pytest.mark.step_0_1
 def test_env_file_is_gitignored():
     gitignore = (REPO_ROOT / ".gitignore").read_text()
     patterns = {
@@ -107,7 +103,6 @@ def test_env_file_is_gitignored():
     assert covered, f".env not covered in .gitignore. Patterns found: {sorted(patterns)}"
 
 
-@pytest.mark.step_0_1
 def test_no_credential_has_a_source_default():
     vars_map = _parse_env_example()
     violations: list[str] = []

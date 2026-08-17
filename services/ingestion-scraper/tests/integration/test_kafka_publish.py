@@ -1,10 +1,4 @@
-"""
-Step 1.2 integration test — pipeline publishes correct message counts to Kafka topics.
-
-Run with:
-    cd services/ingestion-scraper
-    uv run pytest tests/integration/test_step_1_2_kafka.py -v -m integration
-"""
+"""Integration test — pipeline publishes correct message counts to Kafka topics."""
 import hashlib
 import os
 import time

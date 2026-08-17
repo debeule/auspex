@@ -1,13 +1,9 @@
 """
-Step 0.2 integration tests — verify the compose infrastructure is correctly configured.
+Integration tests — compose infrastructure: container reachability, Kafka topics, MinIO bucket.
 
 Prerequisites (run once before this suite):
     docker compose -f docker/docker-compose.yml up -d --wait
     ./docker/provision.sh
-
-Run with:
-    cd services/ingestion-scraper
-    uv run pytest tests/integration/test_step_0_2.py -v -m integration
 """
 
 import socket

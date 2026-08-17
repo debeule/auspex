@@ -1,12 +1,4 @@
-"""
-Step 1.1 integration tests — MinioArchive refetch behaviour against a real MinIO container.
-
-Prerequisites: Docker daemon running.
-
-Run with:
-    cd services/ingestion-scraper
-    uv run pytest tests/integration/test_step_1_1_storage.py -v -m integration
-"""
+"""Integration tests — MinioArchive refetch behaviour against a real MinIO container."""
 
 import hashlib
 import os

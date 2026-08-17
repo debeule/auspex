@@ -1,11 +1,4 @@
-"""
-Step 1.2 unit tests — ResearchSignalEvent, identity, pre-filter, extractor,
-pipeline, producer.  All I/O is faked; pytest-socket blocks live calls.
-
-Run with:
-    cd services/ingestion-scraper
-    uv run pytest tests/unit/test_step_1_2.py -v -m step_1_2
-"""
+"""Unit tests — ResearchSignalEvent, identity, pre-filter, extractor, pipeline, producer."""
 
 import json
 from collections import defaultdict
@@ -200,7 +193,6 @@ def _build_pipeline(
 
 # ── ResearchSignalEvent ────────────────────────────────────────────────────────
 
-@pytest.mark.step_1_2
 def test_confidence_score_bounds():
     with pytest.raises(ValidationError):
         _make_event(confidence_score=-0.01)
@@ -214,7 +206,6 @@ def test_confidence_score_bounds():
 
 # ── Identity ───────────────────────────────────────────────────────────────────
 
-@pytest.mark.step_1_2
 def test_event_id_is_stable_across_schema_version_bump():
     cid = "doi:10.1101/2024.06.01.001"
     id_v1 = compute_event_id(cid, "biorxiv", "ext-001")
@@ -228,7 +219,6 @@ def test_event_id_is_stable_across_schema_version_bump():
     assert ext1 != ext2  # extraction_id changes with schema_version
 
 
-@pytest.mark.step_1_2
 def test_same_canonical_id_from_two_source_types_yields_one_event_id():
     cid = "doi:10.1101/2024.06.01.001"
     from_biorxiv = compute_event_id(cid, "biorxiv", "biorxiv-001")
@@ -239,7 +229,6 @@ def test_same_canonical_id_from_two_source_types_yields_one_event_id():
     )
 
 
-@pytest.mark.step_1_2
 def test_event_id_falls_back_to_source_and_external_id_when_no_canonical_id():
     id_a = compute_event_id(None, "edgar", "ext-001")
     id_b = compute_event_id(None, "edgar", "ext-002")
@@ -250,7 +239,6 @@ def test_event_id_falls_back_to_source_and_external_id_when_no_canonical_id():
 
 # ── Connector — canonical_id discipline ───────────────────────────────────────
 
-@pytest.mark.step_1_2
 def test_connector_supplying_canonical_id_intermittently_fails_loudly():
     class IntermittentConnector(SourceConnector):
         provides_canonical_id = True
@@ -270,7 +258,6 @@ def test_connector_supplying_canonical_id_intermittently_fails_loudly():
 
 # ── Kafka producer — payload, key, header ─────────────────────────────────────
 
-@pytest.mark.step_1_2
 def test_raw_topic_payload_excludes_raw_content():
     signal = _make_event()
     pipeline, _, _, producer = _build_pipeline(
@@ -284,7 +271,6 @@ def test_raw_topic_payload_excludes_raw_content():
     )
 
 
-@pytest.mark.step_1_2
 def test_raw_topic_keyed_by_external_id():
     raw = _make_raw()
     signal = _make_event()
@@ -301,7 +287,6 @@ def test_raw_topic_keyed_by_external_id():
     assert producer.raw_msgs[0]["key"] == raw.external_id
 
 
-@pytest.mark.step_1_2
 def test_signals_topic_keyed_by_event_id():
     cid = "doi:10.1101/2024.06.01.001"
     raw = _make_raw(canonical_id=cid)
@@ -320,7 +305,6 @@ def test_signals_topic_keyed_by_event_id():
     assert producer.signal_msgs[0]["key"] == expected_key
 
 
-@pytest.mark.step_1_2
 def test_schema_version_header_present_on_both_topics():
     raw = _make_raw()
     signal = _make_event()
@@ -338,7 +322,6 @@ def test_schema_version_header_present_on_both_topics():
     assert producer.signal_msgs[0]["schema_version"] == _SCHEMA_VERSION
 
 
-@pytest.mark.step_1_2
 def test_timestamps_serialize_as_utc_z():
     event = _make_event()
     payload = json.loads(event.model_dump_json())
@@ -348,7 +331,6 @@ def test_timestamps_serialize_as_utc_z():
         )
 
 
-@pytest.mark.step_1_2
 def test_signal_event_carries_external_id_and_raw_object_key():
     raw = _make_raw()
     signal = _make_event()
@@ -369,7 +351,6 @@ def test_signal_event_carries_external_id_and_raw_object_key():
 
 # ── LLM client — never live ───────────────────────────────────────────────────
 
-@pytest.mark.step_1_2
 @pytest.mark.disable_socket
 def test_llm_client_is_never_called_live():
     # pytest-socket blocks all sockets; the extractor uses the injected fake
@@ -383,7 +364,6 @@ def test_llm_client_is_never_called_live():
 
 # ── Pipeline — pre-filter edge cases ──────────────────────────────────────────
 
-@pytest.mark.step_1_2
 def test_prefiltered_document_is_archived_but_never_reaches_the_llm():
     class IrrelevantConnector(SourceConnector):
         def fetch_since(self, cursor):
@@ -399,7 +379,6 @@ def test_prefiltered_document_is_archived_but_never_reaches_the_llm():
     assert result.prefiltered_out == 1
 
 
-@pytest.mark.step_1_2
 def test_prefilter_counts_appear_in_run_result():
     class MixedConnector(SourceConnector):
         def fetch_since(self, cursor):
@@ -416,7 +395,6 @@ def test_prefilter_counts_appear_in_run_result():
     assert result.fetched == 2
 
 
-@pytest.mark.step_1_2
 def test_document_with_no_signal_is_archived_but_publishes_no_event():
     class NoSignalConnector(SourceConnector):
         def fetch_since(self, cursor):
@@ -432,7 +410,6 @@ def test_document_with_no_signal_is_archived_but_publishes_no_event():
     assert result.not_signal == 1
 
 
-@pytest.mark.step_1_2
 def test_extractor_returns_none_rather_than_inventing_a_gene_target():
     class PressReleaseConnector(SourceConnector):
         def fetch_since(self, cursor):
@@ -447,7 +424,6 @@ def test_extractor_returns_none_rather_than_inventing_a_gene_target():
     assert not producer.signal_msgs, "None return must produce no signal event"
 
 
-@pytest.mark.step_1_2
 def test_publish_threshold_defaults_to_zero_and_is_counted_when_raised():
     low_conf = _make_event(confidence_score=0.3)
 
@@ -473,7 +449,6 @@ def test_publish_threshold_defaults_to_zero_and_is_counted_when_raised():
     assert not producer_raised.signal_msgs
 
 
-@pytest.mark.step_1_2
 def test_injected_instruction_in_raw_content_does_not_change_extracted_entities():
     injected_content = (
         "CRISPR base editing of BCL11A.\n"
@@ -495,7 +470,6 @@ def test_injected_instruction_in_raw_content_does_not_change_extracted_entities(
     assert "FAKEGENEX9999" not in str(producer.signal_msgs)
 
 
-@pytest.mark.step_1_2
 def test_gene_target_outside_controlled_vocabulary_is_flagged_not_written():
     unknown_gene_signal = _make_event(gene_targets=["BCL11A", "UNKNOWNGENE999"])
 
@@ -515,7 +489,6 @@ def test_gene_target_outside_controlled_vocabulary_is_flagged_not_written():
         assert "UNKNOWNGENE999" not in published_genes
 
 
-@pytest.mark.step_1_2
 def test_llm_returns_invalid_payload():
     class ErrorExtractor:
         def extract(self, doc, prefilter_version, raw_object_key):
@@ -542,7 +515,6 @@ def test_llm_returns_invalid_payload():
     assert not producer.signal_msgs
 
 
-@pytest.mark.step_1_2
 def test_one_bad_document_does_not_abort_the_batch():
     class TwoDocConnector(SourceConnector):
         def fetch_since(self, cursor):
@@ -579,7 +551,6 @@ def test_one_bad_document_does_not_abort_the_batch():
     assert result.published == 1, "The second document must still be processed"
 
 
-@pytest.mark.step_1_2
 def test_kafka_delivery_failure_fails_the_run():
     class SingleDoc(SourceConnector):
         def fetch_since(self, cursor):
@@ -598,7 +569,6 @@ def test_kafka_delivery_failure_fails_the_run():
 
 # ── Pipeline — ordering and statefulness ──────────────────────────────────────
 
-@pytest.mark.step_1_2
 def test_pipeline_archives_before_publishing():
     call_order: list[str] = []
 
@@ -643,7 +613,6 @@ def test_pipeline_archives_before_publishing():
     )
 
 
-@pytest.mark.step_1_2
 def test_pipeline_reads_no_cursor_state():
     # The pipeline must not write cursor state; run() is stateless w.r.t. cursor.
     # We verify this by running twice with the same cursor and confirming
@@ -666,7 +635,6 @@ def test_pipeline_reads_no_cursor_state():
 
 # ── Entity normalizer ──────────────────────────────────────────────────────────
 
-@pytest.mark.step_1_2
 def test_entity_values_pass_through_the_normalizer():
     spy = SpyNormalizer()
     signal = _make_event(gene_targets=["BCL11A", "HBB"])

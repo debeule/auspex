@@ -1,14 +1,9 @@
-"""Step 1.7 — Phase 2 readiness: sources.yaml schema validation."""
-
-import textwrap
+"""sources.yaml schema validation — SourceEntry and SourcesConfig Pydantic models."""
 
 import pytest
-import yaml
 from pydantic import ValidationError
 
 from auspex_ingest.sources import SourceEntry, SourcesConfig
-
-pytestmark = pytest.mark.step_1_7
 
 _VALID_ENTRY = {
     "source_type": "biorxiv",
@@ -25,7 +20,6 @@ def _valid_config() -> dict:
     return {"sources": [_VALID_ENTRY]}
 
 
-@pytest.mark.step_1_7
 def test_sources_yaml_schema_validates_all_declared_fields():
     """A fully-populated sources.yaml parses without error and exposes typed fields."""
     cfg = SourcesConfig.model_validate(_valid_config())
@@ -42,7 +36,6 @@ def test_sources_yaml_schema_validates_all_declared_fields():
     assert entry.source_config["base_url"] == "https://api.biorxiv.org"
 
 
-@pytest.mark.step_1_7
 def test_unknown_field_in_sources_yaml_is_rejected_at_parse_time():
     """An unknown field on either the top-level or a source entry raises ValidationError."""
     # Unknown at the top level

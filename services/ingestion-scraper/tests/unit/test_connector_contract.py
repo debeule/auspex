@@ -1,10 +1,4 @@
-"""
-Step 1.1 unit tests — RawDocument model, SourceConnector ABC, MinIO key generation.
-
-Run with:
-    cd services/ingestion-scraper
-    uv run pytest tests/unit/test_step_1_1.py -v -m step_1_1
-"""
+"""Unit tests — RawDocument model, SourceConnector ABC, MinIO key generation."""
 
 import inspect
 from collections.abc import Iterator
@@ -40,7 +34,6 @@ def _make_doc(**overrides) -> RawDocument:
 
 # ── RawDocument ────────────────────────────────────────────────────────────────
 
-@pytest.mark.step_1_1
 def test_rawdocument_rejects_naive_datetime():
     naive = datetime(2024, 6, 15, 12, 0, 0)  # no tzinfo
     with pytest.raises(ValidationError):
@@ -49,7 +42,6 @@ def test_rawdocument_rejects_naive_datetime():
         _make_doc(retrieved_at=naive)
 
 
-@pytest.mark.step_1_1
 def test_rawdocument_normalizes_offset_to_utc():
     plus5 = datetime(2024, 6, 15, 17, 0, 0, tzinfo=timezone(timedelta(hours=5)))
     doc = _make_doc(published_date=plus5)
@@ -57,7 +49,6 @@ def test_rawdocument_normalizes_offset_to_utc():
     assert doc.published_date.tzinfo == _UTC
 
 
-@pytest.mark.step_1_1
 def test_rawdocument_requires_schema_version():
     with pytest.raises(ValidationError):
         RawDocument(
@@ -71,7 +62,6 @@ def test_rawdocument_requires_schema_version():
         )
 
 
-@pytest.mark.step_1_1
 @pytest.mark.parametrize("cid", [
     "doi:10.1101/2024.01.01.123456",
     "nct:NCT01234567",
@@ -84,7 +74,6 @@ def test_canonical_id_is_typed_or_absent_accepts_valid(cid):
     assert doc.canonical_id == cid
 
 
-@pytest.mark.step_1_1
 @pytest.mark.parametrize("bad_cid", [
     "10.1101/2024.01.01.123456",
     "NCT01234567",
@@ -100,7 +89,6 @@ def test_canonical_id_is_typed_or_absent_rejects_bare(bad_cid):
 
 # ── MinIO key ──────────────────────────────────────────────────────────────────
 
-@pytest.mark.step_1_1
 def test_minio_key_includes_retrieved_at_and_content_hash():
     doc = _make_doc(
         source_type="biorxiv",
@@ -112,7 +100,6 @@ def test_minio_key_includes_retrieved_at_and_content_hash():
     assert key == "raw/biorxiv/doi-123/20240615T120000Z-abcdef12.json"
 
 
-@pytest.mark.step_1_1
 def test_minio_key_converts_offset_timestamp_to_utc_wall_time():
     plus5 = timezone(timedelta(hours=5))
     doc = _make_doc(
@@ -130,13 +117,11 @@ def test_minio_key_converts_offset_timestamp_to_utc_wall_time():
 
 # ── SourceConnector ABC ────────────────────────────────────────────────────────
 
-@pytest.mark.step_1_1
 def test_connector_is_abstract():
     with pytest.raises(TypeError):
         SourceConnector()  # type: ignore[abstract]
 
 
-@pytest.mark.step_1_1
 def test_fetch_since_is_not_a_coroutine_and_returns_an_iterator():
     class Concrete(SourceConnector):
         def fetch_since(self, cursor: datetime) -> Iterator[RawDocument]:
@@ -148,7 +133,6 @@ def test_fetch_since_is_not_a_coroutine_and_returns_an_iterator():
     assert not inspect.iscoroutine(result)
 
 
-@pytest.mark.step_1_1
 def test_fetch_since_performs_no_io_beyond_http():
     minio_calls: list = []
     kafka_calls: list = []
