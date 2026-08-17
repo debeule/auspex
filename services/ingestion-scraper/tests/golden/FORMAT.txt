@@ -1,0 +1,25 @@
+Golden set format — one JSON file per document.
+
+Each file must contain:
+
+{
+  "source_type": "biorxiv" | "pubmed" | "epo_ops" | "clinical_trials" | "edgar",
+  "external_id": "<source-specific ID>",
+  "source_url": "<full URL to the original document>",
+  "published_date": "<ISO 8601 datetime with timezone, e.g. 2024-06-15T12:00:00Z>",
+  "raw_content": "<title + abstract or equivalent text, as fetched by the connector>",
+  "labels": {
+    "is_signal": true | false,
+    "gene_targets": ["HGNC symbol", ...],
+    "mechanisms": ["base editing", ...],
+    "companies_mentioned": ["Company Name", ...],
+    "directionality": "positive" | "negative" | "neutral",
+    "prefilter_should_pass": true | false
+  }
+}
+
+Coverage target: 20-30 docs, all 5 source types represented, both is_signal classes,
+and both prefilter outcomes. Filename convention: <source_type>-<external_id>.json
+
+Run the scoring script:
+  uv run python scripts/score_extraction.py
