@@ -57,6 +57,12 @@ class RateLimitedClient:
     def _acquire(self, url: str) -> None:
         host = urlparse(url).netloc
         bucket = self._buckets.get(host)
+        if bucket is None:
+            # Suffix match: "sec.gov" covers "efts.sec.gov", "data.sec.gov", etc.
+            for configured_host, b in self._buckets.items():
+                if host.endswith(f".{configured_host}"):
+                    bucket = b
+                    break
         if bucket is not None and not bucket.try_acquire():
             raise RateLimitExceeded(f"Rate limit exceeded for host {host!r}")
 

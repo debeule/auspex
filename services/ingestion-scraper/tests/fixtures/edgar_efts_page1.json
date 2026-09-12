@@ -1,0 +1,31 @@
+{
+  "hits": {
+    "total": {"value": 2},
+    "hits": [
+      {
+        "_source": {
+          "entity_id": "0001821552",
+          "entity_name": "BEAM THERAPEUTICS INC",
+          "file_num": "001-39399",
+          "accession_no": "0001821552-24-000034",
+          "file_date": "2024-06-15",
+          "period_of_report": "2024-06-14",
+          "form_type": "8-K",
+          "items": "8.01"
+        }
+      },
+      {
+        "_source": {
+          "entity_id": "0001253986",
+          "entity_name": "SAREPTA THERAPEUTICS INC",
+          "file_num": "001-37847",
+          "accession_no": "0001253986-24-000018",
+          "file_date": "2024-06-10",
+          "period_of_report": "2024-06-10",
+          "form_type": "8-K",
+          "items": "8.01"
+        }
+      }
+    ]
+  }
+}
