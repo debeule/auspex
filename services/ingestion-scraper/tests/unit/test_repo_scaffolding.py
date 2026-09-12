@@ -54,7 +54,7 @@ def test_env_example_covers_all_referenced_vars():
         "MINIO_SECRET_KEY",
         "MINIO_BUCKET",
         "OPENAI_API_KEY",
-        "EXTRACTION_MODEL",
+        "OPEN_AI_EXTRACTION_MODEL",
         "WATCHED_TICKERS",
         "EPO_OPS_KEY",
         "EPO_OPS_SECRET",

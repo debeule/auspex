@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE PubmedArticleSet PUBLIC "-//NLM//DTD PubMedArticle, 1st January 2024//EN" "https://dtd.nlm.nih.gov/ncbi/pubmed/out/pubmed_240101.dtd">
+<PubmedArticleSet>
+  <PubmedArticle>
+    <MedlineCitation Status="Publisher" Owner="NLM">
+      <PMID Version="1">38855120</PMID>
+      <Article PubModel="Electronic">
+        <Journal>
+          <ISSN IssnType="Electronic">1234-5678</ISSN>
+          <JournalIssue CitedMedium="Internet">
+            <PubDate>
+              <Year>2024</Year>
+              <Month>Jun</Month>
+              <Day>10</Day>
+            </PubDate>
+          </JournalIssue>
+          <Title>Nature Medicine</Title>
+        </Journal>
+        <ArticleTitle>CRISPR base editing of BCL11A erythroid enhancer</ArticleTitle>
+        <Abstract>
+          <AbstractText>We report base editing of the BCL11A erythroid enhancer to reactivate fetal hemoglobin.</AbstractText>
+        </Abstract>
+        <AuthorList CompleteYN="Y">
+          <Author ValidYN="Y">
+            <LastName>Smith</LastName>
+            <ForeName>J</ForeName>
+          </Author>
+        </AuthorList>
+        <ArticleDate DateType="Electronic">
+          <Year>2024</Year>
+          <Month>06</Month>
+          <Day>10</Day>
+        </ArticleDate>
+      </Article>
+    </MedlineCitation>
+    <PubmedData>
+      <ArticleIdList>
+        <ArticleId IdType="pubmed">38855120</ArticleId>
+        <ArticleId IdType="doi">10.1101/2024.06.01.001</ArticleId>
+      </ArticleIdList>
+    </PubmedData>
+  </PubmedArticle>
+</PubmedArticleSet>

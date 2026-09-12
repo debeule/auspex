@@ -1,0 +1,41 @@
+{
+  "messages": [
+    {
+      "status": "ok",
+      "interval": "2024-06-08:2024-06-15",
+      "cursor": "0",
+      "count": 2,
+      "total": 2
+    }
+  ],
+  "collection": [
+    {
+      "doi": "10.1101/2024.06.01.001",
+      "title": "CRISPR base editing of BCL11A erythroid enhancer",
+      "authors": "Smith J; Jones A",
+      "author_corresponding": "Smith J",
+      "author_corresponding_institution": "Harvard Medical School",
+      "date": "2024-06-10",
+      "version": "1",
+      "type": "new results",
+      "license": "cc_by",
+      "category": "genomics",
+      "abstract": "We report base editing of the BCL11A erythroid enhancer to reactivate fetal hemoglobin.",
+      "server": "biorxiv"
+    },
+    {
+      "doi": "10.1101/2024.06.02.002",
+      "title": "AAV gene therapy for Duchenne muscular dystrophy",
+      "authors": "Brown B; Davis C",
+      "author_corresponding": null,
+      "author_corresponding_institution": null,
+      "date": "2024-06-12",
+      "version": "2",
+      "type": "new results",
+      "license": "cc_by",
+      "category": null,
+      "abstract": "AAV-mediated delivery of a micro-dystrophin construct in DMD patients.",
+      "server": "biorxiv"
+    }
+  ]
+}

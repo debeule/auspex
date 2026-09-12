@@ -1,0 +1,14 @@
+{
+  "header": {
+    "type": "esearch",
+    "version": "0.3"
+  },
+  "esearchresult": {
+    "count": "1",
+    "retmax": "200",
+    "retstart": "0",
+    "idlist": ["38855120"],
+    "translationset": [],
+    "querytranslation": "gene therapy[Title/Abstract]"
+  }
+}
