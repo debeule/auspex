@@ -1,0 +1,14 @@
+sources:
+  - source_type: mock
+    schedule: "@daily"
+    rate_limit_rps: 10.0
+    initial_lookback: 7
+    max_documents_per_run: 1000
+    prefilter_vocabulary:
+      - BCL11A
+      - HBB
+      - DMD
+      - CRISPR
+      - gene therapy
+      - base editing
+    source_config: {}

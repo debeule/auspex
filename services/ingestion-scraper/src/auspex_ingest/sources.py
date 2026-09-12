@@ -1,8 +1,9 @@
 """Schema for sources.yaml — validated at DAG-factory load time (Step 2.1)."""
 
+from collections import Counter
 from typing import Any
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, model_validator
 
 
 class SourceEntry(BaseModel):
@@ -21,3 +22,11 @@ class SourcesConfig(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     sources: list[SourceEntry]
+
+    @model_validator(mode="after")
+    def _no_duplicate_source_types(self) -> SourcesConfig:
+        counts = Counter(s.source_type for s in self.sources)
+        dupes = [t for t, n in counts.items() if n > 1]
+        if dupes:
+            raise ValueError(f"Duplicate source_type(s): {dupes}")
+        return self

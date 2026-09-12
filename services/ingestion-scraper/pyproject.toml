@@ -29,6 +29,8 @@ dev = [
     "respx==0.23.1",
     "ruff==0.16.3",
     "mypy==2.3.1",
+    "pyrate-limiter==4.4.0",
+    "types-pyyaml>=6.0.12.20260906",
 ]
 
 [tool.pytest.ini_options]

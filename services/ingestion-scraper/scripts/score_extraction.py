@@ -60,7 +60,7 @@ def _run_extraction(
             retrieved_at=datetime.now(UTC),
         )
 
-        prefilter_pass = prefilter.passes(raw.raw_content)
+        prefilter_pass = prefilter.passes(raw)
         print(f"  [{i}/{len(golden)}] {doc.source_type}/{doc.external_id} prefilter={'pass' if prefilter_pass else 'REJECT'}", end="", flush=True)
 
         if not prefilter_pass:
