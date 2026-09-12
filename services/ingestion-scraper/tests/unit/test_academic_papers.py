@@ -20,7 +20,6 @@ from auspex_ingest.models import RawDocument
 from auspex_ingest.normalizer import IdentityNormalizer
 from auspex_ingest.rate_limited_client import RateLimitedClient
 
-
 _FIXTURES = Path(__file__).parent.parent / "fixtures"
 _BIORXIV_PAGE1 = json.loads((_FIXTURES / "biorxiv_page1.json").read_text())
 _BIORXIV_EMPTY = json.loads((_FIXTURES / "biorxiv_empty.json").read_text())
@@ -233,7 +232,7 @@ def test_connector_runs_through_the_unchanged_ingestion_pipeline():
     connector = BiorxivConnector(client=client, now=lambda: _NOW)
 
     archive = MagicMock()
-    archive.put.return_value = ("raw/biorxiv/key.json", b"")
+    archive.put.return_value = ("raw/biorxiv/key.json", True)
     extractor = MagicMock()
     extractor.extract.return_value = None
     producer = MagicMock()

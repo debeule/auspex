@@ -1,0 +1,54 @@
+{
+  "studies": [
+    {
+      "protocolSection": {
+        "identificationModule": {
+          "nctId": "NCT06123456",
+          "briefTitle": "CRISPR Base Editing for Sickle Cell Disease"
+        },
+        "descriptionModule": {
+          "briefSummary": "A phase 1 trial evaluating BCL11A erythroid enhancer base editing in patients with sickle cell disease."
+        },
+        "statusModule": {
+          "overallStatus": "Recruiting",
+          "studyFirstSubmitDate": "2024-01-15",
+          "studyFirstPostDateStruct": {
+            "date": "2024-01-20",
+            "type": "Actual"
+          },
+          "lastUpdateSubmitDate": "2024-01-18",
+          "lastUpdatePostDateStruct": {
+            "date": "2024-01-20",
+            "type": "Actual"
+          }
+        }
+      }
+    },
+    {
+      "protocolSection": {
+        "identificationModule": {
+          "nctId": "NCT06234567",
+          "briefTitle": "AAV Gene Therapy for Duchenne Muscular Dystrophy"
+        },
+        "descriptionModule": {
+          "briefSummary": "Evaluating micro-dystrophin delivery via AAV in DMD patients."
+        },
+        "statusModule": {
+          "overallStatus": "Active, not recruiting",
+          "studyFirstSubmitDate": "2024-02-01",
+          "studyFirstPostDateStruct": {
+            "date": "2024-02-10",
+            "type": "Actual"
+          },
+          "lastUpdateSubmitDate": "2024-06-05",
+          "lastUpdatePostDateStruct": {
+            "date": "2024-06-10",
+            "type": "Actual"
+          }
+        }
+      }
+    }
+  ],
+  "nextPageToken": null,
+  "totalCount": 2
+}

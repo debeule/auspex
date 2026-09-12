@@ -36,13 +36,17 @@ class IngestionPipeline:
         for doc in self._connector.fetch_since(cursor):
             result.fetched += 1
             try:
-                key, _ = self._archive.put(doc)
+                key, is_new = self._archive.put(doc)
 
                 if (
                     result.max_published_date_processed is None
                     or doc.published_date > result.max_published_date_processed
                 ):
                     result.max_published_date_processed = doc.published_date
+
+                if not is_new:
+                    result.prefiltered_out += 1
+                    continue
 
                 if not self._prefilter.passes(doc):
                     result.prefiltered_out += 1

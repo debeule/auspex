@@ -1,0 +1,30 @@
+{
+  "studies": [
+    {
+      "protocolSection": {
+        "identificationModule": {
+          "nctId": "NCT06123456",
+          "briefTitle": "CRISPR Base Editing for Sickle Cell Disease"
+        },
+        "descriptionModule": {
+          "briefSummary": "UPDATED: A phase 1 trial evaluating BCL11A erythroid enhancer base editing in patients with sickle cell disease. Interim results added."
+        },
+        "statusModule": {
+          "overallStatus": "Active, not recruiting",
+          "studyFirstSubmitDate": "2024-01-15",
+          "studyFirstPostDateStruct": {
+            "date": "2024-01-20",
+            "type": "Actual"
+          },
+          "lastUpdateSubmitDate": "2024-06-12",
+          "lastUpdatePostDateStruct": {
+            "date": "2024-06-15",
+            "type": "Actual"
+          }
+        }
+      }
+    }
+  ],
+  "nextPageToken": null,
+  "totalCount": 1
+}

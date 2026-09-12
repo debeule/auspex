@@ -610,14 +610,17 @@ def test_pipeline_archives_before_publishing():
 
 def test_pipeline_reads_no_cursor_state():
     # The pipeline must not write cursor state; run() is stateless w.r.t. cursor.
-    # We verify this by running twice with the same cursor and confirming
-    # the second run still processes the docs (not skipped by a remembered cursor).
-    class SingleDoc(SourceConnector):
+    # Each run produces a distinct document so content-dedup doesn't mask cursor skipping.
+    run_count = 0
+
+    class FreshDocPerRun(SourceConnector):
         def fetch_since(self, cursor):
-            yield _make_raw()
+            nonlocal run_count
+            run_count += 1
+            yield _make_raw(content=f"CRISPR BCL11A editing run {run_count}")
 
     pipeline, _, extractor, _ = _build_pipeline(
-        connector=SingleDoc(),
+        connector=FreshDocPerRun(),
         responses=[_make_event(), _make_event()],
     )
     pipeline.run("biorxiv", _T0)
