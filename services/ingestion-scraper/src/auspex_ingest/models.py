@@ -4,7 +4,7 @@ from uuid import UUID
 
 from pydantic import BaseModel, Field, field_serializer, field_validator
 
-_CANONICAL_PREFIXES: frozenset[str] = frozenset({"doi:", "nct:", "epo-app:", "edgar:"})
+_CANONICAL_PREFIXES: frozenset[str] = frozenset({"doi:", "nct:", "epo-app:", "edgar:", "fda:"})
 
 
 class RawDocument(BaseModel):

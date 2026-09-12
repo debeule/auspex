@@ -1,0 +1,80 @@
+{
+  "meta": {
+    "disclaimer": "Do you have questions?",
+    "terms": "https://open.fda.gov/terms/",
+    "license": "https://open.fda.gov/license/",
+    "last_updated": "2024-06-15",
+    "results": {
+      "skip": 0,
+      "limit": 100,
+      "total": 2
+    }
+  },
+  "results": [
+    {
+      "application_number": "NDA021029",
+      "sponsor_name": "BEAM THERAPEUTICS",
+      "openfda": {
+        "application_number": ["NDA021029"],
+        "brand_name": ["BEAM-101"],
+        "generic_name": ["BCL11A enhancer base editing product"],
+        "manufacturer_name": ["Beam Therapeutics Inc."]
+      },
+      "products": [
+        {
+          "product_number": "001",
+          "reference_drug": "No",
+          "brand_name": "BEAM-101",
+          "active_ingredients": [{"name": "BCL11A BASE EDITING PRODUCT", "strength": "N/A"}],
+          "reference_standard": "No",
+          "dosage_form": "INJECTABLE",
+          "route": "INTRAVENOUS",
+          "marketing_status": "Prescription"
+        }
+      ],
+      "submissions": [
+        {
+          "submission_type": "ORIG",
+          "submission_number": "1",
+          "submission_status": "AP",
+          "submission_status_date": "20240615",
+          "review_priority": "PRIORITY",
+          "submission_class_code": "EFFICACY",
+          "submission_class_code_description": "Efficacy",
+          "action_type": "AP",
+          "action_date": "20240615"
+        }
+      ]
+    },
+    {
+      "application_number": "BLA125514",
+      "sponsor_name": "SAREPTA THERAPEUTICS",
+      "openfda": {},
+      "products": [
+        {
+          "product_number": "001",
+          "reference_drug": "No",
+          "brand_name": "ELEVIDYS",
+          "active_ingredients": [{"name": "DELANDISTROGENE MOXEPARVOVEC", "strength": "N/A"}],
+          "reference_standard": "No",
+          "dosage_form": "INJECTABLE",
+          "route": "INTRAVENOUS",
+          "marketing_status": "Prescription"
+        }
+      ],
+      "submissions": [
+        {
+          "submission_type": "ORIG",
+          "submission_number": "1",
+          "submission_status": "AP",
+          "submission_status_date": "20240610",
+          "review_priority": "PRIORITY",
+          "submission_class_code": "EFFICACY",
+          "submission_class_code_description": "Efficacy",
+          "action_type": "AP",
+          "action_date": "20240610"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,6 @@
+{
+  "error": {
+    "code": "OVER_QUERY_LIMIT",
+    "message": "You have exceeded your daily limit of 1000 queries. Please register for a key at https://open.fda.gov/apis/authentication/"
+  }
+}
