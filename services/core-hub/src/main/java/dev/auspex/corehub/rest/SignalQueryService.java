@@ -3,6 +3,7 @@ package dev.auspex.corehub.rest;
 import dev.auspex.corehub.rest.dto.CorroboratedSignalDto;
 import dev.auspex.corehub.rest.dto.DirectSignalDto;
 import dev.auspex.corehub.rest.dto.TickerSignalsResponse;
+import dev.auspex.corehub.service.CorroborationScorer;
 import org.neo4j.driver.Driver;
 import org.neo4j.driver.Session;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -20,10 +21,12 @@ class SignalQueryService {
 
     private final Driver neo4jDriver;
     private final JdbcTemplate jdbcTemplate;
+    private final CorroborationScorer scorer;
 
-    SignalQueryService(Driver neo4jDriver, JdbcTemplate jdbcTemplate) {
+    SignalQueryService(Driver neo4jDriver, JdbcTemplate jdbcTemplate, CorroborationScorer scorer) {
         this.neo4jDriver = neo4jDriver;
         this.jdbcTemplate = jdbcTemplate;
+        this.scorer = scorer;
     }
 
     TickerSignalsResponse query(String ticker) {
@@ -88,7 +91,7 @@ class SignalQueryService {
         return rows.stream().map(row -> {
             List<String> participants = Arrays.asList(row.participantIds());
             List<String> sourceTypes = querySourceTypes(participants);
-            double confidence = Math.min(1.0, row.distinctSourceCount() * 0.25);
+            double confidence = scorer.score(row.distinctSourceCount(), row.corroboratedAt());
             return new CorroboratedSignalDto(
                     row.entityKey(),
                     sourceTypes,
