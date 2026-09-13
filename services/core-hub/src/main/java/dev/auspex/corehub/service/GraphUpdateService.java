@@ -8,7 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Single entry point for persisting a ResearchSignalEvent.
- * Write order: Neo4j → Postgres → acknowledge (§3.8).
+ * Write order: Neo4j → Postgres → acknowledge.
  * Both @Transactional annotations are qualified — two TMs on the classpath.
  */
 @Service

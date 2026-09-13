@@ -1,4 +1,4 @@
-"""Step 2.4 — Clinical Trials Connector tests.
+"""Clinical trials connector tests.
 
 All HTTP calls are intercepted by respx before they reach the socket layer.
 pytest-socket ensures no real network calls can slip through.
@@ -66,9 +66,6 @@ class _CountingExtractor:
         self.call_count += 1
 
 
-# ---------------------------------------------------------------------------
-# Mapping
-# ---------------------------------------------------------------------------
 
 @respx.mock
 def test_clinicaltrials_payload_maps_to_rawdocument():
@@ -158,9 +155,6 @@ def test_missing_optional_fields_do_not_crash_mapping():
     assert docs[0].external_id == "clinicaltrials:NCT09999999"
 
 
-# ---------------------------------------------------------------------------
-# Amendment identity
-# ---------------------------------------------------------------------------
 
 @respx.mock
 def test_amended_trial_creates_a_new_snapshot_and_a_new_extraction_under_the_same_event_id():
@@ -223,9 +217,6 @@ def test_unchanged_refetch_is_archived_but_not_re_extracted():
     assert extractor.call_count == 1       # extracted only on first (content unchanged second time)
 
 
-# ---------------------------------------------------------------------------
-# HTTP error handling
-# ---------------------------------------------------------------------------
 
 @respx.mock
 def test_http_429_is_retried_after_the_limiter_backs_off():
@@ -261,9 +252,6 @@ def test_empty_result_set_yields_no_documents_and_no_error():
     assert docs == []
 
 
-# ---------------------------------------------------------------------------
-# Pipeline integration
-# ---------------------------------------------------------------------------
 
 @respx.mock
 def test_connector_runs_through_the_unchanged_ingestion_pipeline():

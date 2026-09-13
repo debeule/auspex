@@ -14,8 +14,6 @@ from confluent_kafka import KafkaError, Producer
 from confluent_kafka.admin import AdminClient, ConfigResource
 from minio import Minio
 
-# ── helpers ────────────────────────────────────────────────────────────────────
-
 KAFKA_BOOTSTRAP = "127.0.0.1:9092"
 MINIO_ENDPOINT = "localhost:9000"
 POSTGRES_CONTAINER = "auspex-postgres"
@@ -39,7 +37,6 @@ def _psql(*args: str) -> subprocess.CompletedProcess[str]:
     )
 
 
-# ── tests ──────────────────────────────────────────────────────────────────────
 
 @pytest.mark.integration
 def test_all_containers_reachable():

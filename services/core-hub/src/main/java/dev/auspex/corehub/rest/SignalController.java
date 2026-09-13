@@ -12,7 +12,7 @@ import java.util.regex.Pattern;
 @RequestMapping("/api/v1")
 class SignalController {
 
-    // §11: allowlist — 1-10 chars, starts with A-Z, remaining A-Z0-9.-
+    // Allowlist: 1-10 chars, starts with A-Z, remaining A-Z0-9.-
     private static final Pattern TICKER_PATTERN = Pattern.compile("^[A-Z][A-Z0-9.\\-]{0,9}$");
 
     private final SignalQueryService queryService;

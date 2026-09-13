@@ -1,4 +1,4 @@
-"""Deterministic corroboration sampling for manual quality review (Step 3.2)."""
+"""Deterministic corroboration sampling for manual quality review."""
 from __future__ import annotations
 
 import random

@@ -1,4 +1,4 @@
-"""Step 2.7 — Deduplication and amendment precedence tests.
+"""Deduplication and amendment precedence tests.
 
 Verifies the canonical marker system:
   - archive is always unconditional (invariant 13)
@@ -142,9 +142,6 @@ def _pipeline(
     )
 
 
-# ---------------------------------------------------------------------------
-# Cross-source deduplication
-# ---------------------------------------------------------------------------
 
 def test_same_disclosure_from_two_sources_skips_the_second_extraction_via_the_canonical_marker():
     biorxiv_doc = _make_raw(
@@ -243,9 +240,6 @@ def test_document_with_no_canonical_id_is_not_deduped_across_sources():
     assert extractor.call_count == 2, "No canonical_id means no cross-source dedup"
 
 
-# ---------------------------------------------------------------------------
-# Same-source deduplication (content gate)
-# ---------------------------------------------------------------------------
 
 def test_unchanged_refetch_is_archived_but_not_re_extracted():
     doc = _make_raw()
@@ -266,9 +260,6 @@ def test_unchanged_refetch_is_archived_but_not_re_extracted():
     assert extractor.call_count == 1, "Content unchanged → extraction skipped on second fetch"
 
 
-# ---------------------------------------------------------------------------
-# Amendment (same source, changed content)
-# ---------------------------------------------------------------------------
 
 def test_changed_content_is_treated_as_an_amendment_and_republished():
     doc_v1 = _make_raw(content="CRISPR BCL11A base editing v1")
@@ -292,9 +283,6 @@ def test_changed_content_is_treated_as_an_amendment_and_republished():
     )
 
 
-# ---------------------------------------------------------------------------
-# Marker lifecycle
-# ---------------------------------------------------------------------------
 
 def test_marker_written_only_after_successful_publish():
     doc = _make_raw()
@@ -342,9 +330,6 @@ def test_failed_marker_write_causes_at_most_one_redundant_extraction():
     assert result2.failed == 0, "Marker write failure must not fail the task"
 
 
-# ---------------------------------------------------------------------------
-# State locality
-# ---------------------------------------------------------------------------
 
 def test_dedup_requires_no_state_outside_minio():
     """Two separate pipeline instances sharing an archive correctly deduplicate."""

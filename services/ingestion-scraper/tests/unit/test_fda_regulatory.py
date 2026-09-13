@@ -55,9 +55,6 @@ class _FakeArchive:
         pass
 
 
-# ---------------------------------------------------------------------------
-# Mapping
-# ---------------------------------------------------------------------------
 
 @respx.mock
 def test_fda_payload_maps_to_rawdocument():
@@ -123,9 +120,6 @@ def test_record_without_openfda_fields_still_ingests():
     assert bla_doc.canonical_id == "fda:BLA125514"
 
 
-# ---------------------------------------------------------------------------
-# HTTP error handling
-# ---------------------------------------------------------------------------
 
 @respx.mock
 def test_daily_quota_exhaustion_raises_quota_exhausted_error():
@@ -150,9 +144,6 @@ def test_http_500_surfaces_as_task_failure():
         list(_connector().fetch_since(_CURSOR))
 
 
-# ---------------------------------------------------------------------------
-# Pipeline integration
-# ---------------------------------------------------------------------------
 
 @respx.mock
 def test_connector_runs_through_the_unchanged_ingestion_pipeline():

@@ -1,4 +1,4 @@
-"""Step 3.2 — Corroboration sampling tests."""
+"""Corroboration sampling tests."""
 from auspex_ingest.sampling import sample_corroborations
 
 

@@ -14,7 +14,6 @@ from auspex_ingest.storage.minio_client import MinioArchive
 
 os.environ.setdefault("TESTCONTAINERS_RYUK_DISABLED", "true")
 
-# ── fixtures ───────────────────────────────────────────────────────────────────
 
 _UTC = UTC
 _T1 = datetime(2024, 6, 15, 10, 0, 0, tzinfo=_UTC)
@@ -96,7 +95,6 @@ def _make_doc(content: str, retrieved_at: datetime, **overrides) -> RawDocument:
     return RawDocument(**defaults)
 
 
-# ── tests ──────────────────────────────────────────────────────────────────────
 
 @pytest.mark.integration
 def test_refetch_with_changed_content_creates_second_object(archive: MinioArchive, minio_client: Minio):

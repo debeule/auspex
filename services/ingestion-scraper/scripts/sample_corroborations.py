@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""Sample corroboration records for manual quality review (Step 3.2).
+"""Sample corroboration records for manual quality review.
 
 Connects to the live Postgres + Neo4j instances (from .env), draws a
 deterministic sample of N corroboration records, enriches each with signal
@@ -7,13 +7,13 @@ titles/summaries from Neo4j, and writes a JSONL review file.
 
 Usage:
     uv run python scripts/sample_corroborations.py \\
-        [--seed 42] [--n 30] [--output review_3_2.jsonl]
+        [--seed 42] [--n 30] [--output review.jsonl]
 
 The output file has one JSON object per line. Open it in any text editor,
 add a "verdict" field to each line ("genuine", "coincidental", or
 "extraction_error"), then run:
 
-    uv run python scripts/score_corroboration_review.py review_3_2.jsonl
+    uv run python scripts/score_corroboration_review.py review.jsonl
 
 Never run this in CI — it hits live infrastructure.
 """
@@ -127,7 +127,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--seed", type=int, default=42, help="RNG seed for deterministic sampling")
     parser.add_argument("--n", type=int, default=30, help="Number of records to sample")
-    parser.add_argument("--output", default="review_3_2.jsonl", help="Output JSONL file path")
+    parser.add_argument("--output", default="review.jsonl", help="Output JSONL file path")
     args = parser.parse_args()
 
     env = _load_env()

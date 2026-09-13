@@ -15,8 +15,6 @@ from auspex_ingest.sources import SourceEntry, SourcesConfig
 
 _T0 = datetime(2024, 6, 15, 12, 0, 0, tzinfo=UTC)
 
-# ── helpers ────────────────────────────────────────────────────────────────────
-
 
 def _make_entry(**overrides: object) -> SourceEntry:
     defaults: dict = {
@@ -52,8 +50,6 @@ def _mock_pipeline(
         )
     return pipeline
 
-
-# ── dag_factory structural tests ───────────────────────────────────────────────
 
 
 def test_dag_factory_generates_one_dag_per_registry_entry():
@@ -142,8 +138,6 @@ def test_dag_factory_contains_no_source_specific_branching():
         assert f'source_type == "{st}"' not in source
         assert f"source_type == '{st}'" not in source
 
-
-# ── cursor / state tests ───────────────────────────────────────────────────────
 
 
 def test_cursor_is_read_and_written_only_by_the_dag_task():
@@ -239,8 +233,6 @@ def test_cursor_is_utc_aware():
     assert written.utcoffset() is not None and written.utcoffset().total_seconds() == 0, "Written cursor must be UTC"
 
 
-# ── sources.yaml validation ────────────────────────────────────────────────────
-
 
 def test_malformed_sources_yaml_fails_loudly(tmp_path: Path) -> None:
     bad = tmp_path / "sources.yaml"
@@ -266,8 +258,6 @@ def test_duplicate_source_type_is_rejected() -> None:
         ])
 
 
-# ── infrastructure: separate Airflow database ─────────────────────────────────
-
 
 def test_airflow_metadata_is_a_separate_database() -> None:
     init_dir = Path(__file__).parents[4] / "docker" / "postgres-init"
@@ -279,8 +269,6 @@ def test_airflow_metadata_is_a_separate_database() -> None:
     assert "CREATE DATABASE airflow" in scripts, "Airflow DB must be created as a separate database"
     assert "REVOKE ALL ON DATABASE airflow FROM PUBLIC" in scripts, "Airflow DB must be isolated from PUBLIC"
 
-
-# ── RateLimitedClient ─────────────────────────────────────────────────────────
 
 
 def test_rate_limited_client_enforces_configured_rps() -> None:

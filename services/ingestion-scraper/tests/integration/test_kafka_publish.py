@@ -30,8 +30,6 @@ _MODEL = "gpt-4o"
 _RAW_TOPIC = "auspex.raw.ingested"
 _SIG_TOPIC = "auspex.signals.extracted"
 
-# ── helpers ────────────────────────────────────────────────────────────────────
-
 
 def _make_signal(external_id: str, source_type: str = "mock") -> ResearchSignalEvent:
     event_id = compute_event_id(None, source_type, external_id)
@@ -103,8 +101,6 @@ def _drain(bootstrap: str, topic: str, expected: int, timeout_s: float = 15.0) -
     consumer.close()
     return messages
 
-
-# ── test ───────────────────────────────────────────────────────────────────────
 
 
 @pytest.mark.integration

@@ -15,8 +15,6 @@ import static org.awaitility.Awaitility.await;
 
 class SignalPersistenceIT extends AbstractIT {
 
-    // ── Timestamp ─────────────────────────────────────────────────────────────
-
     @Test
     void test_timestamp_round_trip_preserves_instant() throws Exception {
         publish(SIGNAL_TOPIC, validSignalJson());
@@ -40,8 +38,6 @@ class SignalPersistenceIT extends AbstractIT {
             assertThat(record.get("pd").isNull()).isFalse();
         }
     }
-
-    // ── Deduplication ─────────────────────────────────────────────────────────
 
     @Test
     void test_duplicate_delivery_creates_one_audit_row() throws Exception {
@@ -121,8 +117,6 @@ class SignalPersistenceIT extends AbstractIT {
         });
     }
 
-    // ── Listener container restart (idempotency) ───────────────────────────────
-
     @Test
     void test_listener_container_restart_midbatch_is_idempotent() throws Exception {
         // Simulate redelivery after a container restart by publishing the same message twice.
@@ -145,8 +139,6 @@ class SignalPersistenceIT extends AbstractIT {
         });
     }
 
-    // ── Cross-store reconciliation ─────────────────────────────────────────────
-
     @Test
     void test_every_signal_row_has_a_matching_graph_node() throws Exception {
         String second = secondSourceSignalJson();
@@ -163,8 +155,6 @@ class SignalPersistenceIT extends AbstractIT {
             }
         });
     }
-
-    // ── Neo4j-specific graph assertions ───────────────────────────────────────
 
     @Test
     void test_confidence_score_is_numerically_comparable_in_cypher() throws Exception {

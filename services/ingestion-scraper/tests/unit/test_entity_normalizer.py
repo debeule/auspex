@@ -1,4 +1,4 @@
-"""Step 2.8 — Entity and ticker resolution tests.
+"""Entity and ticker resolution tests.
 
 Covers the HgncEntityNormalizer: gene synonym normalization and
 company→ticker resolution seeded from the SEC company_tickers.json mapping.
@@ -48,9 +48,6 @@ def _normalizer(
     )
 
 
-# ---------------------------------------------------------------------------
-# Gene normalization
-# ---------------------------------------------------------------------------
 
 def test_two_accepted_gene_names_resolve_to_one_entity_node():
     """Old alias and canonical HGNC symbol must produce the same output."""
@@ -81,9 +78,6 @@ def test_unknown_alias_falls_back_to_raw_name_without_error():
     assert result == "UNKNOWNGENE9999"  # falls back to normalized-key form, no crash
 
 
-# ---------------------------------------------------------------------------
-# Company → ticker resolution
-# ---------------------------------------------------------------------------
 
 def test_company_name_resolves_to_ticker_from_the_sec_mapping():
     norm = _normalizer()
@@ -104,9 +98,6 @@ def test_unresolvable_company_is_stored_and_still_corroborates_by_gene_target():
     )
 
 
-# ---------------------------------------------------------------------------
-# Pipeline ordering
-# ---------------------------------------------------------------------------
 
 def test_normalization_runs_before_graph_write():
     """The normalizer must be invoked on every published signal before the Kafka publish."""
@@ -178,9 +169,6 @@ def test_normalization_runs_before_graph_write():
     assert "DMD" in gene_calls
 
 
-# ---------------------------------------------------------------------------
-# Re-keying invariant
-# ---------------------------------------------------------------------------
 
 def test_changing_the_normalizer_rekeys_deliberately_and_does_not_silently_merge():
     """Swapping normalizer configs produces visibly different entity keys.
@@ -188,7 +176,7 @@ def test_changing_the_normalizer_rekeys_deliberately_and_does_not_silently_merge
     This test documents the invariant: when a normalizer changes, entity keys
     in the graph diverge. Re-keying is a deliberate, scripted operation with a
     recorded before/after node count — never a silent side effect of swapping
-    the normalizer [P2-11].
+    the normalizer.
     """
     # Normalizer A: maps EKLF → KLF1
     norm_a = HgncEntityNormalizer.from_mappings(

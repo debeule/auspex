@@ -11,7 +11,7 @@ import java.time.ZoneOffset;
 /**
  * Writes to signal_current, signal_extraction_history, and source_observation atomically.
  * All three writes share one JPA transaction; the offset is not committed until both
- * Neo4j and Postgres return successfully (§3.8).
+ * Neo4j and Postgres return successfully.
  */
 @Service
 public class PostgresWriteService {

@@ -1,4 +1,4 @@
-"""Schema for sources.yaml — validated at DAG-factory load time (Step 2.1)."""
+"""Schema for sources.yaml — validated at DAG-factory load time."""
 
 from collections import Counter
 from typing import Any

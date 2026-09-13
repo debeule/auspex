@@ -1,4 +1,4 @@
-"""Step 2.2 — Academic Papers Connector tests.
+"""Academic papers connector tests (bioRxiv and PubMed).
 
 All HTTP calls are intercepted by respx before they reach the socket layer.
 pytest-socket ensures no real network calls can slip through.
@@ -41,9 +41,6 @@ def _pubmed(**kwargs) -> PubmedConnector:
     return PubmedConnector(client=client, search_term="gene therapy", now=lambda: _NOW, **kwargs)
 
 
-# ---------------------------------------------------------------------------
-# bioRxiv
-# ---------------------------------------------------------------------------
 
 @respx.mock
 def test_biorxiv_payload_maps_to_rawdocument():
@@ -170,9 +167,6 @@ def test_http_500_surfaces_as_task_failure():
         list(_biorxiv().fetch_since(_CURSOR))
 
 
-# ---------------------------------------------------------------------------
-# PubMed
-# ---------------------------------------------------------------------------
 
 @respx.mock
 def test_pubmed_payload_maps_to_rawdocument():

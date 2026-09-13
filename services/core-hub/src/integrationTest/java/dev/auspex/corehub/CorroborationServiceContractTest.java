@@ -15,7 +15,7 @@ import static org.awaitility.Awaitility.await;
 
 /**
  * Abstract contract test for CorroborationService.
- * Any implementation must pass this suite unmodified (Steps 2.8 and 6.4).
+ * Any implementation must pass this suite unmodified.
  * Do not inline these cases into a concrete test — the class must survive substitution.
  *
  * Boundary documented: the 90-day window is INCLUSIVE (≤ 90 days corroborates).
@@ -31,8 +31,6 @@ abstract class CorroborationServiceContractTest extends AbstractIT {
 
     @Autowired
     protected CorroborationService corroborationService;
-
-    // ── Helpers ───────────────────────────────────────────────────────────────
 
     /**
      * Inserts a Signal node connected to GeneTarget entities via [:TARGETS].
@@ -103,8 +101,6 @@ abstract class CorroborationServiceContractTest extends AbstractIT {
         return jdbcTemplate.queryForObject("SELECT COUNT(*) FROM corroboration", Integer.class);
     }
 
-    // ── Test cases ────────────────────────────────────────────────────────────
-
     @Test
     void test_two_distinct_sources_same_target_produces_one_corroboration() {
         insertSignalWithTargets(S1, "biorxiv",   "2024-01-15T00:00:00Z", "BCL11A");
@@ -118,7 +114,7 @@ abstract class CorroborationServiceContractTest extends AbstractIT {
     @Test
     void test_two_historical_signals_90_days_apart_corroborate_regardless_of_run_time() {
         // Three years ago — would be excluded by a naive "now − 90d" rolling window.
-        // The window is between the two signals, not between each signal and today (§4, [A4]).
+        // The window is between the two signals, not between each signal and today.
         insertSignalWithTargets(S1, "biorxiv",   "2022-01-01T00:00:00Z", "HBB");
         insertSignalWithTargets(S2, "sec_edgar", "2022-04-01T00:00:00Z", "HBB"); // exactly 90 days later
 
@@ -161,7 +157,7 @@ abstract class CorroborationServiceContractTest extends AbstractIT {
 
     @Test
     void test_two_signals_sharing_only_a_company_do_not_corroborate() {
-        // [:MENTIONS] is not a corroborating relationship — only [:TARGETS|USES_MECHANISM] counts (§9).
+        // [:MENTIONS] is not a corroborating relationship — only [:TARGETS|USES_MECHANISM] counts.
         insertSignalWithCompanyOnly(S1, "biorxiv",   "2024-01-15T00:00:00Z", "Pfizer");
         insertSignalWithCompanyOnly(S2, "sec_edgar", "2024-01-20T00:00:00Z", "Pfizer");
 
@@ -187,7 +183,7 @@ abstract class CorroborationServiceContractTest extends AbstractIT {
 
     @Test
     void test_corroborated_at_is_latest_participant_publication_not_run_time() {
-        // corroborated_at = max(participant.published_date), not Instant.now() (§4.1 [A15]).
+        // corroborated_at = max(participant.published_date), not Instant.now().
         insertSignalWithTargets(S1, "biorxiv",   "2024-01-01T00:00:00Z", "SMN1");
         insertSignalWithTargets(S2, "sec_edgar", "2024-01-20T00:00:00Z", "SMN1"); // later publication
 

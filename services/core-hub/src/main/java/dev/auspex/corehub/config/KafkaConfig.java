@@ -38,8 +38,6 @@ class KafkaConfig {
     @Value("${spring.kafka.bootstrap-servers}")
     private String bootstrapServers;
 
-    // ── Signal consumer (auspex.signals.extracted) ────────────────────────────
-
     @Bean
     ConsumerFactory<String, ResearchSignalEvent> signalConsumerFactory(ObjectMapper objectMapper) {
         JsonDeserializer<ResearchSignalEvent> jsonDeser =
@@ -67,8 +65,6 @@ class KafkaConfig {
         return factory;
     }
 
-    // ── Raw consumer (auspex.raw.ingested) ────────────────────────────────────
-
     @Bean
     ConsumerFactory<String, String> rawConsumerFactory() {
         ErrorHandlingDeserializer<String> valueDeser =
@@ -90,8 +86,6 @@ class KafkaConfig {
         factory.setCommonErrorHandler(rawErrorHandler);
         return factory;
     }
-
-    // ── Error handlers ────────────────────────────────────────────────────────
 
     @Bean
     DefaultErrorHandler signalErrorHandler(
@@ -145,8 +139,6 @@ class KafkaConfig {
                         record.topic() + ".dlt", -1));
     }
 
-    // ── Producer factories / KafkaTemplates ──────────────────────────────────
-
     @Bean
     @Primary
     ProducerFactory<Object, Object> kafkaProducerFactory() {
@@ -164,8 +156,6 @@ class KafkaConfig {
     ) {
         return new KafkaTemplate<>(kafkaProducerFactory);
     }
-
-    // ── DLT-specific templates ────────────────────────────────────────────────
 
     @Bean
     ProducerFactory<Object, Object> dltBytesProducerFactory() {
@@ -205,8 +195,6 @@ class KafkaConfig {
     ) {
         return new KafkaTemplate<>(dltJsonProducerFactory);
     }
-
-    // ── Shared ────────────────────────────────────────────────────────────────
 
     private Map<String, Object> consumerProps(String groupId) {
         return Map.of(

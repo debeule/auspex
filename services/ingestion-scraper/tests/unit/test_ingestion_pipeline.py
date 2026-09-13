@@ -15,8 +15,6 @@ from auspex_ingest.pipeline import IngestionPipeline
 from auspex_ingest.prefilter import Prefilter
 from auspex_ingest.storage.minio_client import minio_key
 
-# ── shared fixtures ────────────────────────────────────────────────────────────
-
 _UTC = UTC
 _T0 = datetime(2024, 6, 15, 12, 0, 0, tzinfo=_UTC)
 _SCHEMA_VERSION = "1.0"
@@ -85,7 +83,6 @@ def _make_event(
     )
 
 
-# ── fakes ─────────────────────────────────────────────────────────────────────
 
 class FakeArchive:
     def __init__(self, pre_existing: set[str] | None = None) -> None:
@@ -193,7 +190,6 @@ def _build_pipeline(
     return pipeline, archive, extractor, producer
 
 
-# ── ResearchSignalEvent ────────────────────────────────────────────────────────
 
 def test_confidence_score_bounds():
     with pytest.raises(ValidationError):
@@ -206,7 +202,6 @@ def test_confidence_score_bounds():
     assert event.confidence_score == 1.0
 
 
-# ── Identity ───────────────────────────────────────────────────────────────────
 
 def test_event_id_is_stable_across_schema_version_bump():
     cid = "doi:10.1101/2024.06.01.001"
@@ -239,7 +234,6 @@ def test_event_id_falls_back_to_source_and_external_id_when_no_canonical_id():
     assert id_a == id_same
 
 
-# ── Connector — canonical_id discipline ───────────────────────────────────────
 
 def test_connector_supplying_canonical_id_intermittently_fails_loudly():
     class IntermittentConnector(SourceConnector):
@@ -258,7 +252,6 @@ def test_connector_supplying_canonical_id_intermittently_fails_loudly():
     assert result.failed >= 1, "Missing canonical_id from a connector that declares it must be a failure"
 
 
-# ── Kafka producer — payload, key, header ─────────────────────────────────────
 
 def test_raw_topic_payload_excludes_raw_content():
     signal = _make_event()
@@ -351,7 +344,6 @@ def test_signal_event_carries_external_id_and_raw_object_key():
     assert msg["raw_object_key"], "raw_object_key must be set on the signal event"
 
 
-# ── LLM client — never live ───────────────────────────────────────────────────
 
 @pytest.mark.disable_socket
 def test_llm_client_is_never_called_live():
@@ -364,7 +356,6 @@ def test_llm_client_is_never_called_live():
     assert extractor.calls, "Extractor was not called at all"
 
 
-# ── Pipeline — pre-filter edge cases ──────────────────────────────────────────
 
 def test_prefiltered_document_is_archived_but_never_reaches_the_llm():
     class IrrelevantConnector(SourceConnector):
@@ -569,7 +560,6 @@ def test_kafka_delivery_failure_fails_the_run():
     )
 
 
-# ── Pipeline — ordering and statefulness ──────────────────────────────────────
 
 def test_pipeline_archives_before_publishing():
     call_order: list[str] = []
@@ -638,7 +628,6 @@ def test_pipeline_reads_no_cursor_state():
     )
 
 
-# ── Entity normalizer ──────────────────────────────────────────────────────────
 
 def test_entity_values_pass_through_the_normalizer():
     spy = SpyNormalizer()
@@ -658,7 +647,6 @@ def test_entity_values_pass_through_the_normalizer():
     assert "HBB" in spy.gene_calls, "HBB must pass through the normalizer"
 
 
-# ── RunResult.max_published_date_processed ────────────────────────────────────
 
 def test_max_published_date_processed_is_latest_fetched_date():
     late = _T0.replace(year=2024, month=7, day=1)

@@ -13,7 +13,7 @@ Prints:
   - total reviewed
   - counts per verdict
   - corroboration precision = genuine / (genuine + coincidental + extraction_error)
-  - pass/fail against the 0.85 threshold agreed at Step 1.7
+  - pass/fail against the 0.85 precision threshold
 """
 import json
 import sys

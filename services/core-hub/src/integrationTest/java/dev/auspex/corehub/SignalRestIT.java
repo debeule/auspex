@@ -38,8 +38,6 @@ class SignalRestIT extends AbstractIT {
         mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
     }
 
-    // ── Helpers ───────────────────────────────────────────────────────────────
-
     private void insertSignal(String eventId, String sourceType, String publishedDate, double confidence) {
         try (Session session = neo4jDriver.session()) {
             session.run("""
@@ -103,8 +101,6 @@ class SignalRestIT extends AbstractIT {
                     .single().get("cnt").asInt();
         }
     }
-
-    // ── Tests ─────────────────────────────────────────────────────────────────
 
     @Test
     void test_returns_direct_and_corroborated_signals() throws Exception {

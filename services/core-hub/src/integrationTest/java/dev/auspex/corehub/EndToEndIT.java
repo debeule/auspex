@@ -95,8 +95,6 @@ class EndToEndIT extends AbstractIT {
             .replace("e2ee0001-0000-0000-0000-000000000001", "e2ee0001-0000-0000-0000-0000000000ff")
             .replace("0.90", "0.75");
 
-    // ── Injected beans ────────────────────────────────────────────────────────
-
     @Autowired WebApplicationContext webApplicationContext;
     @Autowired CorroborationService corroborationService;
 
@@ -106,8 +104,6 @@ class EndToEndIT extends AbstractIT {
     void setupMockMvc() {
         mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
     }
-
-    // ── Helpers ───────────────────────────────────────────────────────────────
 
     private void setTicker(String companyName, String ticker) {
         try (var session = neo4jDriver.session()) {
@@ -139,8 +135,6 @@ class EndToEndIT extends AbstractIT {
         }
     }
 
-    // ── Tests ─────────────────────────────────────────────────────────────────
-
     @Test
     void test_end_to_end_mock_ingestion_to_rest_response() throws Exception {
         // Two independent sources both targeting BCL11A → one corroboration record
@@ -149,7 +143,6 @@ class EndToEndIT extends AbstractIT {
 
         await().atMost(10, SECONDS).until(() -> signalCurrentCount() == 2);
 
-        // Simulate Phase 2 ticker resolution
         setTicker("Beam Therapeutics", "BEAM");
 
         corroborationService.runCorroboration();

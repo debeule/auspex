@@ -61,9 +61,6 @@ class _FakeArchive:
         pass
 
 
-# ---------------------------------------------------------------------------
-# Mapping
-# ---------------------------------------------------------------------------
 
 @respx.mock
 def test_efts_payload_maps_to_rawdocument():
@@ -116,9 +113,6 @@ def test_empty_result_set_yields_no_documents_and_no_error():
     assert docs == []
 
 
-# ---------------------------------------------------------------------------
-# SEC-specific invariants
-# ---------------------------------------------------------------------------
 
 @respx.mock
 def test_user_agent_header_sent_on_every_request_including_retries():
@@ -184,9 +178,6 @@ def test_403_is_treated_as_a_block_and_backs_off_before_retrying():
     assert slept[0] > 0
 
 
-# ---------------------------------------------------------------------------
-# HTTP error handling
-# ---------------------------------------------------------------------------
 
 @respx.mock
 def test_http_500_surfaces_as_task_failure():
@@ -195,9 +186,6 @@ def test_http_500_surfaces_as_task_failure():
         list(_connector().fetch_since(_CURSOR))
 
 
-# ---------------------------------------------------------------------------
-# Pipeline integration
-# ---------------------------------------------------------------------------
 
 @respx.mock
 def test_connector_runs_through_the_unchanged_ingestion_pipeline():

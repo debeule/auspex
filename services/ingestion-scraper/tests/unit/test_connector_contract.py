@@ -11,8 +11,6 @@ from auspex_ingest.connectors.base import SourceConnector
 from auspex_ingest.models import RawDocument
 from auspex_ingest.storage.minio_client import minio_key
 
-# ── helpers ────────────────────────────────────────────────────────────────────
-
 _UTC = UTC
 _T0 = datetime(2024, 6, 15, 12, 0, 0, tzinfo=_UTC)
 
@@ -32,7 +30,6 @@ def _make_doc(**overrides) -> RawDocument:
     return RawDocument(**defaults)
 
 
-# ── RawDocument ────────────────────────────────────────────────────────────────
 
 def test_rawdocument_rejects_naive_datetime():
     naive = datetime(2024, 6, 15, 12, 0, 0)  # no tzinfo  # noqa: DTZ001
@@ -87,7 +84,6 @@ def test_canonical_id_is_typed_or_absent_rejects_bare(bad_cid):
         _make_doc(canonical_id=bad_cid)
 
 
-# ── MinIO key ──────────────────────────────────────────────────────────────────
 
 def test_minio_key_includes_retrieved_at_and_content_hash():
     doc = _make_doc(
@@ -115,7 +111,6 @@ def test_minio_key_converts_offset_timestamp_to_utc_wall_time():
     assert "20240615T170000Z" not in key
 
 
-# ── SourceConnector ABC ────────────────────────────────────────────────────────
 
 def test_connector_is_abstract():
     with pytest.raises(TypeError):

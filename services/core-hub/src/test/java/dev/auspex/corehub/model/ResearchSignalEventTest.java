@@ -144,8 +144,6 @@ class ResearchSignalEventTest {
         assertThat(v1_10).isGreaterThan(v1_9);            // the correct comparator
     }
 
-    // ── helpers ───────────────────────────────────────────────────────────────
-
     private String loadFixture(String resourcePath) throws Exception {
         try (InputStream in = getClass().getClassLoader().getResourceAsStream(resourcePath)) {
             assertThat(in).as("fixture not found on classpath: %s", resourcePath).isNotNull();

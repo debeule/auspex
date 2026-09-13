@@ -10,7 +10,7 @@ import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Component;
 
 /**
- * Consumes auspex.raw.ingested — writes only to raw_fetch_audit (§3.8).
+ * Consumes auspex.raw.ingested — writes only to raw_fetch_audit.
  */
 @Component
 public class RawListener {

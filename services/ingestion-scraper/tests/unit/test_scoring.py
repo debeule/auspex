@@ -11,8 +11,6 @@ _GOLDEN_DIR = Path(__file__).parent.parent / "golden"
 _T0 = datetime(2024, 6, 15, 12, 0, 0, tzinfo=UTC)
 
 
-# ── golden set structural tests ────────────────────────────────────────────────
-
 
 def test_golden_set_covers_every_source_type_and_both_is_signal_classes():
     docs = load_golden_set(_GOLDEN_DIR)
@@ -40,8 +38,6 @@ def test_golden_set_includes_documents_the_prefilter_should_and_should_not_rejec
     assert should_pass, "Golden set needs at least one doc the prefilter should pass"
     assert should_reject, "Golden set needs at least one doc the prefilter should reject"
 
-
-# ── scoring logic ──────────────────────────────────────────────────────────────
 
 
 def _toy_golden() -> list[GoldenDocument]:

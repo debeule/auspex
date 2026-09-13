@@ -31,7 +31,7 @@ class ScheduledCorroborationService implements CorroborationService {
 
     private static final Logger log = LoggerFactory.getLogger(ScheduledCorroborationService.class);
     private static final String CORROBORATED_TOPIC = "auspex.signals.corroborated";
-    // 90 days in seconds (inclusive boundary per §4 — verified in CorroborationServiceContractTest)
+    // 90 days in seconds (inclusive boundary — verified in CorroborationServiceContractTest)
     private static final long WINDOW_SECONDS = 90L * 24 * 60 * 60;
 
     @Value("${corroboration.degree-cap:500}")
