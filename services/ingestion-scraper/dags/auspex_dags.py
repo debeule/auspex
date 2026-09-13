@@ -16,13 +16,31 @@ from auspex_ingest.dag_factory import build_dags, load_sources_config
 from auspex_ingest.pipeline import IngestionPipeline
 
 _CONFIG_PATH = Path(os.environ.get("AUSPEX_SOURCES_YAML", "/opt/airflow/config/sources.yaml"))
-_REGISTRY: dict[str, type] = {}
-
-try:
+def _build_connector(source_type: str, entry, rate_limited_client):  # type: ignore[no-untyped-def]
+    from auspex_ingest.connectors.biorxiv import BiorxivConnector
+    from auspex_ingest.connectors.clinicaltrials import ClinicalTrialConnector
     from auspex_ingest.connectors.mock import MockConnector
-    _REGISTRY["mock"] = MockConnector
-except ImportError:
-    pass
+    from auspex_ingest.connectors.pubmed import PubmedConnector
+    from auspex_ingest.connectors.sec_edgar import SecEdgarConnector
+
+    if source_type == "mock":
+        return MockConnector()
+    if source_type == "biorxiv":
+        return BiorxivConnector(client=rate_limited_client)
+    if source_type == "clinicaltrials":
+        return ClinicalTrialConnector(client=rate_limited_client)
+    if source_type == "pubmed":
+        return PubmedConnector(
+            client=rate_limited_client,
+            search_term=entry.source_config.get("search_term", "gene therapy"),
+            api_key=os.environ.get("NCBI_API_KEY") or None,
+        )
+    if source_type == "edgar":
+        return SecEdgarConnector(
+            client=rate_limited_client,
+            user_agent=os.environ["SEC_USER_AGENT"],
+        )
+    raise ValueError(f"No connector registered for source_type={source_type!r}")
 
 
 def _pipeline_factory(entry):  # type: ignore[no-untyped-def]
@@ -35,10 +53,17 @@ def _pipeline_factory(entry):  # type: ignore[no-untyped-def]
     from auspex_ingest.kafka_producer import KafkaProducerClient
     from auspex_ingest.normalizer import IdentityNormalizer
     from auspex_ingest.prefilter import Prefilter
+    from auspex_ingest.rate_limited_client import RateLimitedClient
     from auspex_ingest.storage.minio_client import MinioArchive
 
-    connector_cls = _REGISTRY[entry.source_type]
-    connector = connector_cls()
+    rate_limits: dict[str, float] = {
+        "api.biorxiv.org": 3.0,
+        "clinicaltrials.gov": 5.0,
+        "eutils.ncbi.nlm.nih.gov": 3.0,
+        "sec.gov": 4.0,
+    }
+    http_client = RateLimitedClient(rate_limits)
+    connector = _build_connector(entry.source_type, entry, http_client)
 
     minio_client = Minio(
         os.environ["MINIO_ENDPOINT"],
@@ -48,13 +73,13 @@ def _pipeline_factory(entry):  # type: ignore[no-untyped-def]
     )
     archive = MinioArchive(client=minio_client, bucket=os.environ["MINIO_BUCKET"])
 
-    llm_client = instructor.from_openai(openai.OpenAI(api_key=os.environ["OPENAI_API_KEY"]))
+    api_key = os.environ.get("OPENAI_API_KEY") or os.environ.get("OPEN_AI_KEY") or ""
+    llm_client = instructor.from_openai(openai.OpenAI(api_key=api_key))
     extractor = LLMExtractor(
         client=llm_client,
         model=os.environ.get("OPEN_AI_EXTRACTION_MODEL", "gpt-4o-mini"),
         schema_version="1.0",
         prompt_version="v1",
-        gene_vocab=frozenset(entry.prefilter_vocabulary),
     )
 
     kafka_producer = KafkaProducerClient(
@@ -71,6 +96,7 @@ def _pipeline_factory(entry):  # type: ignore[no-untyped-def]
         prefilter=Prefilter.from_vocab(set(entry.prefilter_vocabulary)),
         normalizer=IdentityNormalizer(),
         now=lambda: datetime.now(UTC),
+        min_confidence_to_publish=0.5,
     )
 
 

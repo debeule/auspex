@@ -47,9 +47,10 @@ class RateLimitedClient:
         *,
         _httpx_client: httpx.Client | None = None,
         _clock: Callable[[], float] | None = None,
+        timeout: float = 30.0,
     ) -> None:
         clock = _clock or time.monotonic
-        self._http = _httpx_client or httpx.Client()
+        self._http = _httpx_client or httpx.Client(timeout=timeout)
         self._buckets: dict[str, _TokenBucket] = {
             host: _TokenBucket(rps, clock) for host, rps in host_limits.items()
         }

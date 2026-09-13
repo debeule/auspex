@@ -12,3 +12,95 @@ sources:
       - gene therapy
       - base editing
     source_config: {}
+
+  - source_type: biorxiv
+    schedule: "@daily"
+    rate_limit_rps: 3.0
+    initial_lookback: 30
+    max_documents_per_run: 5000
+    prefilter_vocabulary:
+      - DMD
+      - dystrophin
+      - duchenne
+      - BCL11A
+      - HBB
+      - sickle cell
+      - thalassemia
+      - HTT
+      - huntingtin
+      - FANCA
+      - gene therapy
+      - gene editing
+      - base editing
+      - CRISPR
+      - exon skipping
+      - micro-dystrophin
+      - AAV
+    source_config: {}
+
+  - source_type: clinicaltrials
+    schedule: "@daily"
+    rate_limit_rps: 5.0
+    initial_lookback: 30
+    max_documents_per_run: 50000
+    prefilter_vocabulary:
+      - DMD
+      - dystrophin
+      - duchenne
+      - BCL11A
+      - HBB
+      - sickle cell
+      - thalassemia
+      - HTT
+      - huntingtin
+      - FANCA
+      - gene therapy
+      - gene editing
+      - base editing
+      - CRISPR
+      - exon skipping
+      - micro-dystrophin
+    source_config: {}
+
+  - source_type: pubmed
+    schedule: "@daily"
+    rate_limit_rps: 3.0
+    initial_lookback: 30
+    max_documents_per_run: 2000
+    prefilter_vocabulary:
+      - DMD
+      - dystrophin
+      - duchenne
+      - BCL11A
+      - HBB
+      - sickle cell
+      - thalassemia
+      - HTT
+      - huntingtin
+      - FANCA
+      - gene therapy
+      - gene editing
+      - base editing
+      - CRISPR
+      - exon skipping
+    source_config:
+      search_term: "(gene therapy) OR (CRISPR) OR (base editing) OR (exon skipping) OR (duchenne) OR (BCL11A) OR (sickle cell)"
+
+  - source_type: edgar
+    schedule: "@daily"
+    rate_limit_rps: 4.0
+    initial_lookback: 30
+    max_documents_per_run: 10000
+    prefilter_vocabulary:
+      - gene therapy
+      - CRISPR
+      - duchenne
+      - DMD
+      - sickle cell
+      - sarepta
+      - elevidys
+      - beam therapeutics
+      - uniqure
+      - rocket pharma
+      - capricor
+    source_config: {}

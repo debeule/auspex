@@ -43,7 +43,7 @@ class ClinicalTrialConnector(SourceConnector):
 
         while True:
             params: dict[str, str | int] = {
-                "filter.lastUpdatePostDate": f"{start}:{end}",
+                "filter.advanced": f"AREA[LastUpdatePostDate]RANGE[{start},{end}]",
                 "pageSize": _PAGE_SIZE,
                 "format": "json",
                 "fields": (
