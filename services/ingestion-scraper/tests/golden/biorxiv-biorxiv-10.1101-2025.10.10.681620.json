@@ -1,0 +1,19 @@
+{
+  "source_type": "biorxiv",
+  "external_id": "biorxiv:10.1101/2025.10.10.681620",
+  "source_url": "https://www.biorxiv.org/content/10.1101/2025.10.10.681620",
+  "published_date": "2025-10-27T00:00:00Z",
+  "raw_content": "Characterization of Gait Kinematics and Muscle Function in Becker Muscular Dystrophy Pigs: a pilot study\n\nVertebrate animal models of Becker muscular dystrophy (BMD) have been developed. Here, we characterized the gait kinematics and muscle function of a naturally occurring BMD pig model of dystrophin insufficiency. BMD pigs tended to have alterations in hip range of motion (ROM): hip (67%, 95% CI -0.64 to 14.12 degrees). While parameters were unaltered in extensor muscles, the dystrophin levels in flexor tibiotarsal joint muscles correlated with fatigue index as well as reduced isometric force (48%, 95% CI -1.86 to -0.61 N-m), and a 33% increase in fatigue index (95% CI -36.25 to 96.71 percent); the extensor muscles had no observable reductions in muscle force, with a 48% increase in fatigue index (95% CI -232.6 to 472.6 percent). Histological analysis of muscle biopsies supported a BMD phenotype in the flexor muscles of BMD pigs, with a 75% (95% CI -55.14 to -15.66 percent) decrease in large and a 43% (95% CI 17.74 to 57.38 percent) increase in small muscle fiber cross-sectional area. Dystrophin protein abundance was 28% less in flexor muscles from BMD pigs (95% CI -49.63 to 11.41 arbitrary units). Together, our model may serve as a clinically relevant model of BMD to assess safety and efficacy of therapeutics.",
+  "labels": {
+    "is_signal": false,
+    "gene_targets": [
+      "DMD"
+    ],
+    "mechanisms": [
+      "gait kinematics"
+    ],
+    "companies_mentioned": [],
+    "directionality": "neutral",
+    "prefilter_should_pass": true
+  }
+}

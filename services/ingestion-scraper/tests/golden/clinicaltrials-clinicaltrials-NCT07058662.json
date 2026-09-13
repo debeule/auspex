@@ -1,0 +1,22 @@
+{
+  "source_type": "clinicaltrials",
+  "external_id": "clinicaltrials:NCT07058662",
+  "source_url": "https://clinicaltrials.gov/study/NCT07058662",
+  "published_date": "2025-12-04T00:00:00Z",
+  "raw_content": "A Clinical Study to Evaluate the Safety, Tolerability, and Efficacy of BBM-D101 in the Treatment of Duchenne Muscular Dystrophy.\n\nThe purpose of the study is to evaluate the safety, tolerability, and efficacy of BBM-D101 to treat participants with Duchenne Muscular Dystrophy.\n\nNCT ID: NCT07058662\nOverall status: RECRUITING\nStudy first posted: 2025-07-10\nLast updated: 2025-12-04\nFirst submitted: 2025-07-01",
+  "labels": {
+    "is_signal": true,
+    "gene_targets": [
+      "DMD"
+    ],
+    "mechanisms": [
+      "AAV gene therapy",
+      "micro-dystrophin"
+    ],
+    "companies_mentioned": [
+      "BioMarin Pharmaceutical"
+    ],
+    "directionality": "neutral",
+    "prefilter_should_pass": true
+  }
+}

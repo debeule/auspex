@@ -1,0 +1,22 @@
+{
+  "source_type": "pubmed",
+  "external_id": "pubmed:38482981",
+  "source_url": "https://pubmed.ncbi.nlm.nih.gov/38482981/",
+  "published_date": "2024-03-01T00:00:00Z",
+  "raw_content": "Survival among patients receiving eteplirsen for up to 8 years for the treatment of Duchenne muscular dystrophy and contextualization with natural history controls.\n\nINTRODUCTION/AIMS: Eteplirsen, approved in the US for patients with Duchenne muscular dystrophy (DMD) with exon 51 skip-amenable variants, is associated with attenuated ambulatory/pulmonary decline versus DMD natural history (NH). We report overall survival in a US cohort receiving eteplirsen and contextualize these outcomes versus DMD NH. METHODS: US patients with DMD receiving eteplirsen were followed through a patient support program, with data collected on ages at eteplirsen initiation and death/end of follow-up. Individual DMD NH data were extracted by digitizing Kaplan-Meier (KM) curves from published systematic and targeted literature reviews. Overall survival age was analyzed using KM curves and contextualized with DMD NH survival curves; subanalyses considered age groups and duration of eteplirsen exposure. Overall survival time from treatment initiation was also evaluated. RESULTS: A total of 579 eteplirsen-treated patients were included. During a total follow-up of 2119 person-years, median survival age was 32.8 years. DMD NH survival curves extracted from four publications (follow-up for 1224 DMD NH controls) showed overall pooled median survival age of 27.4 years. Eteplirsen-treated patients had significantly longer survival from treatment initiation versus age-matched controls (age-adjusted hazard ratio [HR], 0.65; 95% confidence interval [CI], 0.44-0.98; p < .05). Longer treatment exposure was associated with improved survival (HR, 0.15; 95% CI, 0.05-0.41; p < .001). Comparisons using different DMD NH cohorts to address common risks of bias yielded consistent findings. DISCUSSION: Data suggest eteplirsen may prolong survival in patients with DMD across a wide age range. As more data become available, the impact of eteplirsen on survival will be further elucidated.",
+  "labels": {
+    "is_signal": true,
+    "gene_targets": [
+      "DMD"
+    ],
+    "mechanisms": [
+      "exon skipping",
+      "antisense oligonucleotide"
+    ],
+    "companies_mentioned": [
+      "Sarepta Therapeutics"
+    ],
+    "directionality": "positive",
+    "prefilter_should_pass": true
+  }
+}

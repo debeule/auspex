@@ -1,0 +1,20 @@
+{
+  "source_type": "biorxiv",
+  "external_id": "biorxiv:10.1101/2022.01.06.475271",
+  "source_url": "https://www.biorxiv.org/content/10.1101/2022.01.06.475271",
+  "published_date": "2022-10-19T00:00:00Z",
+  "raw_content": "Receptor-interacting protein kinase-3 mediates both myopathy and cardiomyopathy in preclinical animal models of Duchenne muscular dystrophy\n\nBackgroundDuchenne muscular dystrophy (DMD) is a progressive muscle degenerative disorder, culminating in a complete loss of ambulation, hypertrophic cardiomyopathy and a fatal cardiorespiratory failure.\n\nNecroptosis is the form of necrosis that is dependent upon the receptor-interacting protein kinase (RIPK) 3; it is involved in several inflammatory and neurodegenerative conditions. We previously identified RIPK3 as a key player in the acute myonecrosis affecting the hindlimb muscles of the dystrophic mouse model, mdx. Whether necroptosis also mediates respiratory and heart disorders in DMD is currently unknown.\n\nMethodsEvidence of activation of the necroptotic axis was examined in dystrophic tissues from Golden retriever muscular dystrophy (GRMD) dogs and R-DMDdel52 rats. A functional assessment of the involvement of necroptosis in dystrophic animals was performed on mdx mice that were genetically depleted for RIPK3. Dystrophic mice aged from 12 to 18 months were analyzed by histology and molecular biology to compare the phenotype of muscles from mdxRipk3+/+ and mdxRipk3-/- mice. Heart function was also examined by echocardiography in 40-week-old mice.\n\nResultsQuantification of RIPK3 transcripts in sartorius and biceps femoris muscles from GRMD dogs positively correlated to myonecrosis levels (r=0.81; p=0.0076). RIPK3 was also found elevated in the diaphragm (p=0<0.05). In the slow progressing heart phenotype of GRMD dogs, the phosphorylated form of RIPK1 at the Serine 161 site was dramatically increased in cardiomyocytes. A similar p-RIPK1 upregulation characterized the cardiomyocytes of R-DMDdel52 rats, associated with a marked overexpression of Ripk1 (p=0.007) and Ripk3 (p=0.008), indicating primed activation of the necroptotic pathway in the dystrophic heart. MdxRipk3-/- mice displayed decreased compensatory hypertrophy of the heart (p=0.014), and echocardiography showed a 19% increase in the relative wall thickness (p<0.05) and 29% reduction in the left ventricle mass (p=0.0144). Besides, mdxRipk3-/- mice presented no evidence of a regenerative default or sarcopenia in skeletal muscles, moreover around 50% less affected by fibrosis (p<0.05).\n\nConclusionsOur data provide evidence of the activation of the necroptotic pathway in degenerative tissues from dystrophic animal models, including the diaphragm and the heart. The genetic inhibition of necroptosis in dystrophic mice improves both cardiac function and histological features of muscles, suggesting that prevention of necroptosis is susceptible to providing multiorgan beneficial effects for DMD.",
+  "labels": {
+    "is_signal": false,
+    "gene_targets": [
+      "DMD",
+      "RIPK3"
+    ],
+    "mechanisms": [
+      "receptor-interacting protein kinase-3 inhibition"
+    ],
+    "companies_mentioned": [],
+    "directionality": "neutral",
+    "prefilter_should_pass": true
+  }
+}

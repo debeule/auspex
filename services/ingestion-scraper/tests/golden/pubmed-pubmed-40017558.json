@@ -1,0 +1,22 @@
+{
+  "source_type": "pubmed",
+  "external_id": "pubmed:40017558",
+  "source_url": "https://pubmed.ncbi.nlm.nih.gov/40017558/",
+  "published_date": "2025-02-01T00:00:00Z",
+  "raw_content": "Association of DMD Gene Variant Classes With Motor Outcomes in a Drug Registration Clinical Trial Setting.\n\nBACKGROUND AND OBJECTIVES: Duchenne muscular dystrophy (DMD) is caused by pathogenic variants of the DMD gene, leading to the loss of dystrophin. Clinical variability in DMD can complicate interpretation of interventional data in clinical trials. One source of clinical variability is allelic heterogeneity (different pathogenic variants with different effects on dystrophin protein expression). We sought to determine whether gene variant classes in clinical trial participants potentially affect clinical trial data interpretation. METHODS: We analyzed 186 vamorolone trial participants with DMD (VBP15-002/003; VBP15-004) who were 4 to <7 years old and steroid-naïve at baseline. We stratified participants into gene variant classes by either variant location in the gene affecting different gene promoters (5' [Dp427-only] vs 3' [Dp427+other isoforms]) or residual dystrophin levels (null vs possible non-null [5' gene variants, exon 44 skippable, splice site]). We evaluated associations with baseline motor outcomes and treatment response (prednisone and vamorolone). RESULTS: Participants with variants in ex63 and downstream (null for Dp427+Dp140+Dp71 protein isoforms) showed poorer baseline motor outcomes for time to stand from supine velocity than those with variants in ex1-44 (Dp427 only). No significant baseline differences were found between likely null and possible non-null variants. Participants with only Dp427 involvement showed significantly better treatment response for the 6-minute walk distance. Most of the comparisons of baseline motor function and treatment response were similar between variant classes. DISCUSSION: The large variation in baseline motor function in young, steroid-naïve patients with DMD is only minimally explained by different gene variant classes. While there is strong literature support for 3' variants leading to a more severe motor and cognitive DMD phenotype, we found this variant class under-represented in our clinical trials. This suggests that they may fail inclusion criteria (failure to follow commands; poor motor function). Subgroup analyses in DMD clinical trials at a young age range based on gene variant class may not reveal significant differences and would be relatively noninformative.",
+  "labels": {
+    "is_signal": true,
+    "gene_targets": [
+      "DMD"
+    ],
+    "mechanisms": [
+      "exon skipping",
+      "antisense oligonucleotide"
+    ],
+    "companies_mentioned": [
+      "Sarepta Therapeutics"
+    ],
+    "directionality": "positive",
+    "prefilter_should_pass": true
+  }
+}

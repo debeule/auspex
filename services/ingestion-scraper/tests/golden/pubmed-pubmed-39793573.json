@@ -1,0 +1,22 @@
+{
+  "source_type": "pubmed",
+  "external_id": "pubmed:39793573",
+  "source_url": "https://pubmed.ncbi.nlm.nih.gov/39793573/",
+  "published_date": "2025-01-01T00:00:00Z",
+  "raw_content": "Phase 1/2 trial of brogidirsen: Dual-targeting antisense oligonucleotides for exon 44 skipping in Duchenne muscular dystrophy.\n\nDuchenne muscular dystrophy (DMD) is a severe muscle disorder caused by mutations in the DMD gene, leading to dystrophin deficiency. Antisense oligonucleotide (ASO)-mediated exon skipping offers potential by partially restoring dystrophin, though current therapies remain mutation specific with limited efficacy. To overcome those limitations, we developed brogidirsen, a dual-targeting ASO composed of two directly connected 12-mer sequences targeting exon 44 using phosphorodiamidate morpholino oligomers. An open-label, dose-escalation, phase 1/2 trial assessed the safety, pharmacokinetics, and efficacy of brogidirsen in six ambulant patients with DMD amenable to exon 44 skipping. Following dose escalation, extended 24-week treatment with 40 mg/kg and 80 mg/kg yielded dose-dependent increases in dystrophin (16.63% and 24.47% of normal). Functional assessments indicated motor stabilization, and plasma proteomics revealed reductions in peptidyl arginine deiminase 2 (PADI2), titin (TTN), and myomesin 2 (MYOM2), highlighting potential biomarkers. Brogidirsen's efficacy was supported in vitro using urine-derived cells from patients with DMD. These promising results warrant a subsequent trial for DMD. This study was registered at ClinicalTrials.gov (NCT04129294).",
+  "labels": {
+    "is_signal": true,
+    "gene_targets": [
+      "DMD"
+    ],
+    "mechanisms": [
+      "exon skipping",
+      "antisense oligonucleotide"
+    ],
+    "companies_mentioned": [
+      "Nippon Shinyaku"
+    ],
+    "directionality": "positive",
+    "prefilter_should_pass": true
+  }
+}

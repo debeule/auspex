@@ -1,0 +1,22 @@
+{
+  "source_type": "clinicaltrials",
+  "external_id": "clinicaltrials:NCT05338099",
+  "source_url": "https://clinicaltrials.gov/study/NCT05338099",
+  "published_date": "2024-08-30T00:00:00Z",
+  "raw_content": "Determine the Safety and Dose of EN001 in Patients With Duchenne Muscular Dystrophy(DMD)\n\nOpen-label, Dose-escalation, Phase 1 Clinical Trial to Determine the Safety and Dose of EN001 in Patients with Duchenne Muscular Dystrophy(DMD)\n\nNCT ID: NCT05338099\nOverall status: COMPLETED\nStudy first posted: 2022-04-20\nLast updated: 2024-08-30\nFirst submitted: 2022-01-06",
+  "labels": {
+    "is_signal": true,
+    "gene_targets": [
+      "DMD"
+    ],
+    "mechanisms": [
+      "stem cell therapy",
+      "EN001"
+    ],
+    "companies_mentioned": [
+      "ENCell"
+    ],
+    "directionality": "neutral",
+    "prefilter_should_pass": true
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "source_type": "clinicaltrials",
+  "external_id": "clinicaltrials:NCT07038824",
+  "source_url": "https://clinicaltrials.gov/study/NCT07038824",
+  "published_date": "2026-08-13T00:00:00Z",
+  "raw_content": "A Study in Participants With Duchenne Muscular Dystrophy Amenable to Exon 45 Skipping to Evaluate the Safety and Efficacy of ENTR-601-45\n\nThis is a study of the investigational medicine ENTR-601-45 in participants who have Duchenne muscular dystrophy (DMD), a rare genetic condition. The researchers want to: Test how safe ENTR-601-45 is, learn about any side effects, and look at the potential positive effects of ENTR-601-45, compared to placebo. Placebo looks like the investigational medicine but does not contain any active ingredient. In this summary ENTR-601-45 and placebo are both called study treatments.\n\nThe study has 2 parts: Part A: to evaluate if ENTR-601-45 is safe and to determine the best dose of ENTR-601-45 for Part B. Part B: to further evaluate the effect and safety of ENTR-601-45 at the dose determined in Part A. Participants will be able to roll into an open-label treatment period during which the safety and efficacy of extended dosing will be evaluated.\n\nParticipants will:\n\n* Receive study treatment in the form of multiple intravenous (IV) infusions (slow injection) into a vein over the course of several weeks in Part A and in Part B\n* Visit the clinic regularly for checkups and tests such as: blood and urine tests, physical examinations, questionnaires, muscle biopsies and exercise tests. Participants will have a muscle biopsy at the beginning of their participation and after their last dose to allow researchers to compare whether there have been changes in the muscle as a result of the study drug.\n\nParticipants are allowed to continue receiving their standard of care therapy for DMD during the study, as long as their health remains stable.\n\nNCT ID: NCT07038824\nOverall status: RECRUITING\nStudy first posted: 2025-06-26\nLast updated: 2026-08-13\nFirst submitted: 2025-05-01",
+  "labels": {
+    "is_signal": true,
+    "gene_targets": [
+      "DMD"
+    ],
+    "mechanisms": [
+      "exon skipping",
+      "antisense oligonucleotide"
+    ],
+    "companies_mentioned": [
+      "Entrada Therapeutics"
+    ],
+    "directionality": "neutral",
+    "prefilter_should_pass": true
+  }
+}

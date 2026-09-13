@@ -1,0 +1,22 @@
+{
+  "source_type": "edgar",
+  "external_id": "edgar:0000950170-23-029354",
+  "source_url": "https://www.sec.gov/Archives/edgar/data/873303/000095017023029354/",
+  "published_date": "2023-06-22T00:00:00Z",
+  "raw_content": "Accession: 0000950170-23-029354\nEntity: Sarepta Therapeutics, Inc.\nForm type: 8-K\nFiled: 2023-06-22\nPeriod: 2023-06-22\nItems: Item 7.01, Item 9.01",
+  "labels": {
+    "is_signal": true,
+    "gene_targets": [
+      "DMD"
+    ],
+    "mechanisms": [
+      "gene therapy",
+      "micro-dystrophin"
+    ],
+    "companies_mentioned": [
+      "Sarepta Therapeutics"
+    ],
+    "directionality": "positive",
+    "prefilter_should_pass": true
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "source_type": "clinicaltrials",
+  "external_id": "clinicaltrials:NCT01890616",
+  "source_url": "https://clinicaltrials.gov/study/NCT01890616",
+  "published_date": "2020-09-16T00:00:00Z",
+  "raw_content": "Constipation and Gut Transit in DMD Patients\n\nIn this research study the investigators want to screen Duchenne Muscular Dystrophy (DMD) patients for signs and symptoms of constipation in patients over 18.\n\nThe investigators hypothesized:\n\n* DMD patients have a high prevalence of constipation than in the general population.\n* Prevalence of constipation will increase with age and with worsening functional status.\n\nNCT ID: NCT01890616\nOverall status: COMPLETED\nStudy first posted: 2013-07-02\nLast updated: 2020-09-16\nFirst submitted: 2013-06-26",
+  "labels": {
+    "is_signal": false,
+    "gene_targets": [
+      "DMD"
+    ],
+    "mechanisms": [],
+    "companies_mentioned": [],
+    "directionality": "neutral",
+    "prefilter_should_pass": false
+  }
+}

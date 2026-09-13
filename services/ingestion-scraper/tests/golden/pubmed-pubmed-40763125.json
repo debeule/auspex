@@ -1,0 +1,17 @@
+{
+  "source_type": "pubmed",
+  "external_id": "pubmed:40763125",
+  "source_url": "https://pubmed.ncbi.nlm.nih.gov/40763125/",
+  "published_date": "2025-08-01T00:00:00Z",
+  "raw_content": "FDA Investigating Sarepta's Elevidys® after Second Patient Dies.",
+  "labels": {
+    "is_signal": true,
+    "gene_targets": [],
+    "mechanisms": [],
+    "companies_mentioned": [
+      "Sarepta Therapeutics"
+    ],
+    "directionality": "negative",
+    "prefilter_should_pass": true
+  }
+}

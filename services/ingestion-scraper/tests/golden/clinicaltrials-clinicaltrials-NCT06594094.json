@@ -1,0 +1,22 @@
+{
+  "source_type": "clinicaltrials",
+  "external_id": "clinicaltrials:NCT06594094",
+  "source_url": "https://clinicaltrials.gov/study/NCT06594094",
+  "published_date": "2026-08-03T00:00:00Z",
+  "raw_content": "An Open-label, Multidose Dose-escalation Study to Understand the Safety of CRISPR Gene-editing Therapy and Its Long-Lasting Effects in DMD Patients (MUSCLE)\n\nDuchenne muscular dystrophin (DMD) is an X-linked, fatal muscle-wasting disease caused by mutations in the DMD gene encoding the dystrophin proteins, with symptom onset before age of 6 years in boys. These mutations abolish dystrophin production in the muscle, leading to dystrophin deficiency at the myofiber membrane, continued fiber degeneration, the need for assisted ventilation, respiratory inflammation, loss of walking ability in their teens, followed by respiratory and cardiac decline, and eventually premature death before the age of 30.\n\nCurrently, there are only glucocorticoids for the standard supportive therapy of DMD, which can improve disease symptoms but do not change the outcome of the disease, Three antisense oligonucleotide (ASOs) medicines have been approved to treat DMD with exon 45-55 hotspot region mutations. However, they can only restore trace amounts of dystrophin protein, which is insufficient to bring real clinical benefits. Gene replacement therapy has been approved using adeno-associated virus (AAV) vectors to deliver the \"mini-dystrophin\" gene. Yet, mini-dystrophin gene-expression versions of truncated dystrophin functionality are sacrificed and limited.\n\nHG302 uses a single AAV vector to deliver the CRISPR/hfCas12Max DNA editing system in the human DMD exon 51 splice donor site. Preclinical studies have shown that a single intravenous injection of HG302 significantly restores dystrophin protein expression in muscle fibers and rescues their muscle function in humanized DMD mice to wild-type levels, with long-lasting and durable efficacy.\n\nNCT ID: NCT06594094\nOverall status: ACTIVE_NOT_RECRUITING\nStudy first posted: 2024-09-19\nLast updated: 2026-08-03\nFirst submitted: 2024-09-10",
+  "labels": {
+    "is_signal": true,
+    "gene_targets": [
+      "DMD"
+    ],
+    "mechanisms": [
+      "CRISPR gene editing",
+      "HG302"
+    ],
+    "companies_mentioned": [
+      "Hangene Therapeutics"
+    ],
+    "directionality": "neutral",
+    "prefilter_should_pass": true
+  }
+}

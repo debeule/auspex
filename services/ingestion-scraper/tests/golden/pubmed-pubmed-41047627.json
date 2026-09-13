@@ -1,0 +1,22 @@
+{
+  "source_type": "pubmed",
+  "external_id": "pubmed:41047627",
+  "source_url": "https://pubmed.ncbi.nlm.nih.gov/41047627/",
+  "published_date": "2025-10-01T00:00:00Z",
+  "raw_content": "Real-world outcomes of delandistrogene moxeparvovec gene therapy: Motor outcomes and emerging safety concerns.\n\nDelandistrogene moxeparvovec is currently the only commercially approved gene therapy for Duchenne muscular dystrophy (DMD). Herein, we report real-world data of 11 ambulatory patients with DMD, ages 4-6, treated with commercial delandistrogene moxeparvovec. Patients were prospectively and uniformly monitored for 1 year post-gene transfer for safety and motor outcomes. Nine patients experienced 15 treatment-related toxicities, and 4 required escalation of corticosteroids. Side effects included gastrointestinal symptoms (n = 7), liver enzyme abnormalities (n = 4), acute liver injury (n = 2), and troponin I elevations (n = 3). In both patients with acute liver injury, troponin I elevations occurred in close temporal association beginning 8-9 weeks post-gene transfer and were responsive to corticosteroids. The clinical courses of these two patients were at least partially consistent with a cellular immune response to the adeno-associated viral vector (AAV) capsid. Troponin I elevations were asymptomatic and without acute functional changes on echocardiogram. The cohort had improvements in year 1 motor function assessments relative to baseline, including a statistically significant median 4-point increase in North Star Ambulatory Assessment score; however, important confounding factors, e.g., baseline corticosteroid use, limit interpretation and will be important to control for in future real-world datasets. Additional follow-up is required to determine long-term safety and motor outcomes, with unclear generalizability of our results.",
+  "labels": {
+    "is_signal": true,
+    "gene_targets": [
+      "DMD"
+    ],
+    "mechanisms": [
+      "AAV gene therapy",
+      "micro-dystrophin"
+    ],
+    "companies_mentioned": [
+      "Sarepta Therapeutics"
+    ],
+    "directionality": "positive",
+    "prefilter_should_pass": true
+  }
+}

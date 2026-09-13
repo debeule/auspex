@@ -1,0 +1,17 @@
+{
+  "source_type": "pubmed",
+  "external_id": "pubmed:37435300",
+  "source_url": "https://pubmed.ncbi.nlm.nih.gov/37435300/",
+  "published_date": "2023-07-01T00:00:00Z",
+  "raw_content": "Duchenne muscular dystrophy: disease mechanism and therapeutic strategies.\n\nDuchenne muscular dystrophy (DMD) is a severe, progressive, and ultimately fatal disease of skeletal muscle wasting, respiratory insufficiency, and cardiomyopathy. The identification of the dystrophin gene as central to DMD pathogenesis has led to the understanding of the muscle membrane and the proteins involved in membrane stability as the focal point of the disease. The lessons learned from decades of research in human genetics, biochemistry, and physiology have culminated in establishing the myriad functionalities of dystrophin in striated muscle biology. Here, we review the pathophysiological basis of DMD and discuss recent progress toward the development of therapeutic strategies for DMD that are currently close to or are in human clinical trials. The first section of the review focuses on DMD and the mechanisms contributing to membrane instability, inflammation, and fibrosis. The second section discusses therapeutic strategies currently used to treat DMD. This includes a focus on outlining the strengths and limitations of approaches directed at correcting the genetic defect through dystrophin gene replacement, modification, repair, and/or a range of dystrophin-independent approaches. The final section highlights the different therapeutic strategies for DMD currently in clinical trials.",
+  "labels": {
+    "is_signal": false,
+    "gene_targets": [
+      "DMD"
+    ],
+    "mechanisms": [],
+    "companies_mentioned": [],
+    "directionality": "neutral",
+    "prefilter_should_pass": true
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "source_type": "clinicaltrials",
+  "external_id": "clinicaltrials:NCT04179409",
+  "source_url": "https://clinicaltrials.gov/study/NCT04179409",
+  "published_date": "2023-10-26T00:00:00Z",
+  "raw_content": "A 48-Week, Open Label, Study to Evaluate the Efficacy and Safety of AMONDYS 45, EXONDYS 51, VYONDYS 53 in Subjects With DuchenneMuscular Dystrophy Carrying Eligible DMD Duplications.\n\nThis is an 48-week open-label study to determine the efficacy and safety of AMONDYS 45, EXONDYS 51, VYONDYS 53 for the treatment of boys with duchenne muscular dystrophy who have a single exon duplication of either exon 45, 51 or 53, respectively. There will be weekly infusions and two muscle biopsies at baseline and at month 12.\n\nNCT ID: NCT04179409\nOverall status: COMPLETED\nStudy first posted: 2019-11-27\nLast updated: 2023-10-26\nFirst submitted: 2019-08-12",
+  "labels": {
+    "is_signal": true,
+    "gene_targets": [
+      "DMD"
+    ],
+    "mechanisms": [
+      "exon skipping",
+      "casimersen"
+    ],
+    "companies_mentioned": [
+      "Sarepta Therapeutics"
+    ],
+    "directionality": "positive",
+    "prefilter_should_pass": true
+  }
+}

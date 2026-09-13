@@ -1,0 +1,22 @@
+{
+  "source_type": "clinicaltrials",
+  "external_id": "clinicaltrials:NCT02760264",
+  "source_url": "https://clinicaltrials.gov/study/NCT02760264",
+  "published_date": "2019-01-02T00:00:00Z",
+  "raw_content": "A Study to Assess Vamorolone in Boys With Duchenne Muscular Dystrophy (DMD)\n\nThe purpose of this study is to determine whether a new medication called vamorolone is safe and well-tolerated by boys with Duchenne muscular dystrophy (DMD) ages ≥ 4 and \\< 7 years old.\n\nNCT ID: NCT02760264\nOverall status: COMPLETED\nStudy first posted: 2016-05-03\nLast updated: 2019-01-02\nFirst submitted: 2016-04-28",
+  "labels": {
+    "is_signal": true,
+    "gene_targets": [
+      "DMD"
+    ],
+    "mechanisms": [
+      "vamorolone",
+      "dissociative steroid"
+    ],
+    "companies_mentioned": [
+      "ReveraGen BioPharma"
+    ],
+    "directionality": "positive",
+    "prefilter_should_pass": true
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "source_type": "edgar",
+  "external_id": "edgar:0001437749-23-011888",
+  "source_url": "https://www.sec.gov/Archives/edgar/data/1437749/000143774923011888/",
+  "published_date": "2023-05-01T00:00:00Z",
+  "raw_content": "Accession: 0001437749-23-011888\nEntity: Pulse Biosciences, Inc.\nForm type: 8-K\nFiled: 2023-05-01\nPeriod: 2023-04-30\nItems: Item 8.01, Item 9.01",
+  "labels": {
+    "is_signal": false,
+    "gene_targets": [],
+    "mechanisms": [],
+    "companies_mentioned": [
+      "Pulse Biosciences"
+    ],
+    "directionality": "neutral",
+    "prefilter_should_pass": false
+  }
+}

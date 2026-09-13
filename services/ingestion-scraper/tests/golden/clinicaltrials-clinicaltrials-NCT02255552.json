@@ -1,0 +1,22 @@
+{
+  "source_type": "clinicaltrials",
+  "external_id": "clinicaltrials:NCT02255552",
+  "source_url": "https://clinicaltrials.gov/study/NCT02255552",
+  "published_date": "2021-01-25T00:00:00Z",
+  "raw_content": "Study of Eteplirsen in DMD Patients\n\nThe main objective of this study is to provide evidence of efficacy of eteplirsen (AVI-4658) in Duchenne muscular dystrophy (DMD) patients that are amenable to skipping exon 51. Additional objectives include evaluation of safety, biomarkers and the long-term effects of eteplirsen up to 96 weeks, followed by a safety extension (not to exceed 48 weeks).\n\nNCT ID: NCT02255552\nOverall status: COMPLETED\nStudy first posted: 2014-10-02\nLast updated: 2021-01-25\nFirst submitted: 2014-09-25",
+  "labels": {
+    "is_signal": true,
+    "gene_targets": [
+      "DMD"
+    ],
+    "mechanisms": [
+      "exon skipping",
+      "eteplirsen"
+    ],
+    "companies_mentioned": [
+      "Sarepta Therapeutics"
+    ],
+    "directionality": "positive",
+    "prefilter_should_pass": true
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "source_type": "biorxiv",
+  "external_id": "biorxiv:10.1101/2022.05.16.492163",
+  "source_url": "https://www.biorxiv.org/content/10.1101/2022.05.16.492163",
+  "published_date": "2022-05-18T00:00:00Z",
+  "raw_content": "Evaluation of the DBA/2J mouse as a potential background strain for genetic models of cardiomyopathy\n\nThe potential use of the D2.mdx mouse (the mdx mutation on the DBA/2J genetic background) as a preclinical model of the cardiac aspects of Duchenne muscular dystrophy (DMD) has been criticized based on speculation that the DBA/2J genetic background displays an inherent hypertrophic cardiomyopathy phenotype. Accordingly, the goal of the current study was to further examine the cardiac status of this mouse strain over a 12-month period. DBA/2J mice have been scrutinized for the presence of cardiac lesions, however, in the current study we find that DBA/2J mice contain equivalent amounts of left ventricular collagen as healthy canine and human samples. In a longitudinal echocardiography study, neither sedentary or exercised DBA/2J mice demonstrated left ventricular wall thickening or cardiac functional deficits. In summary, we find no evidence of hypertrophic cardiomyopathy, or any other cardiac pathology, and thus propose that it is an appropriate background strain for genetic modeling of cardiac diseases, including the cardiomyopathy associated with DMD.",
+  "labels": {
+    "is_signal": false,
+    "gene_targets": [
+      "DMD"
+    ],
+    "mechanisms": [
+      "mdx mouse model"
+    ],
+    "companies_mentioned": [],
+    "directionality": "neutral",
+    "prefilter_should_pass": true
+  }
+}

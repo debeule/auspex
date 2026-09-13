@@ -18,7 +18,7 @@ def test_golden_set_covers_every_source_type_and_both_is_signal_classes():
         pytest.skip("Golden set is empty — populate tests/golden/ to enable this test")
 
     source_types = {d.source_type for d in docs}
-    required = {"biorxiv", "pubmed", "epo_ops", "clinical_trials", "edgar"}
+    required = {"biorxiv", "pubmed", "clinicaltrials", "edgar"}
     missing = required - source_types
     assert not missing, f"Missing source types: {missing}"
 

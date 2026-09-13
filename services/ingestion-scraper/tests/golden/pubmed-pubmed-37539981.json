@@ -1,0 +1,22 @@
+{
+  "source_type": "pubmed",
+  "external_id": "pubmed:37539981",
+  "source_url": "https://pubmed.ncbi.nlm.nih.gov/37539981/",
+  "published_date": "2023-08-01T00:00:00Z",
+  "raw_content": "Delandistrogene Moxeparvovec Gene Therapy in Ambulatory Patients (Aged ≥4 to <8 Years) with Duchenne Muscular Dystrophy: 1-Year Interim Results from Study SRP-9001-103 (ENDEAVOR).\n\nOBJECTIVE: Delandistrogene moxeparvovec is approved in the USA for the treatment of ambulatory patients (4-5 years) with Duchenne muscular dystrophy. ENDEAVOR (SRP-9001-103; NCT04626674) is a single-arm, open-label study to evaluate delandistrogene moxeparvovec micro-dystrophin expression, safety, and functional outcomes following administration of commercial process delandistrogene moxeparvovec. METHODS: In cohort 1 of ENDEAVOR (N = 20), eligible ambulatory males, aged ≥4 to <8 years, received a single intravenous infusion of delandistrogene moxeparvovec (1.33 × 1014  vg/kg). The primary endpoint was change from baseline (CFBL) to week 12 in delandistrogene moxeparvovec micro-dystrophin by western blot. Additional endpoints evaluated included: safety; vector genome copies; CFBL to week 12 in muscle fiber-localized micro-dystrophin by immunofluorescence; and functional assessments, including North Star Ambulatory Assessment, with comparison with a propensity score-weighted external natural history control. RESULTS: The 1-year safety profile of commercial process delandistrogene moxeparvovec in ENDEAVOR was consistent with safety data reported in other delandistrogene moxeparvovec trials (NCT03375164 and NCT03769116). Delandistrogene moxeparvovec micro-dystrophin expression was robust, with sarcolemmal localization at week 12; mean (SD) CFBL in western blot, 54.2% (42.6); p < 0.0001. At 1 year, patients demonstrated stabilized or improved North Star Ambulatory Assessment total scores; mean (SD) CFBL, +4.0 (3.5). Treatment versus a propensity score-weighted external natural history control demonstrated a statistically significant difference in least squares mean (standard error) CFBL in North Star Ambulatory Assessment, +3.2 (0.6) points; p < 0.0001. INTERPRETATION: Results confirm efficient transduction of muscle by delandistrogene moxeparvovec. One-year post-treatment, delandistrogene moxeparvovec was well tolerated, and demonstrated stabilized or improved motor function, suggesting a clinical benefit for patients with Duchenne muscular dystrophy. ANN NEUROL 2023;94:955-968.",
+  "labels": {
+    "is_signal": true,
+    "gene_targets": [
+      "DMD"
+    ],
+    "mechanisms": [
+      "AAV gene therapy",
+      "micro-dystrophin"
+    ],
+    "companies_mentioned": [
+      "Sarepta Therapeutics"
+    ],
+    "directionality": "positive",
+    "prefilter_should_pass": true
+  }
+}

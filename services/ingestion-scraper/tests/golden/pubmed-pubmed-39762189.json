@@ -1,0 +1,19 @@
+{
+  "source_type": "pubmed",
+  "external_id": "pubmed:39762189",
+  "source_url": "https://pubmed.ncbi.nlm.nih.gov/39762189/",
+  "published_date": "2025-01-01T00:00:00Z",
+  "raw_content": "Givinostat (Duvyzat) for Duchenne muscular dystrophy.",
+  "labels": {
+    "is_signal": true,
+    "gene_targets": [
+      "DMD"
+    ],
+    "mechanisms": [
+      "givinostat"
+    ],
+    "companies_mentioned": [],
+    "directionality": "positive",
+    "prefilter_should_pass": true
+  }
+}

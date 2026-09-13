@@ -1,0 +1,22 @@
+{
+  "source_type": "edgar",
+  "external_id": "edgar:0001193125-26-222768",
+  "source_url": "https://www.sec.gov/Archives/edgar/data/1590877/000119312526222768/",
+  "published_date": "2026-05-14T00:00:00Z",
+  "raw_content": "Accession: 0001193125-26-222768\nEntity: REGENXBIO Inc.\nForm type: 8-K\nFiled: 2026-05-14\nPeriod: 2026-03-31\nItems: Item 2.02, Item 7.01, Item 8.01, Item 9.01",
+  "labels": {
+    "is_signal": true,
+    "gene_targets": [
+      "DMD"
+    ],
+    "mechanisms": [
+      "AAV gene therapy",
+      "micro-dystrophin"
+    ],
+    "companies_mentioned": [
+      "REGENXBIO"
+    ],
+    "directionality": "positive",
+    "prefilter_should_pass": true
+  }
+}

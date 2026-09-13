@@ -1,0 +1,19 @@
+{
+  "source_type": "edgar",
+  "external_id": "edgar:0001193125-23-202288",
+  "source_url": "https://www.sec.gov/Archives/edgar/data/1631574/000119312523202288/",
+  "published_date": "2023-08-03T00:00:00Z",
+  "raw_content": "Accession: 0001193125-23-202288\nEntity: Wave Life Sciences Ltd.\nForm type: 8-K\nFiled: 2023-08-03\nPeriod: 2023-06-30\nItems: Item 2.02, Item 7.01, Item 9.01",
+  "labels": {
+    "is_signal": false,
+    "gene_targets": [
+      "DMD"
+    ],
+    "mechanisms": [],
+    "companies_mentioned": [
+      "Wave Life Sciences"
+    ],
+    "directionality": "neutral",
+    "prefilter_should_pass": true
+  }
+}

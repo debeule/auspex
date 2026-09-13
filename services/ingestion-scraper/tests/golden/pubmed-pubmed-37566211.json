@@ -1,0 +1,22 @@
+{
+  "source_type": "pubmed",
+  "external_id": "pubmed:37566211",
+  "source_url": "https://pubmed.ncbi.nlm.nih.gov/37566211/",
+  "published_date": "2023-08-01T00:00:00Z",
+  "raw_content": "Delandistrogene Moxeparvovec: First Approval.\n\nDelandistrogene moxeparvovec (delandistrogene moxeparvovec-rokl; ELEVIDYS®) is an adeno-associated virus (AAV) vector-based gene therapy designed to deliver a gene encoding a micro-dystrophin protein [i.e. a shortened (138 kDa) version of the dystrophin protein expressed in normal muscle cells (427 kDa)] to all muscles involved in the pathology of Duchenne muscular dystrophy (DMD). Developed by Sarepta Therapeutics, it is the first gene therapy to be approved (in June 2023 under the Accelerated Approval pathway) for the treatment of DMD in the USA, where it is indicated for ambulatory paediatric patients aged 4 through 5 years with DMD and a confirmed mutation in the dystrophin (DMD) gene. The recommended dose of delandistrogene moxeparvovec is 1.33 × 1014 vector genomes per kg of body weight or 10 mL/kg body weight, administered as a single intravenous infusion. Delandistrogene moxeparvovec is undergoing clinical development in several countries/regions, including the EU and Japan. This article summarizes the milestones in the development of delandistrogene moxeparvovec leading to this first approval in the USA for the treatment of ambulatory paediatric patients aged 4 through 5 years with DMD and a confirmed mutation in the DMD gene.",
+  "labels": {
+    "is_signal": true,
+    "gene_targets": [
+      "DMD"
+    ],
+    "mechanisms": [
+      "gene therapy",
+      "micro-dystrophin"
+    ],
+    "companies_mentioned": [
+      "Sarepta Therapeutics"
+    ],
+    "directionality": "positive",
+    "prefilter_should_pass": true
+  }
+}

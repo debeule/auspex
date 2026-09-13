@@ -1,0 +1,21 @@
+{
+  "source_type": "biorxiv",
+  "external_id": "biorxiv:10.1101/2022.01.08.475493",
+  "source_url": "https://www.biorxiv.org/content/10.1101/2022.01.08.475493",
+  "published_date": "2022-01-10T00:00:00Z",
+  "raw_content": "NOX4 inhibition promotes the remodeling of dystrophic muscle\n\nThe muscular dystrophies (MDs) are genetic muscle diseases that result in progressive muscle degeneration followed by the fibrotic replacement of affected muscles as regenerative processes fail. Therapeutics that specifically address the fibrosis and failed regeneration associated with MDs represent a major unmet clinical need for MD patients, particularly those with advanced stage disease progression. The current study investigates targeting NAD(P)H oxidase (NOX) 4 as a potential strategy to reduce fibrosis and promote regeneration in disease-burdened muscle that models Duchenne muscular dystrophy (DMD). NOX4 is elevated in the muscles of dystrophic mice and DMD patients, localizing primarily to interstitial cells located between muscle fibers. Genetic and pharmacological targeting of NOX4 significantly reduces fibrosis in dystrophic respiratory and limb muscles. Mechanistically, NOX4 targeting decreases the number of fibrosis-depositing cells (myofibroblasts) and restores the number of muscle-specific stem cells (satellite cells) to their physiological niche, thereby, rejuvenating muscle regeneration. Furthermore, acute inhibition of NOX4 is sufficient to induce apoptotic clearing of myofibroblasts within dystrophic muscle. These data indicate that targeting NOX4 is an effective strategy to promote the beneficial remodeling of disease-burdened muscle representative of DMD and, potentially, other MDs and muscle pathologies.\n\nSIGNIFICANCE STATEMENTMuscular dystrophies are progressive muscle diseases. Therapeutics capable of combating the severe fibrosis that replaces functional muscle in these devastating diseases is a major unmet clinical need, particularly for the treatment of older patients. The current work reveals that targeting NOX4 in dystrophic muscle promotes the beneficial remodeling of disease-burdened musculature. This is achieved by the removal of disease-causing cells, known as myofibroblasts, which results in reduced muscle fibrosis and rejuvenation of muscle regeneration. NOX4-targeting strategies, therefore, represent remodeling therapeutics capable of improving muscle disease caused by muscular dystrophy, and, likely, other muscle pathologies.",
+  "labels": {
+    "is_signal": true,
+    "gene_targets": [
+      "DMD",
+      "NOX4"
+    ],
+    "mechanisms": [
+      "NOX4 inhibition",
+      "reactive oxygen species"
+    ],
+    "companies_mentioned": [],
+    "directionality": "positive",
+    "prefilter_should_pass": true
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "source_type": "clinicaltrials",
+  "external_id": "clinicaltrials:NCT04371666",
+  "source_url": "https://clinicaltrials.gov/study/NCT04371666",
+  "published_date": "2024-03-12T00:00:00Z",
+  "raw_content": "Phase 3 Trial of Pamrevlumab or Placebo With Systemic Corticosteroids in Participants With Non-ambulatory Duchenne Muscular Dystrophy (DMD)\n\nTo evaluate the efficacy and safety of pamrevlumab versus placebo in combination with systemic corticosteroids in participants with non-ambulatory Duchenne muscular dystrophy (age 12 years and older).\n\nNCT ID: NCT04371666\nOverall status: TERMINATED\nStudy first posted: 2020-05-01\nLast updated: 2024-03-12\nFirst submitted: 2020-04-29",
+  "labels": {
+    "is_signal": true,
+    "gene_targets": [
+      "DMD"
+    ],
+    "mechanisms": [
+      "pamrevlumab",
+      "anti-CTGF",
+      "monoclonal antibody"
+    ],
+    "companies_mentioned": [
+      "FibroGen"
+    ],
+    "directionality": "negative",
+    "prefilter_should_pass": true
+  }
+}

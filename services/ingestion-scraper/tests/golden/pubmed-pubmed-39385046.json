@@ -1,0 +1,22 @@
+{
+  "source_type": "pubmed",
+  "external_id": "pubmed:39385046",
+  "source_url": "https://pubmed.ncbi.nlm.nih.gov/39385046/",
+  "published_date": "2024-10-01T00:00:00Z",
+  "raw_content": "AAV gene therapy for Duchenne muscular dystrophy: the EMBARK phase 3 randomized trial.\n\nDuchenne muscular dystrophy (DMD) is a rare, X-linked neuromuscular disease caused by pathogenic variants in the DMD gene that result in the absence of functional dystrophin, beginning at birth and leading to progressive impaired motor function, loss of ambulation and life-threatening cardiorespiratory complications. Delandistrogene moxeparvovec, an adeno-associated rh74-viral vector-based gene therapy, addresses absent functional dystrophin in DMD. Here the phase 3 EMBARK study aimed to assess the efficacy and safety of delandistrogene moxeparvovec in patients with DMD. Ambulatory males with DMD, ≥4 years to <8 years of age, were randomized and stratified by age group and North Star Ambulatory Assessment (NSAA) score to single-administration intravenous delandistrogene moxeparvovec (1.33 × 1014 vector genomes per kilogram; n = 63) or placebo (n = 62). At week 52, the primary endpoint, change from baseline in NSAA score, was not met (least squares mean 2.57 (delandistrogene moxeparvovec) versus 1.92 (placebo) points; between-group difference, 0.65; 95% confidence interval (CI), -0.45, 1.74; P = 0.2441). Secondary efficacy endpoints included mean micro-dystrophin expression at week 12: 34.29% (treated) versus 0.00% (placebo). Other secondary efficacy endpoints at week 52 (between-group differences (95% CI)) included: Time to Rise (-0.64 (-1.06, -0.23)), 10-meter Walk/Run (-0.42 (-0.71, -0.13)), stride velocity 95th centile (0.10 (0.00, 0.19)), 100-meter Walk/Run (-3.29 (-8.28, 1.70)), time to ascend 4 steps (-0.36 (-0.71, -0.01)), PROMIS Mobility and Upper Extremity (0.05 (-0.08, 0.19); -0.04 (-0.24, 0.17)) and number of NSAA skills gained/improved (0.19 (-0.67, 1.06)). In total, 674 adverse events were recorded with delandistrogene moxeparvovec and 514 with placebo. There were no deaths, discontinuations or clinically significant complement-mediated adverse events; 7 patients (11.1%) experienced 10 treatment-related serious adverse events. Delandistrogene moxeparvovec did not lead to a significant improvement in NSAA score at week 52. Some of the secondary endpoints numerically favored treatment, although no statistical significance can be claimed. Safety was manageable and consistent with previous delandistrogene moxeparvovec trials. ClinicalTrials.gov: NCT05096221.",
+  "labels": {
+    "is_signal": true,
+    "gene_targets": [
+      "DMD"
+    ],
+    "mechanisms": [
+      "AAV gene therapy",
+      "micro-dystrophin"
+    ],
+    "companies_mentioned": [
+      "Sarepta Therapeutics"
+    ],
+    "directionality": "positive",
+    "prefilter_should_pass": true
+  }
+}

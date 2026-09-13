@@ -1,0 +1,17 @@
+{
+  "source_type": "pubmed",
+  "external_id": "pubmed:40609975",
+  "source_url": "https://pubmed.ncbi.nlm.nih.gov/40609975/",
+  "published_date": "2025-07-01T00:00:00Z",
+  "raw_content": "Inequitable Racial and Ethnic Representation in Duchenne Muscular Dystrophy Clinical Trials.\n\nWe investigated the racial and ethnic distribution of participants in Duchenne muscular dystrophy (DMD) phases II and III clinical trials.A total of 36 DMD phases II and III clinical trials were analyzed for racial and ethnic information. Publicly available demographic information was collected from DMD phases II and III clinical trials registered between 2005 and 2018 from the clinical trials database (clinicaltrials.gov). Clinical trial participation was also analyzed based on geographic location (international vs. United States) and funding source (industry vs. academia).White participants accounted for 84% of study participants in DMD phases II and III clinical trials in both multinational studies and within the continental United States. Among the 36 trials, 22% (8/36) did not report racial data, and 44% (16/36) did not report ethnicity. Most DMD phases II and III clinical trials were funded by industry (89%) compared with the National Institutes of Health (3%) and other sources (8%).White participants are most represented in DMD phases II and III clinical trials. The documentation of racial and ethnic information in DMD clinical trials is insufficient. These data highlight the need for further approaches to diversify and include equitable representation in DMD clinical trials.",
+  "labels": {
+    "is_signal": false,
+    "gene_targets": [
+      "DMD"
+    ],
+    "mechanisms": [],
+    "companies_mentioned": [],
+    "directionality": "neutral",
+    "prefilter_should_pass": true
+  }
+}

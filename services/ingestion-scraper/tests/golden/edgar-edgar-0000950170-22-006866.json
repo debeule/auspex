@@ -1,0 +1,19 @@
+{
+  "source_type": "edgar",
+  "external_id": "edgar:0000950170-22-006866",
+  "source_url": "https://www.sec.gov/Archives/edgar/data/1818794/000095017022006866/",
+  "published_date": "2022-05-02T00:00:00Z",
+  "raw_content": "Accession: 0000950170-22-006866\nEntity: Dyne Therapeutics, Inc.\nForm type: 8-K\nFiled: 2022-05-02\nPeriod: 2022-03-31\nItems: Item 2.02, Item 9.01",
+  "labels": {
+    "is_signal": false,
+    "gene_targets": [
+      "DMD"
+    ],
+    "mechanisms": [],
+    "companies_mentioned": [
+      "Dyne Therapeutics"
+    ],
+    "directionality": "neutral",
+    "prefilter_should_pass": true
+  }
+}

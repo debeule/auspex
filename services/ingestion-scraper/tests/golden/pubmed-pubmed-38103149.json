@@ -1,0 +1,23 @@
+{
+  "source_type": "pubmed",
+  "external_id": "pubmed:38103149",
+  "source_url": "https://pubmed.ncbi.nlm.nih.gov/38103149/",
+  "published_date": "2023-12-01T00:00:00Z",
+  "raw_content": "Vamorolone: First Approval.\n\nVamorolone (AGAMREE®) is an oral, selective, dissociative corticosteroid developed by ReveraGen BioPharma and Santhera Pharmaceuticals for the treatment of patients with muscular dystrophy. Vamorolone was approved in October 2023 for the treatment of Duchenne muscular dystrophy (DMD) in patients 2 years of age and older in the USA and received a positive opinion in the EU in October 2023 for the treatment of DMD in patients 4 years of age and older. This article summarizes the milestones in the development of vamorolone leading to this first approval for DMD.",
+  "labels": {
+    "is_signal": true,
+    "gene_targets": [
+      "DMD"
+    ],
+    "mechanisms": [
+      "corticosteroid replacement",
+      "vamorolone"
+    ],
+    "companies_mentioned": [
+      "ReveraGen BioPharma",
+      "Santhera Pharmaceuticals"
+    ],
+    "directionality": "positive",
+    "prefilter_should_pass": true
+  }
+}

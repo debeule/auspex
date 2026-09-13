@@ -1,0 +1,22 @@
+{
+  "source_type": "clinicaltrials",
+  "external_id": "clinicaltrials:NCT02814019",
+  "source_url": "https://clinicaltrials.gov/study/NCT02814019",
+  "published_date": "2021-12-03T00:00:00Z",
+  "raw_content": "A Phase III Double-blind Study With Idebenone in Patients With Duchenne Muscular Dystrophy (DMD) Taking Glucocorticoid Steroids\n\nThe purpose of the study is to assess the efficacy of idebenone in delaying the loss of respiratory function in patients with DMD receiving concomitant glucocorticoid steroids\n\nNCT ID: NCT02814019\nOverall status: TERMINATED\nStudy first posted: 2016-06-27\nLast updated: 2021-12-03\nFirst submitted: 2016-06-17",
+  "labels": {
+    "is_signal": true,
+    "gene_targets": [
+      "DMD"
+    ],
+    "mechanisms": [
+      "idebenone",
+      "mitochondrial electron carrier"
+    ],
+    "companies_mentioned": [
+      "Santhera Pharmaceuticals"
+    ],
+    "directionality": "negative",
+    "prefilter_should_pass": true
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "source_type": "edgar",
+  "external_id": "edgar:0001193125-23-004189",
+  "source_url": "https://www.sec.gov/Archives/edgar/data/1707502/000119312523004189/",
+  "published_date": "2023-01-09T00:00:00Z",
+  "raw_content": "Accession: 0001193125-23-004189\nEntity: Solid Biosciences Inc.\nForm type: 8-K\nFiled: 2023-01-09\nPeriod: 2022-12-31\nItems: Item 2.02, Item 5.02, Item 7.01, Item 8.01, Item 9.01",
+  "labels": {
+    "is_signal": true,
+    "gene_targets": [
+      "DMD"
+    ],
+    "mechanisms": [
+      "AAV gene therapy",
+      "micro-dystrophin"
+    ],
+    "companies_mentioned": [
+      "Solid Biosciences"
+    ],
+    "directionality": "neutral",
+    "prefilter_should_pass": true
+  }
+}

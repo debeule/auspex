@@ -1,0 +1,20 @@
+{
+  "source_type": "biorxiv",
+  "external_id": "biorxiv:10.1101/2022.02.16.480726",
+  "source_url": "https://www.biorxiv.org/content/10.1101/2022.02.16.480726",
+  "published_date": "2023-07-31T00:00:00Z",
+  "raw_content": "GSK3 inhibition improves skeletal muscle function and whole-body metabolism in the severe DBA/2J mdx mouse model\n\nIntroductory paragraphDuchenne muscular dystrophy (DMD) is a severe X-linked muscle wasting disorder that affects 1 in 5,000 males worldwide1. It is caused by the absence of functional dystrophin, which compromises muscle integrity, leading to progressive muscle wasting and weakness2. Glucocorticoids are the standard of care for patients with DMD as they delay the loss of ambulation by an average of 3 years3; however, they are also associated with adverse effects such as insulin resistance and increased risk of type 2 diabetes4. Thus, alternative therapeutic options should be explored. Here, we show that treating the DBA/2J mdx mouse with the glycogen synthase kinase 3 (GSK3) inhibitor, tideglusib, improved skeletal muscle function and insulin sensitivity, while also attenuating the hypermetabolic phenotype previously observed in these mice5. Furthermore, treating mdx mice with the GSK3 inhibitor, lithium, augmented the benefits of voluntary wheel running on insulin sensitivity and skeletal muscle function despite running half of the total distance compared to control-treated mdx mice. This is important given that some patients with DMD may not be able to engage in adequate amounts of physical activity. Thus, GSK3 inhibition alone or in combination with exercise can enhance skeletal muscle function and insulin sensitivity in mdx mice.",
+  "labels": {
+    "is_signal": true,
+    "gene_targets": [
+      "DMD"
+    ],
+    "mechanisms": [
+      "GSK3 inhibition",
+      "tideglusib"
+    ],
+    "companies_mentioned": [],
+    "directionality": "positive",
+    "prefilter_should_pass": true
+  }
+}

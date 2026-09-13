@@ -1,0 +1,22 @@
+{
+  "source_type": "pubmed",
+  "external_id": "pubmed:41681118",
+  "source_url": "https://pubmed.ncbi.nlm.nih.gov/41681118/",
+  "published_date": "2026-02-01T00:00:00Z",
+  "raw_content": "Learnings from Patient Mortality after Delandistrogene Moxeparvovec Administration: A Report of Two Cases and Expert Committee Considerations for Future Mitigation and Management.\n\nAcute liver injury (ALI) is a recognized adverse event with adeno-associated virus (AAV)-based gene therapies, including delandistrogene moxeparvovec, an AAVrh74-based gene therapy for Duchenne muscular dystrophy. Progression of ALI to acute liver failure (ALF) is rare. In clinical trials, ALF was defined as an international normalized ratio ≥1.5 with encephalopathy and/or ascites, occurring <26 weeks since product/treatment exposure, and in the absence of identified preexisting liver disease as assessed by the treating investigator. The two cases presented here represent the only known instances of ALF following delandistrogene moxeparvovec to date, both resulting in fatal outcomes. Both cases occurred in nonambulatory patients (ages 15 and 16 years). Both patients exhibited abrupt elevations in aminotransferases from baseline approximately 4 weeks after delandistrogene moxeparvovec administration. Over the subsequent weeks and despite interventions, aminotransferases, including gamma-glutamyl transferase (GGT), declined concurrently with a continued rise in total bilirubin, consistent with severe hepatocellular injury and a harbinger of ALF. An interdisciplinary expert panel was convened and concluded that no single biomarker or clinical feature consistently predicted the rapid progression of severe ALI to ALF. Advisors recommended basing treatment intervention for severe ALI on the rate and magnitude of changes from baseline in liver biomarkers (e.g., 2-3× increase in alanine aminotransferase within ≤1 week). For these severe cases, most advisors recommended intravenous methylprednisolone as the initial treatment whereas typical ALI may be managed with oral corticosteroid adjustment or may resolve with time, as seen in the clinical trial experience. Advisors hypothesized that delandistrogene moxeparvovec-related ALI is T-cell-mediated and discussed the potential of additional immunosuppression. Advisors also recommended enhancing baseline evaluation for hepatic comorbidities with lipid profiling, transient elastography, and abdominal ultrasound to further study potential risk factors for ALI progressing to ALF. Finally, there was strong support for generating additional real-world evidence and conducting prospective clinical trials to inform clinical management of ALI in practice.",
+  "labels": {
+    "is_signal": true,
+    "gene_targets": [
+      "DMD"
+    ],
+    "mechanisms": [
+      "AAV gene therapy",
+      "micro-dystrophin"
+    ],
+    "companies_mentioned": [
+      "Sarepta Therapeutics"
+    ],
+    "directionality": "negative",
+    "prefilter_should_pass": true
+  }
+}

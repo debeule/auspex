@@ -1,0 +1,20 @@
+{
+  "source_type": "biorxiv",
+  "external_id": "biorxiv:10.1101/2022.02.16.478175",
+  "source_url": "https://www.biorxiv.org/content/10.1101/2022.02.16.478175",
+  "published_date": "2022-02-17T00:00:00Z",
+  "raw_content": "Metabotropic purinergic receptor profiles and calcium signalling in primary mice myoblasts differ depending on their muscle origin and are altered in cells with mutated dystrophin gene (mdx mice)\n\nMortality of Duchenne Muscular Dystrophy (DMD) is a direct consequence of progressive wasting of muscle fibres leading to skeletal muscle deterioration and cardiomyopathy. However pathophysiological effects of mutations in the dystrophin encoding gene, which result in improper muscle maturation are detectable in muscle precursor cells which do not express dystrophin gene at the protein level because of early stage of differentiation thus irrespectively of changes in dystrophin-encoding gene. Among these abnormalities elevated activity of P2X7 receptors and increased store-operated calcium entry, have been identified in mdx mouse myoblasts. Moreover the increased response of immortalized mdx myoblasts to agonists activating metabotropic purinergic receptors was characterised. Experiments on immortalized myoblasts do not allow indicating potentially specific effects of mdx mutation on cells derived from particular muscles. Moreover an immortalization of cells itself may influence their metabolism in poorly defined way. Therefore here the metabotropic response of primary myoblasts derived from various muscles of normal and mdx mice to nucleotide stimulation has been investigated. Transcript and protein level of P2Y receptors, sensitivity to antagonist, and cellular localization clearly indicate P2RY2 as the most affected in mdx myoblasts. This meets our previous conclusion drawn from experiments with immortalized cells. However a pattern of expression and activity of P2Y receptors among myoblasts derived from four muscles differ. Also cellular levels of some other proteins belonging to the \"calcium signalling toolkit\" differ in myoblasts from various muscle and are differently changed due to mdx mutation. Finally, these results complement and strongly support previously formulated conclusion that phenotypic effects of DMD emerge as early as in undifferentiated muscle and therefore traditional understanding of DMD pathogenesis needs re-evaluation.",
+  "labels": {
+    "is_signal": false,
+    "gene_targets": [
+      "DMD"
+    ],
+    "mechanisms": [
+      "purinergic receptor signaling",
+      "calcium homeostasis"
+    ],
+    "companies_mentioned": [],
+    "directionality": "neutral",
+    "prefilter_should_pass": true
+  }
+}

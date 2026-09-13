@@ -1,0 +1,22 @@
+{
+  "source_type": "pubmed",
+  "external_id": "pubmed:36401022",
+  "source_url": "https://pubmed.ncbi.nlm.nih.gov/36401022/",
+  "published_date": "2022-11-01T00:00:00Z",
+  "raw_content": "Viltolarsen: From Preclinical Studies to FDA Approval.\n\nViltolarsen is a phosphorodiamidate morpholino antisense oligonucleotide (PMO) designed to skip exon 53 of the DMD gene for the treatment of Duchenne muscular dystrophy (DMD), one of the most common lethal genetic disorders characterized by progressive degeneration of skeletal muscles and cardiomyopathy. It was developed by Nippon Shinyaku in collaboration with the National Center of Neurology and Psychiatry (NCNP) in Japan based on the preclinical studies conducted in the DMD dog model at the NCNP. After showing hopeful results in pre-clinical trials and several clinical trials across North America and Japan, it received US Food and Drug Administration (FDA) approval for DMD in 2020. Viltolarsen restores the reading frame of the DMD gene by skipping  exon 53 and produces a truncated but functional form of dystrophin. It can treat approximately 8-10% of the DMD patient population. This paper aims to summarize the development of viltolarsen from preclinical trials to clinical trials to, finally, FDA approval, and discusses the challenges that come with fighting DMD using antisense therapy.",
+  "labels": {
+    "is_signal": true,
+    "gene_targets": [
+      "DMD"
+    ],
+    "mechanisms": [
+      "exon skipping",
+      "antisense oligonucleotide"
+    ],
+    "companies_mentioned": [
+      "NS Pharma"
+    ],
+    "directionality": "positive",
+    "prefilter_should_pass": true
+  }
+}

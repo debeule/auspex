@@ -1,0 +1,23 @@
+{
+  "source_type": "clinicaltrials",
+  "external_id": "clinicaltrials:NCT05693142",
+  "source_url": "https://clinicaltrials.gov/study/NCT05693142",
+  "published_date": "2026-07-21T00:00:00Z",
+  "raw_content": "AFFINITY DUCHENNE: RGX-202 Gene Therapy in Participants With Duchenne Muscular Dystrophy (DMD)\n\nRGX-202 is a gene therapy designed to deliver a transgene for a novel microdystrophin that includes functional elements of naturally-occurring dystrophin including the C-Terminal (CT) domain.\n\nThis is a multicenter, open-label dose evaluation clinical study to assess the safety, tolerability, and clinical efficacy of a one-time intravenous (IV) dose of RGX-202 in participants with Duchenne.\n\nNCT ID: NCT05693142\nOverall status: ACTIVE_NOT_RECRUITING\nStudy first posted: 2023-01-20\nLast updated: 2026-07-21\nFirst submitted: 2023-01-04",
+  "labels": {
+    "is_signal": true,
+    "gene_targets": [
+      "DMD"
+    ],
+    "mechanisms": [
+      "AAV gene therapy",
+      "micro-dystrophin",
+      "RGX-202"
+    ],
+    "companies_mentioned": [
+      "REGENXBIO"
+    ],
+    "directionality": "neutral",
+    "prefilter_should_pass": true
+  }
+}

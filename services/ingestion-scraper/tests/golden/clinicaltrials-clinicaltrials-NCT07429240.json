@@ -1,0 +1,22 @@
+{
+  "source_type": "clinicaltrials",
+  "external_id": "clinicaltrials:NCT07429240",
+  "source_url": "https://clinicaltrials.gov/study/NCT07429240",
+  "published_date": "2026-06-23T00:00:00Z",
+  "raw_content": "PBGENE-DMD Phase 1/2a Safety and Preliminary Efficacy Study in Duchenne Muscular Dystrophy (FUNCTION-DMD)\n\nThe purpose of this Phase 1/2a trial is to evaluate the safety, tolerability, and preliminary efficacy of PBGENE-DMD in patients with DMD harboring mutations amenable to excision of exons 45-55. Given the limitations of existing therapeutic strategies, PBGENE-DMD represents a novel, innovative approach with the potential for a one-time, durable correction of the underlying genetic defect in the largest molecular subset of patients with DMD.\n\nNCT ID: NCT07429240\nOverall status: RECRUITING\nStudy first posted: 2026-02-24\nLast updated: 2026-06-23\nFirst submitted: 2026-02-17",
+  "labels": {
+    "is_signal": true,
+    "gene_targets": [
+      "DMD"
+    ],
+    "mechanisms": [
+      "CRISPR gene editing",
+      "PBGENE-DMD"
+    ],
+    "companies_mentioned": [
+      "Precision BioSciences"
+    ],
+    "directionality": "neutral",
+    "prefilter_should_pass": true
+  }
+}

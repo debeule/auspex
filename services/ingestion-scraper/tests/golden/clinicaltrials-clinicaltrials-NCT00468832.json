@@ -1,0 +1,17 @@
+{
+  "source_type": "clinicaltrials",
+  "external_id": "clinicaltrials:NCT00468832",
+  "source_url": "https://clinicaltrials.gov/study/NCT00468832",
+  "published_date": "2016-04-21T00:00:00Z",
+  "raw_content": "Longitudinal Study of the Natural History of Duchenne Muscular Dystrophy (DMD)\n\nThe purpose of this study is to establish the largest long-term assessment of people with Duchenne muscular dystrophy (DMD). In this study, the investigators associated with the Cooperative International Neuromuscular Research Group CINRG) will take a detailed look (for a minimum of eight years) at DMD participant's physical abilities, the medical problems they experience, and how they use health care services. Physical abilities will be compared to a group of healthy controls.\n\nThe second purpose of this study is to find out whether small, normal differences in the genetic makeup of people with DMD (called \"single nucleotide polymorphisms\" or \"SNPs\") affect how their disease progresses and relates to muscle strength/size and steroid response.\n\nThe third purpose of this study is to study genetic variations associated with DMD.\n\nThe final purpose of this study is to determine whether certain biomarkers are present in people with DMD and not in healthy controls.\n\nNCT ID: NCT00468832\nOverall status: UNKNOWN\nStudy first posted: 2007-05-03\nLast updated: 2016-04-21\nFirst submitted: 2007-05-01",
+  "labels": {
+    "is_signal": false,
+    "gene_targets": [
+      "DMD"
+    ],
+    "mechanisms": [],
+    "companies_mentioned": [],
+    "directionality": "neutral",
+    "prefilter_should_pass": true
+  }
+}

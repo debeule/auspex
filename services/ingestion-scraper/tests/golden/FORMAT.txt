@@ -3,7 +3,7 @@ Golden set format — one JSON file per document.
 Each file must contain:
 
 {
-  "source_type": "biorxiv" | "pubmed" | "epo_ops" | "clinical_trials" | "edgar",
+  "source_type": "biorxiv" | "pubmed" | "clinicaltrials" | "edgar" | "epo_ops",
   "external_id": "<source-specific ID>",
   "source_url": "<full URL to the original document>",
   "published_date": "<ISO 8601 datetime with timezone, e.g. 2024-06-15T12:00:00Z>",

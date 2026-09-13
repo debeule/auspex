@@ -1,0 +1,20 @@
+{
+  "source_type": "pubmed",
+  "external_id": "pubmed:37602688",
+  "source_url": "https://pubmed.ncbi.nlm.nih.gov/37602688/",
+  "published_date": "2023-08-01T00:00:00Z",
+  "raw_content": "Gene therapy for Duchenne muscular dystrophy: an update on the latest clinical developments.\n\nINTRODUCTION: Duchenne muscular dystrophy (DMD) is one of the most severe and devastating neuromuscular hereditary diseases with a male newborn incidence of 20 000 cases each year. The disease caused by mutations (exon deletions, nonsense mutations, intra-exonic insertions or deletions, exon duplications, splice site defects, and deep intronic mutations) in the DMD gene, progressively leads to muscle wasting and loss of ambulation. This situation is painful for both patients and their families, calling for an emergent need for effective treatments. AREAS COVERED: In this review, the authors describe the state of the gene therapy approach in clinical trials for DMD. This therapeutics included gene replacement, gene substitution, RNA-based therapeutics, readthrough mutation, and the CRISPR approach. EXPERT OPINION: Only a few drug candidates have yet been granted conditional approval for the treatment of DMD. Most of these therapies have only a modest capability to restore the dystrophin or improve muscle function, suggesting an important unmet need in the development of DMD therapeutics. Complementary genes and cellular therapeutics need to be explored to both restore dystrophin, improve muscle function, and efficiently reconstitute the muscle fibers in the advanced stage of the disease.",
+  "labels": {
+    "is_signal": false,
+    "gene_targets": [
+      "DMD"
+    ],
+    "mechanisms": [
+      "AAV gene therapy",
+      "exon skipping"
+    ],
+    "companies_mentioned": [],
+    "directionality": "neutral",
+    "prefilter_should_pass": true
+  }
+}

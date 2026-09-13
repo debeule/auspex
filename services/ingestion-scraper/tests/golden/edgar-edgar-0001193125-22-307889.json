@@ -1,0 +1,22 @@
+{
+  "source_type": "edgar",
+  "external_id": "edgar:0001193125-22-307889",
+  "source_url": "https://www.sec.gov/Archives/edgar/data/1631574/000119312522307889/",
+  "published_date": "2022-12-19T00:00:00Z",
+  "raw_content": "Accession: 0001193125-22-307889\nEntity: Wave Life Sciences Ltd.\nForm type: 8-K\nFiled: 2022-12-19\nPeriod: 2022-12-19\nItems: Item 7.01, Item 8.01, Item 9.01",
+  "labels": {
+    "is_signal": true,
+    "gene_targets": [
+      "DMD"
+    ],
+    "mechanisms": [
+      "exon skipping",
+      "antisense oligonucleotide"
+    ],
+    "companies_mentioned": [
+      "Wave Life Sciences"
+    ],
+    "directionality": "positive",
+    "prefilter_should_pass": true
+  }
+}
