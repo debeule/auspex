@@ -48,6 +48,12 @@ class IngestionPipeline:
                     result.prefiltered_out += 1
                     continue
 
+                if doc.canonical_id is not None:
+                    marker = self._archive.get_canonical_marker(doc.canonical_id)
+                    if marker is not None and marker.get("source_type") != doc.source_type:
+                        result.prefiltered_out += 1
+                        continue
+
                 if not self._prefilter.passes(doc):
                     result.prefiltered_out += 1
                     continue
@@ -82,6 +88,16 @@ class IngestionPipeline:
                 self._producer.publish_raw(doc, key, doc.schema_version)
                 self._producer.publish_signal(event)
                 result.published += 1
+
+                if doc.canonical_id is not None:
+                    try:
+                        self._archive.put_canonical_marker(doc.canonical_id, {
+                            "canonical_id": doc.canonical_id,
+                            "source_type": doc.source_type,
+                            "external_id": doc.external_id,
+                        })
+                    except Exception:  # noqa: BLE001, S110
+                        pass  # Acceptable failure: next observation re-extracts once
 
             except Exception:  # noqa: BLE001
                 result.failed += 1

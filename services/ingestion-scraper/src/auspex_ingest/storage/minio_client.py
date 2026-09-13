@@ -1,5 +1,7 @@
+import hashlib
 import io
 import json
+from typing import Any
 
 from minio import Minio
 from minio.error import S3Error
@@ -38,3 +40,24 @@ class MinioArchive:
             content_type="application/json",
         )
         return key, is_new
+
+    def get_canonical_marker(self, canonical_id: str) -> dict[str, Any] | None:
+        key = f"dedup/canonical/{hashlib.sha256(canonical_id.encode()).hexdigest()}.json"
+        try:
+            response = self._client.get_object(self._bucket, key)
+            return dict(json.loads(response.read()))
+        except S3Error as e:
+            if e.code in ("NoSuchKey", "NoSuchObject"):
+                return None
+            raise
+
+    def put_canonical_marker(self, canonical_id: str, data: dict[str, Any]) -> None:
+        key = f"dedup/canonical/{hashlib.sha256(canonical_id.encode()).hexdigest()}.json"
+        payload = json.dumps(data).encode()
+        self._client.put_object(
+            self._bucket,
+            key,
+            io.BytesIO(payload),
+            len(payload),
+            content_type="application/json",
+        )

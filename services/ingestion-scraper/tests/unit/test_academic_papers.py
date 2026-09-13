@@ -233,6 +233,7 @@ def test_connector_runs_through_the_unchanged_ingestion_pipeline():
 
     archive = MagicMock()
     archive.put.return_value = ("raw/biorxiv/key.json", True)
+    archive.get_canonical_marker.return_value = None
     extractor = MagicMock()
     extractor.extract.return_value = None
     producer = MagicMock()

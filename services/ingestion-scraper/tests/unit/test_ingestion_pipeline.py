@@ -91,6 +91,7 @@ class FakeArchive:
     def __init__(self, pre_existing: set[str] | None = None) -> None:
         self.puts: list[tuple[str, RawDocument]] = []
         self._pre_existing = pre_existing or set()
+        self._canonical_markers: dict[str, dict] = {}
 
     def put(self, doc: RawDocument) -> tuple[str, bool]:
         key = minio_key(doc)
@@ -98,6 +99,12 @@ class FakeArchive:
         self.puts.append((key, doc))
         self._pre_existing.add(key)
         return key, is_new
+
+    def get_canonical_marker(self, canonical_id: str) -> dict | None:
+        return self._canonical_markers.get(canonical_id)
+
+    def put_canonical_marker(self, canonical_id: str, data: dict) -> None:
+        self._canonical_markers[canonical_id] = data
 
 
 class FakeExtractor:

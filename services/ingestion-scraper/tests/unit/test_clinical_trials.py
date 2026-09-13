@@ -51,6 +51,12 @@ class _FakeArchive:
         self.puts.append((key, doc))
         return key, is_new
 
+    def get_canonical_marker(self, canonical_id: str) -> dict | None:
+        return None
+
+    def put_canonical_marker(self, canonical_id: str, data: dict) -> None:
+        pass
+
 
 class _CountingExtractor:
     def __init__(self) -> None:
