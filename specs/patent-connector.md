@@ -1,7 +1,6 @@
 # Patent Filings Connector (EPO OPS)
 
-**Status:** blocked
-**Blocked by:** `EPO_OPS_KEY` and `EPO_OPS_SECRET` — register at `developers.epo.org`
+**Status:** ready
 **Branch:** `feature/patent-connector`
 
 ---

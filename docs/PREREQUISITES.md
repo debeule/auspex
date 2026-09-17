@@ -4,14 +4,6 @@ Everything here needs a person before the blocked step can proceed.
 
 ---
 
-## ⏳ Credentials needed
-
-| Item | Blocks | How |
-|---|---|---|
-| **EPO OPS key + secret** | Patent filings connector | Register at `developers.epo.org` (email only, no government ID). Create an application to get `EPO_OPS_KEY` and `EPO_OPS_SECRET`. Free standard tier: 2.5 req/s, 4 GB/week. No commercial-use restriction. |
-
----
-
 ## 👤 Needs your decision
 
 | Item | Blocks | Effort | Notes |
@@ -32,4 +24,4 @@ Everything here needs a person before the blocked step can proceed.
 ---
 
 ## ✅ Already configured
-OpenAI key + billing, NCBI key, openFDA key, `SEC_USER_AGENT`, extraction quality gate (≥0.85 precision), corroboration precision gate (≥0.85 genuine), extraction model (`gpt-4o-mini`).
+OpenAI key + billing, NCBI key, openFDA key, `SEC_USER_AGENT`, extraction quality gate (≥0.85 precision), corroboration precision gate (≥0.85 genuine), extraction model (`gpt-4o-mini`), EPO OPS key + secret.
