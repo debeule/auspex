@@ -17,7 +17,8 @@ Each line links to a self-contained spec in `specs/`. Open the spec and read it 
 | [Dashboard](specs/dashboard.md) | `draft` | Needs scoping — see spec notes |
 | [Watchlist & alerts](specs/watchlist-alerts.md) | `draft` | Needs scoping — transport and storage model |
 | [Re-extraction CLI](specs/reextraction-cli.md) | `ready` | Run before any prompt or model version bump |
-| [Centralised logging](specs/centralised-logging.md) | `ready` | Elastic Stack — prerequisite for scraper API and containerisation |
+| [Centralised logging](specs/centralised-logging.md) | `ready` | Elastic Stack — prerequisite for scraper API, dashboards, and containerisation |
+| [Kibana dashboards](specs/kibana-dashboards.md) | `ready` | After logging — operational dashboards, saved searches, alert rules |
 | [Scraper HTTP API](specs/scraper-api.md) | `ready` | After logging — prerequisite for containerisation |
 | [Containerisation](specs/containerisation.md) | `ready` | After scraper API + logging — enables prod-sim local run |
 | [Kafka partition verification](specs/kafka-partition-verification.md) | `ready` | Measurement only — no code unless skewed |
