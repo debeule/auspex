@@ -12,13 +12,7 @@ Neither service has structured logging today. `ingestion-scraper` uses `print()`
 
 The failure mode this spec addresses: a signal stops being corroborated, or a DLT starts filling, and there is no way to find the cause without attaching a debugger. Structured, searchable logs with consistent context fields make this diagnosable in minutes.
 
-**Stack: Elastic Stack (Elasticsearch + Filebeat + Kibana).** This is the industry-standard centralized logging stack used across enterprise software and large-scale systems. The components:
-
-- **Elasticsearch** — stores and indexes log events; all queries go here.
-- **Filebeat** — lightweight log shipper that reads Docker container stdout/stderr and forwards to Elasticsearch. No Logstash — Filebeat's ingest pipeline is sufficient for this project.
-- **Kibana** — UI for searching logs, building dashboards, and setting up index lifecycle policies.
-
-Log format: **Elastic Common Schema (ECS)**. ECS is the field-naming standard used by all Elastic products and most enterprise integrations. Using it means Kibana dashboards, alerting, and third-party tools work without field mapping customisation.
+**Stack: Elasticsearch + Filebeat.** No Logstash, no Kibana — Filebeat ships directly to Elasticsearch; Grafana is the UI (separate spec). Log format: **Elastic Common Schema (ECS)**.
 
 ## What this builds
 
@@ -54,11 +48,11 @@ In `SignalListener` and `RawListener`: populate MDC with `auspex.event_id` and `
 
 In `ScheduledCorroborationService`: bind `auspex.run_id` (UUID) at the start of each scheduled scan and log the watermark before and after.
 
-DLT routing: log `exception_class`, `auspex.event_id`, and `auspex.topic` so every dead-letter is triageable from Kibana without reading the Kafka topic.
+DLT routing: log `exception_class`, `auspex.event_id`, and `auspex.topic` so every dead-letter is triageable from Grafana's log panels without reading the Kafka topic.
 
-### 3. docker/docker-compose.yml — Elasticsearch, Kibana, Filebeat
+### 3. docker/docker-compose.yml — Elasticsearch and Filebeat
 
-Three new services added to the compose file:
+Two new services added to the compose file:
 
 **Elasticsearch:**
 - Image: `elasticsearch:${ELASTIC_VERSION}` (pin in `VERSIONS.md` and `.env.example`)
@@ -67,19 +61,16 @@ Three new services added to the compose file:
 - `ES_JAVA_OPTS=-Xms512m -Xmx512m` (dev sizing)
 - Port `9200` bound to `127.0.0.1`
 
-**Kibana:**
-- Image: `kibana:${ELASTIC_VERSION}` (same version as Elasticsearch — they must match)
-- Depends on Elasticsearch health check
-- Port `5601` bound to `127.0.0.1`
-
 **Filebeat:**
 - Image: `elastic/filebeat:${ELASTIC_VERSION}`
 - Mounts: `/var/lib/docker/containers:/var/lib/docker/containers:ro` and `/var/run/docker.sock:/var/run/docker.sock:ro`
 - Config file: `docker/filebeat/filebeat.yml` — Docker autodiscovery, forwards to Elasticsearch, sets `index: "auspex-logs-%{+yyyy.MM.dd}"`.
 
+Grafana (the UI) and the ILM policy setup are handled in the grafana-dashboards spec.
+
 ### 4. Index Lifecycle Policy
 
-A Kibana saved object (exported to `docker/kibana/auspex_ilm_policy.ndjson`) defines the ILM policy for `auspex-logs-*`:
+The ILM policy for `auspex-logs-*` is applied via Elasticsearch API directly (no Kibana dependency). Policy definition and setup script live in `docker/elasticsearch/`. Applied by the `elasticsearch-setup` init container defined in the grafana-dashboards spec.
 
 | Phase | Trigger | Action |
 |---|---|---|
@@ -88,11 +79,9 @@ A Kibana saved object (exported to `docker/kibana/auspex_ilm_policy.ndjson`) def
 | Cold | After 30 days | Freeze |
 | Delete | After 180 days | Delete |
 
-Apply with `kibana/setup_kibana.sh` (idempotent script using Kibana's saved objects import API).
-
 ## Out of scope
 
-- Metrics and dashboards (Prometheus, Grafana) — separate concern.
+- Metrics, dashboards, and alerting (Prometheus, Grafana) — see metrics and grafana-dashboards specs.
 - Distributed tracing (OpenTelemetry) — separate concern.
 - Airflow log aggregation — Airflow has its own log backend.
 - Log-based alerting rules — covered by the watchlist-alerts spec.
@@ -143,7 +132,7 @@ All pass.
 docker compose -f docker/docker-compose.yml --env-file .env up -d --wait
 ```
 
-`http://localhost:5601` opens Kibana. Navigate to Discover, select the `auspex-logs-*` index pattern. Run the ingestion pipeline for one source. Log events appear with fields `auspex.source_type`, `auspex.run_id`, and the `RunResult` counters.
+Verify via Elasticsearch directly: `curl -s "http://localhost:9200/auspex-logs-*/_search?size=1" | python3 -m json.tool`. Run the ingestion pipeline for one source. Log events appear with fields `auspex.source_type`, `auspex.run_id`, and the `RunResult` counters. The Grafana UI verification is in the grafana-dashboards spec.
 
 ## Notes
 
@@ -151,5 +140,5 @@ docker compose -f docker/docker-compose.yml --env-file .env up -d --wait
 - Filebeat Docker autodiscovery reads container labels to decide which logs to ship. Add `co.elastic.logs/enabled: "true"` to the `core-hub` and relevant Python containers in docker-compose. Containers without the label are not shipped — this prevents Filebeat from forwarding its own logs into Elasticsearch and creating a feedback loop.
 - Elasticsearch's Docker image requires `vm.max_map_count=262144` on Linux. On macOS and Windows (Docker Desktop), the VM that runs Docker sets this automatically. Add a note to `docs/PREREQUISITES.md` for Linux users.
 - `ES_JAVA_OPTS=-Xms512m -Xmx512m` is deliberately small for local dev. The default is to use half of available RAM, which on a developer machine starves other processes.
-- The ILM setup script (`docker/kibana/setup_kibana.sh`) should be idempotent — running it twice must not fail. Use Kibana's saved objects import with `overwrite: true`.
-- `structlog` requires adding it to `pyproject.toml`. Pin the version in `VERSIONS.md`. As of 2026, structlog 24.x is current — resolve the exact version at spec start and record it.
+- The ILM setup is applied via `docker/elasticsearch/setup.sh` using the Elasticsearch PUT ILM API directly — no Kibana dependency. The setup container is defined in the grafana-dashboards spec; this spec only defines the policy content.
+- `structlog` requires adding it to `pyproject.toml`. Pin the version in `VERSIONS.md`. Resolve the exact version at spec start and record it.
