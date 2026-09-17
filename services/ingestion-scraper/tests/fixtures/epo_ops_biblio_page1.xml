@@ -1,0 +1,613 @@
+<?xml version="1.0" encoding="UTF-8"?><?xml-stylesheet type="text/xsl" href="../../../../../style/exchange.xsl"?>
+<ops:world-patent-data xmlns="http://www.epo.org/exchange" xmlns:ops="http://ops.epo.org" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <exchange-documents>
+        <exchange-document system="ops.epo.org" family-id="92603726" country="CN" doc-number="118615435" kind="A">
+            <bibliographic-data>
+                <publication-reference>
+                    <document-id document-id-type="docdb">
+                        <country>CN</country>
+                        <doc-number>118615435</doc-number>
+                        <kind>A</kind>
+                        <date>20240910</date>
+                    </document-id>
+                    <document-id document-id-type="epodoc">
+                        <doc-number>CN118615435</doc-number>
+                        <date>20240910</date>
+                    </document-id>
+                </publication-reference>
+                <classifications-ipcr>
+                    <classification-ipcr sequence="1">
+                        <text>A61K  39/   187            A I                    </text>
+                    </classification-ipcr>
+                    <classification-ipcr sequence="2">
+                        <text>A61K  39/    39            A I                    </text>
+                    </classification-ipcr>
+                    <classification-ipcr sequence="3">
+                        <text>A61P  31/    14            A I                    </text>
+                    </classification-ipcr>
+                    <classification-ipcr sequence="4">
+                        <text>A61P  37/    04            A I                    </text>
+                    </classification-ipcr>
+                    <classification-ipcr sequence="5">
+                        <text>C12N  15/    62            A I                    </text>
+                    </classification-ipcr>
+                    <classification-ipcr sequence="6">
+                        <text>C12N  15/    85            A I                    </text>
+                    </classification-ipcr>
+                </classifications-ipcr>
+                <patent-classifications>
+                    <patent-classification sequence="1">
+                        <classification-scheme office="EP" scheme="CPCI"/>
+                        <section>A</section>
+                        <class>61</class>
+                        <subclass>K</subclass>
+                        <main-group>39</main-group>
+                        <subgroup>12</subgroup>
+                        <classification-value>I</classification-value>
+                        <generating-office>CN</generating-office>
+                    </patent-classification>
+                    <patent-classification sequence="2">
+                        <classification-scheme office="EP" scheme="CPCI"/>
+                        <section>A</section>
+                        <class>61</class>
+                        <subclass>K</subclass>
+                        <main-group>39</main-group>
+                        <subgroup>39</subgroup>
+                        <classification-value>I</classification-value>
+                        <generating-office>CN</generating-office>
+                    </patent-classification>
+                    <patent-classification sequence="3">
+                        <classification-scheme office="EP" scheme="CPCI"/>
+                        <section>A</section>
+                        <class>61</class>
+                        <subclass>P</subclass>
+                        <main-group>31</main-group>
+                        <subgroup>14</subgroup>
+                        <classification-value>I</classification-value>
+                        <generating-office>CN</generating-office>
+                    </patent-classification>
+                    <patent-classification sequence="4">
+                        <classification-scheme office="EP" scheme="CPCI"/>
+                        <section>A</section>
+                        <class>61</class>
+                        <subclass>P</subclass>
+                        <main-group>37</main-group>
+                        <subgroup>04</subgroup>
+                        <classification-value>I</classification-value>
+                        <generating-office>CN</generating-office>
+                    </patent-classification>
+                    <patent-classification sequence="5">
+                        <classification-scheme office="EP" scheme="CPCI"/>
+                        <section>C</section>
+                        <class>07</class>
+                        <subclass>K</subclass>
+                        <main-group>14</main-group>
+                        <subgroup>005</subgroup>
+                        <classification-value>I</classification-value>
+                        <generating-office>CN</generating-office>
+                    </patent-classification>
+                    <patent-classification sequence="6">
+                        <classification-scheme office="EP" scheme="CPCI"/>
+                        <section>C</section>
+                        <class>07</class>
+                        <subclass>K</subclass>
+                        <main-group>14</main-group>
+                        <subgroup>54</subgroup>
+                        <classification-value>I</classification-value>
+                        <generating-office>CN</generating-office>
+                    </patent-classification>
+                    <patent-classification sequence="7">
+                        <classification-scheme office="EP" scheme="CPCI"/>
+                        <section>C</section>
+                        <class>12</class>
+                        <subclass>N</subclass>
+                        <main-group>15</main-group>
+                        <subgroup>85</subgroup>
+                        <classification-value>I</classification-value>
+                        <generating-office>CN</generating-office>
+                    </patent-classification>
+                    <patent-classification sequence="8">
+                        <classification-scheme office="EP" scheme="CPCI"/>
+                        <section>A</section>
+                        <class>61</class>
+                        <subclass>K</subclass>
+                        <main-group>2039</main-group>
+                        <subgroup>55527</subgroup>
+                        <classification-value>I</classification-value>
+                        <generating-office>CN</generating-office>
+                    </patent-classification>
+                    <patent-classification sequence="9">
+                        <classification-scheme office="EP" scheme="CPCI"/>
+                        <section>C</section>
+                        <class>07</class>
+                        <subclass>K</subclass>
+                        <main-group>2319</main-group>
+                        <subgroup>21</subgroup>
+                        <classification-value>I</classification-value>
+                        <generating-office>CN</generating-office>
+                    </patent-classification>
+                    <patent-classification sequence="10">
+                        <classification-scheme office="EP" scheme="CPCI"/>
+                        <section>C</section>
+                        <class>12</class>
+                        <subclass>N</subclass>
+                        <main-group>2770</main-group>
+                        <subgroup>24322</subgroup>
+                        <classification-value>I</classification-value>
+                        <generating-office>CN</generating-office>
+                    </patent-classification>
+                    <patent-classification sequence="11">
+                        <classification-scheme office="EP" scheme="CPCI"/>
+                        <section>C</section>
+                        <class>12</class>
+                        <subclass>N</subclass>
+                        <main-group>2770</main-group>
+                        <subgroup>24334</subgroup>
+                        <classification-value>I</classification-value>
+                        <generating-office>CN</generating-office>
+                    </patent-classification>
+                    <patent-classification sequence="12">
+                        <classification-scheme office="EP" scheme="CPCI"/>
+                        <section>C</section>
+                        <class>12</class>
+                        <subclass>N</subclass>
+                        <main-group>2770</main-group>
+                        <subgroup>24351</subgroup>
+                        <classification-value>I</classification-value>
+                        <generating-office>CN</generating-office>
+                    </patent-classification>
+                    <patent-classification sequence="13">
+                        <classification-scheme office="EP" scheme="CPCI"/>
+                        <section>C</section>
+                        <class>12</class>
+                        <subclass>N</subclass>
+                        <main-group>2800</main-group>
+                        <subgroup>107</subgroup>
+                        <classification-value>I</classification-value>
+                        <generating-office>CN</generating-office>
+                    </patent-classification>
+                </patent-classifications>
+                <application-reference doc-id="617618783">
+                    <document-id document-id-type="docdb">
+                        <country>CN</country>
+                        <doc-number>202410078858</doc-number>
+                        <kind>A</kind>
+                        <date>20240119</date>
+                    </document-id>
+                    <document-id document-id-type="epodoc">
+                        <doc-number>CN20241078858</doc-number>
+                        <date>20240119</date>
+                    </document-id>
+                    <document-id document-id-type="original">
+                        <doc-number>202410078858.3</doc-number>
+                    </document-id>
+                </application-reference>
+                <priority-claims>
+                    <priority-claim sequence="1" kind="national">
+                        <document-id document-id-type="docdb">
+                            <country>CN</country>
+                            <doc-number>202410078858</doc-number>
+                            <kind>A</kind>
+                            <date>20240119</date>
+                        </document-id>
+                        <document-id document-id-type="epodoc">
+                            <doc-number>CN20241078858</doc-number>
+                            <date>20240119</date>
+                        </document-id>
+                    </priority-claim>
+                </priority-claims>
+                <parties>
+                    <applicants>
+                        <applicant sequence="1" data-format="epodoc">
+                            <applicant-name>
+                                <name>LANZHOU VETERINARY RES INSTITUTE CHINESE ACADEMY OF AGRICULTURAL SCIENCES CHINA CENTER FOR ANIMAL HE</name>
+                            </applicant-name>
+                        </applicant>
+                        <applicant sequence="1" data-format="original">
+                            <applicant-name>
+                                <name>中国农业科学院兰州兽医研究所（中国动物卫生与流行病学中心兰州分中心）</name>
+                            </applicant-name>
+                        </applicant>
+                    </applicants>
+                    <inventors>
+                        <inventor sequence="1" data-format="epodoc">
+                            <inventor-name>
+                                <name>BAI XINGWEN</name>
+                            </inventor-name>
+                        </inventor>
+                        <inventor sequence="2" data-format="epodoc">
+                            <inventor-name>
+                                <name>LU ZENGJUN</name>
+                            </inventor-name>
+                        </inventor>
+                        <inventor sequence="3" data-format="epodoc">
+                            <inventor-name>
+                                <name>YUAN HONG</name>
+                            </inventor-name>
+                        </inventor>
+                        <inventor sequence="4" data-format="epodoc">
+                            <inventor-name>
+                                <name>LI KUN</name>
+                            </inventor-name>
+                        </inventor>
+                        <inventor sequence="5" data-format="epodoc">
+                            <inventor-name>
+                                <name>JIAO YUNJUAN</name>
+                            </inventor-name>
+                        </inventor>
+                        <inventor sequence="6" data-format="epodoc">
+                            <inventor-name>
+                                <name>WANG TAO</name>
+                            </inventor-name>
+                        </inventor>
+                        <inventor sequence="7" data-format="epodoc">
+                            <inventor-name>
+                                <name>YANG YUXUAN</name>
+                            </inventor-name>
+                        </inventor>
+                        <inventor sequence="8" data-format="epodoc">
+                            <inventor-name>
+                                <name>LEE PYUNG-HWA</name>
+                            </inventor-name>
+                        </inventor>
+                        <inventor sequence="9" data-format="epodoc">
+                            <inventor-name>
+                                <name>BAO HUIFANG</name>
+                            </inventor-name>
+                        </inventor>
+                        <inventor sequence="10" data-format="epodoc">
+                            <inventor-name>
+                                <name>SUN PU</name>
+                            </inventor-name>
+                        </inventor>
+                        <inventor sequence="11" data-format="epodoc">
+                            <inventor-name>
+                                <name>ZHANG JING</name>
+                            </inventor-name>
+                        </inventor>
+                        <inventor sequence="12" data-format="epodoc">
+                            <inventor-name>
+                                <name>LI DONG</name>
+                            </inventor-name>
+                        </inventor>
+                        <inventor sequence="13" data-format="epodoc">
+                            <inventor-name>
+                                <name>CAO YIMEI</name>
+                            </inventor-name>
+                        </inventor>
+                        <inventor sequence="14" data-format="epodoc">
+                            <inventor-name>
+                                <name>LIU ZAIXIN</name>
+                            </inventor-name>
+                        </inventor>
+                        <inventor sequence="15" data-format="epodoc">
+                            <inventor-name>
+                                <name>GAO JIE</name>
+                            </inventor-name>
+                        </inventor>
+                        <inventor sequence="1" data-format="original">
+                            <inventor-name>
+                                <name>白兴文</name>
+                            </inventor-name>
+                        </inventor>
+                        <inventor sequence="2" data-format="original">
+                            <inventor-name>
+                                <name>卢曾军</name>
+                            </inventor-name>
+                        </inventor>
+                        <inventor sequence="3" data-format="original">
+                            <inventor-name>
+                                <name>袁红</name>
+                            </inventor-name>
+                        </inventor>
+                        <inventor sequence="4" data-format="original">
+                            <inventor-name>
+                                <name>李坤</name>
+                            </inventor-name>
+                        </inventor>
+                        <inventor sequence="5" data-format="original">
+                            <inventor-name>
+                                <name>焦云娟</name>
+                            </inventor-name>
+                        </inventor>
+                        <inventor sequence="6" data-format="original">
+                            <inventor-name>
+                                <name>王涛</name>
+                            </inventor-name>
+                        </inventor>
+                        <inventor sequence="7" data-format="original">
+                            <inventor-name>
+                                <name>杨宇轩</name>
+                            </inventor-name>
+                        </inventor>
+                        <inventor sequence="8" data-format="original">
+                            <inventor-name>
+                                <name>李平花</name>
+                            </inventor-name>
+                        </inventor>
+                        <inventor sequence="9" data-format="original">
+                            <inventor-name>
+                                <name>包慧芳</name>
+                            </inventor-name>
+                        </inventor>
+                        <inventor sequence="10" data-format="original">
+                            <inventor-name>
+                                <name>孙普</name>
+                            </inventor-name>
+                        </inventor>
+                        <inventor sequence="11" data-format="original">
+                            <inventor-name>
+                                <name>张婧</name>
+                            </inventor-name>
+                        </inventor>
+                        <inventor sequence="12" data-format="original">
+                            <inventor-name>
+                                <name>李冬</name>
+                            </inventor-name>
+                        </inventor>
+                        <inventor sequence="13" data-format="original">
+                            <inventor-name>
+                                <name>曹轶梅</name>
+                            </inventor-name>
+                        </inventor>
+                        <inventor sequence="14" data-format="original">
+                            <inventor-name>
+                                <name>刘在新</name>
+                            </inventor-name>
+                        </inventor>
+                        <inventor sequence="15" data-format="original">
+                            <inventor-name>
+                                <name>高洁</name>
+                            </inventor-name>
+                        </inventor>
+                    </inventors>
+                </parties>
+                <invention-title lang="en">Application of swine IL-28B as immunopotentiator in preparation of swine fever E2 subunit vaccine</invention-title>
+                <invention-title lang="ol">一种猪源IL-28B作为免疫增强剂在制备猪瘟E2亚单位疫苗中的应用</invention-title>
+            </bibliographic-data>
+            <abstract lang="en">
+                <p>The invention discloses an application of swine IL-28B as an immunopotentiator in preparation of a swine fever E2 subunit vaccine. The CSF subunit vaccine is one of CSF vaccines and is mainly prepared by taking E2 protein as an antigen. In order to enhance the immunogenicity of the E2 protein, IL-28B is used as an immunopotentiator to prepare a novel swine fever E2 subunit vaccine, CSFV E2 protein and IL-28B protein are successfully expressed by using CHO-S cells, and the expressed protein is used for preparing the swine fever E2 subunit vaccine. Compared with the E2 protein, the E2 + IL-28B mixed protein can induce a higher level of CSFV antibody blocking rate and virus neutralizing antibody titer after immunizing a mouse. Immune test results show that IL-28B can enhance humoral immunity and cellular immunity effects of the E2 protein expressed by CHO-S cells, and technical support is provided for prevention and control of CSF.</p>
+            </abstract>
+            <abstract lang="ol">
+                <p>本发明公开了一种猪源IL‑28B作为免疫增强剂在制备猪瘟E2亚单位疫苗中的应用。CSF亚单位疫苗是CSF疫苗中的一种，主要以E2蛋白为抗原制备而成。为了增强E2蛋白的免疫原性，本发明使用IL‑28B做为免疫增强剂，制备了一种新型猪瘟E2亚单位疫苗，利用CHO‑S细胞成功表达了CSFV E2蛋白和IL‑28B蛋白，表达的蛋白制备猪瘟E2亚单位疫苗。与E2蛋白相比，E2+IL‑28B混合蛋白免疫小鼠后能够诱导更高水平的CSFV抗体阻断率和病毒中和抗体效价。免疫试验结果表明IL‑28B能够增强CHO‑S细胞表达的E2蛋白的体液免疫和细胞免疫效果，本发明将为CSF的防控提供技术支撑。</p>
+            </abstract>
+        </exchange-document>
+        <exchange-document system="ops.epo.org" family-id="92605971" country="CN" doc-number="118620856" kind="A">
+            <bibliographic-data>
+                <publication-reference>
+                    <document-id document-id-type="docdb">
+                        <country>CN</country>
+                        <doc-number>118620856</doc-number>
+                        <kind>A</kind>
+                        <date>20240910</date>
+                    </document-id>
+                    <document-id document-id-type="epodoc">
+                        <doc-number>CN118620856</doc-number>
+                        <date>20240910</date>
+                    </document-id>
+                </publication-reference>
+                <classifications-ipcr>
+                    <classification-ipcr sequence="1">
+                        <text>A23L  29/    00            A I                    </text>
+                    </classification-ipcr>
+                    <classification-ipcr sequence="2">
+                        <text>A61K  38/    44            A I                    </text>
+                    </classification-ipcr>
+                    <classification-ipcr sequence="3">
+                        <text>A61K   8/    66            A I                    </text>
+                    </classification-ipcr>
+                    <classification-ipcr sequence="4">
+                        <text>A61P   1/    16            A I                    </text>
+                    </classification-ipcr>
+                    <classification-ipcr sequence="5">
+                        <text>A61P  39/    06            A I                    </text>
+                    </classification-ipcr>
+                    <classification-ipcr sequence="6">
+                        <text>A61Q  19/    08            A I                    </text>
+                    </classification-ipcr>
+                    <classification-ipcr sequence="7">
+                        <text>C12N  15/    70            A I                    </text>
+                    </classification-ipcr>
+                    <classification-ipcr sequence="8">
+                        <text>C12N   9/    02            A I                    </text>
+                    </classification-ipcr>
+                </classifications-ipcr>
+                <patent-classifications>
+                    <patent-classification sequence="1">
+                        <classification-scheme office="EP" scheme="CPCI"/>
+                        <section>A</section>
+                        <class>23</class>
+                        <subclass>L</subclass>
+                        <main-group>29</main-group>
+                        <subgroup>06</subgroup>
+                        <classification-value>I</classification-value>
+                        <generating-office>CN</generating-office>
+                    </patent-classification>
+                    <patent-classification sequence="2">
+                        <classification-scheme office="EP" scheme="CPCI"/>
+                        <section>A</section>
+                        <class>61</class>
+                        <subclass>K</subclass>
+                        <main-group>8</main-group>
+                        <subgroup>66</subgroup>
+                        <classification-value>I</classification-value>
+                        <generating-office>CN</generating-office>
+                    </patent-classification>
+                    <patent-classification sequence="3">
+                        <classification-scheme office="EP" scheme="CPCI"/>
+                        <section>A</section>
+                        <class>61</class>
+                        <subclass>P</subclass>
+                        <main-group>1</main-group>
+                        <subgroup>16</subgroup>
+                        <classification-value>I</classification-value>
+                        <generating-office>CN</generating-office>
+                    </patent-classification>
+                    <patent-classification sequence="4">
+                        <classification-scheme office="EP" scheme="CPCI"/>
+                        <section>A</section>
+                        <class>61</class>
+                        <subclass>P</subclass>
+                        <main-group>39</main-group>
+                        <subgroup>06</subgroup>
+                        <classification-value>I</classification-value>
+                        <generating-office>CN</generating-office>
+                    </patent-classification>
+                    <patent-classification sequence="5">
+                        <classification-scheme office="EP" scheme="CPCI"/>
+                        <section>A</section>
+                        <class>61</class>
+                        <subclass>Q</subclass>
+                        <main-group>19</main-group>
+                        <subgroup>08</subgroup>
+                        <classification-value>I</classification-value>
+                        <generating-office>CN</generating-office>
+                    </patent-classification>
+                    <patent-classification sequence="6">
+                        <classification-scheme office="EP" scheme="CPCI"/>
+                        <section>C</section>
+                        <class>12</class>
+                        <subclass>N</subclass>
+                        <main-group>15</main-group>
+                        <subgroup>70</subgroup>
+                        <classification-value>I</classification-value>
+                        <generating-office>CN</generating-office>
+                    </patent-classification>
+                    <patent-classification sequence="7">
+                        <classification-scheme office="EP" scheme="CPCI"/>
+                        <section>C</section>
+                        <class>12</class>
+                        <subclass>N</subclass>
+                        <main-group>9</main-group>
+                        <subgroup>0089</subgroup>
+                        <classification-value>I</classification-value>
+                        <generating-office>CN</generating-office>
+                    </patent-classification>
+                    <patent-classification sequence="8">
+                        <classification-scheme office="EP" scheme="CPCI"/>
+                        <section>C</section>
+                        <class>12</class>
+                        <subclass>Y</subclass>
+                        <main-group>115</main-group>
+                        <subgroup>01001</subgroup>
+                        <classification-value>I</classification-value>
+                        <generating-office>CN</generating-office>
+                    </patent-classification>
+                    <patent-classification sequence="9">
+                        <classification-scheme office="EP" scheme="CPCI"/>
+                        <section>A</section>
+                        <class>23</class>
+                        <subclass>V</subclass>
+                        <main-group>2002</main-group>
+                        <subgroup>00</subgroup>
+                        <classification-value>I</classification-value>
+                        <generating-office>CN</generating-office>
+                    </patent-classification>
+                    <patent-classification sequence="10">
+                        <classification-scheme office="EP" scheme="CPCI"/>
+                        <section>A</section>
+                        <class>61</class>
+                        <subclass>K</subclass>
+                        <main-group>38</main-group>
+                        <subgroup>00</subgroup>
+                        <classification-value>I</classification-value>
+                        <generating-office>CN</generating-office>
+                    </patent-classification>
+                    <patent-classification sequence="11">
+                        <classification-scheme office="EP" scheme="CPCI"/>
+                        <section>C</section>
+                        <class>12</class>
+                        <subclass>N</subclass>
+                        <main-group>2800</main-group>
+                        <subgroup>22</subgroup>
+                        <classification-value>I</classification-value>
+                        <generating-office>CN</generating-office>
+                    </patent-classification>
+                </patent-classifications>
+                <application-reference doc-id="617624178">
+                    <document-id document-id-type="docdb">
+                        <country>CN</country>
+                        <doc-number>202411106164</doc-number>
+                        <kind>A</kind>
+                        <date>20240813</date>
+                    </document-id>
+                    <document-id document-id-type="epodoc">
+                        <doc-number>CN202411106164</doc-number>
+                        <date>20240813</date>
+                    </document-id>
+                    <document-id document-id-type="original">
+                        <doc-number>202411106164.2</doc-number>
+                    </document-id>
+                </application-reference>
+                <priority-claims>
+                    <priority-claim sequence="1" kind="national">
+                        <document-id document-id-type="docdb">
+                            <country>CN</country>
+                            <doc-number>202411106164</doc-number>
+                            <kind>A</kind>
+                            <date>20240813</date>
+                        </document-id>
+                        <document-id document-id-type="epodoc">
+                            <doc-number>CN202411106164</doc-number>
+                            <date>20240813</date>
+                        </document-id>
+                    </priority-claim>
+                </priority-claims>
+                <parties>
+                    <applicants>
+                        <applicant sequence="1" data-format="epodoc">
+                            <applicant-name>
+                                <name>HUAHUI OCEAN POLYSACCHARIDE BIOTECHNOLOGY SHENZHEN CO LTD</name>
+                            </applicant-name>
+                        </applicant>
+                        <applicant sequence="1" data-format="original">
+                            <applicant-name>
+                                <name>华慧海洋多糖生物技术（深圳）有限公司</name>
+                            </applicant-name>
+                        </applicant>
+                    </applicants>
+                    <inventors>
+                        <inventor sequence="1" data-format="epodoc">
+                            <inventor-name>
+                                <name>LAI LIXIAN</name>
+                            </inventor-name>
+                        </inventor>
+                        <inventor sequence="2" data-format="epodoc">
+                            <inventor-name>
+                                <name>WANG SHUANGXU</name>
+                            </inventor-name>
+                        </inventor>
+                        <inventor sequence="3" data-format="epodoc">
+                            <inventor-name>
+                                <name>LAI JINGWEN</name>
+                            </inventor-name>
+                        </inventor>
+                        <inventor sequence="1" data-format="original">
+                            <inventor-name>
+                                <name>赖利先</name>
+                            </inventor-name>
+                        </inventor>
+                        <inventor sequence="2" data-format="original">
+                            <inventor-name>
+                                <name>王双旭</name>
+                            </inventor-name>
+                        </inventor>
+                        <inventor sequence="3" data-format="original">
+                            <inventor-name>
+                                <name>赖景文</name>
+                            </inventor-name>
+                        </inventor>
+                    </inventors>
+                </parties>
+                <invention-title lang="en">Superoxide dismutase mutant as well as expression method and application thereof</invention-title>
+                <invention-title lang="ol">超氧化物歧化酶突变体及其表达方法和应用</invention-title>
+            </bibliographic-data>
+            <abstract lang="en">
+                <p>The invention relates to a superoxide dismutase mutant as well as an expression method and application thereof. The superoxide dismutase mutant is a mutant of marine thermophilic bacteria superoxide dismutase, the amino acid sequence of the marine thermophilic bacteria superoxide dismutase is as shown in SEQ ID NO.1, and the superoxide dismutase mutant is obtained by substituting, deleting or adding one or more amino acids to the marine thermophilic bacteria superoxide dismutase. The amino acid sequence of the superoxide dismutase mutant is as shown in SEQ ID NO.3, and the nucleotide sequence for coding the superoxide dismutase mutant is as shown in SEQ ID NO.4. The invention also provides application of the superoxide dismutase mutant in preparation of antioxidant products and application of the superoxide dismutase mutant in preparation of drugs for treating fatty liver. The superoxide dismutase mutant provided by the invention is high in heat resistance, is beneficial to being processed into different products, and can be stored at normal temperature, so that the cost can be greatly reduced.</p>
+            </abstract>
+            <abstract lang="ol">
+                <p>本发明涉及一种超氧化物歧化酶突变体及其表达方法和应用。超氧化物歧化酶突变体为海洋栖热菌超氧化物歧化酶的突变体，所述海洋栖热菌超氧化物歧化酶的氨基酸序列如SEQ ID NO.1所示，所述超氧化物歧化酶突变体为所述海洋栖热菌超氧化物歧化酶经过取代、缺失或添加一个或多个氨基酸得到。所述氧化物歧化酶突变体的氨基酸序列如SEQ ID NO.3所示，编码所述超氧化物歧化酶突变体的核苷酸序列如SEQ ID NO.4所示。本发明还提供了超氧化物歧化酶突变体在制备抗氧化产品中的应用和在制备治疗脂肪肝的药物中的应用。本发明提供的所述超氧化物歧化酶突变体耐热性强，利于加工制成不同的产品，常温保存，可大幅降低成本。</p>
+            </abstract>
+        </exchange-document>
+    </exchange-documents>
+</ops:world-patent-data>

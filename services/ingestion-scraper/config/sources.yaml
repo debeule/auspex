@@ -104,3 +104,27 @@ sources:
       - rocket pharma
       - capricor
     source_config: {}
+
+  - source_type: epo_ops
+    schedule: "@daily"
+    rate_limit_rps: 2.0
+    initial_lookback: 30
+    max_documents_per_run: 5000
+    prefilter_vocabulary:
+      - DMD
+      - dystrophin
+      - duchenne
+      - BCL11A
+      - HBB
+      - sickle cell
+      - thalassemia
+      - HTT
+      - huntingtin
+      - FANCA
+      - gene therapy
+      - gene editing
+      - base editing
+      - CRISPR
+      - exon skipping
+      - AAV
+    source_config: {}

@@ -192,3 +192,55 @@ No versioning — greenfield build, no deployed events to preserve.
 3. The Leishmania/AQP1 false positive is a cross-species ambiguity (AQP is a conserved protein family).
 
 **Next steps for extraction improvement (before Phase 4):** Add to extraction prompt that (a) disease-management drugs are not signals, (b) CRISPR used solely for detection/diagnostics is not a therapeutic signal, (c) the gene being targeted must be explicitly in a therapeutic context, not an incidental mention. Feed records 10, 15, 19, 25 to the golden set.
+
+## 2026-09-17 — patent connector — VERIFIED — EPO OPS 3.2 XML structure and API behaviour
+
+**What:** Confirmed exact XML element paths, namespaces, API syntax, and HTTP behaviour via live API calls against `ops.epo.org`.
+
+**Namespaces:**
+- `ops` prefix: `http://ops.epo.org` (NOT `http://ops.epo.org/3.2/rest-services`)
+- default (document content): `http://www.epo.org/exchange`
+
+**Two-step architecture (confirmed):**
+1. `GET /published-data/search?q=...` with `Range: {begin}-{end}` header → returns `ops:publication-reference` elements only (no bibliographic data)
+2. `GET /published-data/publication/docdb/{country}{num}.{kind}[,...]/biblio` → returns full `exchange-document` elements
+
+**CQL date syntax:** `pd within "YYYYMMDD,YYYYMMDD"` — the `>=`/`<=` range syntax is rejected with `CLIENT.FuzzyDateRanges` fault.
+
+**Empty search response:** HTTP 404 with `<fault xmlns="http://ops.epo.org"><code>SERVER.EntityNotFound</code><message>No results found</message></fault>`. Treat 404 as zero results, not an error.
+
+**Confirmed element paths** (XPath from `exchange-document`, default ns = `{http://www.epo.org/exchange}`):
+- `bibliographic-data/publication-reference/document-id[@document-id-type='docdb']/date` → pub date (YYYYMMDD)
+- `bibliographic-data/publication-reference/document-id[@document-id-type='docdb']/country` → pub country
+- `bibliographic-data/publication-reference/document-id[@document-id-type='docdb']/doc-number` → pub number
+- `bibliographic-data/publication-reference/document-id[@document-id-type='docdb']/kind` → kind (A, A1, B1, etc.)
+- `bibliographic-data/application-reference/document-id[@document-id-type='docdb']/country` → app country
+- `bibliographic-data/application-reference/document-id[@document-id-type='docdb']/doc-number` → app number
+- `bibliographic-data/application-reference/document-id[@document-id-type='docdb']/date` → filing date
+- `bibliographic-data/invention-title[@lang='en']` → English title (inside bibliographic-data)
+- `abstract[@lang='en']/p` → abstract paragraphs — **`abstract` is at `exchange-document` level, NOT inside `bibliographic-data`**
+- `bibliographic-data/parties/applicants/applicant[@data-format='epodoc']/applicant-name/name` → applicant names
+
+**IDs:**
+- `external_id = "{pub_country}-{pub_number}-{pub_kind}"` e.g. `"CN-118615435-A"`
+- `canonical_id = "epo-app:{app_country}-{app_number}"` e.g. `"epo-app:CN-202410078858"`
+
+**Grant date:** For B1/B2 kind publications, the publication date IS the grant date. Include `"Granted: {pub_date}"` in raw_content for B-kind records. A-kind records have no grant date — omit the line.
+
+**Rate limit:** EPO OPS standard tier is confirmed 2.5 req/s. Configured at 2.0 req/s. Each page of 100 results requires 2 HTTP calls (1 search + 1 biblio batch). Token calls are infrequent (every 20 min).
+
+**OAuth2 token:** POST `https://ops.epo.org/3.2/auth/accesstoken` with Basic auth and `grant_type=client_credentials` body. Returns `{"access_token": "...", "expires_in": 1200}`. Confirmed working.
+
+**Live-query result — watched company DOCDB records confirmed:**
+| Company | DOCDB records |
+|---|---|
+| Sarepta Therapeutics | 217 |
+| CRISPR Therapeutics | 171 |
+| Beam Therapeutics | 106 |
+| Abivax | 51 |
+| uniQure | 65 |
+| Capricor | 29 |
+| Spruce Biosciences | 13 |
+| Rocket Pharmaceuticals | verified via `pa = ROCKET` search |
+
+All 8 watched companies have records in DOCDB. They don't appear in 200 randomly sampled recent CPC results because they're small-cap relative to the global patent volume (~5000 results/day for C12N+A61K alone). The connector's CPC-class search over a 30-day window will capture their publications as they appear.

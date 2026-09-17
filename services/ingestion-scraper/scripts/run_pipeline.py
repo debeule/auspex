@@ -67,6 +67,13 @@ def _build_connector(source_type: str, entry, rate_limited_client):  # type: ign
         if not user_agent:
             raise RuntimeError("SEC_USER_AGENT is required for the edgar connector")
         return SecEdgarConnector(client=rate_limited_client, user_agent=user_agent)
+    if source_type == "epo_ops":
+        from auspex_ingest.connectors.epo_ops import EpoOpsConnector
+        return EpoOpsConnector(
+            client=rate_limited_client,
+            key=os.environ.get("EPO_OPS_KEY", ""),
+            secret=os.environ.get("EPO_OPS_SECRET", ""),
+        )
     raise ValueError(f"No connector registered for source_type={source_type!r}")
 
 
@@ -89,6 +96,7 @@ def _build_pipeline(source_type: str, entry):  # type: ignore[no-untyped-def]
         "clinicaltrials.gov": 5.0,
         "eutils.ncbi.nlm.nih.gov": 3.0,
         "sec.gov": 4.0,
+        "ops.epo.org": 2.0,
     }
     http_client = RateLimitedClient(rate_limits)
     connector = _build_connector(source_type, entry, http_client)

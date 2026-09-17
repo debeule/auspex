@@ -8,7 +8,7 @@ Each line links to a self-contained spec in `specs/`. Open the spec and read it 
 
 | Spec | Status | Notes |
 |---|---|---|
-| [Patent connector (EPO OPS)](specs/patent-connector.md) | `ready` | EPO OPS credentials now in .env |
+| [Patent connector (EPO OPS)](specs/patent-connector.md) | `done` | 10 tests, live DOCDB confirmed |
 | [Historical backfill](specs/historical-backfill.md) | `blocked` | Needs budget approval after dry run |
 | [Price data ingestion](specs/price-ingestion.md) | `ready` | Execute first — prerequisite for the three below |
 | [Point-in-time alignment](specs/point-in-time-alignment.md) | `ready` | After price ingestion |

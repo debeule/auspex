@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?><?xml-stylesheet type="text/xsl" href="../../style/exchange.xsl"?>
+<ops:world-patent-data xmlns="http://www.epo.org/exchange" xmlns:ops="http://ops.epo.org" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <ops:biblio-search total-result-count="2" publications-count="2">
+        <ops:query syntax="CQL">(cpc = C12N or cpc = A61K or cpc = A61P or cpc = C07K) and pd within "20240901,20240910"</ops:query>
+        <ops:range begin="1" end="100"/>
+        <ops:search-result>
+            <ops:publication-reference system="ops.epo.org" family-id="92603726">
+                <document-id document-id-type="docdb">
+                    <country>CN</country>
+                    <doc-number>118615435</doc-number>
+                    <kind>A</kind>
+                </document-id>
+            </ops:publication-reference>
+            <ops:publication-reference system="ops.epo.org" family-id="92605971">
+                <document-id document-id-type="docdb">
+                    <country>CN</country>
+                    <doc-number>118620856</doc-number>
+                    <kind>A</kind>
+                </document-id>
+            </ops:publication-reference>
+        </ops:search-result>
+    </ops:biblio-search>
+</ops:world-patent-data>

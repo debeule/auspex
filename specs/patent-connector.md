@@ -1,6 +1,6 @@
 # Patent Filings Connector (EPO OPS)
 
-**Status:** ready
+**Status:** done
 **Branch:** `feature/patent-connector`
 
 ---
