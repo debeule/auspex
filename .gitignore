@@ -44,6 +44,3 @@ docker/volumes/
 # Secrets
 *.pem
 *.key
-
-#temp
-*.md
