@@ -153,6 +153,17 @@ services/core-hub/src/integrationTest/java/**/<Subject>IT.java    # container-ba
 - Fast-forward merge only: `git merge --ff-only feature/<name>`.
 - Never merge with `--no-ff` unless explicitly agreed — it creates unnecessary merge commits.
 
+**End-of-spec flow (run in order when a spec is done):**
+```bash
+git push -u origin feature/<name>
+git checkout feature/<name> && git rebase develop
+git checkout develop && git merge --ff-only feature/<name>
+git push -u origin develop
+git checkout main && git merge --ff-only develop
+git push origin main
+git checkout develop          # reset for the next spec
+```
+
 **Other rules:**
 - Commit only when the spec's tests pass. A bad change is then one `git revert` away.
 - Never commit `.env`, `target/`, `.venv/`, `__pycache__/`, or Docker volumes.
