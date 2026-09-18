@@ -17,7 +17,7 @@ Each line links to a self-contained spec in `specs/`. Open the spec and read it 
 | [Centralised logging](specs/done/centralised-logging.md) | `done` | 11 tests passed (6 Python unit, 4 Java unit, 1 integration) |
 | [Metrics](specs/metrics.md) | `ready` | After logging — Kafka lag, JVM heap, LLM throughput via Prometheus |
 | [Grafana dashboards](specs/grafana-dashboards.md) | `ready` | After logging + metrics — unified UI for logs and metrics |
-| [Scraper HTTP API](specs/scraper-api.md) | `ready` | After logging — prerequisite for containerisation |
+| [Scraper HTTP API](specs/done/scraper-api.md) | `done` | 10 tests passed (9 unit, 1 integration) |
 | [Containerisation](specs/containerisation.md) | `ready` | After scraper API + logging — enables prod-sim local run |
 | [Re-extraction CLI](specs/reextraction-cli.md) | `ready` | After containerisation — run before any prompt or model version bump |
 | [Kafka partition verification](specs/kafka-partition-verification.md) | `ready` | After containerisation — measurement only, no code unless skewed |
@@ -40,3 +40,4 @@ Each line links to a self-contained spec in `specs/`. Open the spec and read it 
 | 2026-09-18 | Backtesting module | Done — 5 tests green | No |
 | 2026-09-18 | Performance metrics | Done — 5 tests green | No |
 | 2026-09-18 | Centralised logging | Done — 11 tests green (6 Python unit, 4 Java unit, 1 integration) | No |
+| 2026-09-18 | Scraper HTTP API | Done — 10 tests green (9 unit, 1 integration) | No |

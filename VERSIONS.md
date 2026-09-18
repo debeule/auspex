@@ -64,6 +64,8 @@ Additions resolved 2026-09-18.
 | Package | Pinned version |
 |---|---|
 | structlog | 26.1.0 |
+| flask | 3.1.3 |
+| gunicorn | 26.2.0 |
 
 ## Python dependencies — backtesting module (`services/backtesting/`)
 Managed with **uv**; `uv.lock` is committed. Resolved 2026-09-18 from PyPI.
