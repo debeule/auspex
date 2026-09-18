@@ -34,6 +34,9 @@ spring:
 
 
 logging:
+  structured:
+    format:
+      console: ecs
   level:
     dev.auspex: INFO
     org.springframework.kafka: INFO

@@ -1,6 +1,9 @@
+import uuid
 from collections.abc import Callable
 from datetime import datetime
 from typing import Any
+
+import structlog
 
 from .connectors.base import SourceConnector
 from .models import RunResult
@@ -31,6 +34,10 @@ class IngestionPipeline:
         self._min_confidence = min_confidence_to_publish
 
     def run(self, source_type: str, cursor: datetime) -> RunResult:
+        log = structlog.get_logger().bind(**{
+            "auspex.source_type": source_type,
+            "auspex.run_id": str(uuid.uuid4()),
+        })
         result = RunResult()
 
         for doc in self._connector.fetch_since(cursor):
@@ -99,12 +106,24 @@ class IngestionPipeline:
                     except Exception:  # noqa: BLE001, S110
                         pass  # Acceptable failure: next observation re-extracts once
 
-            except Exception:  # noqa: BLE001
+            except Exception as exc:  # noqa: BLE001
                 result.failed += 1
+                log.error("document processing failed", **{
+                    "auspex.external_id": doc.external_id,
+                    "exception_class": type(exc).__name__,
+                })
 
         try:
             self._producer.flush()
         except Exception:  # noqa: BLE001
             result.failed += 1
+
+        log.info("run complete",
+                 fetched=result.fetched,
+                 prefiltered_out=result.prefiltered_out,
+                 published=result.published,
+                 not_signal=result.not_signal,
+                 below_threshold=result.below_threshold,
+                 failed=result.failed)
 
         return result

@@ -23,5 +23,13 @@ Everything here needs a person before the blocked step can proceed.
 
 ---
 
+## Infrastructure (Linux hosts only)
+
+| Setting | How to apply | Notes |
+|---|---|---|
+| `vm.max_map_count=262144` | `sysctl -w vm.max_map_count=262144` (root) · persist via `/etc/sysctl.d/99-elasticsearch.conf` | Required by Elasticsearch. Docker Desktop (macOS/Windows) sets this automatically inside its VM — Linux hosts must set it manually or Elasticsearch fails to start. |
+
+---
+
 ## ✅ Already configured
 OpenAI key + billing, NCBI key, openFDA key, `SEC_USER_AGENT`, extraction quality gate (≥0.85 precision), corroboration precision gate (≥0.85 genuine), extraction model (`gpt-4o-mini`), EPO OPS key + secret.

@@ -6,17 +6,13 @@ import dev.auspex.corehub.service.GraphUpdateService;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.KafkaHeaders;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Component;
 
-/**
- * Consumes auspex.signals.extracted.
- * Unknown major schema_version → throws (deterministic failure → DLT immediately).
- * @Valid triggers bean validation; @KafkaListener does not run it automatically.
- */
 @Component
 public class SignalListener {
 
@@ -36,14 +32,21 @@ public class SignalListener {
             @Payload @Valid ResearchSignalEvent event,
             @Header(KafkaHeaders.RECEIVED_TOPIC) String topic
     ) {
-        SchemaVersion sv = SchemaVersion.parse(event.schemaVersion());
-        if (!SchemaVersion.isKnownMajor(sv)) {
-            throw new UnknownMajorVersionException(
-                    "Unknown major schema version %d in topic %s — routing to DLT"
-                            .formatted(sv.major(), topic));
+        MDC.put("auspex.event_id", event.eventId().toString());
+        MDC.put("auspex.source_type", event.sourceType());
+        try {
+            SchemaVersion sv = SchemaVersion.parse(event.schemaVersion());
+            if (!SchemaVersion.isKnownMajor(sv)) {
+                log.error("routing to DLT: exception_class={} auspex.topic={}",
+                        UnknownMajorVersionException.class.getSimpleName(), topic);
+                throw new UnknownMajorVersionException(
+                        "Unknown major schema version %d in topic %s — routing to DLT"
+                                .formatted(sv.major(), topic));
+            }
+            log.info("processing signal schema_version={}", event.schemaVersion());
+            graphUpdateService.process(event);
+        } finally {
+            MDC.clear();
         }
-        log.info("signal event_id={} source_type={} schema_version={}",
-                event.eventId(), event.sourceType(), event.schemaVersion());
-        graphUpdateService.process(event);
     }
 }

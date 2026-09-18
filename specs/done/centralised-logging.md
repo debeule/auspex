@@ -1,6 +1,6 @@
 # Centralised Logging
 
-**Status:** ready
+**Status:** done
 **Blocked by:** —
 **Branch:** `feature/centralised-logging`
 

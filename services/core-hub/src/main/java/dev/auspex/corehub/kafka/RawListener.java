@@ -3,15 +3,13 @@ package dev.auspex.corehub.kafka;
 import dev.auspex.corehub.service.RawAuditService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.KafkaHeaders;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Component;
 
-/**
- * Consumes auspex.raw.ingested — writes only to raw_fetch_audit.
- */
 @Component
 public class RawListener {
 
@@ -31,7 +29,12 @@ public class RawListener {
             @Payload String payload,
             @Header(KafkaHeaders.RECEIVED_TOPIC) String topic
     ) {
-        log.debug("raw message received topic={}", topic);
-        rawAuditService.record(payload);
+        MDC.put("auspex.topic", topic);
+        try {
+            log.debug("raw message received");
+            rawAuditService.record(payload);
+        } finally {
+            MDC.clear();
+        }
     }
 }

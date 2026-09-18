@@ -1,0 +1,30 @@
+filebeat.autodiscover:
+  providers:
+    - type: docker
+      hints.enabled: true
+      hints.default_config:
+        type: container
+        paths:
+          - /var/lib/docker/containers/${data.docker.container.id}/*.log
+
+processors:
+  - decode_json_fields:
+      fields: ["message"]
+      target: ""
+      overwrite_keys: true
+      add_error_key: false
+  - timestamp:
+      field: "@timestamp"
+      layouts:
+        - "2006-01-02T15:04:05.999Z07:00"
+      test:
+        - "2023-01-10T13:00:00.000Z"
+
+output.elasticsearch:
+  hosts: ["elasticsearch:9200"]
+  index: "auspex-logs-%{+yyyy.MM.dd}"
+
+setup.ilm.enabled: false
+setup.template.name: "auspex-logs"
+setup.template.pattern: "auspex-logs-*"
+setup.template.overwrite: false

@@ -52,6 +52,19 @@ Managed with **uv**; `uv.lock` is committed and is the source of truth. Versions
 | ruff | 0.16.3 |
 | mypy | 2.3.1 |
 
+## Observability stack
+| Component | Pin | Notes |
+|---|---|---|
+| Elasticsearch | **8.17.3** | Resolved 2026-09-18. Elasticsearch, Filebeat, and Kibana (future) must pin the same version via `ELASTIC_VERSION` in `.env.example`. |
+| Filebeat | **8.17.3** (same as above) | Docker autodiscovery; ships container stdout to Elasticsearch. |
+
+## Python dependencies — ingestion-scraper (`services/ingestion-scraper/`)
+Additions resolved 2026-09-18.
+
+| Package | Pinned version |
+|---|---|
+| structlog | 26.1.0 |
+
 ## Python dependencies — backtesting module (`services/backtesting/`)
 Managed with **uv**; `uv.lock` is committed. Resolved 2026-09-18 from PyPI.
 

@@ -14,7 +14,7 @@ Each line links to a self-contained spec in `specs/`. Open the spec and read it 
 | [Point-in-time alignment](specs/done/point-in-time-alignment.md) | `done` | 10 tests passed |
 | [Backtesting module](specs/done/backtesting.md) | `done` | 5 tests passed |
 | [Performance metrics](specs/done/performance-metrics.md) | `done` | 5 tests passed |
-| [Centralised logging](specs/centralised-logging.md) | `ready` | After performance metrics — Elasticsearch + Filebeat, prerequisite for metrics, Grafana, and containerisation |
+| [Centralised logging](specs/done/centralised-logging.md) | `done` | 11 tests passed (6 Python unit, 4 Java unit, 1 integration) |
 | [Metrics](specs/metrics.md) | `ready` | After logging — Kafka lag, JVM heap, LLM throughput via Prometheus |
 | [Grafana dashboards](specs/grafana-dashboards.md) | `ready` | After logging + metrics — unified UI for logs and metrics |
 | [Scraper HTTP API](specs/scraper-api.md) | `ready` | After logging — prerequisite for containerisation |
@@ -39,3 +39,4 @@ Each line links to a self-contained spec in `specs/`. Open the spec and read it 
 | 2026-09-18 | Point-in-time alignment | Done — 10 tests green | No |
 | 2026-09-18 | Backtesting module | Done — 5 tests green | No |
 | 2026-09-18 | Performance metrics | Done — 5 tests green | No |
+| 2026-09-18 | Centralised logging | Done — 11 tests green (6 Python unit, 4 Java unit, 1 integration) | No |
