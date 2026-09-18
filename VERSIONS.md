@@ -52,6 +52,17 @@ Managed with **uv**; `uv.lock` is committed and is the source of truth. Versions
 | ruff | 0.16.3 |
 | mypy | 2.3.1 |
 
+## Python dependencies — backtesting module (`services/backtesting/`)
+Managed with **uv**; `uv.lock` is committed. Resolved 2026-09-18 from PyPI.
+
+| Package | Pinned version |
+|---|---|
+| pandas | 3.0.6 |
+| pyarrow | 25.0.1 |
+| yfinance | 1.7.0 |
+| pandas-datareader | 0.11.1 |
+| minio | 7.2.20 (shared with ingestion-scraper) |
+
 ## Version-sensitive claims that need re-verification
 These were verified against **older** versions than we are now pinning. Confirm each at the step that depends on it and record the outcome in `DECISIONS.md`.
 

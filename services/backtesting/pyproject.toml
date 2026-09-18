@@ -1,0 +1,46 @@
+[project]
+name = "auspex-backtesting"
+version = "0.1.0"
+description = "Auspex backtesting and price data module"
+requires-python = ">=3.14"
+dependencies = [
+    "minio==7.2.20",
+    "pandas==3.0.6",
+    "pyarrow==25.0.1",
+    "yfinance==1.7.0",
+    "pandas-datareader==0.11.1",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/auspex_backtesting"]
+
+[dependency-groups]
+dev = [
+    "pytest==9.1.1",
+    "pytest-cov==7.1.0",
+    "pytest-mock==3.15.1",
+    "pytest-socket==0.8.0",
+    "ruff==0.16.3",
+    "mypy==2.3.1",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "--strict-markers --disable-socket"
+markers = [
+    "integration: requires live containers via testcontainers",
+]
+
+[tool.ruff]
+src = ["src"]
+target-version = "py314"
+line-length = 100
+
+[tool.mypy]
+python_version = "3.14"
+strict = true
+packages = ["auspex_backtesting"]

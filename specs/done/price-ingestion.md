@@ -1,6 +1,6 @@
 # Price Data Ingestion
 
-**Status:** ready
+**Status:** done
 **Blocked by:** —
 **Branch:** `feature/price-ingestion`
 
