@@ -1,6 +1,6 @@
 # Metrics Instrumentation
 
-**Status:** ready
+**Status:** done
 **Blocked by:** [Centralised logging](centralised-logging.md) — structlog and MDC context must be in place so metric labels (`auspex.source_type`, `auspex.event_id`) are consistent with log fields
 **Branch:** `feature/metrics`
 

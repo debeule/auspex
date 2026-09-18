@@ -33,6 +33,8 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-flyway")
     implementation("org.postgresql:postgresql")
     implementation("org.springframework.boot:spring-boot-starter-validation")
+    implementation("org.springframework.boot:spring-boot-starter-actuator")
+    implementation("io.micrometer:micrometer-registry-prometheus")
     implementation("com.fasterxml.jackson.core:jackson-databind")
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
 }

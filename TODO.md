@@ -15,7 +15,7 @@ Each line links to a self-contained spec in `specs/`. Open the spec and read it 
 | [Backtesting module](specs/done/backtesting.md) | `done` | 5 tests passed |
 | [Performance metrics](specs/done/performance-metrics.md) | `done` | 5 tests passed |
 | [Centralised logging](specs/done/centralised-logging.md) | `done` | 11 tests passed (6 Python unit, 4 Java unit, 1 integration) |
-| [Metrics](specs/metrics.md) | `ready` | After logging — Kafka lag, JVM heap, LLM throughput via Prometheus |
+| [Metrics](specs/done/metrics.md) | `done` | 7 tests — Prometheus scrape: Java Micrometer + Python prometheus-client |
 | [Grafana dashboards](specs/grafana-dashboards.md) | `ready` | After logging + metrics — unified UI for logs and metrics |
 | [Scraper HTTP API](specs/done/scraper-api.md) | `done` | 10 tests passed (9 unit, 1 integration) |
 | [Containerisation](specs/containerisation.md) | `ready` | After scraper API + logging — enables prod-sim local run |
@@ -41,3 +41,4 @@ Each line links to a self-contained spec in `specs/`. Open the spec and read it 
 | 2026-09-18 | Performance metrics | Done — 5 tests green | No |
 | 2026-09-18 | Centralised logging | Done — 11 tests green (6 Python unit, 4 Java unit, 1 integration) | No |
 | 2026-09-18 | Scraper HTTP API | Done — 10 tests green (9 unit, 1 integration) | No |
+| 2026-09-18 | Metrics | Done — 7 tests green (5 Python unit, 2 Java unit); Prometheus service added | No |

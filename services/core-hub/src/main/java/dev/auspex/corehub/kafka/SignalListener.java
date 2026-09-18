@@ -3,6 +3,8 @@ package dev.auspex.corehub.kafka;
 import dev.auspex.corehub.model.ResearchSignalEvent;
 import dev.auspex.corehub.model.SchemaVersion;
 import dev.auspex.corehub.service.GraphUpdateService;
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,9 +21,11 @@ public class SignalListener {
     private static final Logger log = LoggerFactory.getLogger(SignalListener.class);
 
     private final GraphUpdateService graphUpdateService;
+    private final MeterRegistry meterRegistry;
 
-    public SignalListener(GraphUpdateService graphUpdateService) {
+    public SignalListener(GraphUpdateService graphUpdateService, MeterRegistry meterRegistry) {
         this.graphUpdateService = graphUpdateService;
+        this.meterRegistry = meterRegistry;
     }
 
     @KafkaListener(
@@ -37,12 +41,20 @@ public class SignalListener {
         try {
             SchemaVersion sv = SchemaVersion.parse(event.schemaVersion());
             if (!SchemaVersion.isKnownMajor(sv)) {
+                Counter.builder("auspex.dlt.events.total")
+                        .tag("topic", topic)
+                        .register(meterRegistry)
+                        .increment();
                 log.error("routing to DLT: exception_class={} auspex.topic={}",
                         UnknownMajorVersionException.class.getSimpleName(), topic);
                 throw new UnknownMajorVersionException(
                         "Unknown major schema version %d in topic %s — routing to DLT"
                                 .formatted(sv.major(), topic));
             }
+            Counter.builder("auspex.signals.processed.total")
+                    .tag("source_type", event.sourceType())
+                    .register(meterRegistry)
+                    .increment();
             log.info("processing signal schema_version={}", event.schemaVersion());
             graphUpdateService.process(event);
         } finally {

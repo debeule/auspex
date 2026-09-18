@@ -1,3 +1,4 @@
+import time
 import uuid
 from collections.abc import Callable
 from datetime import datetime
@@ -6,6 +7,7 @@ from typing import Any
 import structlog
 
 from .connectors.base import SourceConnector
+from .metrics import make_metrics
 from .models import RunResult
 from .normalizer import EntityNormalizer
 from .prefilter import Prefilter
@@ -23,6 +25,7 @@ class IngestionPipeline:
         normalizer: EntityNormalizer,
         now: Callable[[], datetime],
         min_confidence_to_publish: float = 0.0,
+        metrics_registry: Any = None,
     ) -> None:
         self._connector = connector
         self._archive = archive
@@ -32,6 +35,7 @@ class IngestionPipeline:
         self._normalizer = normalizer
         self._now = now
         self._min_confidence = min_confidence_to_publish
+        self._metrics = make_metrics(metrics_registry) if metrics_registry is not None else None
 
     def run(self, source_type: str, cursor: datetime) -> RunResult:
         log = structlog.get_logger().bind(**{
@@ -39,9 +43,12 @@ class IngestionPipeline:
             "auspex.run_id": str(uuid.uuid4()),
         })
         result = RunResult()
+        start = time.monotonic()
 
         for doc in self._connector.fetch_since(cursor):
             result.fetched += 1
+            if self._metrics:
+                self._metrics["documents_fetched"].labels(source_type=source_type).inc()
             try:
                 key, is_new = self._archive.put(doc)
 
@@ -71,7 +78,14 @@ class IngestionPipeline:
                         f"doc {doc.external_id!r} has canonical_id=None"
                     )
 
-                event = self._extractor.extract(doc, self._prefilter.version, key)
+                try:
+                    event = self._extractor.extract(doc, self._prefilter.version, key)
+                    if self._metrics:
+                        self._metrics["llm_calls"].labels(source_type=source_type, result="success").inc()
+                except Exception:
+                    if self._metrics:
+                        self._metrics["llm_calls"].labels(source_type=source_type, result="error").inc()
+                    raise
 
                 if event is None:
                     result.not_signal += 1
@@ -95,6 +109,8 @@ class IngestionPipeline:
                 self._producer.publish_raw(doc, key, doc.schema_version)
                 self._producer.publish_signal(event)
                 result.published += 1
+                if self._metrics:
+                    self._metrics["signals_published"].labels(source_type=source_type).inc()
 
                 if doc.canonical_id is not None:
                     try:
@@ -117,6 +133,11 @@ class IngestionPipeline:
             self._producer.flush()
         except Exception:  # noqa: BLE001
             result.failed += 1
+
+        if self._metrics:
+            self._metrics["run_duration"].labels(source_type=source_type).observe(
+                time.monotonic() - start
+            )
 
         log.info("run complete",
                  fetched=result.fetched,

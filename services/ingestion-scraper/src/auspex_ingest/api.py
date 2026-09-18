@@ -4,7 +4,8 @@ from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import Any
 
-from flask import Flask, jsonify, request
+from flask import Flask, Response, jsonify, request
+from prometheus_client import REGISTRY, CollectorRegistry, generate_latest
 
 from .models import RunResult
 from .reextract import ReextractionRunner
@@ -17,8 +18,10 @@ def create_app(
     reextract_runner: ReextractionRunner | None = None,
     sources_config: SourcesConfig | None = None,
     now: Callable[[], datetime] | None = None,
+    metrics_registry: CollectorRegistry | None = None,
 ) -> Flask:
     app = Flask(__name__)
+    _registry = metrics_registry if metrics_registry is not None else REGISTRY
 
     _sources = sources_config or _load_sources_config()
     _sources_by_type: dict[str, SourceEntry] = {e.source_type: e for e in _sources.sources}
@@ -82,6 +85,10 @@ def create_app(
             dry_run=bool(body.get("dry_run", False)),
         )
         return jsonify(result)
+
+    @app.route("/metrics")
+    def metrics() -> Response:
+        return Response(generate_latest(_registry), mimetype="text/plain; version=0.0.4")
 
     return app
 

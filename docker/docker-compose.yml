@@ -117,6 +117,21 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:ro
     command: filebeat -e --strict.perms=false
 
+  prometheus:
+    image: prom/prometheus:${PROMETHEUS_VERSION}
+    container_name: auspex-prometheus
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    ports:
+      - "127.0.0.1:9090:9090"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:9090/-/healthy"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   airflow:
     image: apache/airflow:3.3.1
     container_name: auspex-airflow
@@ -170,3 +185,4 @@ volumes:
   minio_data:
   airflow_logs:
   elasticsearch_data:
+  prometheus_data:

@@ -6,6 +6,7 @@ import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
 import dev.auspex.corehub.model.ResearchSignalEvent;
 import dev.auspex.corehub.service.GraphUpdateService;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -33,7 +34,7 @@ class LoggingTest {
         logger.addAppender(appender);
         logger.setLevel(Level.DEBUG);
 
-        signalListener = new SignalListener(mock(GraphUpdateService.class));
+        signalListener = new SignalListener(mock(GraphUpdateService.class), new SimpleMeterRegistry());
         MDC.clear();
     }
 

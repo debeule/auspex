@@ -12,6 +12,9 @@ Docker Compose stack for the full Auspex infrastructure.
 | `auspex-postgres` | `postgres:18.6` | 5432 | Application DB + Airflow metadata DB |
 | `auspex-neo4j` | `neo4j:2026.05-community` | 7474 / 7687 | Signal graph |
 | `auspex-minio` | `minio/minio:RELEASE.2025-09-07T16-13-09Z` | 9000 / 9001 | Raw document archive (S3-compatible) |
+| `auspex-elasticsearch` | `elasticsearch:8.17.3` | 9200 | Log storage (ECS format) |
+| `auspex-filebeat` | `elastic/filebeat:8.17.3` | — | Log shipper; Docker autodiscovery |
+| `auspex-prometheus` | `prom/prometheus:v3.14.0` | 9090 | Metrics scraper and storage |
 | `auspex-airflow` | `apache/airflow:3.3.1` | 8082 | DAG scheduler (Phase 2+) |
 
 All ports bound to `127.0.0.1` — local only, intentional.
