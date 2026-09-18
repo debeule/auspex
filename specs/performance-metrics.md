@@ -1,6 +1,6 @@
 # Performance Metrics
 
-**Status:** ready
+**Status:** done
 **Blocked by:** —
 **Branch:** `feature/performance-metrics`
 

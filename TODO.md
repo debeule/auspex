@@ -13,7 +13,7 @@ Each line links to a self-contained spec in `specs/`. Open the spec and read it 
 | [Price data ingestion](specs/done/price-ingestion.md) | `done` | 5 tests passed |
 | [Point-in-time alignment](specs/done/point-in-time-alignment.md) | `done` | 10 tests passed |
 | [Backtesting module](specs/done/backtesting.md) | `done` | 5 tests passed |
-| [Performance metrics](specs/performance-metrics.md) | `ready` | After backtesting |
+| [Performance metrics](specs/done/performance-metrics.md) | `done` | 5 tests passed |
 | [Centralised logging](specs/centralised-logging.md) | `ready` | After performance metrics — Elasticsearch + Filebeat, prerequisite for metrics, Grafana, and containerisation |
 | [Metrics](specs/metrics.md) | `ready` | After logging — Kafka lag, JVM heap, LLM throughput via Prometheus |
 | [Grafana dashboards](specs/grafana-dashboards.md) | `ready` | After logging + metrics — unified UI for logs and metrics |
@@ -38,3 +38,4 @@ Each line links to a self-contained spec in `specs/`. Open the spec and read it 
 | 2026-09-18 | Price data ingestion | Done — 5 tests green | No |
 | 2026-09-18 | Point-in-time alignment | Done — 10 tests green | No |
 | 2026-09-18 | Backtesting module | Done — 5 tests green | No |
+| 2026-09-18 | Performance metrics | Done — 5 tests green | No |
