@@ -54,7 +54,7 @@ This is not hypothetical: v1 of this plan contained a test (`test_dag_task_only_
 ## Invariants (never violate; if a task seems to require it, stop and flag)
 1. `ingestion-scraper` writes only to MinIO and Kafka. Nothing else. Ever.
 2. `core-hub` is the sole writer to the application DB and Neo4j.
-3. DAG code resolves config and calls `IngestionPipeline.run()`. No ingestion logic in DAGs; no pipeline logic in `fetch_since()`.
+3. DAG code calls the scraper HTTP API (`/ingest/<source_type>`). No ingestion logic in DAGs; no pipeline logic in `fetch_since()`.
 4. New source = a `SourceConnector` + a `sources.yaml` entry. No `if source_type == ...` anywhere in shared code.
 5. All corroboration sits behind `CorroborationService`.
 6. No credentials, URLs, or ports in source. `.env` only; API keys are Airflow Connections.
@@ -72,7 +72,8 @@ This is not hypothetical: v1 of this plan contained a test (`test_dag_task_only_
 
 | Purpose | Command |
 |---|---|
-| Bring up infra | `docker compose -f docker/docker-compose.yml --env-file .env up -d --wait` |
+| Bring up infra only | `docker compose -f docker/docker-compose.yml --env-file .env up -d --wait` |
+| Bring up full stack (incl. app services) | `docker compose --profile app -f docker/docker-compose.yml --env-file .env up -d --wait` |
 | Tear down (keep volumes) | `docker compose -f docker/docker-compose.yml --env-file .env down` |
 | Tear down (wipe volumes) | `docker compose -f docker/docker-compose.yml --env-file .env down -v` |
 | Python: install | `cd services/ingestion-scraper && uv sync --all-extras` |

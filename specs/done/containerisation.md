@@ -1,6 +1,6 @@
 # Full Containerisation
 
-**Status:** ready
+**Status:** done
 **Blocked by:** [Scraper HTTP API](scraper-api.md) — ingestion-scraper must expose `/health` before it can be added to compose; [Centralised logging](centralised-logging.md) — Filebeat ships logs from containers, so structured logging must be in place first
 **Branch:** `feature/containerisation`
 

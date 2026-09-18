@@ -59,6 +59,8 @@ Managed with **uv**; `uv.lock` is committed and is the source of truth. Versions
 | Filebeat | **8.17.3** (same as above) | Docker autodiscovery; ships container stdout to Elasticsearch. |
 | Prometheus | **v3.14.0** | Resolved 2026-09-18 from `prom/prometheus:latest`. |
 | Grafana | **13.0.2** | Resolved 2026-09-18 from `grafana/grafana-oss:latest`. |
+| uv (Docker build stage) | **0.12.17** | Resolved 2026-09-18 from `ghcr.io/astral-sh/uv:latest`. Scraper Dockerfile only — does not affect host `uv`. |
+| eclipse-temurin JRE | **25.0.4** (tag `25-jre-alpine`) | Resolved 2026-09-18. Runtime image for core-hub container. |
 
 ## Python dependencies — ingestion-scraper (`services/ingestion-scraper/`)
 Additions resolved 2026-09-18.

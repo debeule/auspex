@@ -17,9 +17,11 @@ Docker Compose stack for the full Auspex infrastructure.
 | `auspex-prometheus` | `prom/prometheus:v3.14.0` | 9090 | Metrics scraper and storage |
 | `auspex-grafana` | `grafana/grafana-oss:13.0.2` | 3000 | Observability UI (logs + metrics) |
 | `auspex-elasticsearch-setup` | `curlimages/curl:latest` | — | One-shot init: applies Elasticsearch ILM policy |
-| `auspex-airflow` | `apache/airflow:3.3.1` | 8082 | DAG scheduler (Phase 2+) |
+| `auspex-ingestion-scraper` | built from `services/ingestion-scraper` | 8000 | Scraper HTTP API (profile `app`) |
+| `auspex-core-hub` | built from `services/core-hub` | 8080 | Signal processor (profile `app`) |
+| `auspex-airflow` | `apache/airflow:3.3.1` | 8082 | DAG scheduler |
 
-All ports bound to `127.0.0.1` — local only, intentional.
+All ports bound to `127.0.0.1` — local only, intentional. Services in the `app` profile (`ingestion-scraper`, `core-hub`) only start with `--profile app`.
 
 ---
 

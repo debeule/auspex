@@ -5,11 +5,11 @@ services:
     environment:
       KAFKA_NODE_ID: 1
       KAFKA_PROCESS_ROLES: broker,controller
-      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://127.0.0.1:9092
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093,INTERNAL://0.0.0.0:9094
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://127.0.0.1:9092,INTERNAL://kafka:9094
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT,INTERNAL:PLAINTEXT
       KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
-      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
       KAFKA_CONTROLLER_QUORUM_VOTERS: 1@localhost:9093
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
@@ -20,6 +20,7 @@ services:
       - "127.0.0.1:9092:9092"
     volumes:
       - kafka_data:/var/lib/kafka/data
+    restart: unless-stopped
     healthcheck:
       test: ["CMD-SHELL", "/opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --list > /dev/null 2>&1"]
       interval: 10s
@@ -43,6 +44,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql
       - ./postgres-init:/docker-entrypoint-initdb.d:ro
+    restart: unless-stopped
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
       interval: 5s
@@ -60,6 +62,7 @@ services:
       - "127.0.0.1:7687:7687"
     volumes:
       - neo4j_data:/data
+    restart: unless-stopped
     healthcheck:
       test: ["CMD-SHELL", "curl -sf http://localhost:7474/ > /dev/null 2>&1 || wget -q -O /dev/null http://localhost:7474/ > /dev/null 2>&1"]
       interval: 10s
@@ -79,6 +82,7 @@ services:
       - "127.0.0.1:9001:9001"
     volumes:
       - minio_data:/data
+    restart: unless-stopped
     healthcheck:
       test: ["CMD-SHELL", "curl -sf http://localhost:9000/minio/health/live"]
       interval: 10s
@@ -97,6 +101,7 @@ services:
       - "127.0.0.1:9200:9200"
     volumes:
       - elasticsearch_data:/usr/share/elasticsearch/data
+    restart: unless-stopped
     healthcheck:
       test: ["CMD-SHELL", "curl -sf http://localhost:9200/_cluster/health | grep -qE '\"status\":\"(green|yellow)\"'"]
       interval: 10s
@@ -116,6 +121,7 @@ services:
       - /var/lib/docker/containers:/var/lib/docker/containers:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
     command: filebeat -e --strict.perms=false
+    restart: unless-stopped
 
   elasticsearch-setup:
     image: curlimages/curl:latest
@@ -168,6 +174,77 @@ services:
       retries: 10
       start_period: 30s
 
+  ingestion-scraper:
+    build:
+      context: ../services/ingestion-scraper
+      dockerfile: Dockerfile
+      args:
+        UV_VERSION: ${UV_VERSION}
+    container_name: auspex-ingestion-scraper
+    profiles: ["app"]
+    restart: unless-stopped
+    depends_on:
+      kafka:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    environment:
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9094
+      KAFKA_RAW_TOPIC: auspex.raw.ingested
+      KAFKA_SIGNALS_TOPIC: auspex.signals.extracted
+      MINIO_ENDPOINT: minio:9000
+      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}
+      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
+      MINIO_BUCKET: ${MINIO_BUCKET}
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      OPEN_AI_EXTRACTION_MODEL: ${OPEN_AI_EXTRACTION_MODEL}
+      LOG_FORMAT: json
+    ports:
+      - "127.0.0.1:8000:8000"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:8000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    labels:
+      co.elastic.logs/enabled: "true"
+
+  core-hub:
+    build:
+      context: ../services/core-hub
+      dockerfile: Dockerfile
+    container_name: auspex-core-hub
+    profiles: ["app"]
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      neo4j:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      SPRING_NEO4J_URI: bolt://neo4j:7687
+      NEO4J_USER: ${NEO4J_USER:-neo4j}
+      NEO4J_PASSWORD: ${NEO4J_PASSWORD}
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9094
+      LOGGING_STRUCTURED_FORMAT_CONSOLE: ecs
+    ports:
+      - "127.0.0.1:8080:8080"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/actuator/health | grep -q UP"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 45s
+    labels:
+      co.elastic.logs/enabled: "true"
+
   airflow:
     image: apache/airflow:3.3.1
     container_name: auspex-airflow
@@ -187,28 +264,18 @@ services:
       AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: "true"
       AIRFLOW__WEBSERVER__SECRET_KEY: ${AIRFLOW_SECRET_KEY}
       AIRFLOW__WEBSERVER__DEFAULT_UI_TIMEZONE: UTC
-      PYTHONPATH: /opt/airflow/python_packages
       AUSPEX_SOURCES_YAML: /opt/airflow/config/sources.yaml
-      # Pipeline runtime config — uses Docker-internal hostnames
-      MINIO_ENDPOINT: minio:9000
-      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}
-      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
-      MINIO_BUCKET: ${MINIO_BUCKET}
-      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
-      KAFKA_RAW_TOPIC: auspex.raw.ingested
-      KAFKA_SIGNALS_TOPIC: auspex.signals.extracted
-      OPENAI_API_KEY: ${OPENAI_API_KEY}
-      OPEN_AI_EXTRACTION_MODEL: ${OPEN_AI_EXTRACTION_MODEL}
+      SCRAPER_API_URL: ${SCRAPER_API_URL:-http://ingestion-scraper:8000}
     volumes:
       - ../services/ingestion-scraper/dags:/opt/airflow/dags:ro
-      - ../services/ingestion-scraper/src:/opt/airflow/python_packages:ro
       - ../services/ingestion-scraper/config:/opt/airflow/config:ro
       - airflow_logs:/opt/airflow/logs
     ports:
-      - "127.0.0.1:8080:8080"
+      - "127.0.0.1:8082:8080"
     command: standalone
+    restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "curl -sf http://localhost:8080/health || exit 1"]
+      test: ["CMD-SHELL", "curl -sf http://localhost:8080/api/v2/monitor/health | grep -q healthy"]
       interval: 30s
       timeout: 10s
       retries: 10
