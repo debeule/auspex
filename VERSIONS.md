@@ -58,6 +58,7 @@ Managed with **uv**; `uv.lock` is committed and is the source of truth. Versions
 | Elasticsearch | **8.17.3** | Resolved 2026-09-18. Elasticsearch, Filebeat, and Kibana (future) must pin the same version via `ELASTIC_VERSION` in `.env.example`. |
 | Filebeat | **8.17.3** (same as above) | Docker autodiscovery; ships container stdout to Elasticsearch. |
 | Prometheus | **v3.14.0** | Resolved 2026-09-18 from `prom/prometheus:latest`. |
+| Grafana | **13.0.2** | Resolved 2026-09-18 from `grafana/grafana-oss:latest`. |
 
 ## Python dependencies — ingestion-scraper (`services/ingestion-scraper/`)
 Additions resolved 2026-09-18.

@@ -16,7 +16,7 @@ Each line links to a self-contained spec in `specs/`. Open the spec and read it 
 | [Performance metrics](specs/done/performance-metrics.md) | `done` | 5 tests passed |
 | [Centralised logging](specs/done/centralised-logging.md) | `done` | 11 tests passed (6 Python unit, 4 Java unit, 1 integration) |
 | [Metrics](specs/done/metrics.md) | `done` | 7 tests — Prometheus scrape: Java Micrometer + Python prometheus-client |
-| [Grafana dashboards](specs/grafana-dashboards.md) | `ready` | After logging + metrics — unified UI for logs and metrics |
+| [Grafana dashboards](specs/done/grafana-dashboards.md) | `done` | Grafana 13 provisioned: 2 datasources, 3 dashboards, 3 alert rules; 5 smoke tests pass |
 | [Scraper HTTP API](specs/done/scraper-api.md) | `done` | 10 tests passed (9 unit, 1 integration) |
 | [Containerisation](specs/containerisation.md) | `ready` | After scraper API + logging — enables prod-sim local run |
 | [Re-extraction CLI](specs/reextraction-cli.md) | `ready` | After containerisation — run before any prompt or model version bump |
@@ -42,3 +42,4 @@ Each line links to a self-contained spec in `specs/`. Open the spec and read it 
 | 2026-09-18 | Centralised logging | Done — 11 tests green (6 Python unit, 4 Java unit, 1 integration) | No |
 | 2026-09-18 | Scraper HTTP API | Done — 10 tests green (9 unit, 1 integration) | No |
 | 2026-09-18 | Metrics | Done — 7 tests green (5 Python unit, 2 Java unit); Prometheus service added | No |
+| 2026-09-18 | Grafana dashboards | Done — 5 smoke tests pass; Grafana 13 + provisioning, elasticsearch-setup init container | No |

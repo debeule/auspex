@@ -1,4 +1,4 @@
-from prometheus_client import REGISTRY, CollectorRegistry, Counter, Histogram
+from prometheus_client import REGISTRY, CollectorRegistry, Counter, Gauge, Histogram
 
 
 def make_metrics(registry: CollectorRegistry | None = None) -> dict:
@@ -27,6 +27,12 @@ def make_metrics(registry: CollectorRegistry | None = None) -> dict:
             "Wall-clock duration of a full pipeline run",
             ["source_type"],
             buckets=[30, 60, 120, 300, 600, 1800, 3600],
+            registry=r,
+        ),
+        "run_last_timestamp": Gauge(
+            "auspex_pipeline_run_last_timestamp",
+            "Unix timestamp of the last successful pipeline run",
+            ["source_type"],
             registry=r,
         ),
     }

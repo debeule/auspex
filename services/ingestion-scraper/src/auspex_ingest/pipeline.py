@@ -138,6 +138,9 @@ class IngestionPipeline:
             self._metrics["run_duration"].labels(source_type=source_type).observe(
                 time.monotonic() - start
             )
+            self._metrics["run_last_timestamp"].labels(source_type=source_type).set(
+                time.time()
+            )
 
         log.info("run complete",
                  fetched=result.fetched,

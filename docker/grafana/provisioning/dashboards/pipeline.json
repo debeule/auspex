@@ -1,0 +1,18 @@
+{
+  "annotations": {"list": []},
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "links": [],
+  "panels": [],
+  "refresh": "1m",
+  "schemaVersion": 39,
+  "tags": ["auspex", "pipeline"],
+  "templating": {"list": []},
+  "time": {"from": "now-24h", "to": "now"},
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "Auspex Pipeline",
+  "uid": "auspex-pipeline",
+  "version": 1
+}

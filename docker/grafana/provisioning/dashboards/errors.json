@@ -1,0 +1,18 @@
+{
+  "annotations": {"list": []},
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "links": [],
+  "panels": [],
+  "refresh": "1m",
+  "schemaVersion": 39,
+  "tags": ["auspex", "errors"],
+  "templating": {"list": []},
+  "time": {"from": "now-6h", "to": "now"},
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "Auspex Error Drill-Down",
+  "uid": "auspex-errors",
+  "version": 1
+}

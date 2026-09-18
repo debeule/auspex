@@ -15,6 +15,8 @@ Docker Compose stack for the full Auspex infrastructure.
 | `auspex-elasticsearch` | `elasticsearch:8.17.3` | 9200 | Log storage (ECS format) |
 | `auspex-filebeat` | `elastic/filebeat:8.17.3` | — | Log shipper; Docker autodiscovery |
 | `auspex-prometheus` | `prom/prometheus:v3.14.0` | 9090 | Metrics scraper and storage |
+| `auspex-grafana` | `grafana/grafana-oss:13.0.2` | 3000 | Observability UI (logs + metrics) |
+| `auspex-elasticsearch-setup` | `curlimages/curl:latest` | — | One-shot init: applies Elasticsearch ILM policy |
 | `auspex-airflow` | `apache/airflow:3.3.1` | 8082 | DAG scheduler (Phase 2+) |
 
 All ports bound to `127.0.0.1` — local only, intentional.
