@@ -8,7 +8,7 @@ Each line links to a self-contained spec in `specs/`. Open the spec and read it 
 
 | Spec | Status | Notes |
 |---|---|---|
-| [Patent connector (EPO OPS)](specs/patent-connector.md) | `done` | 10 tests, live DOCDB confirmed |
+| [Patent connector (EPO OPS)](specs/done/patent-connector.md) | `done` | 10 tests, live DOCDB confirmed |
 | [Historical backfill](specs/historical-backfill.md) | `blocked` | Needs budget approval after dry run |
 | [Price data ingestion](specs/price-ingestion.md) | `ready` | Execute first — prerequisite for the three below |
 | [Point-in-time alignment](specs/point-in-time-alignment.md) | `ready` | After price ingestion |
@@ -23,6 +23,9 @@ Each line links to a self-contained spec in `specs/`. Open the spec and read it 
 | [Scraper HTTP API](specs/scraper-api.md) | `ready` | After logging — prerequisite for containerisation |
 | [Containerisation](specs/containerisation.md) | `ready` | After scraper API + logging — enables prod-sim local run |
 | [Kafka partition verification](specs/kafka-partition-verification.md) | `ready` | Measurement only — no code unless skewed |
+| [Python module layout](specs/python-module-layout.md) | `ready` | Structural only — no behavior change |
+| [Java package reorganization](specs/java-package-reorganization.md) | `ready` | Structural only — no behavior change |
+| [Java service decomposition](specs/java-service-decomposition.md) | `ready` | After Java package reorganization — splits corroboration monolith, renames services, introduces ports |
 | [Neo4j indexing at scale](specs/neo4j-indexing.md) | `draft` | Needs backfill data before meaningful |
 | [CI/CD pipeline](specs/ci-cd.md) | `draft` | Needs runner decision + broken-PR check |
 | [Kafka Streams correlation](specs/kafka-streams-correlation.md) | `draft` | Conditional — only if scheduled query proves inadequate |

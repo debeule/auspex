@@ -55,7 +55,7 @@ Do not reference plan steps, phase numbers, or spec filenames in test names, fun
 | `draft` | Spec exists but is incomplete — missing tests, tasks too vague, or scope unclear. Not executable yet. |
 | `ready` | All required fields are complete. Can be handed to a session and executed. |
 | `blocked` | Has a complete definition but cannot start — external credential, user decision, or depends on another spec that is not done. |
-| `done` | Implemented, tests green, committed. Done specs stay in `specs/` with status `done`. Do not delete them — the constraints and test list are useful reference. |
+| `done` | Implemented, tests green, committed. Move the file to `specs/done/`. Do not delete — the constraints and test list are useful reference. |
 
 A spec moves from `draft` to `ready` in a scoping session. Scoping means filling in required tests and the definition of done — not implementation.
 

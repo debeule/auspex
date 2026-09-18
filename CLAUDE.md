@@ -7,7 +7,7 @@ Auto-loaded every session.
 @VERSIONS.md
 
 Those two are imported, so they are already in context — do not re-read them from disk. Everything else is on demand:
-- `specs/<name>.md` — the current spec. Self-contained; read it in full before starting.
+- `specs/<name>.md` — the current spec (active). `specs/done/<name>.md` for completed ones. Self-contained; read it in full before starting.
 - `docs/requirements.md` — read the sections the spec cites when verifying test consistency.
 - `docs/PREREQUISITES.md` — read when a spec is blocked on a credential or user decision.
 - `DECISIONS.md` — read before flagging something (it may already be logged); append when you flag.
@@ -41,7 +41,7 @@ See README.md for system overview and architecture.
 3. If no spec is `ready`, pick a `draft` spec to scope — see `specs/README.md` for the format. Scoping means filling in required tests and definition of done, not implementation.
 4. Confirm the spec's required tests are consistent with `docs/requirements.md` before writing them (see "The rule that matters most" below).
 5. Work only the current spec. Do not start another.
-6. When done: mark the spec `done`, update its row in `TODO.md`, commit.
+6. When done: mark the spec `done`, move it to `specs/done/`, update its row in `TODO.md` (link points to `specs/done/<name>.md`), commit.
 
 ## No legacy system
 Phases 0–3 are complete. There is no legacy system predating this project — no prior schema to migrate from, no behaviour to preserve from a prior release. The only Flyway "migrations" are the scripts that create the schema on an empty database — Flyway's word, not a change of direction.
@@ -179,7 +179,8 @@ services/core-hub/src/integrationTest/java/**/<Subject>IT.java    # container-ba
 |---|---|
 | `CLAUDE.md` | This file. Always loaded. |
 | `TODO.md` | Spec index — status of each spec, session entry point. |
-| `specs/` | One file per feature. Each is self-contained and independently executable. |
+| `specs/` | Active specs — `draft`, `ready`, `blocked`. One file per feature. |
+| `specs/done/` | Completed specs — moved here when status is set to `done`. |
 | `specs/README.md` | Spec format requirements — what a spec must contain before status is `ready`. |
 | `VERSIONS.md` | Pinned versions — single source of truth. |
 | `DECISIONS.md` | Append-only log of flags, blocks, and choices made. |
