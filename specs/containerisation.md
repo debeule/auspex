@@ -231,7 +231,7 @@ All services show `(healthy)`. Then:
 3. Confirm the task succeeds (green in Airflow).
 4. `curl http://localhost:8000/health` — `{"status": "ok"}`.
 5. `curl http://localhost:8080/actuator/health` — `{"status": "UP"}`.
-6. Open `http://localhost:5601` — Kibana shows log events from both services.
+6. Open `http://localhost:3000` — Grafana shows log events from both services in the Auspex Error Drill-Down dashboard.
 
 From host (infra-only dev mode verification):
 ```bash
