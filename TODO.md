@@ -11,7 +11,7 @@ Each line links to a self-contained spec in `specs/`. Open the spec and read it 
 | [Patent connector (EPO OPS)](specs/done/patent-connector.md) | `done` | 10 tests, live DOCDB confirmed |
 | [Historical backfill](specs/historical-backfill.md) | `blocked` | Needs budget approval after dry run |
 | [Price data ingestion](specs/done/price-ingestion.md) | `done` | 5 tests passed |
-| [Point-in-time alignment](specs/point-in-time-alignment.md) | `ready` | After price ingestion |
+| [Point-in-time alignment](specs/done/point-in-time-alignment.md) | `done` | 10 tests passed |
 | [Backtesting module](specs/backtesting.md) | `ready` | After point-in-time alignment |
 | [Performance metrics](specs/performance-metrics.md) | `ready` | After backtesting |
 | [Centralised logging](specs/centralised-logging.md) | `ready` | After performance metrics — Elasticsearch + Filebeat, prerequisite for metrics, Grafana, and containerisation |
@@ -36,3 +36,4 @@ Each line links to a self-contained spec in `specs/`. Open the spec and read it 
 | Date | Spec worked | Left off at | Blocked? |
 |---|---|---|---|
 | 2026-09-18 | Price data ingestion | Done — 5 tests green | No |
+| 2026-09-18 | Point-in-time alignment | Done — 10 tests green | No |

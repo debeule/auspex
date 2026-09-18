@@ -1,6 +1,6 @@
 # Point-in-Time Alignment
 
-**Status:** ready
+**Status:** done
 **Blocked by:** —
 **Branch:** `feature/point-in-time-alignment`
 
