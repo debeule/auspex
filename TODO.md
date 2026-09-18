@@ -12,7 +12,7 @@ Each line links to a self-contained spec in `specs/`. Open the spec and read it 
 | [Historical backfill](specs/historical-backfill.md) | `blocked` | Needs budget approval after dry run |
 | [Price data ingestion](specs/done/price-ingestion.md) | `done` | 5 tests passed |
 | [Point-in-time alignment](specs/done/point-in-time-alignment.md) | `done` | 10 tests passed |
-| [Backtesting module](specs/backtesting.md) | `ready` | After point-in-time alignment |
+| [Backtesting module](specs/done/backtesting.md) | `done` | 5 tests passed |
 | [Performance metrics](specs/performance-metrics.md) | `ready` | After backtesting |
 | [Centralised logging](specs/centralised-logging.md) | `ready` | After performance metrics — Elasticsearch + Filebeat, prerequisite for metrics, Grafana, and containerisation |
 | [Metrics](specs/metrics.md) | `ready` | After logging — Kafka lag, JVM heap, LLM throughput via Prometheus |
@@ -37,3 +37,4 @@ Each line links to a self-contained spec in `specs/`. Open the spec and read it 
 |---|---|---|---|
 | 2026-09-18 | Price data ingestion | Done — 5 tests green | No |
 | 2026-09-18 | Point-in-time alignment | Done — 10 tests green | No |
+| 2026-09-18 | Backtesting module | Done — 5 tests green | No |

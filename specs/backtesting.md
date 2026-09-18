@@ -1,6 +1,6 @@
 # Backtesting Module
 
-**Status:** ready
+**Status:** done
 **Blocked by:** —
 **Branch:** `feature/backtesting`
 
