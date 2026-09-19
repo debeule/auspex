@@ -1,4 +1,3 @@
-from dataclasses import dataclass
 from datetime import UTC, datetime
 from uuid import UUID
 
@@ -79,14 +78,3 @@ class ResearchSignalEvent(BaseModel):
     @field_serializer("published_date", "ingested_at")
     def _serialize_dt(self, v: datetime) -> str:
         return v.strftime("%Y-%m-%dT%H:%M:%SZ")
-
-
-@dataclass
-class RunResult:
-    fetched: int = 0
-    prefiltered_out: int = 0
-    published: int = 0
-    not_signal: int = 0
-    below_threshold: int = 0
-    failed: int = 0
-    max_published_date_processed: datetime | None = None

@@ -1,6 +1,6 @@
 # Python Module Layout
 
-**Status:** ready
+**Status:** done
 **Blocked by:** —
 **Branch:** `feature/python-module-layout`
 

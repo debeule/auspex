@@ -4,7 +4,7 @@ from unittest.mock import MagicMock
 import pytest
 
 from auspex_ingest.api import create_app
-from auspex_ingest.models import RunResult
+from auspex_ingest.pipeline import RunResult
 from auspex_ingest.sources import SourceEntry, SourcesConfig
 
 

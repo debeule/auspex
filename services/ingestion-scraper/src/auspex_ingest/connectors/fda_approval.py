@@ -9,8 +9,8 @@ from typing import Any, cast
 import httpx
 
 from ..models import RawDocument
-from ..rate_limited_client import RateLimitedClient
 from .base import SourceConnector
+from .rate_limited_client import RateLimitedClient
 
 _BASE_URL = "https://api.fda.gov/drug/drugsfda.json"
 _PAGE_SIZE = 100

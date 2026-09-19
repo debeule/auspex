@@ -1,7 +1,7 @@
 import json
 from typing import Any
 
-from .models import RawDocument, ResearchSignalEvent
+from ..models import RawDocument, ResearchSignalEvent
 
 
 class KafkaProducerClient:

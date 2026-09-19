@@ -1,6 +1,7 @@
 import time
 import uuid
 from collections.abc import Callable
+from dataclasses import dataclass
 from datetime import datetime
 from typing import Any
 
@@ -8,9 +9,19 @@ import structlog
 
 from .connectors.base import SourceConnector
 from .metrics import make_metrics
-from .models import RunResult
 from .normalizer import EntityNormalizer
 from .prefilter import Prefilter
+
+
+@dataclass
+class RunResult:
+    fetched: int = 0
+    prefiltered_out: int = 0
+    published: int = 0
+    not_signal: int = 0
+    below_threshold: int = 0
+    failed: int = 0
+    max_published_date_processed: datetime | None = None
 
 
 class IngestionPipeline:

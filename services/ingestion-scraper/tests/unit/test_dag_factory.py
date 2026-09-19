@@ -8,9 +8,9 @@ from unittest.mock import MagicMock
 
 import pytest
 
+from auspex_ingest.connectors import RateLimitedClient, RateLimitExceeded
 from auspex_ingest.dag_factory import DagConfig, build_dags, load_sources_config, run_with_cursor
-from auspex_ingest.models import RunResult
-from auspex_ingest.rate_limited_client import RateLimitedClient, RateLimitExceeded
+from auspex_ingest.pipeline import RunResult
 from auspex_ingest.sources import SourceEntry, SourcesConfig
 
 _T0 = datetime(2024, 6, 15, 12, 0, 0, tzinfo=UTC)

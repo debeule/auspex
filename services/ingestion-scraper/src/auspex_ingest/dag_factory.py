@@ -9,7 +9,7 @@ from typing import Any
 
 import yaml
 
-from .models import RunResult
+from .pipeline import RunResult
 from .sources import SourceEntry, SourcesConfig
 
 

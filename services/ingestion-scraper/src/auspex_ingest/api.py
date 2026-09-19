@@ -7,7 +7,7 @@ from typing import Any
 from flask import Flask, Response, jsonify, request
 from prometheus_client import REGISTRY, CollectorRegistry, generate_latest
 
-from .models import RunResult
+from .pipeline import RunResult
 from .reextract import ReextractionRunner
 from .sources import SourceEntry, SourcesConfig
 
@@ -112,7 +112,7 @@ def _make_env_reextract_runner() -> ReextractionRunner:
     from minio import Minio
 
     from .extractor import LLMExtractor
-    from .kafka_producer import KafkaProducerClient
+    from .messaging import KafkaProducerClient
     from .storage.minio_client import MinioArchive
 
     minio_client = Minio(
@@ -152,14 +152,14 @@ def _make_env_pipeline_factory(
     from confluent_kafka import Producer as ConfluentProducer
     from minio import Minio
 
+    from .connectors import RateLimitedClient
     from .connectors.biorxiv import BiorxivConnector
     from .connectors.clinicaltrials import ClinicalTrialConnector
     from .extractor import LLMExtractor
-    from .kafka_producer import KafkaProducerClient
+    from .messaging import KafkaProducerClient
     from .normalizer import IdentityNormalizer
     from .pipeline import IngestionPipeline
     from .prefilter import Prefilter
-    from .rate_limited_client import RateLimitedClient
     from .storage.minio_client import MinioArchive
 
     rate_limits: dict[str, float] = {

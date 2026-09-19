@@ -21,7 +21,7 @@ Each line links to a self-contained spec in `specs/`. Open the spec and read it 
 | [Containerisation](specs/done/containerisation.md) | `done` | Dockerfiles for scraper + core-hub; Kafka dual-listener; app profile; all services healthy |
 | [Re-extraction CLI](specs/done/reextraction-cli.md) | `done` | 13 tests (12 unit, 1 integration) |
 | [Kafka partition verification](specs/done/kafka-partition-verification.md) | `done` | 1 integration test; distribution acceptable, no repartitioning needed |
-| [Python module layout](specs/python-module-layout.md) | `ready` | Structural only — no behavior change |
+| [Python module layout](specs/done/python-module-layout.md) | `done` | 4 smoke tests; messaging/, connectors/rate_limited_client, RunResult→pipeline |
 | [Java package reorganization](specs/java-package-reorganization.md) | `ready` | Structural only — no behavior change |
 | [Java service decomposition](specs/java-service-decomposition.md) | `ready` | After Java package reorganization — splits corroboration monolith, renames services, introduces ports |
 | [Dashboard](specs/dashboard.md) | `draft` | Needs scoping — after backtesting chain |
@@ -46,3 +46,4 @@ Each line links to a self-contained spec in `specs/`. Open the spec and read it 
 | 2026-09-18 | Containerisation | Done — ingestion-scraper + core-hub containerised; all services healthy; Kafka dual-listener | No |
 | 2026-09-18 | Re-extraction CLI | Done — 13 tests green (12 unit, 1 integration); scripts/reextract.py; MinioArchive.list_raw_keys/get_raw | No |
 | 2026-09-19 | Kafka partition verification | Done — 1 integration test; UUID key distribution uniform across 6 partitions | No |
+| 2026-09-19 | Python module layout | Done — 4 smoke tests; messaging/ sub-package, rate_limited_client into connectors/, RunResult into pipeline | No |

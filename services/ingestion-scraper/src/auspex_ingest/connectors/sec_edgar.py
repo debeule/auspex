@@ -14,8 +14,8 @@ from typing import Any, cast
 import httpx
 
 from ..models import RawDocument
-from ..rate_limited_client import RateLimitedClient
 from .base import SourceConnector
+from .rate_limited_client import RateLimitedClient
 
 _USER_AGENT: str = os.environ.get("SEC_USER_AGENT", "")
 

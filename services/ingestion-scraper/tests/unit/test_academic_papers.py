@@ -13,12 +13,12 @@ import pytest
 import respx
 from httpx import Response
 
+from auspex_ingest.connectors import RateLimitedClient
 from auspex_ingest.connectors.biorxiv import BiorxivConnector
 from auspex_ingest.connectors.pubmed import PubmedConnector
 from auspex_ingest.identity import compute_event_id
 from auspex_ingest.models import RawDocument
 from auspex_ingest.normalizer import IdentityNormalizer
-from auspex_ingest.rate_limited_client import RateLimitedClient
 
 _FIXTURES = Path(__file__).parent.parent / "fixtures"
 _BIORXIV_PAGE1 = json.loads((_FIXTURES / "biorxiv_page1.json").read_text())

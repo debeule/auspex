@@ -12,7 +12,7 @@ from testcontainers.community.kafka import KafkaContainer
 
 from auspex_ingest.connectors.mock import MockConnector
 from auspex_ingest.identity import compute_event_id, compute_extraction_id
-from auspex_ingest.kafka_producer import KafkaProducerClient
+from auspex_ingest.messaging import KafkaProducerClient
 from auspex_ingest.models import RawDocument, ResearchSignalEvent
 from auspex_ingest.normalizer import IdentityNormalizer
 from auspex_ingest.pipeline import IngestionPipeline

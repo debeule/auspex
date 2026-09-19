@@ -9,13 +9,13 @@ import pytest
 import respx
 from httpx import Response
 
+from auspex_ingest.connectors import RateLimitedClient
 from auspex_ingest.connectors.epo_ops import EpoOpsConnector
 from auspex_ingest.identity import compute_event_id, compute_extraction_id
 from auspex_ingest.models import RawDocument, ResearchSignalEvent
 from auspex_ingest.normalizer import IdentityNormalizer
 from auspex_ingest.pipeline import IngestionPipeline
 from auspex_ingest.prefilter import Prefilter
-from auspex_ingest.rate_limited_client import RateLimitedClient
 from auspex_ingest.storage.minio_client import minio_key
 
 _FIXTURES = Path(__file__).parent.parent / "fixtures"

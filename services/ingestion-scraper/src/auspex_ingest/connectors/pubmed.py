@@ -10,8 +10,8 @@ from xml.etree import ElementTree
 import httpx
 
 from ..models import RawDocument
-from ..rate_limited_client import RateLimitedClient
 from .base import SourceConnector
+from .rate_limited_client import RateLimitedClient
 
 _EUTILS_BASE = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils"
 _RETMAX = 200

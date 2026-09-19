@@ -12,13 +12,13 @@ import pytest
 import respx
 from httpx import Response
 
+from auspex_ingest.connectors import RateLimitedClient, RateLimitExceeded
 from auspex_ingest.connectors import sec_edgar as _sec_edgar_module
 from auspex_ingest.connectors.sec_edgar import SecEdgarConnector
 from auspex_ingest.models import RawDocument
 from auspex_ingest.normalizer import IdentityNormalizer
 from auspex_ingest.pipeline import IngestionPipeline
 from auspex_ingest.prefilter import Prefilter
-from auspex_ingest.rate_limited_client import RateLimitedClient, RateLimitExceeded
 from auspex_ingest.storage.minio_client import minio_key
 
 _FIXTURES = Path(__file__).parent.parent / "fixtures"

@@ -45,7 +45,7 @@ def _build_runner(args: argparse.Namespace):  # type: ignore[no-untyped-def]
     from minio import Minio
 
     from auspex_ingest.extractor import LLMExtractor
-    from auspex_ingest.kafka_producer import KafkaProducerClient
+    from auspex_ingest.messaging import KafkaProducerClient
     from auspex_ingest.reextract import ReextractionRunner
     from auspex_ingest.storage.minio_client import MinioArchive
 

@@ -19,8 +19,8 @@ from xml.etree import ElementTree
 import httpx
 
 from ..models import RawDocument
-from ..rate_limited_client import RateLimitedClient
 from .base import SourceConnector
+from .rate_limited_client import RateLimitedClient
 
 _DEFAULT_BASE_URL = "https://ops.epo.org/3.2/rest-services"
 _DEFAULT_TOKEN_URL = "https://ops.epo.org/3.2/auth/accesstoken"

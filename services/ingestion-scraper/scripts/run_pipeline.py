@@ -83,12 +83,12 @@ def _build_pipeline(source_type: str, entry):  # type: ignore[no-untyped-def]
     from confluent_kafka import Producer as ConfluentProducer
     from minio import Minio
 
+    from auspex_ingest.connectors import RateLimitedClient
     from auspex_ingest.extractor import LLMExtractor
-    from auspex_ingest.kafka_producer import KafkaProducerClient
+    from auspex_ingest.messaging import KafkaProducerClient
     from auspex_ingest.normalizer import IdentityNormalizer
     from auspex_ingest.pipeline import IngestionPipeline
     from auspex_ingest.prefilter import Prefilter
-    from auspex_ingest.rate_limited_client import RateLimitedClient
     from auspex_ingest.storage.minio_client import MinioArchive
 
     rate_limits: dict[str, float] = {

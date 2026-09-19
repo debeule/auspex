@@ -13,12 +13,12 @@ import pytest
 import respx
 from httpx import Response
 
+from auspex_ingest.connectors import RateLimitedClient
 from auspex_ingest.connectors.fda_approval import FdaApprovalConnector, QuotaExhaustedError
 from auspex_ingest.models import RawDocument
 from auspex_ingest.normalizer import IdentityNormalizer
 from auspex_ingest.pipeline import IngestionPipeline
 from auspex_ingest.prefilter import Prefilter
-from auspex_ingest.rate_limited_client import RateLimitedClient
 from auspex_ingest.storage.minio_client import minio_key
 
 _FIXTURES = Path(__file__).parent.parent / "fixtures"
