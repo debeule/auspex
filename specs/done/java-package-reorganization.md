@@ -1,6 +1,6 @@
 # Java Package Reorganization
 
-**Status:** ready
+**Status:** done
 **Blocked by:** —
 **Branch:** `feature/java-package-reorganization`
 
