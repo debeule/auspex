@@ -1,4 +1,4 @@
-package dev.auspex.corehub.service;
+package dev.auspex.corehub.corroboration;
 
 import org.neo4j.driver.Driver;
 import org.neo4j.driver.Session;

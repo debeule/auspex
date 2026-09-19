@@ -1,6 +1,8 @@
-package dev.auspex.corehub.service;
+package dev.auspex.corehub.signal;
 
-import dev.auspex.corehub.model.ResearchSignalEvent;
+import dev.auspex.corehub.persistence.Neo4jWriteService;
+import dev.auspex.corehub.persistence.PostgresWriteService;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;

@@ -1,7 +1,7 @@
 package dev.auspex.corehub.kafka;
 
-import dev.auspex.corehub.model.ResearchSignalEvent;
-import dev.auspex.corehub.service.GraphUpdateService;
+import dev.auspex.corehub.signal.ResearchSignalEvent;
+import dev.auspex.corehub.signal.GraphUpdateService;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.junit.jupiter.api.BeforeEach;

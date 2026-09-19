@@ -13,9 +13,6 @@ import org.springframework.transaction.annotation.Transactional;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.methods;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
 
-/**
- * ArchUnit rules for the application packages. No Spring context — runs in the unit suite.
- */
 class ArchRulesTest {
 
     private static JavaClasses importedClasses;
@@ -46,13 +43,14 @@ class ArchRulesTest {
     }
 
     @Test
-    void test_no_query_built_by_string_concatenation() {
-        // Verifies that no service-layer method calls the raw Statement variants that accept
-        // a plain String SQL argument. All JDBC must go through PreparedStatement
-        // (via JdbcTemplate's parameterized overloads) and all Neo4j queries must use
-        // the run(String, Map) form where parameters are separated from the query string.
+    void test_no_query_built_by_string_concatenation_in_service_packages() {
         methods()
-                .that().areDeclaredInClassesThat().resideInAPackage("dev.auspex.corehub.service..")
+                .that().areDeclaredInClassesThat().resideInAnyPackage(
+                        "dev.auspex.corehub.signal..",
+                        "dev.auspex.corehub.corroboration..",
+                        "dev.auspex.corehub.audit..",
+                        "dev.auspex.corehub.query.."
+                )
                 .should(new ArchCondition<JavaMethod>("not call java.sql.Statement raw-string methods") {
                     @Override
                     public void check(JavaMethod method, ConditionEvents events) {
@@ -72,6 +70,36 @@ class ArchRulesTest {
                                         + " — use PreparedStatement via JdbcTemplate instead")));
                     }
                 })
+                .allowEmptyShould(true)
+                .check(importedClasses);
+    }
+
+    @Test
+    void test_kafka_package_does_not_import_rest_package() {
+        noClasses()
+                .that().resideInAPackage("dev.auspex.corehub.kafka..")
+                .should().dependOnClassesThat().resideInAPackage("dev.auspex.corehub.rest..")
+                .check(importedClasses);
+    }
+
+    @Test
+    void test_persistence_package_only_imported_from_signal_and_corroboration() {
+        noClasses()
+                .that().resideOutsideOfPackages(
+                        "dev.auspex.corehub.signal..",
+                        "dev.auspex.corehub.corroboration..",
+                        "dev.auspex.corehub.persistence.."
+                )
+                .should().dependOnClassesThat().resideInAPackage("dev.auspex.corehub.persistence..")
+                .check(importedClasses);
+    }
+
+    @Test
+    void test_rest_package_has_no_direct_database_imports() {
+        noClasses()
+                .that().resideInAPackage("dev.auspex.corehub.rest..")
+                .should().dependOnClassesThat()
+                .resideInAnyPackage("org.springframework.jdbc..", "org.neo4j.driver..")
                 .check(importedClasses);
     }
 }

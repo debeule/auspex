@@ -1,9 +1,9 @@
-package dev.auspex.corehub.rest;
+package dev.auspex.corehub.query;
 
 import dev.auspex.corehub.rest.dto.CorroboratedSignalDto;
 import dev.auspex.corehub.rest.dto.DirectSignalDto;
 import dev.auspex.corehub.rest.dto.TickerSignalsResponse;
-import dev.auspex.corehub.service.CorroborationScorer;
+import dev.auspex.corehub.corroboration.CorroborationScorer;
 import org.neo4j.driver.Driver;
 import org.neo4j.driver.Session;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Map;
 
 @Service
-class SignalQueryService {
+public class SignalQueryService {
 
     private final Driver neo4jDriver;
     private final JdbcTemplate jdbcTemplate;
@@ -29,7 +29,7 @@ class SignalQueryService {
         this.scorer = scorer;
     }
 
-    TickerSignalsResponse query(String ticker) {
+    public TickerSignalsResponse query(String ticker) {
         List<DirectSignalDto> directSignals = queryDirectSignals(ticker);
         if (directSignals.isEmpty()) {
             return new TickerSignalsResponse(ticker, List.of(), List.of());

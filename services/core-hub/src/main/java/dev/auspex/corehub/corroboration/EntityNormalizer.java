@@ -1,4 +1,4 @@
-package dev.auspex.corehub.service;
+package dev.auspex.corehub.corroboration;
 
 /**
  * Normalizes entity names to a canonical form for corroboration matching.

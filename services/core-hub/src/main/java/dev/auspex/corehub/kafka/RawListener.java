@@ -1,6 +1,6 @@
 package dev.auspex.corehub.kafka;
 
-import dev.auspex.corehub.service.RawAuditService;
+import dev.auspex.corehub.audit.RawAuditService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;

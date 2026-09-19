@@ -2,7 +2,7 @@ package dev.auspex.corehub.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.auspex.corehub.kafka.UnknownMajorVersionException;
-import dev.auspex.corehub.model.ResearchSignalEvent;
+import dev.auspex.corehub.signal.ResearchSignalEvent;
 import org.apache.kafka.common.serialization.ByteArraySerializer;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;

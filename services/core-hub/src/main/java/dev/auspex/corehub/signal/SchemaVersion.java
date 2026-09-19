@@ -1,4 +1,4 @@
-package dev.auspex.corehub.model;
+package dev.auspex.corehub.signal;
 
 import java.util.Set;
 

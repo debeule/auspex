@@ -1,5 +1,7 @@
 package dev.auspex.corehub.rest;
 
+import dev.auspex.corehub.query.SignalQueryService;
+
 import dev.auspex.corehub.rest.dto.TickerSignalsResponse;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;

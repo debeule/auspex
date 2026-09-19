@@ -1,4 +1,4 @@
-package dev.auspex.corehub.service;
+package dev.auspex.corehub.corroboration;
 
 /**
  * Drives the pairwise corroboration scan.

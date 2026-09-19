@@ -1,6 +1,6 @@
 package dev.auspex.corehub;
 
-import dev.auspex.corehub.service.CorroborationScorer;
+import dev.auspex.corehub.corroboration.CorroborationScorer;
 import org.junit.jupiter.api.Test;
 
 import java.time.Clock;

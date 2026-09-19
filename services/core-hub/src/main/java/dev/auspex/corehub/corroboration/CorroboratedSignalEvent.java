@@ -1,4 +1,4 @@
-package dev.auspex.corehub.service;
+package dev.auspex.corehub.corroboration;
 
 import java.time.Instant;
 import java.util.List;

@@ -1,6 +1,6 @@
 package dev.auspex.corehub;
 
-import dev.auspex.corehub.service.CorroborationService;
+import dev.auspex.corehub.corroboration.CorroborationService;
 import org.junit.jupiter.api.Test;
 import org.neo4j.driver.Session;
 import org.springframework.beans.factory.annotation.Autowired;

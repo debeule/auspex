@@ -2,7 +2,7 @@ package dev.auspex.corehub;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.sun.net.httpserver.HttpServer;
-import dev.auspex.corehub.service.CorroborationService;
+import dev.auspex.corehub.corroboration.CorroborationService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

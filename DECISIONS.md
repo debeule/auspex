@@ -249,3 +249,11 @@ All 8 watched companies have records in DOCDB. They don't appear in 200 randomly
 **What:** Produced 120 messages with UUID keys to a 6-partition topic via a Kafka testcontainer. Consumed all 120 and counted per-partition. No partition exceeded 2× the expected share (40 messages). Distribution was uniform within noise — consistent with murmur2 hash over random UUIDs.
 **Why it matters:** Per the spec, the default outcome is "distribution is acceptable, no action." Repartitioning would rehash all keys and lose per-key ordering.
 **Action:** No repartitioning. Topics stay at 6 partitions.
+
+## 2026-09-19 — Java package reorganization — MetricsIT.java — pre-existing compilation error fixed, one test still failing
+**What:** `MetricsIT.java` used `@AutoConfigureMockMvc` which was removed in Spring Boot 4. The class could not compile on `develop` before this spec, so `test_prometheus_endpoint_returns_200` and `test_kafka_consumer_lag_metric_is_registered` were never running. Fixed the compilation by switching to `MockMvcBuilders.webAppContextSetup().build()` (same pattern as `EndToEndIT`).
+
+`test_prometheus_endpoint_returns_200` now passes. `test_kafka_consumer_lag_metric_is_registered` fails: the `kafka.consumer.records.lag` gauge is not registered in the embedded Kafka test context — the Micrometer Kafka binder only registers this gauge after a consumer gets its first partition assignment, which does not happen in the embedded Kafka setup without messages being published first.
+
+**Not a regression** — both tests were previously blocked by the compilation error. The failing test was a latent issue in the Metrics spec implementation, not introduced by this refactoring.
+**Action:** Log and proceed. If the lag gauge test is needed, it requires either publishing seed messages to trigger partition assignment or a @Tag to exclude it from CI until a container-based Kafka is used.

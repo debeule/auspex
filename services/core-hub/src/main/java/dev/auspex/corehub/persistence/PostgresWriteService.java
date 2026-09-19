@@ -1,6 +1,6 @@
-package dev.auspex.corehub.service;
+package dev.auspex.corehub.persistence;
 
-import dev.auspex.corehub.model.ResearchSignalEvent;
+import dev.auspex.corehub.signal.ResearchSignalEvent;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

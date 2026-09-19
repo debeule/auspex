@@ -1,8 +1,8 @@
 package dev.auspex.corehub.kafka;
 
-import dev.auspex.corehub.model.ResearchSignalEvent;
-import dev.auspex.corehub.model.SchemaVersion;
-import dev.auspex.corehub.service.GraphUpdateService;
+import dev.auspex.corehub.signal.ResearchSignalEvent;
+import dev.auspex.corehub.signal.SchemaVersion;
+import dev.auspex.corehub.signal.GraphUpdateService;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
 import jakarta.validation.Valid;

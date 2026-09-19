@@ -1,6 +1,6 @@
 package dev.auspex.corehub;
 
-import dev.auspex.corehub.service.Neo4jWriteService;
+import dev.auspex.corehub.persistence.Neo4jWriteService;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
