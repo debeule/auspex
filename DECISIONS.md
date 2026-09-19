@@ -244,3 +244,8 @@ No versioning — greenfield build, no deployed events to preserve.
 | Rocket Pharmaceuticals | verified via `pa = ROCKET` search |
 
 All 8 watched companies have records in DOCDB. They don't appear in 200 randomly sampled recent CPC results because they're small-cap relative to the global patent volume (~5000 results/day for C12N+A61K alone). The connector's CPC-class search over a 30-day window will capture their publications as they appear.
+
+## 2026-09-19 — Kafka partition verification — VERIFIED — distribution is acceptable, no action
+**What:** Produced 120 messages with UUID keys to a 6-partition topic via a Kafka testcontainer. Consumed all 120 and counted per-partition. No partition exceeded 2× the expected share (40 messages). Distribution was uniform within noise — consistent with murmur2 hash over random UUIDs.
+**Why it matters:** Per the spec, the default outcome is "distribution is acceptable, no action." Repartitioning would rehash all keys and lose per-key ordering.
+**Action:** No repartitioning. Topics stay at 6 partitions.

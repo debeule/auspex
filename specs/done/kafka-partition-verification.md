@@ -1,6 +1,6 @@
 # Kafka Partition Verification
 
-**Status:** ready
+**Status:** done
 **Blocked by:** —
 **Branch:** `feature/kafka-partition-verification`
 
