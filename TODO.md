@@ -24,8 +24,8 @@ Each line links to a self-contained spec in `specs/`. Open the spec and read it 
 | [Python module layout](specs/done/python-module-layout.md) | `done` | 4 smoke tests; messaging/, connectors/rate_limited_client, RunResult→pipeline |
 | [Java package reorganization](specs/done/java-package-reorganization.md) | `done` | 22 unit + 55 integration tests; signal, persistence, corroboration, audit, query packages |
 | [Java service decomposition](specs/done/java-service-decomposition.md) | `done` | 8 unit tests; CorroborationScanner extracted, SignalIngestionService + ports, 85 total tests green |
-| [CI/CD pipeline](specs/ci-cd.md) | `ready` | GitHub-hosted runners; Java + Python jobs; broken-PR verification in DoD |
-| [Watchlist & alerts](specs/watchlist-alerts.md) | `ready` | Discord webhook transport; Postgres watchlist_entries; 6 unit + 1 integration test |
+| [CI/CD pipeline](specs/hold/ci-cd.md) | `hold` | Scoped and ready but deprioritised — see specs/hold/ |
+| [Watchlist & alerts](specs/hold/watchlist-alerts.md) | `hold` | Scoped and ready but deprioritised — see specs/hold/ |
 | [Dashboard](specs/dashboard.md) | `ready` | Next.js 15, Node 22 LTS, Vitest; ticker search + signal tables; 5 component tests |
 | [Neo4j indexing at scale](specs/neo4j-indexing.md) | `blocked` | Blocked by historical backfill — needs production-scale graph data |
 | [Kafka Streams correlation](specs/kafka-streams-correlation.md) | `draft` | Conditional — only if scheduled query proves inadequate |
