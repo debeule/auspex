@@ -8,12 +8,17 @@ Each line links to a self-contained spec in `specs/`. Open the spec and read it 
 
 | Spec | Status | Notes |
 |---|---|---|
+| [CI/CD pipeline](specs/ci-cd.md) | `ready` | Brought off hold — protects the long-running backfill against regressions |
+| [Extraction backend](specs/extraction-backend.md) | `ready` | Model registry; digest pinning; gate records; abstract contract test; deprecation warning |
+| [EDGAR content fix](specs/edgar-content-fix.md) | `ready` | Extend SecEdgarConnector to fetch 8-K filing text; 8/13 Phase 2 FNs were metadata-only |
+| [Model evaluation](specs/model-evaluation.md) | `ready` | 3 manual scripts: candidate comparison (latency record), leakage canary, cross-model agreement |
+| [Backtesting module](specs/backtesting.md) | `ready` | Reopened: entity-only variant (no directionality/confidence) required by Phase 4 FLAG v2 |
+| [Performance metrics](specs/performance-metrics.md) | `ready` | Reopened: per-variant metrics output required by Phase 4 FLAG v2 |
+| [Golden set expansion](specs/golden-set-expansion.md) | `blocked` | Blocked by model-evaluation — local model must be chosen before gate records can be written |
+| [Historical backfill](specs/historical-backfill.md) | `blocked` | Budget approval + extraction-backend + model-evaluation + golden-set-expansion first |
 | [Patent connector (EPO OPS)](specs/done/patent-connector.md) | `done` | 10 tests, live DOCDB confirmed |
-| [Historical backfill](specs/historical-backfill.md) | `blocked` | Needs budget approval after dry run |
 | [Price data ingestion](specs/done/price-ingestion.md) | `done` | 5 tests passed |
 | [Point-in-time alignment](specs/done/point-in-time-alignment.md) | `done` | 10 tests passed |
-| [Backtesting module](specs/done/backtesting.md) | `done` | 5 tests passed |
-| [Performance metrics](specs/done/performance-metrics.md) | `done` | 5 tests passed |
 | [Centralised logging](specs/done/centralised-logging.md) | `done` | 11 tests passed (6 Python unit, 4 Java unit, 1 integration) |
 | [Metrics](specs/done/metrics.md) | `done` | 7 tests — Prometheus scrape: Java Micrometer + Python prometheus-client |
 | [Grafana dashboards](specs/done/grafana-dashboards.md) | `done` | Grafana 13 provisioned: 2 datasources, 3 dashboards, 3 alert rules; 5 smoke tests pass |
@@ -24,10 +29,9 @@ Each line links to a self-contained spec in `specs/`. Open the spec and read it 
 | [Python module layout](specs/done/python-module-layout.md) | `done` | 4 smoke tests; messaging/, connectors/rate_limited_client, RunResult→pipeline |
 | [Java package reorganization](specs/done/java-package-reorganization.md) | `done` | 22 unit + 55 integration tests; signal, persistence, corroboration, audit, query packages |
 | [Java service decomposition](specs/done/java-service-decomposition.md) | `done` | 8 unit tests; CorroborationScanner extracted, SignalIngestionService + ports, 85 total tests green |
-| [CI/CD pipeline](specs/hold/ci-cd.md) | `hold` | Scoped and ready but deprioritised — see specs/hold/ |
-| [Watchlist & alerts](specs/hold/watchlist-alerts.md) | `hold` | Scoped and ready but deprioritised — see specs/hold/ |
 | [Dashboard](specs/done/dashboard.md) | `done` | 5 component tests; Next.js 15 App Router, Vitest + RTL, NEXT_PUBLIC_API_URL |
-| [Neo4j indexing at scale](specs/neo4j-indexing.md) | `blocked` | Blocked by historical backfill — needs production-scale graph data |
+| [Watchlist & alerts](specs/hold/watchlist-alerts.md) | `hold` | Come off hold when Phase 4 shows a real repeatable signal worth acting on |
+| [Neo4j indexing at scale](specs/neo4j-indexing.md) | `blocked` | Blocked by historical backfill; thresholds are placeholders — treat as blocked-and-draft until after backfill |
 | [Kafka Streams correlation](specs/kafka-streams-correlation.md) | `draft` | Conditional — only if scheduled query proves inadequate |
 
 ---
@@ -50,3 +54,6 @@ Each line links to a self-contained spec in `specs/`. Open the spec and read it 
 | 2026-09-19 | Java package reorganization | Done — 22 unit + 55 integration tests; signal, persistence, corroboration, audit, query packages; MetricsIT compilation fixed | No |
 | 2026-09-19 | Java service decomposition | Done — 8 new unit tests; 30 unit + 55 integration = 85 total green | No |
 | 2026-09-19 | Dashboard | Done — 5 component tests green; Next.js 15 App Router, Vitest + RTL | No |
+| 2026-09-19 | Extraction backend, historical backfill | Scoping session — 2 specs written; lineage decision required before backfill can start | Yes (lineage) |
+| 2026-09-19 | Extraction backend, model evaluation, historical backfill | Rescoped — 3 specs; digest pinning, gate records, 3 evaluation scripts, latency-based dry run; lineage decision required | Yes (lineage) |
+| 2026-09-19 | Full spec audit + refactor | ci-cd off hold; EDGAR content fix spec; golden set expansion spec; backtesting + performance-metrics reopened for entity-only variant | No |

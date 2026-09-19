@@ -1,7 +1,5 @@
 # CI/CD Pipeline
 
-> Moved to `specs/ci-cd.md` — brought off hold 2026-09-19.
-
 **Status:** ready
 **Blocked by:** —
 **Branch:** `feature/ci-cd`

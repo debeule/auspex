@@ -1,7 +1,8 @@
 # Neo4j Indexing at Scale
 
 **Status:** blocked
-**Blocked by:** Historical backfill — this spec requires production-scale graph data (tens of thousands of signals) to make index optimizations meaningful. The backfill spec is itself blocked pending budget approval.
+**Blocked by:** Historical backfill — this spec requires production-scale graph data to make index optimizations meaningful. The backfill is itself blocked pending budget approval.
+**Note:** node-count and latency thresholds in this spec are placeholders. Treat this spec as blocked-and-draft — the required tests need revision before implementation can start. Do a scoping pass (revise thresholds from actual backfill measurements) before marking this `ready`.
 **Branch:** `feature/neo4j-indexing`
 
 ---
