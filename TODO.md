@@ -26,7 +26,7 @@ Each line links to a self-contained spec in `specs/`. Open the spec and read it 
 | [Java service decomposition](specs/done/java-service-decomposition.md) | `done` | 8 unit tests; CorroborationScanner extracted, SignalIngestionService + ports, 85 total tests green |
 | [CI/CD pipeline](specs/hold/ci-cd.md) | `hold` | Scoped and ready but deprioritised — see specs/hold/ |
 | [Watchlist & alerts](specs/hold/watchlist-alerts.md) | `hold` | Scoped and ready but deprioritised — see specs/hold/ |
-| [Dashboard](specs/dashboard.md) | `ready` | Next.js 15, Node 22 LTS, Vitest; ticker search + signal tables; 5 component tests |
+| [Dashboard](specs/done/dashboard.md) | `done` | 5 component tests; Next.js 15 App Router, Vitest + RTL, NEXT_PUBLIC_API_URL |
 | [Neo4j indexing at scale](specs/neo4j-indexing.md) | `blocked` | Blocked by historical backfill — needs production-scale graph data |
 | [Kafka Streams correlation](specs/kafka-streams-correlation.md) | `draft` | Conditional — only if scheduled query proves inadequate |
 
@@ -49,3 +49,4 @@ Each line links to a self-contained spec in `specs/`. Open the spec and read it 
 | 2026-09-19 | Python module layout | Done — 4 smoke tests; messaging/ sub-package, rate_limited_client into connectors/, RunResult into pipeline | No |
 | 2026-09-19 | Java package reorganization | Done — 22 unit + 55 integration tests; signal, persistence, corroboration, audit, query packages; MetricsIT compilation fixed | No |
 | 2026-09-19 | Java service decomposition | Done — 8 new unit tests; 30 unit + 55 integration = 85 total green | No |
+| 2026-09-19 | Dashboard | Done — 5 component tests green; Next.js 15 App Router, Vitest + RTL | No |
