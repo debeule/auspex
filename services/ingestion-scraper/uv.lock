@@ -272,7 +272,7 @@ requires-dist = [
     { name = "instructor", specifier = "==1.15.4" },
     { name = "minio", specifier = "==7.2.20" },
     { name = "openai", specifier = "==2.54.0" },
-    { name = "prometheus-client", specifier = ">=0.26.0" },
+    { name = "prometheus-client", specifier = "==0.26.0" },
     { name = "pydantic", specifier = "==2.13.4" },
     { name = "pyyaml", specifier = "==6.0.3" },
     { name = "structlog", specifier = "==26.1.0" },
