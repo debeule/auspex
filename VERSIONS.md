@@ -7,7 +7,7 @@ Verified current as of **2026-08-15**. Anything marked *resolve at 0.0* must be 
 |---|---|---|
 | Python | **3.14.2** | Confirmed 2026-08-15. Airflow 3.2+ supports 3.10–3.14. |
 | Java | **25.0.1 (Temurin LTS)** | Confirmed 2026-08-15. Spring Boot 4.1 supports Java 17–26; Neo4j supports Java 25 from 2025.10. |
-| Node (Phase 5 only) | *resolve at 5.1* | Not needed before Phase 5. |
+| Node | **22.x LTS** | Resolved 2026-09-19. Node 22 is the active LTS line. Dashboard service only (`services/dashboard/`). Pin exact version in `.nvmrc` and `engines` field of `package.json`. |
 
 ## Infrastructure images (pin by digest where possible)
 | Component | Pin | Notes |

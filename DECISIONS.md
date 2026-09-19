@@ -257,3 +257,27 @@ All 8 watched companies have records in DOCDB. They don't appear in 200 randomly
 
 **Not a regression** — both tests were previously blocked by the compilation error. The failing test was a latent issue in the Metrics spec implementation, not introduced by this refactoring.
 **Action:** Log and proceed. If the lag gauge test is needed, it requires either publishing seed messages to trigger partition assignment or a @Tag to exclude it from CI until a container-based Kafka is used.
+
+## 2026-09-19 — Watchlist & alerts — CHOICE — Discord webhook transport
+**What:** Notification transport for watchlist alerts and health reporting is Discord webhook (HTTP POST to `DISCORD_WEBHOOK_URL`).
+**Why it matters:** The transport choice affects the integration test setup and the configuration required in `.env`. Discord webhook requires no OAuth, no SDK, and is a single HTTP POST — the lowest-friction choice for a personal/research project.
+**Options considered:** Discord webhook (chosen), Slack webhook (same complexity, less commonly used for personal projects), email via SMTP (requires mail server configuration, higher operational overhead).
+**Action:** `NotificationTransport` is a `@FunctionalInterface`. `DiscordWebhookTransport` uses `java.net.http.HttpClient`. A second transport (Slack, email) is a separate implementation of the interface and out of scope for this spec. `DISCORD_WEBHOOK_URL` absent → no-op transport with a startup warning; application starts normally.
+
+## 2026-09-19 — Watchlist & alerts — CHOICE — Entity-key-based watchlist, not ticker-based
+**What:** `watchlist_entries` rows store full `entity_key` strings (e.g. `"BCL11A:GeneTarget"`), not ticker symbols.
+**Why it matters:** Ticker → entity mapping requires a Neo4j traversal (ticker → Company → Signal → entity → corroboration) not currently exposed by any query path. Implementing it would require a new query and test coverage beyond the scope of this spec.
+**Options considered:** A) Full entity key stored in watchlist (chosen — direct match, no join). B) Ticker stored, matched via graph query (deferred — requires new infrastructure). C) Gene target name only, matched by entity_key prefix (fragile — "BCL11A" matches "BCL11A:GeneTarget" and any future label using the same gene).
+**Action:** Use full entity_key matching. Seed the initial watchlist with the gene targets of the 8 watched companies (from DECISIONS.md 2026-08-15 entry). Ticker-based matching is noted in the spec as a future enhancement.
+
+## 2026-09-19 — CI/CD pipeline — CHOICE — GitHub-hosted runners
+**What:** GitHub Actions uses `ubuntu-latest` (GitHub-hosted) rather than self-hosted runners.
+**Why it matters:** Self-hosted runners require provisioning and maintaining a machine. GitHub-hosted runners have Docker pre-installed, Testcontainers works without additional setup, and the test suite runtime (Java ~48s, Python <2min) is well within GitHub's 6-hour job timeout.
+**Options considered:** GitHub-hosted `ubuntu-latest` (chosen), self-hosted runner on a local machine (higher maintenance, faster Docker pull if local cache warms), GitHub-hosted `macos-latest` (Docker not available on free tier for macOS runners).
+**Action:** Use `ubuntu-latest`. Set `TESTCONTAINERS_RYUK_DISABLED=true` in the workflow env if Ryuk fails to start on the first CI run (record outcome in this file). No other configuration needed.
+
+## 2026-09-19 — Dashboard — CHOICE — Node 22 LTS (Phase 5 resolution)
+**What:** Node 22.x LTS is pinned as the dashboard runtime. VERSIONS.md previously deferred this to "Phase 5, resolve at 5.1."
+**Why it matters:** Node 22 became the active LTS line in October 2024 and is current through 2027. Node 24 was released April 2026 but is "current" (not yet LTS) as of September 2026.
+**Options considered:** Node 22 LTS (chosen — stable, current LTS), Node 24 (current but not LTS — more risk of breaking changes), Node 20 LTS (older LTS, approaching EOL April 2026).
+**Action:** VERSIONS.md updated. `.nvmrc` and `package.json` `engines` field in `services/dashboard/` pin `22`.
