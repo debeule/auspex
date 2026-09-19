@@ -19,7 +19,7 @@ Each line links to a self-contained spec in `specs/`. Open the spec and read it 
 | [Grafana dashboards](specs/done/grafana-dashboards.md) | `done` | Grafana 13 provisioned: 2 datasources, 3 dashboards, 3 alert rules; 5 smoke tests pass |
 | [Scraper HTTP API](specs/done/scraper-api.md) | `done` | 10 tests passed (9 unit, 1 integration) |
 | [Containerisation](specs/done/containerisation.md) | `done` | Dockerfiles for scraper + core-hub; Kafka dual-listener; app profile; all services healthy |
-| [Re-extraction CLI](specs/reextraction-cli.md) | `ready` | After containerisation — run before any prompt or model version bump |
+| [Re-extraction CLI](specs/done/reextraction-cli.md) | `done` | 13 tests (12 unit, 1 integration) |
 | [Kafka partition verification](specs/kafka-partition-verification.md) | `ready` | After containerisation — measurement only, no code unless skewed |
 | [Python module layout](specs/python-module-layout.md) | `ready` | Structural only — no behavior change |
 | [Java package reorganization](specs/java-package-reorganization.md) | `ready` | Structural only — no behavior change |
@@ -44,3 +44,4 @@ Each line links to a self-contained spec in `specs/`. Open the spec and read it 
 | 2026-09-18 | Metrics | Done — 7 tests green (5 Python unit, 2 Java unit); Prometheus service added | No |
 | 2026-09-18 | Grafana dashboards | Done — 5 smoke tests pass; Grafana 13 + provisioning, elasticsearch-setup init container | No |
 | 2026-09-18 | Containerisation | Done — ingestion-scraper + core-hub containerised; all services healthy; Kafka dual-listener | No |
+| 2026-09-18 | Re-extraction CLI | Done — 13 tests green (12 unit, 1 integration); scripts/reextract.py; MinioArchive.list_raw_keys/get_raw | No |

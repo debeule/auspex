@@ -1,7 +1,9 @@
+from typing import Any
+
 from prometheus_client import REGISTRY, CollectorRegistry, Counter, Gauge, Histogram
 
 
-def make_metrics(registry: CollectorRegistry | None = None) -> dict:
+def make_metrics(registry: CollectorRegistry | None = None) -> dict[str, Any]:
     r = registry if registry is not None else REGISTRY
     return {
         "documents_fetched": Counter(

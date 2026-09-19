@@ -1,6 +1,6 @@
 # Re-extraction CLI
 
-**Status:** ready
+**Status:** done
 **Blocked by:** —
 **Branch:** `feature/reextraction-cli`
 

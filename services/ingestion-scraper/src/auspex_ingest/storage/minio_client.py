@@ -1,6 +1,7 @@
 import hashlib
 import io
 import json
+from collections.abc import Iterator
 from typing import Any
 
 from minio import Minio
@@ -61,3 +62,12 @@ class MinioArchive:
             len(payload),
             content_type="application/json",
         )
+
+    def list_raw_keys(self, source_type_prefix: str | None) -> Iterator[str]:
+        prefix = f"raw/{source_type_prefix}/" if source_type_prefix else "raw/"
+        for obj in self._client.list_objects(self._bucket, prefix=prefix, recursive=True):
+            yield obj.object_name
+
+    def get_raw(self, key: str) -> bytes:
+        response = self._client.get_object(self._bucket, key)
+        return response.read()

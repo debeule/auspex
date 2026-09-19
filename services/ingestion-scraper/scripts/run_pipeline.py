@@ -177,7 +177,7 @@ def main() -> None:
             )
         except RuntimeError as exc:
             print(f"  SKIP: {exc}", flush=True)
-        except Exception as exc:
+        except Exception as exc:  # noqa: BLE001
             print(f"  ERROR in {source_type}: {exc}", file=sys.stderr, flush=True)
             import traceback
             traceback.print_exc()

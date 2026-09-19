@@ -1,10 +1,8 @@
 from datetime import UTC, datetime
 from unittest.mock import MagicMock
 
-import pytest
 from prometheus_client import CollectorRegistry
 
-from auspex_ingest.models import RunResult
 from auspex_ingest.pipeline import IngestionPipeline
 from auspex_ingest.sources import SourceEntry, SourcesConfig
 
@@ -103,7 +101,6 @@ def test_pipeline_run_increments_published_counter():
 
 
 def test_pipeline_run_increments_fetched_counter():
-    from auspex_ingest.metrics import make_metrics
     registry = _make_registry()
 
     connector = MagicMock()

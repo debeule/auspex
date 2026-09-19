@@ -20,9 +20,9 @@ from auspex_ingest.api import create_app
 from auspex_ingest.identity import compute_event_id, compute_extraction_id
 from auspex_ingest.kafka_producer import KafkaProducerClient
 from auspex_ingest.models import RawDocument, ResearchSignalEvent
+from auspex_ingest.normalizer import IdentityNormalizer
 from auspex_ingest.pipeline import IngestionPipeline
 from auspex_ingest.prefilter import Prefilter
-from auspex_ingest.normalizer import IdentityNormalizer
 from auspex_ingest.sources import SourceEntry, SourcesConfig
 from auspex_ingest.storage.minio_client import MinioArchive
 

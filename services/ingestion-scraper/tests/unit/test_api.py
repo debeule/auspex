@@ -1,5 +1,5 @@
 from datetime import UTC, datetime, timedelta
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 
 import pytest
 
@@ -25,7 +25,7 @@ def _make_sources(*source_types: str) -> SourcesConfig:
 
 
 def _make_result(**overrides: int) -> RunResult:
-    defaults = dict(fetched=5, prefiltered_out=2, published=2, not_signal=1, below_threshold=0, failed=0)
+    defaults = {"fetched": 5, "prefiltered_out": 2, "published": 2, "not_signal": 1, "below_threshold": 0, "failed": 0}
     defaults.update(overrides)
     return RunResult(**defaults)
 

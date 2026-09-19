@@ -1,4 +1,6 @@
 import os
+from collections.abc import MutableMapping
+from typing import Any
 
 import structlog
 
@@ -7,7 +9,7 @@ _SENSITIVE_CONTAINS: tuple[str, ...] = ("password", "secret")
 
 
 class SensitiveFieldDrop:
-    def __call__(self, logger: object, method: str, event_dict: dict) -> dict:  # type: ignore[type-arg]
+    def __call__(self, logger: Any, method: str, event_dict: MutableMapping[str, Any]) -> MutableMapping[str, Any]:
         return {
             k: v for k, v in event_dict.items()
             if k not in _SENSITIVE_EXACT

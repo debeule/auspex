@@ -26,7 +26,7 @@ def create_app(
     _sources = sources_config or _load_sources_config()
     _sources_by_type: dict[str, SourceEntry] = {e.source_type: e for e in _sources.sources}
     _pipeline_for = pipeline_for_source or _make_env_pipeline_factory(_sources_by_type)
-    _runner = reextract_runner or ReextractionRunner()
+    _runner: ReextractionRunner | None = reextract_runner
     _now = now or (lambda: datetime.now(UTC))
 
     @app.route("/health")
@@ -72,6 +72,9 @@ def create_app(
 
     @app.route("/reextract", methods=["POST"])
     def reextract() -> Any:
+        nonlocal _runner
+        if _runner is None:
+            _runner = _make_env_reextract_runner()
         body = request.get_json() or {}
         result = _runner.run(
             source_type=body.get("source_type"),
@@ -94,21 +97,59 @@ def create_app(
 
 
 def _load_sources_config() -> SourcesConfig:
-    import yaml
 
     path = Path(os.environ.get("AUSPEX_SOURCES_YAML", "config/sources.yaml"))
     from .dag_factory import load_sources_config
     return load_sources_config(path)
 
 
+def _make_env_reextract_runner() -> ReextractionRunner:
+    import os
+
+    import instructor
+    import openai
+    from confluent_kafka import Producer as ConfluentProducer
+    from minio import Minio
+
+    from .extractor import LLMExtractor
+    from .kafka_producer import KafkaProducerClient
+    from .storage.minio_client import MinioArchive
+
+    minio_client = Minio(
+        os.environ["MINIO_ENDPOINT"],
+        access_key=os.environ["MINIO_ACCESS_KEY"],
+        secret_key=os.environ["MINIO_SECRET_KEY"],
+        secure=False,
+    )
+    archive = MinioArchive(client=minio_client, bucket=os.environ["MINIO_BUCKET"])
+
+    api_key = os.environ.get("OPENAI_API_KEY") or ""
+    llm_client = instructor.from_openai(openai.OpenAI(api_key=api_key))
+    extractor = LLMExtractor(
+        client=llm_client,
+        model=os.environ.get("OPEN_AI_EXTRACTION_MODEL", "gpt-4o-mini"),
+        schema_version=os.environ.get("SCHEMA_VERSION", "1.0"),
+        prompt_version=os.environ.get("PROMPT_VERSION", "v1"),
+    )
+
+    producer = KafkaProducerClient(
+        ConfluentProducer({"bootstrap.servers": os.environ["KAFKA_BOOTSTRAP_SERVERS"]}),
+        raw_topic=os.environ.get("KAFKA_RAW_TOPIC", "auspex.raw.ingested"),
+        signals_topic=os.environ.get("KAFKA_SIGNALS_TOPIC", "auspex.signals.extracted"),
+    )
+
+    return ReextractionRunner(archive=archive, extractor=extractor, producer=producer)
+
+
 def _make_env_pipeline_factory(
     sources_by_type: dict[str, SourceEntry],
 ) -> Callable[[str], Any]:
     import os
+    from datetime import UTC, datetime
+
     import instructor
     import openai
     from confluent_kafka import Producer as ConfluentProducer
-    from datetime import UTC, datetime
     from minio import Minio
 
     from .connectors.biorxiv import BiorxivConnector

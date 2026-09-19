@@ -3,7 +3,6 @@ import time
 import urllib.request
 
 import pytest
-
 from testcontainers.community.elasticsearch import ElasticSearchContainer
 
 
