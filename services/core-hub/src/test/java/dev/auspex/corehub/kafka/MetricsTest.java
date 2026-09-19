@@ -1,7 +1,7 @@
 package dev.auspex.corehub.kafka;
 
 import dev.auspex.corehub.signal.ResearchSignalEvent;
-import dev.auspex.corehub.signal.GraphUpdateService;
+import dev.auspex.corehub.signal.SignalIngestionService;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.junit.jupiter.api.BeforeEach;
@@ -23,7 +23,7 @@ class MetricsTest {
     @BeforeEach
     void setUp() {
         registry = new SimpleMeterRegistry();
-        signalListener = new SignalListener(mock(GraphUpdateService.class), registry);
+        signalListener = new SignalListener(mock(SignalIngestionService.class), registry);
     }
 
     @Test

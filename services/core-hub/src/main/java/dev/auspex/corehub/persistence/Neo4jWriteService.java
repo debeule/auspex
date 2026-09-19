@@ -1,6 +1,7 @@
 package dev.auspex.corehub.persistence;
 
 import dev.auspex.corehub.signal.ResearchSignalEvent;
+import dev.auspex.corehub.signal.SignalGraphPort;
 import org.neo4j.driver.Driver;
 import org.neo4j.driver.Session;
 import org.neo4j.driver.TransactionContext;
@@ -15,7 +16,7 @@ import java.util.Map;
  * confidence_score stored as double (Neo4j has no decimal type).
  */
 @Service
-public class Neo4jWriteService {
+public class Neo4jWriteService implements SignalGraphPort {
 
     private final Driver driver;
 

@@ -1,6 +1,6 @@
 # Java Service Decomposition
 
-**Status:** ready
+**Status:** done
 **Blocked by:** [Java package reorganization](java-package-reorganization.md) — this spec renames and splits classes whose final package locations are established by the reorganization spec.
 **Branch:** `feature/java-service-decomposition`
 

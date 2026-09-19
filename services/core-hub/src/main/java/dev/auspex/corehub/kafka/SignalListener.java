@@ -2,7 +2,7 @@ package dev.auspex.corehub.kafka;
 
 import dev.auspex.corehub.signal.ResearchSignalEvent;
 import dev.auspex.corehub.signal.SchemaVersion;
-import dev.auspex.corehub.signal.GraphUpdateService;
+import dev.auspex.corehub.signal.SignalIngestionService;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
 import jakarta.validation.Valid;
@@ -20,11 +20,11 @@ public class SignalListener {
 
     private static final Logger log = LoggerFactory.getLogger(SignalListener.class);
 
-    private final GraphUpdateService graphUpdateService;
+    private final SignalIngestionService signalIngestionService;
     private final MeterRegistry meterRegistry;
 
-    public SignalListener(GraphUpdateService graphUpdateService, MeterRegistry meterRegistry) {
-        this.graphUpdateService = graphUpdateService;
+    public SignalListener(SignalIngestionService signalIngestionService, MeterRegistry meterRegistry) {
+        this.signalIngestionService = signalIngestionService;
         this.meterRegistry = meterRegistry;
     }
 
@@ -56,7 +56,7 @@ public class SignalListener {
                     .register(meterRegistry)
                     .increment();
             log.info("processing signal schema_version={}", event.schemaVersion());
-            graphUpdateService.process(event);
+            signalIngestionService.ingest(event);
         } finally {
             MDC.clear();
         }

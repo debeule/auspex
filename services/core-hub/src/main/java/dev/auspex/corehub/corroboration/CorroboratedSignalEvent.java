@@ -8,7 +8,7 @@ import java.util.UUID;
  * Payload published to auspex.signals.corroborated for non-superseded corroboration records.
  * Serialized as JSON (snake_case via application.yml).
  */
-record CorroboratedSignalEvent(
+public record CorroboratedSignalEvent(
         String entityKey,
         String participantsHash,
         List<UUID> participantEventIds,

@@ -1,6 +1,7 @@
 package dev.auspex.corehub.persistence;
 
 import dev.auspex.corehub.signal.ResearchSignalEvent;
+import dev.auspex.corehub.signal.SignalRecordPort;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,7 +15,7 @@ import java.time.ZoneOffset;
  * Neo4j and Postgres return successfully.
  */
 @Service
-public class PostgresWriteService {
+public class PostgresWriteService implements SignalRecordPort {
 
     private static final String UPSERT_SIGNAL_CURRENT = """
             INSERT INTO signal_current (
