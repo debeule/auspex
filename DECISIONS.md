@@ -440,3 +440,15 @@ A3: Switch live extraction to a hosted API model going forward (Option B from th
 **Why it matters:** Node 22 became the active LTS line in October 2024 and is current through 2027. Node 24 was released April 2026 but is "current" (not yet LTS) as of September 2026.
 **Options considered:** Node 22 LTS (chosen — stable, current LTS), Node 24 (current but not LTS — more risk of breaking changes), Node 20 LTS (older LTS, approaching EOL April 2026).
 **Action:** VERSIONS.md updated. `.nvmrc` and `package.json` `engines` field in `services/dashboard/` pin `22`.
+
+## 2026-09-20 — CI/CD — VERIFIED — broken-PR verification satisfied by session evidence
+
+**What:** CI went red and recovered multiple times during the session: Java failed on missing `gradle-wrapper.jar` (first push), then on the quay.io MinIO image fix, then on the `(key, bool)` tuple mismatch in storage tests, then on the `git diff` path issue. Each failure was specific to the broken code and cleared on the fix commit. All four checks (Java push, Java PR, Python push, Python PR) are green on the current HEAD.
+**Why it matters:** CI surfaces real failures and clears on real fixes — the session is direct evidence.
+**Action:** Spec closed as done.
+
+## 2026-09-20 — Historical Backfill — BLOCKED — human project review required before live run
+**What:** The debut full run of the system (first live invocation of `run_backfill.py` without `--dry-run`) is blocked on explicit human review and sign-off. The dry run may proceed freely; the live run must not start until this review concludes and continuation is confirmed.
+**Why it matters:** The live run triggers real LLM calls at scale, commits spend against the configured budget ceiling, and produces the corpus that Phase 4 statistics will be computed against. Starting it prematurely or without a sanity check on the full system state wastes that one-shot corpus opportunity and potentially the budget.
+**Options considered:** N/A — hard gate by human request.
+**Action:** Blocker 6 added to `specs/historical-backfill.md`. Waiting on human assessment before the live run proceeds.

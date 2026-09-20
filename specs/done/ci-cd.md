@@ -1,6 +1,6 @@
 # CI/CD Pipeline
 
-**Status:** ready
+**Status:** done
 **Blocked by:** —
 **Branch:** `feature/ci-cd`
 
