@@ -393,6 +393,48 @@ A3: Switch live extraction to a hosted API model going forward (Option B from th
 **Why it matters:** If trades on this strategy are classified as speculative, the after-tax break-even rises from ~3.2% to ~4.5%+ per event (adding ~33% of gain as tax). For a strategy with an estimated mean abnormal return of 2–5%, this is the difference between positive and negative net expectancy.
 **Action:** Consult a qualified Belgian tax advisor before executing live trades. Specifically ask: (a) whether systematic rule-based trading on individual equity corroboration signals is investment income or speculative; (b) whether short-selling or ETF hedges would trigger speculative classification regardless of frequency; (c) how to document non-speculative intent. Record advisor's conclusion in DECISIONS.md and PREREQUISITES.md before session 3 implementation begins.
 
+## 2026-09-20 — Strategy layer session 2 — CHOICE — New `services/strategy/` service (not extending backtesting)
+**What:** The strategy layer lives in a new `services/strategy/` directory with package `auspex_strategy`, separate from `services/backtesting/` (`auspex_backtesting`).
+**Why it matters:** The backtesting module is a research tool with no runtime loop, no Kafka consumer, and no virtual books. Mixing a long-running Docker service with a research library in the same package creates import boundaries that are impossible to enforce. The strategy service imports `auspex_backtesting` as a path dependency (uv workspace) for `FillModel`, `CostModel`, `CurrencyConverter`, and `PositionSizer` — it does not duplicate them.
+**Options considered:** A) Extend `services/backtesting/` — simpler initially, becomes a maintenance problem when the backtesting module needs to be importable without pulling in Kafka/Flask deps. B) New `services/strategy/` (chosen) — clean dependency direction, separate Dockerfile, separate uv project.
+**Action:** `services/strategy/` created at strategy-framework spec implementation. Package `auspex_strategy` under `services/strategy/src/`.
+
+## 2026-09-20 — Strategy layer session 2 — CHOICE — MinIO for virtual books and traces; strategy service serves metrics API
+**What:** Virtual books (Parquet), decision traces (JSONL), latency traces (JSONL), kill switch flags (JSON), and pause logs (JSONL) all go to MinIO. The metrics API (`GET /api/v1/metrics/strategies`) is served by the strategy service (Flask), reading from MinIO only. Nothing from the strategy layer goes to Postgres or Neo4j.
+**Why it matters:** Invariant 2: core-hub is sole writer to the application DB and Neo4j. Any strategy-layer write to Postgres would violate it. MinIO sidesteps the invariant entirely. Metrics computation over MinIO Parquet is consistent with how `auspex_backtesting` already reads price data.
+**Action:** No Postgres schema changes in any strategy-layer spec. All strategy state is path-addressable in MinIO under `strategy/`.
+
+## 2026-09-20 — Strategy layer session 2 — CHOICE — Event-driven Kafka consumer for the strategy runtime
+**What:** The strategy runtime (`StreamingRuntime`) is a long-running Docker container consuming `auspex.signals.corroborated`. It is not an Airflow DAG.
+**Why it matters:** Airflow owns ingestion cursors and schedules polling. The strategy layer must react to events as they arrive, not on a polling schedule. Putting strategy logic in a DAG would couple it to the Airflow schedule interval and introduce unnecessary latency. Consumer group `auspex-strategy-runtime`; offsets checkpointed to MinIO after each event so restart resumes from the last committed position.
+**Action:** No new Kafka topics in the strategy-runtime spec. The runtime is a pure consumer of `auspex.signals.corroborated`. Any new producer topic is session 3 scope.
+
+## 2026-09-20 — Strategy layer session 2 — CHOICE — Strategies never see ingested_at or extracted_at; InputHealthMonitor handles model downtime
+**What:** `AsOfContext` exposes only `corroborated_at + KNOWN_AT_DELAY_DAYS` as `as_of`. `ingested_at` and `extracted_at` are pipeline timestamps and are explicitly excluded from the strategy data channel. Model downtime is handled by `InputHealthMonitor`: when `InputSource.EXTRACTION_MODEL` is unhealthy, strategies declaring that input are paused — they see no new events rather than stale events.
+**Why it matters:** Exposing pipeline timestamps to strategies creates a second channel for look-ahead bias: a strategy could infer relative ingestion speed from timestamp proximity and exploit information that was not publicly available. The clean separation also means strategies are unaffected by extraction pipeline changes.
+**Action:** `AsOfContext` interface has no method returning `ingested_at` or `extracted_at`. `LatencyTracer` captures both for infrastructure monitoring, not strategy use. `extracted_at` is nullable in `TraceRecord` until the extraction-backend spec adds it to `ResearchSignalEvent` (§10.2) — see extracted_at entry below.
+
+## 2026-09-20 — Strategy layer session 2 — CHOICE — Equal risk budget per promoted strategy; correlation-aware cap
+**What:** Capital allocation across concurrent promoted strategies uses equal risk budget (not equal notional). Each strategy gets `total_capital / n_promoted_strategies × MAX_POSITION_PCT`, subject to `MAX_GROSS_EXPOSURE` across all strategies. If the pairwise Pearson correlation between two strategies' trade-level returns exceeds 0.7 (from `CorrelationMatrix`), the combined allocation for the correlated pair is capped at `1.5×` a single-strategy budget rather than `2×`.
+**Why it matters:** Equal notional overweights high-conviction strategies and underweights conservative ones. Equal risk budget is more robust to parameter variance. The correlation cap prevents two strategies with near-identical entry signals from doubling the effective exposure to the same bet.
+**Action:** `MAX_POSITION_PCT`, `MAX_GROSS_EXPOSURE`, and the correlation threshold (default 0.7) are all `.env` parameters. The capital allocator logic lives in `portfolio-and-risk` spec. The correlation matrix that feeds it comes from `strategy-metrics` spec.
+
+## 2026-09-20 — Strategy layer session 2 — CHOICE — Minimum 20 trades before metrics and Kelly sizing
+**What:** `MIN_TRADES_FOR_METRICS` and `MIN_TRADES_FOR_KELLY` are both defaulted to 20 and read from `.env`. Below this threshold, `TradeMetrics.compute()` raises `InsufficientTradeDataError` and Kelly sizing falls back to `FALLBACK_POSITION_PCT`.
+**Why it matters:** Hit rate estimated from fewer than 20 trades has a 95% CI of roughly ±22 percentage points, which renders the Kelly fraction meaningless. A Bootstrap CI computed over fewer than 20 samples is also unreliable. 20 is a floor, not a target — a strategy with 20 closed trades is barely out of the early stage.
+**Action:** Both thresholds configurable in `.env`. The metrics API returns `insufficient_data: true` with null statistics rather than silently returning a number, so the UI cannot misrepresent early-stage performance as a validated signal.
+
+## 2026-09-20 — Strategy layer session 2 — FLAG — extracted_at missing from ResearchSignalEvent (§10.2)
+**What:** The decision trace requires `extracted_at` to populate the full latency chain (raw document → extraction → corroboration → intent). `ResearchSignalEvent` (§10.2) does not currently have this field.
+**Why it matters:** Without `extracted_at`, the trace cannot report the extraction-to-corroboration latency interval. This interval is relevant for understanding whether the ingestion pipeline's delay is dominated by the extraction step or the corroboration step.
+**Action:** `extracted_at` is nullable in `TraceRecord` and the trace validator does not require it. When the extraction-backend spec adds `extracted_at` to `ResearchSignalEvent`, the field should also be added to the Pydantic model and the Java record (triggering a contract fixture regeneration). At that point, re-read the decision-trace spec and verify `TraceValidator` does not need updating.
+
+## 2026-09-20 — Strategy layer session 2 — FLAG — Corroboration surrogate key deferred; composite natural key in trace
+**What:** Decision traces reference corroborations via the composite key `(entity_key, participants_hash)`. No surrogate `corroboration_id` exists in the current schema.
+**Why it matters:** The composite key is sufficient for reproducibility: given `(entity_key, participants_hash)`, the exact corroboration record can be retrieved. A surrogate would simplify joins and trace lookups but requires a schema migration (adding a UUID column to the `corroboration` table and exposing it in `CorroborationRecord`).
+**Options considered:** A) Composite natural key in trace (chosen — no schema change needed, always derivable from existing fields). B) Add surrogate `corroboration_id` — cleaner trace records, requires core-hub schema migration and a contract fixture regeneration.
+**Action:** Use composite key in traces. If the surrogate is added later (separate schema spec), replace `(entity_key, participants_hash)` in `TraceRecord` with `corroboration_id` and update `TraceValidator` accordingly.
+
 ## 2026-09-19 — Dashboard — CHOICE — Node 22 LTS (Phase 5 resolution)
 **What:** Node 22.x LTS is pinned as the dashboard runtime. VERSIONS.md previously deferred this to "Phase 5, resolve at 5.1."
 **Why it matters:** Node 22 became the active LTS line in October 2024 and is current through 2027. Node 24 was released April 2026 but is "current" (not yet LTS) as of September 2026.
