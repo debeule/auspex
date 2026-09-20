@@ -44,7 +44,8 @@ FDA is not included: low event density for the 8 watched companies over 24 month
 - `--dry-run`: no LLM calls. Reports:
   - Per source: document count, LLM calls after pre-filter, estimated cost (API backends from token budget × per-token price), estimated wall-clock time (local backends from the latency record written by `evaluate_model.py`; fails loudly if no latency record exists for the active model).
   - Overlap report: count and model identifiers of in-window documents already present in `signal_extraction_history`.
-- Reads `BACKFILL_BUDGET_CEILING` from `.env`; aborts before any LLM calls if the estimate exceeds it. Absent `BACKFILL_BUDGET_CEILING` without `--dry-run` → startup failure.
+- For API backends: reads `BACKFILL_BUDGET_CEILING` (dollars) from `.env`; aborts before any LLM calls if the cost estimate exceeds it. Absent without `--dry-run` → startup failure.
+- For local backends: reads `BACKFILL_TIME_CEILING_HOURS` from `.env`; aborts before any LLM calls if the estimated wall-clock time exceeds it. Absent without `--dry-run` → startup failure. (A local backend has near-zero API cost, so `BACKFILL_BUDGET_CEILING` is irrelevant; wall-clock time is the binding constraint.)
 - Never writes to the live Airflow cursor Variable.
 
 ## Out of scope
@@ -81,6 +82,7 @@ New:
 - `test_run_manifest_written_to_minio_at_run_start` — manifest object present before any `IngestionPipeline.run()` call
 - `test_dry_run_uses_latency_record_for_local_backend_wall_clock_estimate` — synthetic latency record fixture; dry-run output contains time estimate; no LLM called
 - `test_dry_run_fails_loudly_when_no_latency_record_exists_for_local_backend` — local backend active, no latency file → raises with a message naming the model
+- `test_backfill_aborts_when_local_time_estimate_exceeds_ceiling` — `BACKFILL_TIME_CEILING_HOURS` set; synthetic latency record yields an estimate above the ceiling → runner aborts before calling `IngestionPipeline.run()`; message names model, ceiling, and estimated hours
 
 ## Definition of done
 
@@ -88,7 +90,7 @@ New:
 cd services/ingestion-scraper && uv run pytest tests/unit/test_backfill.py -q
 ```
 
-Expected: 13+ passed.
+Expected: 14+ passed.
 
 Then:
 - Dry run for all five source types recorded in `DECISIONS.md`.
@@ -97,6 +99,6 @@ Then:
 
 ## Notes
 
-Budget estimate: ~26,000 LLM calls at `gpt-4o-mini-2024-07-18` pricing ≈ $65. Actual depends on pre-filter pass rate. For a local model at mean latency from `evaluate_model.py`, e.g. ~5 s/document at Ollama on 36 GB: 26,000 × 5 s ≈ 36 hours. Run under `caffeinate -i` and rely on checkpoints for restarts.
+Budget estimate: ~26,000 LLM calls at `gpt-4o-mini-2024-07-18` pricing ≈ $65 (API). For a local model at mean latency from `evaluate_model.py`, e.g. ~5 s/document at Ollama on 36 GB: 26,000 × 5 s ≈ 36 hours. Run under `caffeinate -i` and rely on checkpoints for restarts. Set `BACKFILL_TIME_CEILING_HOURS=48` (36-hour estimate plus ~33% for latency variance and rate-limit backoff) before starting. `.env.example` must document both ceiling variables.
 
 The single-lineage requirement means: before backtesting, verify `SELECT DISTINCT extraction_model FROM signal_extraction_history WHERE published_date >= backfill_start` returns exactly one model identifier. If it returns more than one, re-extract the minority under the backfill model before computing Phase 4 metrics.

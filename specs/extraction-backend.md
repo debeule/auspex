@@ -37,6 +37,8 @@ The Phase 2 golden-set score (precision=1.000 at `prompt_version=v1.0`, `prefilt
 
 - Python service startup emits a `WARNING`-level structured log when the active model's `deprecation_date` is within 60 days. Visible in the existing logging infrastructure.
 
+- For `backend: local`, `LLMExtractorFactory` also attempts a lightweight health check (e.g. `GET /api/tags` on the Ollama endpoint) at construction time and emits `WARNING` if unreachable. Construction succeeds — the service starts — but the warning surfaces before any extraction attempt. Model server downtime must never lose documents: a `ConnectionRefusedError` during extraction is treated as a per-document failure (archived, counted, nothing published, batch continues).
+
 - Every model switch must produce a DECISIONS.md entry (from, to, effective date) and is reflected in the `model_id` field of all future run manifests.
 
 ## Out of scope
@@ -68,6 +70,7 @@ Unit tests in `tests/unit/test_extraction_backend.py`:
 - `test_over_context_prompt_fails_loudly_not_truncated` — constructed prompt token count exceeds `num_ctx` → raises `ContextLengthError`; nothing sent to the model
 - `test_malformed_json_response_is_counted_and_nothing_is_published` — model returns unparseable JSON → counted in `RunResult.failed`; no event published; batch continues
 - `test_timeout_is_isolated_to_document_and_batch_continues` — model call raises `TimeoutError` on one document → that document counted as failed; next document processed
+- `test_model_server_unreachable_documents_stay_archived_and_not_published` — local backend raises `ConnectionRefusedError` (not `TimeoutError`) on every call in a two-document batch → both documents archived in MinIO, none published to Kafka, failure count equals document count; distinct from the timeout test because connection-refused means the server is down, not slow
 - `test_extraction_parameters_come_from_registry_not_hardcoded` — constructed request carries `temperature`, `seed`, and `num_ctx` from the registry entry, not literals
 - `test_startup_refuses_model_without_passing_gate_record` — no score file for the active `(model_id, prompt_version, prefilter_version)` → `LLMExtractorFactory` raises `GateNotPassedError` naming the model
 - `test_llm_is_never_called_live` — `pytest-socket` enforces zero outbound connections across the unit suite
@@ -84,7 +87,7 @@ Abstract contract tests in `tests/unit/test_extraction_backend_contract.py` (bot
 cd services/ingestion-scraper && uv run pytest tests/unit/test_extraction_backend.py tests/unit/test_extraction_backend_contract.py -q
 ```
 
-Expected: 17+ passed.
+Expected: 18+ passed.
 
 Then:
 - `config/models/registry.yaml` contains at least one pinned API entry (`gpt-4o-mini-2024-07-18`) with all required fields.

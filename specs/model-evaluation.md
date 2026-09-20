@@ -19,7 +19,9 @@ Candidate local models being evaluated for the test period and potential backfil
 
 ### a. Candidate comparison — `scripts/evaluate_model.py`
 
-Runs one or more registry entries against the full golden set. Reports per-model: `is_signal` precision, recall, confusion matrix, per-document extraction latency (mean and p95), and pass/fail against the ≥0.85 precision gate. Writes a latency record to `config/models/latency/<model_key_slug>.json` (format: `{model_id, mean_latency_s, p95_latency_s, token_budget, measured_at}`). The backfill runner reads this file when estimating wall-clock time for a local backend.
+Runs one or more registry entries against the full golden set. Reports per-model: `is_signal` precision, recall, confusion matrix, per-document extraction latency (mean and p95), tokens/second, and pass/fail against the ≥0.85 precision gate. Writes a latency record to `config/models/latency/<model_key_slug>.json` (format: `{model_id, mean_latency_s, p95_latency_s, tokens_per_second, token_budget, measured_at}`). The backfill runner reads this file when estimating wall-clock time for a local backend.
+
+For local candidates, the script also prints throughput feasibility to stdout: (1) estimated wall-clock time for the full 24-month backfill at mean latency; (2) hours/day required to extract the 500-document steady-state live budget (§0.4); (3) whether (1) and (2) can coexist on one machine assuming Docker Desktop is running (baseline: ~8 GB reserved for containers; model KV cache at configured `num_ctx`; print a warning if combined memory exceeds 30 GB).
 
 ### b. Leakage canary — `scripts/check_leakage.py`
 
