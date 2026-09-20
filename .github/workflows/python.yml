@@ -57,7 +57,9 @@ jobs:
         working-directory: services/ingestion-scraper
         run: uv run pytest -q --ignore=tests/integration/test_infra_containers.py
 
+      - name: Regenerate contract fixture
+        working-directory: services/ingestion-scraper
+        run: uv run pytest tests/unit/test_contract_fixture.py -q
+
       - name: Contract fixture drift check
-        run: |
-          cd services/ingestion-scraper && uv run pytest tests/unit/test_contract_fixture.py -q
-          git diff --exit-code services/core-hub/src/test/resources/contract/
+        run: git diff --exit-code services/core-hub/src/test/resources/contract/
