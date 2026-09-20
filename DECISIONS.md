@@ -323,6 +323,27 @@ C. Dual lineage live: the backtested model continues as live primary (feeds `sig
 **Options considered:** GitHub-hosted `ubuntu-latest` (chosen), self-hosted runner on a local machine (higher maintenance, faster Docker pull if local cache warms), GitHub-hosted `macos-latest` (Docker not available on free tier for macOS runners).
 **Action:** Use `ubuntu-latest`. Set `TESTCONTAINERS_RYUK_DISABLED=true` in the workflow env if Ryuk fails to start on the first CI run (record outcome in this file). No other configuration needed.
 
+## 2026-09-20 — Watchlist backend — CHOICE — No user_id column; single-user installation, extensible
+**What:** The `watchlist` table has no `user_id` FK. The installation is treated as single-user (one researcher). No auth layer exists and requirements say not to implement it speculatively.
+**Why it matters:** Adding a `user_id` column later requires one Flyway migration: add the column, add a FK to `users`, drop `watchlist_ticker_unique`, add `UNIQUE (user_id, ticker)`. Designing around a nullable `user_id` now adds complexity without a concrete use case.
+**Action:** Ship without `user_id`. Document the extension path in the Flyway migration comment. When multi-user is needed, that is a separate auth spec.
+
+## 2026-09-20 — Watchlist backend — CHOICE — core-hub calls ClinicalTrials.gov directly
+**What:** The preview endpoint makes a direct outbound HTTP call from core-hub (Java) to `https://clinicaltrials.gov/api/v2/studies`. It does not proxy through ingestion-scraper's connector.
+**Why it matters:** ingestion-scraper's ClinicalTrials connector is designed for bulk ingestion (rate-limited, paged, MinIO archive). The preview needs a single targeted query. Duplicating a simple HTTP GET in Java avoids a service-to-service call at UI interaction time and keeps each service's HTTP surface minimal.
+**ClinicalTrials API is public** — no credentials needed (invariant 6 not implicated). 5-second timeout applied.
+**Action:** WireMock stub in core-hub unit tests. No changes to ingestion-scraper.
+
+## 2026-09-20 — Watchlist — FLAG — entity_key format discrepancy
+**What:** The `watchlist-alerts` hold spec uses colon notation for entity keys (`"BCL11A:GeneTarget"`) but the corroboration table and Neo4j use space-pipe-space: `"BCL11A | GENE_TARGET"`. These formats will not match if used in a join.
+**Why it matters:** The watchlist-backend summary endpoint filters corroborations by `SPLIT_PART(entity_key, ' | ', 1) = ANY($tracked_gene_targets)`. If the actual `entity_key` format differs, no corroborations will be returned.
+**Action:** Before implementing the summary endpoint corroboration filter, run `SELECT DISTINCT entity_key FROM corroboration LIMIT 10` and record the confirmed format here. Update the watchlist-alerts hold spec accordingly before it comes off hold.
+
+## 2026-09-20 — Watchlist alerts (hold spec) — FLAG — schema superseded
+**What:** The watchlist-alerts hold spec planned a `watchlist_entries(entity_key TEXT UNIQUE)` table, pre-seeded with gene targets from a Flyway migration. The watchlist-backend spec creates `watchlist` + `watchlist_gene_target` tables that serve the same purpose with more structure.
+**Why it matters:** Two schemas for the same concept would require a migration to merge them.
+**Action:** Do not create `watchlist_entries`. When watchlist-alerts comes off hold, rewrite its schema section to query `watchlist_gene_target JOIN watchlist` for entity keys. Update the hold spec before implementation begins.
+
 ## 2026-09-19 — Dashboard — CHOICE — Node 22 LTS (Phase 5 resolution)
 **What:** Node 22.x LTS is pinned as the dashboard runtime. VERSIONS.md previously deferred this to "Phase 5, resolve at 5.1."
 **Why it matters:** Node 22 became the active LTS line in October 2024 and is current through 2027. Node 24 was released April 2026 but is "current" (not yet LTS) as of September 2026.

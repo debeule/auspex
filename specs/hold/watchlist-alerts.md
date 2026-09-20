@@ -1,7 +1,9 @@
 # Watchlist & Alerts
 
-**Status:** ready
-**Blocked by:** —
+**Status:** hold
+**Blocked by:** Phase 4 must show a real repeatable signal before notifications are worth building. Also: `watchlist-backend` spec must be done first — the `watchlist_entries` table planned in this spec is superseded by `watchlist` + `watchlist_gene_target` (see DECISIONS.md 2026-09-20). Rewrite the schema section of this spec before implementation.
+
+**Schema section of this spec is stale.** Replace the `watchlist_entries` Flyway migration with a query against `watchlist_gene_target JOIN watchlist`. The `entity_key` format should use space-pipe-space (`"DMD | GENE_TARGET"`), not colon notation — verify against live data and record in DECISIONS.md.
 **Branch:** `feature/watchlist-alerts`
 
 ---
