@@ -15,7 +15,7 @@ Verified current as of **2026-08-15**. Anything marked *resolve at 0.0* must be 
 | Kafka | `apache/kafka:4.3.0` | KRaft, no Zookeeper. |
 | PostgreSQL | `postgres:18.6` | 18 is current; **19 is in beta — do not use.** |
 | Neo4j | `neo4j:2026.05-community` | Neo4j moved to calendar versioning; the 5.x line ended at 5.26 LTS. **See open question 4.** |
-| MinIO | `minio/minio:RELEASE.2025-09-07T16-13-09Z` | Resolved 2026-08-15 from `docker pull minio/minio:latest`. |
+| MinIO | `quay.io/minio/minio:RELEASE.2025-09-07T16-13-09Z` | Resolved 2026-08-15. Tag removed from Docker Hub; confirmed present on quay.io 2026-09-20. Use `quay.io/minio/minio` everywhere. |
 | Airflow | `apache/airflow:3.3.1` | Phase 2 only. Python 3.14 compatible. |
 
 ## Java dependencies

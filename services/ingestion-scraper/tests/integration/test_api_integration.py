@@ -28,7 +28,7 @@ from auspex_ingest.storage.minio_client import MinioArchive
 
 os.environ.setdefault("TESTCONTAINERS_RYUK_DISABLED", "true")
 
-_MINIO_IMAGE = "minio/minio:RELEASE.2025-09-07T16-13-09Z"
+_MINIO_IMAGE = "quay.io/minio/minio:RELEASE.2025-09-07T16-13-09Z"
 _BUCKET = "auspex-test-api"
 _RAW_TOPIC = "auspex.raw.ingested"
 _SIG_TOPIC = "auspex.signals.extracted"
