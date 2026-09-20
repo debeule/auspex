@@ -28,6 +28,7 @@ build/
 target/
 *.class
 *.jar
+!**/gradle/wrapper/gradle-wrapper.jar
 out/
 
 # IDE
