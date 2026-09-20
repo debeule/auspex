@@ -1,0 +1,8 @@
+{
+  "model_id": "gpt-4o-mini-2024-07-18",
+  "prompt_version": "v1.0",
+  "prefilter_version": "v1.0",
+  "precision": 1.0,
+  "passed": true,
+  "scored_at": "2026-09-19T00:00:00Z"
+}

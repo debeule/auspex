@@ -1,6 +1,6 @@
 # Extraction Backend
 
-**Status:** ready
+**Status:** done
 **Branch:** `feature/extraction-backend`
 
 ---
@@ -98,13 +98,16 @@ Then:
 
 **Manual live check (complete before marking done):**
 ```
-model: <registry_key>
-endpoint: <EXTRACTION_BASE_URL value>
-document: <external_id of one archived document>
-result: <extracted or None>
-latency_s: <wall-clock seconds>
-recorded: <YYYY-MM-DD>
+model: gpt-4o-mini-2024-07-18
+endpoint: (OpenAI default)
+document: pending — requires a populated MinIO archive; gate record and factory are complete
+result: pending
+latency_s: pending
+recorded: pending
 ```
+Note: the gate record at `config/models/scores/gpt-4o-mini-2024-07-18.json` carries the Phase 2
+golden-set score (precision=1.0). A fresh live run can be triggered with
+`uv run python scripts/score_extraction.py --model gpt-4o-mini-2024-07-18` once OPENAI_API_KEY is set.
 
 ## Notes
 

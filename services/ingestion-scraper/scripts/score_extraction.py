@@ -2,17 +2,24 @@
 """Manual scoring script — run against the golden set to measure extraction quality.
 
 Usage:
-    uv run python scripts/score_extraction.py [--golden-dir tests/golden] \
-        [--prompt-version v1] [--model gpt-4o] [--prefilter-vocab config/gene_vocab.txt]
+    uv run python scripts/score_extraction.py --model gpt-4o-mini-2024-07-18 \
+        [--golden-dir tests/golden] [--prompt-version v1.0] \
+        [--prefilter-vocab config/gene_vocab.txt] \
+        [--registry config/models/registry.yaml] \
+        [--scores-dir config/models/scores]
 
-Requires OPENAI_API_KEY (or equivalent) in the environment.
+Requires EXTRACTION_API_KEY (or OPENAI_API_KEY) in the environment.
 Never run this in CI — it makes live LLM calls.
 """
 import argparse
+import json
 import sys
+from datetime import UTC, datetime
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
+
+import yaml
 
 from auspex_ingest.golden import GoldenDocument, load_golden_set, score_batch
 from auspex_ingest.prefilter import Prefilter
@@ -29,7 +36,10 @@ def _run_extraction(
     golden: list[GoldenDocument],
     prefilter: Prefilter,
     prompt_version: str,
-    model: str,
+    model_id: str,
+    registry_entry: dict,
+    base_url: str | None,
+    api_key: str | None,
 ) -> list[dict | None]:
     import instructor
     import openai
@@ -37,18 +47,26 @@ def _run_extraction(
     from auspex_ingest.extractor import LLMExtractor
     from auspex_ingest.models import RawDocument
 
-    client = instructor.from_openai(openai.OpenAI())
+    prompt_dir = Path(__file__).parent.parent / "prompts" / "extraction"
+    prompt_text = (prompt_dir / f"{prompt_version}.txt").read_text()
+
+    raw_client = openai.OpenAI(
+        api_key=api_key or "sk-dummy",
+        base_url=base_url,
+    )
+    client = instructor.from_openai(raw_client)
+
     extractor = LLMExtractor(
         client=client,
-        model=model,
+        model=model_id,
         schema_version="1.0",
         prompt_version=prompt_version,
     )
+    # override with registry parameters
+    extractor._prompt = prompt_text
 
     results = []
     for i, doc in enumerate(golden, 1):
-        from datetime import UTC, datetime
-
         raw = RawDocument(
             schema_version="1.0",
             external_id=doc.external_id,
@@ -61,7 +79,12 @@ def _run_extraction(
         )
 
         prefilter_pass = prefilter.passes(raw)
-        print(f"  [{i}/{len(golden)}] {doc.source_type}/{doc.external_id} prefilter={'pass' if prefilter_pass else 'REJECT'}", end="", flush=True)
+        print(
+            f"  [{i}/{len(golden)}] {doc.source_type}/{doc.external_id} "
+            f"prefilter={'pass' if prefilter_pass else 'REJECT'}",
+            end="",
+            flush=True,
+        )
 
         if not prefilter_pass:
             results.append(None)
@@ -101,42 +124,98 @@ def _print_report(golden: list[GoldenDocument], results: list[dict | None], scor
     precision = cm["tp"] / (cm["tp"] + cm["fp"]) if (cm["tp"] + cm["fp"]) else 0.0
     recall = cm["tp"] / (cm["tp"] + cm["fn"]) if (cm["tp"] + cm["fn"]) else 0.0
 
-    print("\n═══ is_signal ════════════════════════════════")
+    print("\n is_signal")
     print(f"  TP={cm['tp']}  FP={cm['fp']}  FN={cm['fn']}  TN={cm['tn']}")
     print(f"  accuracy={accuracy:.3f}  precision={precision:.3f}  recall={recall:.3f}")
 
     for field in ["gene_targets", "mechanisms", "companies_mentioned"]:
         s = scores[field]
-        print(f"\n═══ {field} ({'macro over signal docs'}) ═══")
+        print(f"\n {field} (macro over signal docs)")
         print(f"  precision={s['precision']:.3f}  recall={s['recall']:.3f}  f1={s['f1']:.3f}")
 
-    # Prefilter false-negative rate
     pf_should_pass = [d for d in golden if d.labels.get("prefilter_should_pass")]
-    pf_rejected = [d for d, r in zip(golden, results) if d.labels.get("prefilter_should_pass") and r is None]
+    pf_rejected = [
+        d
+        for d, r in zip(golden, results)
+        if d.labels.get("prefilter_should_pass") and r is None
+    ]
     if pf_should_pass:
         fn_rate = len(pf_rejected) / len(pf_should_pass)
-        print("\n═══ prefilter false-negative rate ════════════")
-        print(f"  {len(pf_rejected)}/{len(pf_should_pass)} docs that should pass were rejected  (rate={fn_rate:.3f})")
+        print("\n prefilter false-negative rate")
+        print(
+            f"  {len(pf_rejected)}/{len(pf_should_pass)} docs that should pass were rejected "
+            f"(rate={fn_rate:.3f})"
+        )
 
 
 def main() -> None:
+    import os
+
     parser = argparse.ArgumentParser(description="Score LLM extraction against the golden set")
+    parser.add_argument("--model", required=True, help="Registry key (e.g. gpt-4o-mini-2024-07-18)")
     parser.add_argument("--golden-dir", default="tests/golden", type=Path)
-    parser.add_argument("--prompt-version", default="v1")
-    parser.add_argument("--model", default="gpt-4o")
+    parser.add_argument("--prompt-version", default="v1.0")
     parser.add_argument("--prefilter-vocab", default=None, type=Path)
+    parser.add_argument(
+        "--registry",
+        default=Path(__file__).parent.parent.parent.parent / "config" / "models" / "registry.yaml",
+        type=Path,
+    )
+    parser.add_argument(
+        "--scores-dir",
+        default=Path(__file__).parent.parent.parent.parent / "config" / "models" / "scores",
+        type=Path,
+    )
     args = parser.parse_args()
+
+    raw_registry = yaml.safe_load(args.registry.read_text())
+    models = raw_registry.get("models", {})
+    if args.model not in models:
+        print(f"Model {args.model!r} not found in registry. Available: {sorted(models)}")
+        sys.exit(1)
+    registry_entry = models[args.model]
 
     golden = load_golden_set(args.golden_dir)
     if not golden:
         print(f"No golden documents found in {args.golden_dir}. Populate it first.")
         sys.exit(1)
 
+    base_url: str | None = os.environ.get("EXTRACTION_BASE_URL")
+    api_key: str | None = os.environ.get("EXTRACTION_API_KEY") or os.environ.get("OPENAI_API_KEY")
+
     print(f"Loaded {len(golden)} golden documents")
+    print(f"Model: {args.model}  prompt_version: {args.prompt_version}")
     prefilter = _build_prefilter(args.prefilter_vocab)
-    results = _run_extraction(golden, prefilter, args.prompt_version, args.model)
+
+    results = _run_extraction(
+        golden,
+        prefilter,
+        args.prompt_version,
+        args.model,
+        registry_entry,
+        base_url,
+        api_key,
+    )
     scores = score_batch(golden, results)
     _print_report(golden, results, scores)
+
+    cm = scores["is_signal"]
+    precision = cm["tp"] / (cm["tp"] + cm["fp"]) if (cm["tp"] + cm["fp"]) else 0.0
+    passed = precision >= 0.9
+
+    args.scores_dir.mkdir(parents=True, exist_ok=True)
+    score_file = args.scores_dir / f"{args.model}.json"
+    record = {
+        "model_id": args.model,
+        "prompt_version": args.prompt_version,
+        "prefilter_version": prefilter.version,
+        "precision": round(precision, 4),
+        "passed": passed,
+        "scored_at": datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ"),
+    }
+    score_file.write_text(json.dumps(record, indent=2))
+    status = "PASSED" if passed else "FAILED"
+    print(f"\nGate {status} (precision={precision:.3f}). Score written to {score_file}")
 
 
 if __name__ == "__main__":

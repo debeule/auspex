@@ -73,7 +73,35 @@ Flyway runs schema migrations against `auspex` on every `core-hub` startup (`ddl
 
 All credentials come from root `.env`. Copy from `.env.example` and fill in:
 - `SEC_USER_AGENT` — required for SEC EDGAR requests (format: `Name email@example.com`)
-- `OPENAI_API_KEY` — for LLM extraction
-- `EPO_OPS_KEY` / `EPO_OPS_SECRET` — for patent connector (currently blocked, Step 2.3)
+- `EXTRACTION_API_KEY` — API key for the extraction model endpoint
+- `EXTRACTION_MODEL` — registry key matching an entry in `config/models/registry.yaml`
+- `EPO_OPS_KEY` / `EPO_OPS_SECRET` — for patent connector
 
 No defaults are baked into `docker-compose.yml`.
+
+---
+
+## Local model backend (Ollama on macOS)
+
+Docker Desktop on macOS cannot access Metal/GPU. The model server must run on the host; the
+scraper reaches it via `host.docker.internal`.
+
+```
+EXTRACTION_BASE_URL=http://host.docker.internal:11434/v1
+EXTRACTION_API_KEY=ollama
+EXTRACTION_MODEL=<registry key matching the Ollama digest>
+```
+
+### Memory budget
+
+The Docker stack and the Ollama model server share the host's RAM. With a 36 GB MacBook:
+
+| Component | Estimated usage |
+|---|---|
+| Docker Desktop allocation | 12–16 GB (configured in Docker Desktop → Resources) |
+| gemma3:27b model weights | ~17 GB |
+| KV cache at `num_ctx=4096` | ~2 GB |
+| OS + other processes | ~4 GB |
+
+Recommended Docker Desktop memory limit: **14 GB**. Leave ≥ 20 GB for the model server + OS.
+Reduce `num_ctx` in `registry.yaml` to lower KV cache if headroom is tight.

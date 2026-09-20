@@ -127,7 +127,7 @@ def _make_env_reextract_runner() -> ReextractionRunner:
     llm_client = instructor.from_openai(openai.OpenAI(api_key=api_key))
     extractor = LLMExtractor(
         client=llm_client,
-        model=os.environ.get("OPEN_AI_EXTRACTION_MODEL", "gpt-4o-mini"),
+        model=os.environ.get("EXTRACTION_MODEL", "gpt-4o-mini-2024-07-18"),
         schema_version=os.environ.get("SCHEMA_VERSION", "1.0"),
         prompt_version=os.environ.get("PROMPT_VERSION", "v1"),
     )
@@ -183,7 +183,7 @@ def _make_env_pipeline_factory(
     llm_client = instructor.from_openai(openai.OpenAI(api_key=api_key))
     extractor = LLMExtractor(
         client=llm_client,
-        model=os.environ.get("OPEN_AI_EXTRACTION_MODEL", "gpt-4o-mini"),
+        model=os.environ.get("EXTRACTION_MODEL", "gpt-4o-mini-2024-07-18"),
         schema_version="1.0",
         prompt_version="v1",
     )

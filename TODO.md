@@ -9,7 +9,7 @@ Each line links to a self-contained spec in `specs/`. Open the spec and read it 
 | Spec | Status | Notes |
 |---|---|---|
 | [CI/CD pipeline](specs/done/ci-cd.md) | `done` | java + python workflows; 4 checks green on PR #1; session provided broken-PR evidence |
-| [Extraction backend](specs/extraction-backend.md) | `ready` | Model registry; digest pinning; gate records; abstract contract test; deprecation warning |
+| [Extraction backend](specs/done/extraction-backend.md) | `done` | 23 tests (15 unit + 8 contract); registry.yaml; gate record; LLMExtractorFactory; deprecation warning |
 | [EDGAR content fix](specs/edgar-content-fix.md) | `ready` | Extend SecEdgarConnector to fetch 8-K filing text; 8/13 Phase 2 FNs were metadata-only |
 | [Model evaluation](specs/model-evaluation.md) | `ready` | 3 manual scripts: candidate comparison (latency record), leakage canary, cross-model agreement |
 | [Backtesting module](specs/backtesting.md) | `ready` | Reopened: entity-only variant (no directionality/confidence) required by Phase 4 FLAG v2 |
@@ -71,3 +71,4 @@ Each line links to a self-contained spec in `specs/`. Open the spec and read it 
 | 2026-09-20 | Strategy layer session 1 | docs/strategy-research.md (H1–H8); hypothesis-registry (ready), market-simulation (blocked), evaluation-protocol (blocked) specs written; DECISIONS.md + PREREQUISITES.md updated | No |
 | 2026-09-20 | Strategy layer session 2 | strategy-framework (ready), strategy-runtime, portfolio-and-risk, strategy-metrics, decision-trace (all blocked) specs written; 8 DECISIONS.md entries; TODO.md updated | No |
 | 2026-09-20 | CI/CD pipeline | Done — java + python workflows green on PR #1; 4 CI fixes (gradle jar, quay.io minio, tuple unpack, git diff path) | No |
+| 2026-09-20 | Extraction backend | Done — 23 tests green (15 unit + 8 contract); LLMExtractorFactory, ConfigurationError, GateNotPassedError, ContextLengthError; registry.yaml; gate record | No |

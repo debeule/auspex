@@ -1,0 +1,11 @@
+models:
+  gpt-4o-mini-2024-07-18:
+    backend: api
+    cutoff_date: "2023-10-01"
+    cutoff_source: "https://platform.openai.com/docs/models/gpt-4o-mini"
+    num_ctx: 8192
+    timeout: 30
+    temperature: 0
+    seed: 42
+    structured_output_mode: "JSON"
+    # deprecation_date: "YYYY-MM-DD"  # set when OpenAI announces EOL
