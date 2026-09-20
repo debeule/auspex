@@ -344,6 +344,55 @@ C. Dual lineage live: the backtested model continues as live primary (feeds `sig
 **Why it matters:** Two schemas for the same concept would require a migration to merge them.
 **Action:** Do not create `watchlist_entries`. When watchlist-alerts comes off hold, rewrite its schema section to query `watchlist_gene_target JOIN watchlist` for entity keys. Update the hold spec before implementation begins.
 
+## 2026-09-20 — Option A hosting implication — FLAG — live extraction depends on the MacBook
+**What:** Option A (chosen 2026-09-19) runs the local extraction model on the MacBook Pro. Unless changed, live DAG extraction also depends on the same machine and model server — the scraper service calls `host.docker.internal` which only resolves to the host machine.
+**Why it matters:** §5 cursor state means no signal events are lost during downtime — DAGs catch up via their cursors when the machine comes back online. But signal events are delayed by the duration of the outage. For Phase 4 research this is acceptable; delayed-but-complete data is the input. For the Phase 5 alert workflow (notification on new corroboration), stale-by-hours data defeats the purpose. The trading layer will need a decision on acceptable latency before the watchlist-alerts spec comes off hold.
+**Options considered:**
+A1 (current state): MacBook only. Zero infrastructure cost. Appropriate for Phase 4 research.
+A2: Dedicated always-on host (Mac mini or Linux server). Same local model, identical code path. Required before a production alert workflow. Estimated cost: hardware only.
+A3: Switch live extraction to a hosted API model going forward (Option B from the earlier lineage flag, 2026-09-19). Always-on, no hardware required, ~$15/month at 500 extractions/day.
+**Action:** No decision needed before Phase 4. Before the watchlist-alerts spec comes off hold (Phase 5), record here whether A2 or A3 is chosen. The watchlist-alerts hold criterion ("Phase 4 shows a real repeatable signal worth acting on") is necessary but not sufficient — uptime must also be resolved.
+
+## 2026-09-20 — Scoping session audit — FLAG — spec gaps filled
+**What:** Three spec gaps identified against the session prompt and requirements.md:
+1. extraction-backend.md was missing a test for connection-refused (model server unreachable) — distinct failure mode from TimeoutError. Added `test_model_server_unreachable_documents_stay_archived_and_not_published`.
+2. model-evaluation.md latency record lacked `tokens_per_second` and the throughput feasibility script output (points 1–3: backfill wall-clock, live hours/day, combined-machine fit). Added.
+3. historical-backfill.md had `BACKFILL_BUDGET_CEILING` for API backends but no time ceiling for local backends. Added `BACKFILL_TIME_CEILING_HOURS` and `test_backfill_aborts_when_local_time_estimate_exceeds_ceiling`.
+**Why it matters:** Without the time ceiling, a local-model backfill with a bad latency estimate could run for far longer than planned with no automatic abort. Without the connection-refused test, a down model server would cause documents to pile up in "archived, unextracted" state with no test ensuring the batch completes and nothing is silently lost.
+**Action:** Specs updated in-place. No implementation impact — all additions are test and configuration surface, not architectural changes.
+
+## 2026-09-20 — Option A hosting — CHOICE — A1 (MacBook) confirmed for Phase 4; A2/A3 deferred
+**What:** MacBook-only (A1) is the starting point. If Phase 4 shows a signal worth acting on in real time, the hosting decision (A2 dedicated host vs A3 API model) gets made then as a separate spec.
+**Action:** None. Record here when switching to A2 or A3.
+
+## 2026-09-20 — Strategy layer — FLAG — requirements.md §0.1 assumption flips at session 3
+**What:** `requirements.md §0.1` describes the system as "a historical research instrument" and states it "does not make live trading decisions." Strategy layer session 3 (live trading & UI) is explicitly scoped to add live trading. These are directly contradictory.
+**Why it matters:** Several requirements around data sourcing, latency, and model hosting implicitly assume research-only use. Sections that will need review when live trading is added: §0.1 (assumption statement), §0.4 (LLM budget assumes research-only volume), §5 (Airflow cursor as the sole latency model), and any uptime-related assumptions in §8 (price data freshness).
+**Options considered:** A) Flag now, resolve in session 3 (chosen). B) Edit §0.1 now — premature; the live trading architecture is not yet scoped.
+**Action:** Flag here. When strategy layer session 3 begins, edit `requirements.md §0.1` as the first step, then confirm which downstream sections require revision. Do not write live trading code against the current §0.1 assumption without first updating it.
+
+## 2026-09-20 — Strategy layer — CHOICE — XBI as primary benchmark
+**What:** XBI (SPDR S&P Biotech ETF) is chosen as the primary benchmark for abnormal return computation in Phase 4.
+**Why it matters:** Abnormal return = signal return minus benchmark return. A sector-matched benchmark removes general biotech sentiment from the signal. A broad market benchmark (SPY, QQQ) would leave sector-specific noise in the abnormal return, overstating alpha from corroboration events that coincide with biotech rallies.
+**Options considered:** XBI (chosen — direct biotech sector ETF, liquid, available via yfinance); LABU (3x leveraged biotech — too volatile, introduces leverage distortion); IBB (iShares biotech — acceptable alternative, larger holdings, slightly less sector-concentrated than XBI); SPY (too broad — leaves sector noise).
+**Action:** Use XBI. Fetch via yfinance same path as OHLCV data (price-ingestion spec). If XBI data is unavailable for any backfill date, fall back to IBB and note the substitution in the evaluation report.
+
+## 2026-09-20 — Strategy layer — CHOICE — Known-at delay default: 1 business day after corroborated_at
+**What:** `corroborated_at` is the maximum `published_date` of the two corroborating signals — a public date, not an internal timestamp. In practice the ingestion pipeline may observe the second signal hours or days after it is published. A 1-business-day known-at delay is applied to model this gap.
+**Why it matters:** Using `corroborated_at` as the literal entry date (delay=0) assumes zero ingestion latency and is optimistic. Using `ingested_at` is prohibited (plan.md §4.2). The 1-day default is conservative for a daily polling pipeline but may overstate latency for a near-real-time setup.
+**Action:** `KNOWN_AT_DELAY_DAYS=1` is the default in `.env`. The evaluation-protocol spec requires a sensitivity analysis at 0, 1, 3, and 5 days. Report all four in the Phase 4 output so the latency assumption is explicit.
+
+## 2026-09-20 — Strategy layer — CHOICE — Holdout: last 3 months sealed
+**What:** The last 3 months of the 24-month backfill window are sealed as holdout. They are excluded from walk-forward in-sample and OOS splits until promotion criteria are met (deflated Sharpe > 0.95 AND t > 3.0).
+**Why it matters:** At an estimated 50–150 total events, 3 months represents approximately 6–19 events. This is a thin holdout; it will not reliably distinguish a real edge from noise on its own. It is documented here as a known limitation.
+**Options considered:** 3 months (chosen — minimum viable holdout; any shorter is meaningless; any longer further reduces the already-small OOS window); 6 months (would leave only 15 months for in-sample + OOS, implying zero complete walk-forward segments at 18-month in-sample).
+**Action:** `HOLDOUT_MONTHS=3` in `.env`. Record holdout result alongside main result in Phase 4 DECISIONS.md entry. If holdout `t < 1.0` when in-sample/OOS shows `t > 2.0`, do not promote.
+
+## 2026-09-20 — Strategy layer — FLAG — Belgian speculative classification: requires advisor confirmation
+**What:** Belgian SPF Finances classifies some trading income as "speculative" (taxed at 33%) rather than investment income (10% CGT above €10k exemption). The classification depends on: trading frequency, position size relative to personal assets, use of leverage, short-selling, and pattern of behaviour. No bright-line rule is published.
+**Why it matters:** If trades on this strategy are classified as speculative, the after-tax break-even rises from ~3.2% to ~4.5%+ per event (adding ~33% of gain as tax). For a strategy with an estimated mean abnormal return of 2–5%, this is the difference between positive and negative net expectancy.
+**Action:** Consult a qualified Belgian tax advisor before executing live trades. Specifically ask: (a) whether systematic rule-based trading on individual equity corroboration signals is investment income or speculative; (b) whether short-selling or ETF hedges would trigger speculative classification regardless of frequency; (c) how to document non-speculative intent. Record advisor's conclusion in DECISIONS.md and PREREQUISITES.md before session 3 implementation begins.
+
 ## 2026-09-19 — Dashboard — CHOICE — Node 22 LTS (Phase 5 resolution)
 **What:** Node 22.x LTS is pinned as the dashboard runtime. VERSIONS.md previously deferred this to "Phase 5, resolve at 5.1."
 **Why it matters:** Node 22 became the active LTS line in October 2024 and is current through 2027. Node 24 was released April 2026 but is "current" (not yet LTS) as of September 2026.

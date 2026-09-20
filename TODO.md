@@ -16,6 +16,9 @@ Each line links to a self-contained spec in `specs/`. Open the spec and read it 
 | [Performance metrics](specs/performance-metrics.md) | `ready` | Reopened: per-variant metrics output required by Phase 4 FLAG v2 |
 | [Watchlist backend](specs/watchlist-backend.md) | `ready` | Postgres schema; CRUD endpoints; preview (SEC + graph + ClinicalTrials auto-detect); company summary |
 | [Watchlist UI](specs/watchlist-ui.md) | `ready` | /watchlist management page; /watchlist/[ticker] detail page; gene target chips; do after watchlist-backend |
+| [Hypothesis registry](specs/hypothesis-registry.md) | `ready` | Pre-registration system; SHA-256 hash check; append-only trial log; deflated Sharpe reads trial count |
+| [Market simulation](specs/market-simulation.md) | `blocked` | Blocked by backtesting entity-only variant; MarketCalendar (NYSE), FillModel, CostModel (TOB), CurrencyConverter, PositionSizer |
+| [Evaluation protocol](specs/evaluation-protocol.md) | `blocked` | Blocked by market-simulation + performance-metrics entity-only; abnormal returns vs XBI, walk-forward, deflated Sharpe, holdout |
 | [Golden set expansion](specs/golden-set-expansion.md) | `blocked` | Blocked by model-evaluation — local model must be chosen before gate records can be written |
 | [Historical backfill](specs/historical-backfill.md) | `blocked` | Budget approval + extraction-backend + model-evaluation + golden-set-expansion first |
 | [Patent connector (EPO OPS)](specs/done/patent-connector.md) | `done` | 10 tests, live DOCDB confirmed |
@@ -60,3 +63,4 @@ Each line links to a self-contained spec in `specs/`. Open the spec and read it 
 | 2026-09-19 | Extraction backend, model evaluation, historical backfill | Rescoped — 3 specs; digest pinning, gate records, 3 evaluation scripts, latency-based dry run; lineage decision required | Yes (lineage) |
 | 2026-09-19 | Full spec audit + refactor | ci-cd off hold; EDGAR content fix spec; golden set expansion spec; backtesting + performance-metrics reopened for entity-only variant | No |
 | 2026-09-20 | Watchlist scoping | watchlist-backend + watchlist-ui specs written; watchlist-alerts hold spec updated (schema superseded) | No |
+| 2026-09-20 | Strategy layer session 1 | docs/strategy-research.md (H1–H8); hypothesis-registry (ready), market-simulation (blocked), evaluation-protocol (blocked) specs written; DECISIONS.md + PREREQUISITES.md updated | No |
