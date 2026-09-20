@@ -101,8 +101,8 @@ def test_refetch_with_changed_content_creates_second_object(archive: MinioArchiv
     doc1 = _make_doc("version one", _T1)
     doc2 = _make_doc("version two", _T2)
 
-    key1 = archive.put(doc1)
-    key2 = archive.put(doc2)
+    key1, _ = archive.put(doc1)
+    key2, _ = archive.put(doc2)
 
     assert key1 != key2
     minio_client.stat_object(_BUCKET, key1)
@@ -113,8 +113,8 @@ def test_refetch_with_changed_content_creates_second_object(archive: MinioArchiv
 def test_same_second_refetch_of_identical_content_is_a_noop_not_an_error(archive: MinioArchive, minio_client: Minio):
     doc = _make_doc("same content", _T1)
 
-    key1 = archive.put(doc)
-    key2 = archive.put(doc)
+    key1, _ = archive.put(doc)
+    key2, _ = archive.put(doc)
 
     assert key1 == key2
     minio_client.stat_object(_BUCKET, key1)
@@ -125,7 +125,7 @@ def test_same_second_refetch_of_different_content_creates_a_distinct_key(archive
     doc1 = _make_doc("content alpha", _T1)
     doc2 = _make_doc("content beta", _T1)  # same second, different content → different sha256
 
-    key1 = archive.put(doc1)
-    key2 = archive.put(doc2)
+    key1, _ = archive.put(doc1)
+    key2, _ = archive.put(doc2)
 
     assert key1 != key2
