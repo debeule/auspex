@@ -13,7 +13,7 @@ Each line links to a self-contained spec in `specs/`. Open the spec and read it 
 | [EDGAR content fix](specs/done/edgar-content-fix.md) | `done` | 18 tests; full 8-K text via data.sec.gov/submissions; live fetch verified (4,282 chars) |
 | [EDGAR EFTS fixture alignment](specs/done/edgar-efts-fixture-alignment.md) | `done` | Fixtures + _map aligned to real EFTS schema (adsh, ciks, display_names, form, period_ending) |
 | [Model evaluation](specs/done/model-evaluation.md) | `done` | 6 tests; evaluate_model.py, check_leakage.py, compare_models.py; auspex_ingest.model_evaluation |
-| [Backtesting module](specs/backtesting.md) | `ready` | Reopened: entity-only variant (no directionality/confidence) required by Phase 4 FLAG v2 |
+| [Backtesting module](specs/done/backtesting.md) | `done` | 8 tests; entity-only and full corroboration variants; CorroborationGroup, VariantReport |
 | [Performance metrics](specs/performance-metrics.md) | `ready` | Reopened: per-variant metrics output required by Phase 4 FLAG v2 |
 | [Watchlist backend](specs/watchlist-backend.md) | `ready` | Postgres schema; CRUD endpoints; preview (SEC + graph + ClinicalTrials auto-detect); company summary |
 | [Watchlist UI](specs/watchlist-ui.md) | `ready` | /watchlist management page; /watchlist/[ticker] detail page; gene target chips; do after watchlist-backend |
@@ -76,3 +76,4 @@ Each line links to a self-contained spec in `specs/`. Open the spec and read it 
 | 2026-09-25 | EDGAR content fix | Done — 18 tests green; document text via data.sec.gov/submissions; live fetch verified; EFTS fixture mismatch patched; edgar-efts-fixture-alignment spec added | No |
 | 2026-09-25 | EDGAR EFTS fixture alignment | Done — 18 tests green; fixtures + _map use real field names; dual-format fallbacks removed | No |
 | 2026-09-25 | Model evaluation | Done — 6 tests green; evaluate_model.py, check_leakage.py, compare_models.py; auspex_ingest.model_evaluation | No |
+| 2026-09-25 | Backtesting module | Done — 8 tests green; entity-only and full corroboration variants; CorroborationGroup, VariantReport | No |
