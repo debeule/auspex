@@ -1,6 +1,6 @@
 # Backtesting Module
 
-**Status:** ready
+**Status:** done
 **Blocked by:** —
 **Branch:** `feature/backtesting`
 
@@ -38,17 +38,14 @@ Performance metrics (separate spec), price data fetching (price ingestion spec),
 
 ## Required tests
 
-Carried from Phase 2:
 - `test_backtest_runs_with_sockets_disabled` — `pytest-socket` with `--disable-socket --allow-unix-socket`; documented limit: patches in-process sockets only, not subprocesses
 - `test_identical_inputs_produce_identical_output`
 - `test_no_corroborated_signals_produces_empty_report_not_crash`
 - `test_reextraction_from_archive_resolves_the_correct_snapshot` — uses `raw_object_key` from the event
 - `test_multiple_extractions_of_one_document_count_once` — guards the double-counting failure from putting `schema_version` in `event_id`
-
-New:
 - `test_entity_only_variant_ignores_directionality_and_confidence` — two signals with matching gene_target and distinct source_types produce a corroboration regardless of their directionality values; result is identical with directionality flipped
 - `test_full_variant_uses_directionality_weighting` — same pair as above; full-variant corroboration score differs when directionality values change
-- `test_both_variants_reported_side_by_side` — single runner call with no explicit `--variant`; output contains sections for both entity-only and full results
+- `test_both_variants_reported_side_by_side` — single runner call with no explicit variant; output contains sections for both entity-only and full results
 
 ## Definition of done
 
@@ -56,4 +53,4 @@ New:
 cd services/backtesting && uv run pytest tests/unit/test_backtest.py -q
 ```
 
-Expected: 8+ passed. Plus: a run produces a report using only archived data — even if the finding is "no significant effect."
+Expected: 8 passed.

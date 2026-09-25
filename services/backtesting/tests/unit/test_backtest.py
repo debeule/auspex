@@ -1,7 +1,6 @@
-from datetime import UTC, date, datetime
+from datetime import date
 
 import pandas as pd
-import pytest
 
 from auspex_backtesting.backtest.runner import BacktestEvent, BacktestReport, BacktestRunner
 
@@ -68,3 +67,66 @@ def test_multiple_extractions_of_one_document_count_once():
     report = BacktestRunner().run(events, {"BEAM": _BEAM_PRICES})
     assert len(report.results) == 1
     assert report.results[0].event_id == "e1"
+
+
+def _corr_event(
+    event_id: str,
+    gene_target: str,
+    source_type: str,
+    directionality: str = "positive",
+    confidence_score: float = 0.8,
+) -> BacktestEvent:
+    return BacktestEvent(
+        event_id=event_id,
+        ticker="BEAM",
+        entry_date=date(2023, 1, 9),
+        raw_object_key=f"raw/{source_type}/{event_id}.json",
+        gene_target=gene_target,
+        source_type=source_type,
+        directionality=directionality,
+        confidence_score=confidence_score,
+    )
+
+
+def test_entity_only_variant_ignores_directionality_and_confidence():
+    runner = BacktestRunner()
+    prices = {"BEAM": _BEAM_PRICES}
+    e1 = _corr_event("e1", "BCL11A", "pubmed", directionality="positive")
+    e2 = _corr_event("e2", "BCL11A", "clinicaltrials", directionality="negative")
+    e2_flipped = _corr_event("e2", "BCL11A", "clinicaltrials", directionality="positive")
+
+    report_a = runner.run([e1, e2], prices)
+    report_b = runner.run([e1, e2_flipped], prices)
+
+    assert report_a.entity_only is not None
+    assert report_b.entity_only is not None
+    assert report_a.entity_only.groups == report_b.entity_only.groups
+
+
+def test_full_variant_uses_directionality_weighting():
+    runner = BacktestRunner()
+    prices = {"BEAM": _BEAM_PRICES}
+    e1 = _corr_event("e1", "BCL11A", "pubmed", directionality="positive", confidence_score=0.8)
+    e2_agree = _corr_event("e2", "BCL11A", "clinicaltrials", directionality="positive", confidence_score=0.6)
+    e2_disagree = _corr_event("e2", "BCL11A", "clinicaltrials", directionality="negative", confidence_score=0.6)
+
+    report_agree = runner.run([e1, e2_agree], prices)
+    report_disagree = runner.run([e1, e2_disagree], prices)
+
+    assert report_agree.full is not None
+    assert report_disagree.full is not None
+    assert report_agree.full.groups[0].weight != report_disagree.full.groups[0].weight
+
+
+def test_both_variants_reported_side_by_side():
+    runner = BacktestRunner()
+    prices = {"BEAM": _BEAM_PRICES}
+    e1 = _corr_event("e1", "BCL11A", "pubmed")
+    e2 = _corr_event("e2", "BCL11A", "clinicaltrials")
+
+    report = runner.run([e1, e2], prices)
+
+    assert report.entity_only is not None
+    assert report.full is not None
+    assert report.entity_only.variant == "entity-only"
+    assert report.full.variant == "full"
