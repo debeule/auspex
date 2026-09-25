@@ -7,3 +7,8 @@ corroboration:
   degree-cap: 4
   # Effectively disables the scheduler; tests call runCorroboration() directly.
   interval-ms: 3600000
+
+# Prevent real SEC HTTP call at startup; SecTickerCache logs a warning and leaves cache empty.
+auspex:
+  sec:
+    tickers-url: http://127.0.0.1:1/company_tickers.json

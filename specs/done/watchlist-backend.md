@@ -1,6 +1,6 @@
 # Watchlist Backend
 
-**Status:** ready
+**Status:** done
 **Branch:** `feature/watchlist-backend`
 
 ---

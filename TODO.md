@@ -15,7 +15,7 @@ Each line links to a self-contained spec in `specs/`. Open the spec and read it 
 | [Model evaluation](specs/done/model-evaluation.md) | `done` | 6 tests; evaluate_model.py, check_leakage.py, compare_models.py; auspex_ingest.model_evaluation |
 | [Backtesting module](specs/done/backtesting.md) | `done` | 8 tests; entity-only and full corroboration variants; CorroborationGroup, VariantReport |
 | [Performance metrics](specs/done/performance-metrics.md) | `done` | 8 tests; variant field on MetricsReport; compute_both_variants; entity-only vs full filtering |
-| [Watchlist backend](specs/watchlist-backend.md) | `ready` | Postgres schema; CRUD endpoints; preview (SEC + graph + ClinicalTrials auto-detect); company summary |
+| [Watchlist backend](specs/done/watchlist-backend.md) | `done` | 11 tests (8 unit + 3 integration); Flyway V3; CRUD + preview + summary; SecTickerCache; WireMock CT stub |
 | [Watchlist UI](specs/watchlist-ui.md) | `ready` | /watchlist management page; /watchlist/[ticker] detail page; gene target chips; do after watchlist-backend |
 | [Hypothesis registry](specs/hypothesis-registry.md) | `ready` | Pre-registration system; SHA-256 hash check; append-only trial log; deflated Sharpe reads trial count |
 | [Market simulation](specs/market-simulation.md) | `blocked` | Blocked by backtesting entity-only variant; MarketCalendar (NYSE), FillModel, CostModel (TOB), CurrencyConverter, PositionSizer |
@@ -78,3 +78,4 @@ Each line links to a self-contained spec in `specs/`. Open the spec and read it 
 | 2026-09-25 | Model evaluation | Done — 6 tests green; evaluate_model.py, check_leakage.py, compare_models.py; auspex_ingest.model_evaluation | No |
 | 2026-09-25 | Backtesting module | Done — 8 tests green; entity-only and full corroboration variants; CorroborationGroup, VariantReport | No |
 | 2026-09-25 | Performance metrics | Done — 8 tests green; variant field on MetricsReport; compute_both_variants; entity-only vs full filtering | No |
+| 2026-09-25 | Watchlist backend | Done — 11 tests green (8 unit + 3 integration); Flyway V3; CRUD + preview + summary; GlobalExceptionHandler ResponseStatusException fix | No |

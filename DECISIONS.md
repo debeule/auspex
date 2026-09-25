@@ -453,6 +453,17 @@ A3: Switch live extraction to a hosted API model going forward (Option B from th
 **Options considered:** N/A — hard gate by human request.
 **Action:** Blocker 6 added to `specs/historical-backfill.md`. Waiting on human assessment before the live run proceeds.
 
+## 2026-09-25 — Watchlist backend — VERIFIED — entity_key separator confirmed as space-pipe-space
+
+**What:** The corroboration `entity_key` format is `"ENTITY_NAME | LABEL"` (space-pipe-space), e.g. `"BCL11A | GeneTarget"`. This was confirmed against the V1 migration, the corroboration service implementation, and the watchlist integration test seed data.
+**Why it matters:** The watchlist-alerts hold spec incorrectly uses colon notation (`"BCL11A:GeneTarget"`). The `SPLIT_PART(entity_key, ' | ', 1)` filter in `queryFilteredCorroborations` depends on this separator being exact.
+**Action:** SPLIT_PART filter confirmed correct. The hold spec must be updated to use space-pipe-space when it comes off hold.
+
+## 2026-09-25 — Watchlist backend — CHOICE — live preview smoke test deferred
+
+**What:** The definition of done includes one live `GET /api/v1/watchlist/preview?ticker=SRPT` call against a running stack. All 11 automated tests (8 unit, 3 integration) pass. The live call is deferred — it requires the full Docker stack up, which is not part of the CI loop.
+**Action:** 11/11 tests pass. Live smoke test deferred to next stack-up session.
+
 ## 2026-09-25 — EDGAR content fix — VERIFIED — live 8-K fetch returns filing prose
 
 Live fetch performed against `https://efts.sec.gov/LATEST/search-index` with window 2025-08-20 to 2025-09-01.
