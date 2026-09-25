@@ -37,6 +37,8 @@ class BacktestResult:
     raw_object_key: str
     entry_date: date
     window_returns: tuple[WindowReturn, ...]
+    gene_target: str = ""
+    source_type: str = ""
 
 
 @dataclass(frozen=True)
@@ -86,6 +88,8 @@ class BacktestRunner:
                 raw_object_key=event.raw_object_key,
                 entry_date=event.entry_date,
                 window_returns=returns,
+                gene_target=event.gene_target,
+                source_type=event.source_type,
             ))
 
         has_corroboration_fields = any(e.gene_target for e in deduped)

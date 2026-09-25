@@ -1,8 +1,15 @@
 from datetime import date
 
+import pandas as pd
 import pytest
 
-from auspex_backtesting.backtest.runner import BacktestReport, BacktestResult, WindowReturn
+from auspex_backtesting.backtest.runner import (
+    BacktestEvent,
+    BacktestReport,
+    BacktestResult,
+    BacktestRunner,
+    WindowReturn,
+)
 from auspex_backtesting.metrics.calculator import MetricsCalculator, MetricsReport, RunParameters
 
 
@@ -76,3 +83,50 @@ def test_run_parameters_stored_with_results():
     metrics = MetricsCalculator().compute(_make_report([0.05]), params, window_days=5)
     assert metrics.run_parameters == params
     assert metrics.run_parameters.prompt_version == "v2"
+
+
+def _beam_prices() -> pd.DataFrame:
+    dates = ["2023-01-09", "2023-01-10", "2023-01-11", "2023-01-12", "2023-01-13"]
+    idx = pd.DatetimeIndex(dates, tz="UTC", name="date")
+    return pd.DataFrame({"close": [15.0, 15.5, 16.0, 14.5, 17.0]}, index=idx)
+
+
+def _corr_event(event_id: str, source_type: str, directionality: str = "positive") -> BacktestEvent:
+    return BacktestEvent(
+        event_id=event_id,
+        ticker="BEAM",
+        entry_date=date(2023, 1, 9),
+        raw_object_key=f"raw/{source_type}/{event_id}.json",
+        gene_target="BCL11A",
+        source_type=source_type,
+        directionality=directionality,
+        confidence_score=0.8,
+    )
+
+
+def test_metrics_output_includes_variant_field():
+    metrics = MetricsCalculator().compute(_make_report([0.05]), _make_params(), window_days=5)
+    assert metrics.variant in ("entity-only", "full")
+
+
+def test_entity_only_and_full_variants_reported_side_by_side():
+    report = BacktestRunner(windows=(5,)).run(
+        [_corr_event("e1", "pubmed"), _corr_event("e2", "clinicaltrials")],
+        {"BEAM": _beam_prices()},
+    )
+    entity_m, full_m = MetricsCalculator().compute_both_variants(report, _make_params(), window_days=5)
+    assert entity_m.variant == "entity-only"
+    assert full_m.variant == "full"
+
+
+def test_entity_only_metrics_independent_of_directionality():
+    # e1 positive, e2 negative — dirs disagree → full group weight=0 → full excludes both
+    report = BacktestRunner(windows=(5,)).run(
+        [_corr_event("e1", "pubmed", "positive"), _corr_event("e2", "clinicaltrials", "negative")],
+        {"BEAM": _beam_prices()},
+    )
+    entity_m, full_m = MetricsCalculator().compute_both_variants(report, _make_params(), window_days=5)
+    assert entity_m.mean_return.value is not None
+    assert entity_m.mean_return.n == 2
+    assert full_m.mean_return.value is None
+    assert full_m.mean_return.n == 0
