@@ -97,7 +97,7 @@ class SecEdgarConnector(SourceConnector):
                 source = hit.get("_source") or {}
                 doc = self._map(source, retrieved_at)
                 if doc is not None:
-                    accession_no: str = str(source.get("accession_no") or source.get("adsh") or "")
+                    accession_no: str = str(source.get("adsh") or "")
                     text = self._fetch_primary_document_text(accession_no)
                     if text is not None:
                         sha = hashlib.sha256(text.encode()).hexdigest()
@@ -109,8 +109,7 @@ class SecEdgarConnector(SourceConnector):
                 break
 
     def _map(self, source: dict[str, Any], retrieved_at: datetime) -> RawDocument | None:
-        # EFTS uses "adsh" in the live API; fixtures use "accession_no"
-        accession_no: str = str(source.get("accession_no") or source.get("adsh") or "")
+        accession_no: str = str(source.get("adsh") or "")
         if not accession_no:
             return None
 
@@ -118,18 +117,13 @@ class SecEdgarConnector(SourceConnector):
         if not file_date:
             return None
 
-        # Live API: entity_id is in "ciks" list; fixtures use scalar "entity_id"
-        _entity_id_raw = source.get("entity_id") or (source.get("ciks") or [""])[0]
-        entity_id: str = str(_entity_id_raw).lstrip("0") or str(_entity_id_raw)
-        # Live API: name is in "display_names" list; fixtures use scalar "entity_name"
-        _name_raw = source.get("entity_name") or (source.get("display_names") or [""])[0]
-        entity_name: str = str(_name_raw).split("(")[0].strip()
-        # Live API: "form" or "file_type"; fixtures use "form_type"
-        form_type: str = str(source.get("form_type") or source.get("form") or source.get("file_type") or "")
-        period: str = str(source.get("period_of_report") or source.get("period_ending") or "")
-        # Live API: items is a list; fixtures use a scalar string
-        _items_raw = source.get("items") or []
-        items: str = ", ".join(_items_raw) if isinstance(_items_raw, list) else str(_items_raw)
+        # ciks[0] is zero-padded; strip for the Archives URL path
+        entity_id: str = str((source.get("ciks") or [""])[0]).lstrip("0")
+        # display_names[0] may include " (TICKER)  (CIK XXXXXXXXXX)" suffix
+        entity_name: str = str((source.get("display_names") or [""])[0]).split("(")[0].strip()
+        form_type: str = str(source.get("form") or "")
+        period: str = str(source.get("period_ending") or "")
+        items: str = ", ".join(source.get("items") or [])
 
         published_date = datetime.strptime(file_date, "%Y-%m-%d").replace(tzinfo=UTC)
 

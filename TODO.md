@@ -11,7 +11,7 @@ Each line links to a self-contained spec in `specs/`. Open the spec and read it 
 | [CI/CD pipeline](specs/done/ci-cd.md) | `done` | java + python workflows; 4 checks green on PR #1; session provided broken-PR evidence |
 | [Extraction backend](specs/done/extraction-backend.md) | `done` | 23 tests (15 unit + 8 contract); registry.yaml; gate record; LLMExtractorFactory; deprecation warning |
 | [EDGAR content fix](specs/done/edgar-content-fix.md) | `done` | 18 tests; full 8-K text via data.sec.gov/submissions; live fetch verified (4,282 chars) |
-| [EDGAR EFTS fixture alignment](specs/edgar-efts-fixture-alignment.md) | `ready` | Update fixtures + simplify _map to use real EFTS field names; do after edgar-content-fix |
+| [EDGAR EFTS fixture alignment](specs/done/edgar-efts-fixture-alignment.md) | `done` | Fixtures + _map aligned to real EFTS schema (adsh, ciks, display_names, form, period_ending) |
 | [Model evaluation](specs/model-evaluation.md) | `ready` | 3 manual scripts: candidate comparison (latency record), leakage canary, cross-model agreement |
 | [Backtesting module](specs/backtesting.md) | `ready` | Reopened: entity-only variant (no directionality/confidence) required by Phase 4 FLAG v2 |
 | [Performance metrics](specs/performance-metrics.md) | `ready` | Reopened: per-variant metrics output required by Phase 4 FLAG v2 |
@@ -74,3 +74,4 @@ Each line links to a self-contained spec in `specs/`. Open the spec and read it 
 | 2026-09-20 | CI/CD pipeline | Done — java + python workflows green on PR #1; 4 CI fixes (gradle jar, quay.io minio, tuple unpack, git diff path) | No |
 | 2026-09-20 | Extraction backend | Done — 23 tests green (15 unit + 8 contract); LLMExtractorFactory, ConfigurationError, GateNotPassedError, ContextLengthError; registry.yaml; gate record | No |
 | 2026-09-25 | EDGAR content fix | Done — 18 tests green; document text via data.sec.gov/submissions; live fetch verified; EFTS fixture mismatch patched; edgar-efts-fixture-alignment spec added | No |
+| 2026-09-25 | EDGAR EFTS fixture alignment | Done — 18 tests green; fixtures + _map use real field names; dual-format fallbacks removed | No |

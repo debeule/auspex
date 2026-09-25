@@ -1,6 +1,6 @@
 # EDGAR EFTS Fixture Alignment
 
-**Status:** ready
+**Status:** done
 **Branch:** `feature/edgar-efts-fixture-alignment`
 
 ---

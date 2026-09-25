@@ -220,13 +220,13 @@ _SINGLE_HIT_BEAM = {
         "hits": [
             {
                 "_source": {
-                    "entity_id": "0001821552",
-                    "entity_name": "BEAM THERAPEUTICS INC",
-                    "accession_no": "0001821552-24-000034",
+                    "ciks": ["0001821552"],
+                    "display_names": ["BEAM THERAPEUTICS INC (BEAM)  (CIK 0001821552)"],
+                    "adsh": "0001821552-24-000034",
                     "file_date": "2024-06-15",
-                    "period_of_report": "2024-06-14",
-                    "form_type": "8-K",
-                    "items": "8.01",
+                    "period_ending": "2024-06-14",
+                    "form": "8-K",
+                    "items": ["8.01"],
                 }
             }
         ],

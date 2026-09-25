@@ -4,13 +4,13 @@
     "hits": [
       {
         "_source": {
-          "entity_id": "0001821552",
-          "entity_name": "BEAM THERAPEUTICS INC",
-          "accession_no": "0001821552-24-000035",
+          "ciks": ["0001821552"],
+          "display_names": ["BEAM THERAPEUTICS INC (BEAM)  (CIK 0001821552)"],
+          "adsh": "0001821552-24-000035",
           "file_date": "2024-06-15",
-          "period_of_report": "2024-06-15",
-          "form_type": "8-K",
-          "items": "1.01, 2.01, 8.01"
+          "period_ending": "2024-06-15",
+          "form": "8-K",
+          "items": ["1.01", "2.01", "8.01"]
         }
       }
     ]
