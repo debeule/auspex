@@ -1,6 +1,6 @@
 # Model Evaluation
 
-**Status:** ready
+**Status:** done
 **Branch:** `feature/model-evaluation`
 
 ---
