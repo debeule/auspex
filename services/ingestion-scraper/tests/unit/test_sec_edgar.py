@@ -4,9 +4,10 @@ All HTTP calls are intercepted by respx. pytest-socket ensures no live calls.
 """
 
 import json
+import logging
 from datetime import UTC, datetime
 from pathlib import Path
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
 
 import pytest
 import respx
@@ -209,3 +210,107 @@ def test_connector_runs_through_the_unchanged_ingestion_pipeline():
     result = pipeline.run("edgar", _CURSOR)
     assert result.fetched == 2
     assert result.failed == 0
+
+
+# ── document-fetch tests (new in edgar-content-fix spec) ──────────────────────
+
+_SINGLE_HIT_BEAM = {
+    "hits": {
+        "total": {"value": 1},
+        "hits": [
+            {
+                "_source": {
+                    "entity_id": "0001821552",
+                    "entity_name": "BEAM THERAPEUTICS INC",
+                    "accession_no": "0001821552-24-000034",
+                    "file_date": "2024-06-15",
+                    "period_of_report": "2024-06-14",
+                    "form_type": "8-K",
+                    "items": "8.01",
+                }
+            }
+        ],
+    }
+}
+
+_BEAM_SUBMISSIONS_URL = "https://data.sec.gov/submissions/CIK0001821552.json"
+_BEAM_DOC_URL = (
+    "https://www.sec.gov/Archives/edgar/data/1821552"
+    "/000182155224000034/beam-8k.htm"
+)
+_BEAM_SUBMISSIONS_JSON = {
+    "filings": {
+        "recent": {
+            "accessionNumber": ["0001821552-24-000034"],
+            "primaryDocument": ["beam-8k.htm"],
+        }
+    }
+}
+
+
+@respx.mock
+def test_edgar_raw_content_is_filing_text_not_form_metadata():
+    respx.get(_EFTS_URL).mock(return_value=Response(200, json=_SINGLE_HIT_BEAM))
+    respx.get(_BEAM_SUBMISSIONS_URL).mock(return_value=Response(200, json=_BEAM_SUBMISSIONS_JSON))
+    respx.get(_BEAM_DOC_URL).mock(
+        return_value=Response(
+            200,
+            text="<html><body><p>Pursuant to Section 13 of the Exchange Act</p></body></html>",
+        )
+    )
+
+    docs = list(_connector().fetch_since(_CURSOR))
+    assert len(docs) == 1
+    assert "Pursuant to Section 13" in docs[0].raw_content
+    assert "Accession:" not in docs[0].raw_content
+    assert "Form type:" not in docs[0].raw_content
+
+
+def test_edgar_cik_extracted_from_accession_number():
+    from auspex_ingest.connectors.sec_edgar import _cik_from_accession
+
+    assert _cik_from_accession("0001234567-23-456789") == "1234567"
+    assert _cik_from_accession("0000320193-23-000077") == "320193"
+
+
+@respx.mock
+def test_edgar_document_fetch_uses_rate_limiter():
+    respx.get(_EFTS_URL).mock(return_value=Response(200, json=_SINGLE_HIT_BEAM))
+    respx.get(_BEAM_SUBMISSIONS_URL).mock(return_value=Response(200, json=_BEAM_SUBMISSIONS_JSON))
+    respx.get(_BEAM_DOC_URL).mock(return_value=Response(200, text="<p>Filing text</p>"))
+
+    client = RateLimitedClient({"sec.gov": 1_000.0})
+    connector = SecEdgarConnector(client=client, user_agent=_TEST_USER_AGENT, now=lambda: _NOW)
+
+    with patch.object(client, "_acquire", wraps=client._acquire) as mock_acquire:
+        list(connector.fetch_since(_CURSOR))
+
+    acquired_urls = [call.args[0] for call in mock_acquire.call_args_list]
+    assert any("data.sec.gov" in u for u in acquired_urls), "rate limiter not called for submissions fetch"
+    assert any("beam-8k.htm" in u for u in acquired_urls), "rate limiter not called for document fetch"
+
+
+@respx.mock
+def test_edgar_document_fetch_failure_falls_back_to_metadata(caplog):
+    respx.get(_EFTS_URL).mock(return_value=Response(200, json=_SINGLE_HIT_BEAM))
+    respx.get(_BEAM_SUBMISSIONS_URL).mock(return_value=Response(503))
+
+    with caplog.at_level(logging.WARNING, logger="auspex_ingest.connectors.sec_edgar"):
+        docs = list(_connector().fetch_since(_CURSOR))
+
+    assert len(docs) == 1
+    assert "Accession:" in docs[0].raw_content
+    assert any(r.levelno >= logging.WARNING for r in caplog.records)
+
+
+@respx.mock
+def test_edgar_html_stripped_from_primary_document():
+    respx.get(_EFTS_URL).mock(return_value=Response(200, json=_SINGLE_HIT_BEAM))
+    respx.get(_BEAM_SUBMISSIONS_URL).mock(return_value=Response(200, json=_BEAM_SUBMISSIONS_JSON))
+    respx.get(_BEAM_DOC_URL).mock(
+        return_value=Response(200, text="<p>Pursuant to the requirements</p>")
+    )
+
+    docs = list(_connector().fetch_since(_CURSOR))
+    assert "<p>" not in docs[0].raw_content
+    assert "Pursuant to the requirements" in docs[0].raw_content

@@ -452,3 +452,19 @@ A3: Switch live extraction to a hosted API model going forward (Option B from th
 **Why it matters:** The live run triggers real LLM calls at scale, commits spend against the configured budget ceiling, and produces the corpus that Phase 4 statistics will be computed against. Starting it prematurely or without a sanity check on the full system state wastes that one-shot corpus opportunity and potentially the budget.
 **Options considered:** N/A — hard gate by human request.
 **Action:** Blocker 6 added to `specs/historical-backfill.md`. Waiting on human assessment before the live run proceeds.
+
+## 2026-09-25 — EDGAR content fix — VERIFIED — live 8-K fetch returns filing prose
+
+Live fetch performed against `https://efts.sec.gov/LATEST/search-index` with window 2025-08-20 to 2025-09-01.
+
+**Result (first document returned):**
+- Accession number: `0001859392-25-000049`
+- Entity: Galaxy Digital Inc. (form 8-K/A, filed 2025-08-29)
+- `raw_content` character count: 4,282 chars
+- `raw_content` sample: `"UNITED STATES SECURITIES AND EXCHANGE COMMISSION WASHINGTON, D.C. 20549 FORM 8-K/A CURRENT REPORT Pursuant to Section 13 or 15(d) of the Securities Exchange Act of 1934..."`
+
+Filing prose confirmed; metadata-only format is no longer present.
+
+**Incidental findings recorded separately:**
+1. The spec described a `-index.json` URL that does not exist on SEC servers. Correct URL for primary document lookup is `data.sec.gov/submissions/CIK{cik_padded}.json`. Spec updated.
+2. EFTS `_source` field names (`adsh`, `ciks`, `display_names`, etc.) differ from the fixtures used in unit tests. Dual-format fallbacks added to `_map` as a patch; cleanup tracked in `specs/edgar-efts-fixture-alignment.md`.

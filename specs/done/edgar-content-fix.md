@@ -1,6 +1,6 @@
 # EDGAR Content Fix
 
-**Status:** ready
+**Status:** done
 **Branch:** `feature/edgar-content-fix`
 
 ---
@@ -15,13 +15,14 @@ Phase 2 extraction: 8 of 13 false negatives were EDGAR 8-Ks with metadata-only `
 
 An extension to `SecEdgarConnector.fetch_since()` that fetches primary document text for each search result:
 
-1. Extract the CIK from the accession number: the first 10 digits, leading-zero-padded (`0001234567-23-456789` → CIK `1234567`).
-2. Fetch the filing index from `https://www.sec.gov/Archives/edgar/data/{cik}/{accession_no_nodashes}/{accession_no_dashes}-index.json`.
-3. Select the primary document (sequence "1", form type "8-K").
-4. Fetch the document from `https://www.sec.gov/Archives/edgar/data/{cik}/{accession_no_nodashes}/{primary_doc}`.
-5. Strip HTML tags; use the result as `raw_content`.
+1. Extract the CIK from the accession number: the first 10 digits, strip leading zeros (`0001234567-23-456789` → CIK `1234567`).
+2. Fetch `https://data.sec.gov/submissions/CIK{cik_zero_padded_10}.json` to get `filings.recent.primaryDocument[i]` for the matching accession number.
+3. Fetch the document from `https://www.sec.gov/Archives/edgar/data/{cik}/{accession_no_nodashes}/{primary_doc}`.
+4. Strip HTML tags; use the result as `raw_content`.
 
-Each 8-K requires two additional HTTP calls (index + document). Both must flow through the existing `rate_limited_client` and count against the 10 req/s SEC aggregate limit. Throughput with document fetching: ~3 documents/second at the limit.
+Note: the `Archives/{cik}/{accession_nodash}/index.json` directory endpoint exists but carries no sequence or form-type metadata — it cannot identify the primary document. The submissions API at `data.sec.gov` is the correct source. Both `data.sec.gov` and `www.sec.gov` subdomains count against the same 10 req/s SEC aggregate rate limit bucket.
+
+Each 8-K requires two additional HTTP calls (submissions lookup + document). Both must flow through the existing `rate_limited_client`. Throughput with document fetching: ~3 documents/second at the limit.
 
 **Fallback**: if either additional request fails (4xx, 5xx, network timeout), log at `WARNING` with accession number and status code; use the metadata-only content. Do not abort the batch. A future re-extraction via reextraction-cli can recover the full text.
 

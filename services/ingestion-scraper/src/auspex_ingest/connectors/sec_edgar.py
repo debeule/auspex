@@ -5,10 +5,12 @@ Keep the mapping thin: extract only fields that are stable across schema drift.
 """
 
 import hashlib
+import logging
 import os
 import time
 from collections.abc import Callable, Iterator
 from datetime import UTC, datetime
+from html.parser import HTMLParser
 from typing import Any, cast
 
 import httpx
@@ -18,6 +20,33 @@ from .base import SourceConnector
 from .rate_limited_client import RateLimitedClient
 
 _USER_AGENT: str = os.environ.get("SEC_USER_AGENT", "")
+
+_log = logging.getLogger(__name__)
+
+
+def _cik_from_accession(accession_no: str) -> str:
+    """Return the numeric CIK (no leading zeros) from the first segment of an accession number."""
+    return str(int(accession_no.split("-")[0]))
+
+
+class _HTMLStripper(HTMLParser):
+    def __init__(self) -> None:
+        super().__init__()
+        self._parts: list[str] = []
+
+    def handle_data(self, data: str) -> None:
+        stripped = data.strip()
+        if stripped:
+            self._parts.append(stripped)
+
+    def get_text(self) -> str:
+        return " ".join(self._parts)
+
+
+def _strip_html(html: str) -> str:
+    stripper = _HTMLStripper()
+    stripper.feed(html)
+    return stripper.get_text()
 
 _EFTS_URL = "https://efts.sec.gov/LATEST/search-index"
 _FORMS = "8-K,8-K/A"
@@ -68,6 +97,11 @@ class SecEdgarConnector(SourceConnector):
                 source = hit.get("_source") or {}
                 doc = self._map(source, retrieved_at)
                 if doc is not None:
+                    accession_no: str = str(source.get("accession_no") or source.get("adsh") or "")
+                    text = self._fetch_primary_document_text(accession_no)
+                    if text is not None:
+                        sha = hashlib.sha256(text.encode()).hexdigest()
+                        doc = doc.model_copy(update={"raw_content": text, "content_sha256": sha})
                     yield doc
 
             from_ += len(hits)
@@ -75,7 +109,8 @@ class SecEdgarConnector(SourceConnector):
                 break
 
     def _map(self, source: dict[str, Any], retrieved_at: datetime) -> RawDocument | None:
-        accession_no: str = str(source.get("accession_no") or "")
+        # EFTS uses "adsh" in the live API; fixtures use "accession_no"
+        accession_no: str = str(source.get("accession_no") or source.get("adsh") or "")
         if not accession_no:
             return None
 
@@ -83,11 +118,18 @@ class SecEdgarConnector(SourceConnector):
         if not file_date:
             return None
 
-        entity_id: str = str(source.get("entity_id") or "")
-        entity_name: str = str(source.get("entity_name") or "")
-        form_type: str = str(source.get("form_type") or "")
-        period: str = str(source.get("period_of_report") or "")
-        items: str = str(source.get("items") or "")
+        # Live API: entity_id is in "ciks" list; fixtures use scalar "entity_id"
+        _entity_id_raw = source.get("entity_id") or (source.get("ciks") or [""])[0]
+        entity_id: str = str(_entity_id_raw).lstrip("0") or str(_entity_id_raw)
+        # Live API: name is in "display_names" list; fixtures use scalar "entity_name"
+        _name_raw = source.get("entity_name") or (source.get("display_names") or [""])[0]
+        entity_name: str = str(_name_raw).split("(")[0].strip()
+        # Live API: "form" or "file_type"; fixtures use "form_type"
+        form_type: str = str(source.get("form_type") or source.get("form") or source.get("file_type") or "")
+        period: str = str(source.get("period_of_report") or source.get("period_ending") or "")
+        # Live API: items is a list; fixtures use a scalar string
+        _items_raw = source.get("items") or []
+        items: str = ", ".join(_items_raw) if isinstance(_items_raw, list) else str(_items_raw)
 
         published_date = datetime.strptime(file_date, "%Y-%m-%d").replace(tzinfo=UTC)
 
@@ -119,6 +161,53 @@ class SecEdgarConnector(SourceConnector):
             content_sha256=sha,
             retrieved_at=retrieved_at,
         )
+
+    def _fetch_primary_document_text(self, accession_no: str) -> str | None:
+        if not accession_no:
+            return None
+        try:
+            cik = _cik_from_accession(accession_no)
+            cik_padded = cik.zfill(10)
+            accession_nodash = accession_no.replace("-", "")
+            headers = {"User-Agent": self._user_agent}
+
+            # data.sec.gov/submissions returns primaryDocument per accession number
+            submissions_url = f"https://data.sec.gov/submissions/CIK{cik_padded}.json"
+            sub_resp = self._client.get(submissions_url, headers=headers)
+            if sub_resp.status_code >= 400:
+                _log.warning(
+                    "edgar submissions fetch failed: accession=%s status=%d",
+                    accession_no,
+                    sub_resp.status_code,
+                )
+                return None
+
+            recent = sub_resp.json().get("filings", {}).get("recent", {})
+            acc_nums: list[str] = recent.get("accessionNumber") or []
+            if accession_no not in acc_nums:
+                return None
+            idx = acc_nums.index(accession_no)
+            primary_doc: str = (recent.get("primaryDocument") or [])[idx]
+            if not primary_doc:
+                return None
+
+            doc_url = (
+                f"https://www.sec.gov/Archives/edgar/data/{cik}"
+                f"/{accession_nodash}/{primary_doc}"
+            )
+            doc_resp = self._client.get(doc_url, headers=headers)
+            if doc_resp.status_code >= 400:
+                _log.warning(
+                    "edgar document fetch failed: accession=%s status=%d",
+                    accession_no,
+                    doc_resp.status_code,
+                )
+                return None
+
+            return _strip_html(doc_resp.text) or None
+        except Exception as exc:  # noqa: BLE001
+            _log.warning("edgar document fetch error: accession=%s exc=%s", accession_no, exc)
+            return None
 
     def _get_json(self, params: dict[str, str]) -> dict[str, Any]:
         headers = {"User-Agent": self._user_agent}

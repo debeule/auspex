@@ -7,6 +7,7 @@
 3. `extraction-backend` spec must be done first: the cutoff guard reads the model registry, the gate record check runs at startup, and the lineage report requires pinned `extraction_model` values in `signal_extraction_history`.
 4. `model-evaluation` spec must be done first: dry-run wall-clock estimate for local backends reads the latency record from `evaluate_model.py`.
 5. `golden-set-expansion` spec must be done first: gate records for the chosen model on the expanded (multi-gene-target) golden set must exist before running at scale.
+6. **Human project review** — the live run (any invocation without `--dry-run`) is gated on explicit human sign-off. The dry run may be executed freely; the live run must not be started until the review has concluded and continuation is confirmed. See `DECISIONS.md` 2026-09-20 BLOCKED.
 
 **Recommended before starting (not a hard blocker but significantly affects signal yield):** `edgar-content-fix` spec — without it, EDGAR 8-K documents in the backfill window will produce metadata-only `raw_content` and no extractable signals (8 of 13 Phase 2 FNs were this failure mode).
 
