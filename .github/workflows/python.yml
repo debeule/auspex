@@ -26,6 +26,9 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+      - name: Pull test container images
+        run: docker pull minio/minio:RELEASE.2022-12-02T19-19-22Z
+
       - name: Set up Python 3.14
         uses: actions/setup-python@v5
         with:
