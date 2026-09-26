@@ -1,6 +1,6 @@
 # Watchlist UI
 
-**Status:** ready
+**Status:** done
 **Branch:** `feature/watchlist-ui`
 
 ---
