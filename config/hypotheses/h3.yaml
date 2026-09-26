@@ -1,0 +1,16 @@
+id: h3
+version: 1
+description: "Pre-announcement drift — diagnostic comparison of pre- vs post-corroboration windows"
+signal_definition:
+  variant: entity-only
+  filter: none
+  join_field: corroborated_at
+  note: "H1 events; compare cumulative abnormal return in [-20, -1] vs [+1, +20] relative to corroborated_at"
+entry_timing_days: 0
+holding_period_days_pre: [-20, -1]
+holding_period_days_post: [1, 20]
+benchmark: XBI
+exit: diagnostic
+direction: diagnostic
+status: pre-registered
+registered_at: "2026-09-20T00:00:00Z"

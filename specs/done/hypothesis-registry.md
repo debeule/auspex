@@ -1,6 +1,6 @@
 # Hypothesis Registry
 
-**Status:** ready
+**Status:** done
 **Branch:** `feature/hypothesis-registry`
 
 ---

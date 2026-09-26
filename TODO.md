@@ -17,7 +17,7 @@ Each line links to a self-contained spec in `specs/`. Open the spec and read it 
 | [Performance metrics](specs/done/performance-metrics.md) | `done` | 8 tests; variant field on MetricsReport; compute_both_variants; entity-only vs full filtering |
 | [Watchlist backend](specs/done/watchlist-backend.md) | `done` | 11 tests (8 unit + 3 integration); Flyway V3; CRUD + preview + summary; SecTickerCache; WireMock CT stub |
 | [Watchlist UI](specs/done/watchlist-ui.md) | `done` | 8 tests; WatchlistPage, CompanyDetail; NavBar; /watchlist + /watchlist/[ticker] routes |
-| [Hypothesis registry](specs/hypothesis-registry.md) | `ready` | Pre-registration system; SHA-256 hash check; append-only trial log; deflated Sharpe reads trial count |
+| [Hypothesis registry](specs/done/hypothesis-registry.md) | `done` | 6 tests; hypothesis.py; register_hypothesis.py; config/hypotheses/h1–h8.yaml; registry.jsonl |
 | [Market simulation](specs/market-simulation.md) | `blocked` | Blocked by backtesting entity-only variant; MarketCalendar (NYSE), FillModel, CostModel (TOB), CurrencyConverter, PositionSizer |
 | [Evaluation protocol](specs/evaluation-protocol.md) | `blocked` | Blocked by market-simulation + performance-metrics entity-only; abnormal returns vs XBI, walk-forward, deflated Sharpe, holdout |
 | [Strategy framework](specs/strategy-framework.md) | `ready` | Plugin contract: Strategy ABC, AsOfContext, TradeIntent, StrategyRegistry, versioning, 8 seed stubs; after hypothesis-registry |
@@ -80,3 +80,4 @@ Each line links to a self-contained spec in `specs/`. Open the spec and read it 
 | 2026-09-25 | Performance metrics | Done — 8 tests green; variant field on MetricsReport; compute_both_variants; entity-only vs full filtering | No |
 | 2026-09-25 | Watchlist backend | Done — 11 tests green (8 unit + 3 integration); Flyway V3; CRUD + preview + summary; GlobalExceptionHandler ResponseStatusException fix | No |
 | 2026-09-26 | Watchlist UI | Done — 8 tests green (13 total); WatchlistPage, CompanyDetail, NavBar; /watchlist + /watchlist/[ticker] routes | No |
+| 2026-09-26 | Hypothesis registry | Done — 6 tests green; hypothesis.py; register_hypothesis.py; h1–h8.yaml; registry.jsonl | No |

@@ -1,0 +1,15 @@
+id: h6
+version: 1
+description: "Gene target novelty premium — first corroboration per (ticker, gene_target) pair"
+signal_definition:
+  variant: entity-only
+  filter: first_appearance
+  join_field: corroborated_at
+  note: "Novel = no prior corroboration for the same (ticker, gene_target) within the 24-month window"
+entry_timing_days: 1
+holding_period_days: [20]
+benchmark: XBI
+exit: fixed_horizon_close
+direction: long
+status: pre-registered
+registered_at: "2026-09-20T00:00:00Z"

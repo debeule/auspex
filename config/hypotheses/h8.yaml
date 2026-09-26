@@ -1,0 +1,15 @@
+id: h8
+version: 1
+description: "Negative directionality asymmetry — short-side negative corroborations show fast concentrated moves"
+signal_definition:
+  variant: full
+  filter: negative_directionality
+  join_field: corroborated_at
+  note: "H4 negative subset: both contributing signals have directionality=negative; short position"
+entry_timing_days: 1
+holding_period_days: [1, 3, 5]
+benchmark: XBI
+exit: fixed_horizon_close
+direction: short
+status: pre-registered
+registered_at: "2026-09-20T00:00:00Z"

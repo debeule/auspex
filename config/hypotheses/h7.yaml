@@ -1,0 +1,15 @@
+id: h7
+version: 1
+description: "Confidence score gradient — above-median confidence pairs yield larger abnormal returns"
+signal_definition:
+  variant: full
+  filter: above_median_confidence
+  join_field: corroborated_at
+  note: "H1 events split by above-median vs below-median mean confidence_score of the two contributing signals"
+entry_timing_days: 1
+holding_period_days: [20]
+benchmark: XBI
+exit: fixed_horizon_close
+direction: long
+status: pre-registered
+registered_at: "2026-09-20T00:00:00Z"

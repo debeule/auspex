@@ -1,0 +1,15 @@
+id: h4
+version: 1
+description: "Directional premium over entity-only baseline — LLM directionality adds return signal"
+signal_definition:
+  variant: full
+  filter: same_directionality
+  join_field: corroborated_at
+  note: "Both contributing signals share the same directionality; mixed pairs excluded"
+entry_timing_days: 1
+holding_period_days: [5, 10, 20, 30]
+benchmark: XBI
+exit: fixed_horizon_close
+direction: long_and_short
+status: pre-registered
+registered_at: "2026-09-20T00:00:00Z"

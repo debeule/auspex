@@ -1,0 +1,14 @@
+id: h1
+version: 1
+description: "Structural convergence premium — entity-only corroboration precedes abnormal return"
+signal_definition:
+  variant: entity-only
+  filter: none
+  join_field: corroborated_at
+entry_timing_days: 1
+holding_period_days: [5, 10, 20, 30]
+benchmark: XBI
+exit: fixed_horizon_close
+direction: long
+status: pre-registered
+registered_at: "2026-09-20T00:00:00Z"
