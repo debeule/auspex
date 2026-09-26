@@ -1,6 +1,6 @@
 # Strategy Framework
 
-**Status:** ready
+**Status:** done
 **Branch:** `feature/strategy-framework`
 
 ---

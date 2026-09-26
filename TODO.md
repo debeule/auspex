@@ -20,7 +20,7 @@ Each line links to a self-contained spec in `specs/`. Open the spec and read it 
 | [Hypothesis registry](specs/done/hypothesis-registry.md) | `done` | 6 tests; hypothesis.py; register_hypothesis.py; config/hypotheses/h1–h8.yaml; registry.jsonl |
 | [Market simulation](specs/market-simulation.md) | `blocked` | Blocked by backtesting entity-only variant; MarketCalendar (NYSE), FillModel, CostModel (TOB), CurrencyConverter, PositionSizer |
 | [Evaluation protocol](specs/evaluation-protocol.md) | `blocked` | Blocked by market-simulation + performance-metrics entity-only; abnormal returns vs XBI, walk-forward, deflated Sharpe, holdout |
-| [Strategy framework](specs/strategy-framework.md) | `ready` | Plugin contract: Strategy ABC, AsOfContext, TradeIntent, StrategyRegistry, versioning, 8 seed stubs; after hypothesis-registry |
+| [Strategy framework](specs/done/strategy-framework.md) | `done` | 9 tests; Strategy ABC, AsOfContext, TradeIntent, StrategyRegistry, versioning; 6 seed stubs (H1, H4–H8) |
 | [Strategy runtime](specs/strategy-runtime.md) | `blocked` | Blocked by strategy-framework + market-simulation; BacktestReplayRunner, StreamingRuntime, VirtualBook, InputHealthMonitor |
 | [Portfolio and risk](specs/portfolio-and-risk.md) | `blocked` | Blocked by strategy-runtime + market-simulation; KellySizer, exposure limits, binary-event guard, short guards, kill switches |
 | [Strategy metrics](specs/strategy-metrics.md) | `blocked` | Blocked by strategy-framework + hypothesis-registry + evaluation-protocol; activity funnel, deflated Sharpe, correlation matrix, API |
@@ -81,3 +81,4 @@ Each line links to a self-contained spec in `specs/`. Open the spec and read it 
 | 2026-09-25 | Watchlist backend | Done — 11 tests green (8 unit + 3 integration); Flyway V3; CRUD + preview + summary; GlobalExceptionHandler ResponseStatusException fix | No |
 | 2026-09-26 | Watchlist UI | Done — 8 tests green (13 total); WatchlistPage, CompanyDetail, NavBar; /watchlist + /watchlist/[ticker] routes | No |
 | 2026-09-26 | Hypothesis registry | Done — 6 tests green; hypothesis.py; register_hypothesis.py; h1–h8.yaml; registry.jsonl | No |
+| 2026-09-26 | Strategy framework | Done — 9 tests green; services/strategy/; Strategy ABC, AsOfContext, StrategyRegistry, VersionConflictError; 6 seed stubs | No |
