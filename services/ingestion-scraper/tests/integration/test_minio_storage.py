@@ -19,7 +19,7 @@ _UTC = UTC
 _T1 = datetime(2024, 6, 15, 10, 0, 0, tzinfo=_UTC)
 _T2 = datetime(2024, 6, 15, 10, 0, 1, tzinfo=_UTC)
 _BUCKET = "auspex-test"
-_MINIO_IMAGE = "minio/minio:RELEASE.2022-12-02T19-19-22Z"
+_MINIO_IMAGE = "quay.io/minio/minio:RELEASE.2022-12-02T19-19-22Z"
 
 
 @pytest.fixture(scope="module")
