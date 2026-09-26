@@ -479,3 +479,13 @@ Filing prose confirmed; metadata-only format is no longer present.
 **Incidental findings recorded separately:**
 1. The spec described a `-index.json` URL that does not exist on SEC servers. Correct URL for primary document lookup is `data.sec.gov/submissions/CIK{cik_padded}.json`. Spec updated.
 2. EFTS `_source` field names (`adsh`, `ciks`, `display_names`, etc.) differ from the fixtures used in unit tests. Dual-format fallbacks added to `_map` as a patch; cleanup tracked in `specs/edgar-efts-fixture-alignment.md`.
+
+## 2026-09-26 — Python CI — BLOCKED — quay.io requires authentication on GitHub Actions runners
+
+**What:** Python integration tests (`test_minio_storage.py`, `test_api_integration.py`, `test_reextract_integration.py`) pull `quay.io/minio/minio:RELEASE.2025-09-07T16-13-09Z` via testcontainers. quay.io now returns 500/"unauthorized" on GitHub Actions runners without an authenticated pull. This broke CI across all branches from the watchlist-backend push onwards.
+**Why it matters:** 5 integration tests are erroring at fixture setup, blocking the Python CI check on every push.
+**Action:** Added `Login to Quay.io` step to `.github/workflows/python.yml` (same `docker/login-action@v3` pattern as Docker Hub, `continue-on-error: true`). **You must add two GitHub repository secrets** for this to take effect:
+- `QUAY_IO_USERNAME` — your quay.io username or robot account name
+- `QUAY_IO_PASSWORD` — your quay.io password or robot account token
+
+Create a free account at quay.io if you don't have one. No organisation-specific permissions needed — this is just to authenticate pulls of a public image.
