@@ -18,7 +18,7 @@ from auspex_ingest.storage.minio_client import MinioArchive
 _UTC = UTC
 _T0 = datetime(2024, 6, 15, 12, 0, 0, tzinfo=_UTC)
 _BUCKET = "auspex-test"
-_MINIO_IMAGE = "quay.io/minio/minio:RELEASE.2025-09-07T16-13-09Z"
+_MINIO_IMAGE = "minio/minio:RELEASE.2022-12-02T19-19-22Z"
 _SCHEMA_VERSION = "1.0"
 _PROMPT_VERSION = "v1"
 _PREFILTER_VERSION = "v1"
