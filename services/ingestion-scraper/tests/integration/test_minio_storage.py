@@ -19,38 +19,34 @@ _UTC = UTC
 _T1 = datetime(2024, 6, 15, 10, 0, 0, tzinfo=_UTC)
 _T2 = datetime(2024, 6, 15, 10, 0, 1, tzinfo=_UTC)
 _BUCKET = "auspex-test"
-_MINIO_IMAGE = "quay.io/minio/minio:RELEASE.2022-12-02T19-19-22Z"
+_LOCALSTACK_IMAGE = "localstack/localstack:2026.09.0"
 
 
 @pytest.fixture(scope="module")
 def minio_client():
     container = (
-        DockerContainer(_MINIO_IMAGE)
-        .with_exposed_ports(9000)
-        .with_env("MINIO_ROOT_USER", "minioadmin")
-        .with_env("MINIO_ROOT_PASSWORD", "minioadmin")
-        .with_command("server /data --address :9000")
+        DockerContainer(_LOCALSTACK_IMAGE)
+        .with_exposed_ports(4566)
+        .with_env("SERVICES", "s3")
     )
     with container:
-        # Poll until Docker has finished binding the port
         for _ in range(30):
             try:
-                port = container.get_exposed_port(9000)
+                port = container.get_exposed_port(4566)
                 break
             except Exception:  # noqa: BLE001
                 time.sleep(0.5)
         else:
-            pytest.fail("MinIO port never became available")
+            pytest.fail("LocalStack port never became available")
 
         host = container.get_container_host_ip()
         client = Minio(
             f"{host}:{port}",
-            access_key="minioadmin",
-            secret_key="minioadmin",
+            access_key="test",
+            secret_key="test",
             secure=False,
         )
 
-        # Poll until MinIO is accepting requests
         for _ in range(30):
             try:
                 client.list_buckets()
@@ -58,7 +54,7 @@ def minio_client():
             except Exception:  # noqa: BLE001
                 time.sleep(0.5)
         else:
-            pytest.fail("MinIO never became ready")
+            pytest.fail("LocalStack never became ready")
 
         client.make_bucket(_BUCKET)
         yield client

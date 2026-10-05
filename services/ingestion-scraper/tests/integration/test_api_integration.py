@@ -28,7 +28,7 @@ from auspex_ingest.storage.minio_client import MinioArchive
 
 os.environ.setdefault("TESTCONTAINERS_RYUK_DISABLED", "true")
 
-_MINIO_IMAGE = "quay.io/minio/minio:RELEASE.2022-12-02T19-19-22Z"
+_LOCALSTACK_IMAGE = "localstack/localstack:2026.09.0"
 _BUCKET = "auspex-test-api"
 _RAW_TOPIC = "auspex.raw.ingested"
 _SIG_TOPIC = "auspex.signals.extracted"
@@ -88,17 +88,15 @@ def _drain(bootstrap: str, topic: str, timeout_s: float = 15.0) -> list:
 @pytest.mark.integration
 def test_ingest_round_trip_publishes_signal_to_kafka():
     minio_container = (
-        DockerContainer(_MINIO_IMAGE)
-        .with_exposed_ports(9000)
-        .with_env("MINIO_ROOT_USER", "minioadmin")
-        .with_env("MINIO_ROOT_PASSWORD", "minioadmin")
-        .with_command("server /data --address :9000")
+        DockerContainer(_LOCALSTACK_IMAGE)
+        .with_exposed_ports(4566)
+        .with_env("SERVICES", "s3")
     )
 
     with minio_container as minio_ctr, KafkaContainer().with_kraft() as kafka:
         for _ in range(30):
             try:
-                minio_port = minio_ctr.get_exposed_port(9000)
+                minio_port = minio_ctr.get_exposed_port(4566)
                 break
             except Exception:  # noqa: BLE001
                 time.sleep(0.5)
@@ -106,8 +104,8 @@ def test_ingest_round_trip_publishes_signal_to_kafka():
         minio_host = minio_ctr.get_container_host_ip()
         minio_client = Minio(
             f"{minio_host}:{minio_port}",
-            access_key="minioadmin",
-            secret_key="minioadmin",
+            access_key="test",
+            secret_key="test",
             secure=False,
         )
         for _ in range(30):
