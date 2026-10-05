@@ -1,7 +1,3 @@
-"""SEC EDGAR material disclosures connector tests.
-
-All HTTP calls are intercepted by respx. pytest-socket ensures no live calls.
-"""
 
 import json
 import logging

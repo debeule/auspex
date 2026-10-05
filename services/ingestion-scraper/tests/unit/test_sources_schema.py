@@ -1,4 +1,3 @@
-"""sources.yaml schema validation — SourceEntry and SourcesConfig Pydantic models."""
 
 import pytest
 from pydantic import ValidationError

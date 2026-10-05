@@ -3,7 +3,6 @@ package dev.auspex.corehub.signal;
 import java.util.Set;
 
 /**
- * Parses and compares schema_version strings as integer pairs.
  * "1.10" must be greater than "1.9" — string comparison gets this wrong.
  */
 public record SchemaVersion(int major, int minor) implements Comparable<SchemaVersion> {

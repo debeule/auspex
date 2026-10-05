@@ -145,7 +145,6 @@ def _within_window(events: list[BacktestEvent]) -> list[BacktestEvent]:
     span = max(dates) - min(dates)
     if span <= timedelta(days=_CORROBORATION_WINDOW_DAYS):
         return events
-    # Keep events within 90 days of the earliest
     anchor = min(dates)
     return [e for e in events if e.entry_date - anchor <= timedelta(days=_CORROBORATION_WINDOW_DAYS)]
 

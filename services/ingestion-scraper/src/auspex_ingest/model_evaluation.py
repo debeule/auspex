@@ -1,4 +1,3 @@
-"""Core computation functions for model evaluation scripts."""
 from __future__ import annotations
 
 import random

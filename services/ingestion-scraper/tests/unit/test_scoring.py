@@ -1,4 +1,3 @@
-"""Unit tests — extraction quality harness: golden set coverage and scoring."""
 from datetime import UTC, datetime
 from pathlib import Path
 from unittest.mock import MagicMock

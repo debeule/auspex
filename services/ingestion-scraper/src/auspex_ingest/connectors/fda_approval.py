@@ -1,5 +1,3 @@
-"""openFDA drug approvals connector (drugsfda endpoint)."""
-
 import hashlib
 import time
 from collections.abc import Callable, Iterator
@@ -24,7 +22,7 @@ _ACTION_LABELS: dict[str, str] = {
 
 
 class QuotaExhaustedError(RuntimeError):
-    """Raised when openFDA returns HTTP 429 (daily query limit reached)."""
+    pass
 
 
 class FdaApprovalConnector(SourceConnector):

@@ -1,4 +1,3 @@
-"""Unit tests — RawDocument model, SourceConnector ABC, MinIO key generation."""
 
 import inspect
 from collections.abc import Iterator

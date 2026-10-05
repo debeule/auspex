@@ -1,8 +1,5 @@
-"""SEC EDGAR material disclosures connector (EFTS full-text search endpoint).
-
-EFTS is undocumented — no published parameter list or schema commitment.
-Keep the mapping thin: extract only fields that are stable across schema drift.
-"""
+# EFTS is undocumented — no published parameter list or schema commitment.
+# Keep the mapping thin: extract only fields that are stable across schema drift.
 
 import hashlib
 import logging
@@ -25,7 +22,6 @@ _log = logging.getLogger(__name__)
 
 
 def _cik_from_accession(accession_no: str) -> str:
-    """Return the numeric CIK (no leading zeros) from the first segment of an accession number."""
     return str(int(accession_no.split("-")[0]))
 
 

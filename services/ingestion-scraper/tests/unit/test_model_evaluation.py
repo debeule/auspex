@@ -1,8 +1,3 @@
-"""Model evaluation script unit tests.
-
-Computation functions live in auspex_ingest.model_evaluation; scripts are thin wrappers.
-All LLM calls are stubbed; sockets are disabled by pytest-socket.
-"""
 from auspex_ingest.golden import GoldenDocument
 from auspex_ingest.model_evaluation import (
     compute_candidate_scores,

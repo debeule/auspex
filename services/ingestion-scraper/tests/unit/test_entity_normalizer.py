@@ -1,8 +1,3 @@
-"""Entity and ticker resolution tests.
-
-Covers the HgncEntityNormalizer: gene synonym normalization and
-company→ticker resolution seeded from the SEC company_tickers.json mapping.
-"""
 
 import hashlib
 import json

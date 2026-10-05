@@ -1,7 +1,3 @@
-"""Airflow DAG entry point — calls ingestion-scraper HTTP API.
-
-No imports from auspex_ingest. Airflow only needs requests + stdlib.
-"""
 from __future__ import annotations
 
 import os

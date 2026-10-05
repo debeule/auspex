@@ -1,16 +1,6 @@
 #!/usr/bin/env python
-"""Cross-model agreement — quantify how interchangeable two models are for backtesting.
-
-Usage:
-    uv run python scripts/compare_models.py \\
-        --model-a gpt-4o-mini-2024-07-18 --model-b gemma3:27b-instruct-q4_K_M \\
-        [--registry config/models/registry.yaml] \\
-        [--seed 42] [--sample 100]
-
-Pulls documents from MinIO; does not call connectors. Results are reproducible
-from archived data alone.
-Never run in CI.
-"""
+# Pulls from MinIO, does not call connectors — results are reproducible from archived data alone.
+# Never run in CI.
 import argparse
 import hashlib
 import json

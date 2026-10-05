@@ -1,4 +1,3 @@
-"""Unit tests — EPO OPS patent connector."""
 
 import hashlib
 import json

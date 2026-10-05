@@ -1,14 +1,5 @@
 #!/usr/bin/env python
-"""Leakage canary — check whether a model already knows outcomes it will extract.
-
-Usage:
-    uv run python scripts/check_leakage.py --model gemma3:27b-instruct-q4_K_M \\
-        [--manifest tests/fixtures/leakage_outcomes.jsonl] \\
-        [--registry config/models/registry.yaml] \\
-        [--seed 42] [--sample N]
-
-Never run in CI. Flags months with ≥70% correct answers after the model's claimed cutoff.
-"""
+# Never run in CI. Flags months with ≥70% correct answers after the model's claimed cutoff.
 import argparse
 import json
 import os

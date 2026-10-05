@@ -1,4 +1,3 @@
-"""Golden set loading and extraction quality scoring."""
 import json
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -33,7 +32,6 @@ def load_golden_set(golden_dir: Path) -> list[GoldenDocument]:
 
 
 def score_field(predicted: list[str], expected: list[str]) -> dict[str, float]:
-    """Set-based precision/recall/F1 for a single list field."""
     pred_set = set(predicted)
     exp_set = set(expected)
     if not exp_set and not pred_set:

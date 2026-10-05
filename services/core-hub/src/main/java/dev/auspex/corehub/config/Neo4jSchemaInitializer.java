@@ -7,7 +7,6 @@ import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
 /**
- * Creates Neo4j constraints and indexes idempotently at startup.
  * Uses `CREATE CONSTRAINT ... IF NOT EXISTS` (Neo4j 2026.05 calendar-versioned syntax).
  * Records a (:GraphSchema {version}) node so schema changes are traceable.
  */

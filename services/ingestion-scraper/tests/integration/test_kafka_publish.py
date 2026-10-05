@@ -1,4 +1,3 @@
-"""Integration test — pipeline publishes correct message counts to Kafka topics."""
 import hashlib
 import os
 import time

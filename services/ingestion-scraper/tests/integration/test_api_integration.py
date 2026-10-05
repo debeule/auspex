@@ -1,4 +1,3 @@
-"""Integration test — ingest round-trip via the Flask API with real MinIO + Kafka containers."""
 
 import hashlib
 import json

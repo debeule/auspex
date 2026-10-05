@@ -1,16 +1,6 @@
 #!/usr/bin/env python
-"""Candidate model comparison against the golden set.
-
-Usage:
-    uv run python scripts/evaluate_model.py --model gemma3:27b-instruct-q4_K_M \\
-        [--golden-dir tests/golden] [--prompt-version v1.0] \\
-        [--prefilter-vocab config/gene_vocab.txt] \\
-        [--registry config/models/registry.yaml] \\
-        [--seed 42] [--sample N]
-
-Writes a latency record to config/models/latency/<model_slug>.json.
-Never run in CI — makes live LLM calls.
-"""
+# Writes a latency record to config/models/latency/<model_slug>.json.
+# Never run in CI — makes live LLM calls.
 import argparse
 import json
 import os

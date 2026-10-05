@@ -1,10 +1,7 @@
-"""EPO Open Patent Services (OPS) connector.
-
-Two-step fetch: search → publication references, then batch biblio for full data.
-Auth: OAuth2 client credentials; token expires in 20 min, refreshed 60s before expiry.
-Rate limit: 2.5 req/s standard tier; configured at 2.0 req/s.
-Date field: publication date (A1 pre-grant), never filing date.
-"""
+# Two-step fetch: search → publication references, then batch biblio for full data.
+# Auth: OAuth2 client credentials; token expires in 20 min, refreshed 60s before expiry.
+# Rate limit: 2.5 req/s standard tier; configured at 2.0 req/s.
+# Date field: publication date (A1 pre-grant), never filing date.
 from __future__ import annotations
 
 import base64
@@ -131,7 +128,6 @@ class EpoOpsConnector(SourceConnector):
     def _search_page(
         self, query: str, begin: int, end: int, token: str
     ) -> tuple[list[tuple[str, str, str]], int]:
-        """Returns list of (country, doc_number, kind) and total result count."""
         url = f"{self._base_url}/published-data/search"
         last_resp: httpx.Response | None = None
 

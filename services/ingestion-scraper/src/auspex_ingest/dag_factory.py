@@ -1,4 +1,3 @@
-"""DAG factory — pure configuration, no Airflow or connector imports."""
 from __future__ import annotations
 
 from collections.abc import Callable
@@ -15,8 +14,6 @@ from .sources import SourceEntry, SourcesConfig
 
 @dataclass(frozen=True)
 class DagConfig:
-    """Airflow DAG specification, independent of the Airflow library."""
-
     dag_id: str
     schedule: str
     catchup: bool
@@ -33,11 +30,7 @@ def build_dags(
     set_var: Callable[[str, str], None] | None = None,
     now: Callable[[], datetime] | None = None,
 ) -> list[DagConfig]:
-    """Return one DagConfig per sources.yaml entry.
-
-    The Airflow entry point (dags/auspex_dags.py) wraps each DagConfig into
-    an actual airflow.DAG object. dag_factory itself never imports Airflow.
-    """
+    # dags/auspex_dags.py wraps each DagConfig into an airflow.DAG; this module never imports Airflow.
     _get = get_var or _airflow_get_var
     _set = set_var or _airflow_set_var
     _now = now or (lambda: datetime.now(UTC))
@@ -84,7 +77,6 @@ def run_with_cursor(
     set_var: Callable[[str, str], None],
     now: Callable[[], datetime],
 ) -> RunResult:
-    """Read cursor Variable, run the pipeline, write back on success."""
     cursor_key = f"cursor:{source_type}"
     cursor_str = get_var(cursor_key, None)
     cursor = (

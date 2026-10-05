@@ -1,4 +1,3 @@
-"""Integration tests — MinioArchive refetch behaviour against a real MinIO container."""
 
 import hashlib
 import os

@@ -1,4 +1,3 @@
-"""Corroboration sampling tests."""
 from auspex_ingest.sampling import sample_corroborations
 
 

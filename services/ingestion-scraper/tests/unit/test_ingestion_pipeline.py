@@ -1,4 +1,3 @@
-"""Unit tests — ResearchSignalEvent, identity, pre-filter, extractor, pipeline, producer."""
 
 import json
 from datetime import UTC, datetime

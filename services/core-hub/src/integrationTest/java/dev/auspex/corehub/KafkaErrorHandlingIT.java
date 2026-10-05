@@ -37,9 +37,7 @@ class KafkaErrorHandlingIT extends AbstractIT {
         publish(SIGNAL_TOPIC, validSignalJson()); // should be processed after the poison message
 
         await().atMost(20, SECONDS).untilAsserted(() -> {
-            // DLT gets the poison message
             assertThat(testDltListener.signalDltRecords()).hasSize(1);
-            // The valid message is processed into the DB
             Integer cnt = jdbcTemplate.queryForObject(
                     "SELECT COUNT(*) FROM signal_current WHERE event_id = ?",
                     Integer.class, UUID.fromString(BASE_EVENT_ID));
@@ -62,7 +60,6 @@ class KafkaErrorHandlingIT extends AbstractIT {
     void test_transient_failure_is_retried_and_then_succeeds() throws Exception {
         // With FixedBackOff(1000L, 2), a transient deserialization failure retries up to 2 times.
         // A single malformed message goes to DLT after exhausting retries.
-        // This test ensures a second, valid message is processed after the poison one recovers.
         publish(SIGNAL_TOPIC, "{\"schema_version\": \"1.0\", \"event_id\": null}"); // invalid: null UUID
 
         await().atMost(15, SECONDS).untilAsserted(() ->

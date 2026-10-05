@@ -1,11 +1,4 @@
-"""
-Integration tests — compose infrastructure: container reachability, Kafka topics, MinIO bucket.
-
-Prerequisites (run once before this suite):
-    docker compose -f docker/docker-compose.yml up -d --wait
-    ./docker/provision.sh
-"""
-
+# Prerequisites: docker compose -f docker/docker-compose.yml up -d --wait && ./docker/provision.sh
 import socket
 import subprocess
 

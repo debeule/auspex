@@ -1,4 +1,3 @@
-"""HTTP client with per-host token-bucket rate limiting."""
 from __future__ import annotations
 
 import time
@@ -10,12 +9,10 @@ import httpx
 
 
 class RateLimitExceeded(Exception):
-    """Raised when a request exceeds the configured per-host rate limit."""
+    pass
 
 
 class _TokenBucket:
-    """Token bucket with injectable clock for testability."""
-
     def __init__(self, rate_rps: float, clock: Callable[[], float]) -> None:
         self._rate = rate_rps
         self._tokens = rate_rps  # start full (1 second of capacity)
@@ -34,12 +31,7 @@ class _TokenBucket:
 
 
 class RateLimitedClient:
-    """Wraps `httpx.Client` with per-host token-bucket rate limiting.
-
-    Every connector must issue HTTP through one shared instance of this class
-    so that the per-host buckets are shared across connectors that hit the
-    same host.
-    """
+    """Must be shared across connectors so per-host buckets are not bypassed."""
 
     def __init__(
         self,

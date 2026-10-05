@@ -1,5 +1,3 @@
-"""PubMed E-utilities connector — esearch + efetch."""
-
 import hashlib
 import time
 from collections.abc import Callable, Iterator

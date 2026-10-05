@@ -1,12 +1,3 @@
-"""Deduplication and amendment precedence tests.
-
-Verifies the canonical marker system:
-  - archive is always unconditional (invariant 13)
-  - content_sha256 gate skips same-source unchanged refetches
-  - canonical marker skips cross-source mirrored documents
-  - markers are written only after successful publish
-  - failed marker write causes at most one redundant extraction, never an error
-"""
 
 import hashlib
 from datetime import UTC, datetime

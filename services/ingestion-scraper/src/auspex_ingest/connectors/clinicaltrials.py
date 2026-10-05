@@ -1,5 +1,3 @@
-"""ClinicalTrials.gov API v2 connector."""
-
 import hashlib
 import time
 from collections.abc import Callable, Iterator
@@ -88,7 +86,6 @@ class ClinicalTrialConnector(SourceConnector):
         pub_date_str = last_update_date if is_amendment else (first_post_date or last_update_date)
         published_date = datetime.strptime(pub_date_str, "%Y-%m-%d").replace(tzinfo=UTC)
 
-        # Both date fields retained in raw_content.
         raw_content = (
             f"{title}\n\n{summary}\n\n"
             f"NCT ID: {nct_id}\n"

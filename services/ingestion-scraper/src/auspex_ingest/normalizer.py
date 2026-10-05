@@ -20,17 +20,14 @@ class IdentityNormalizer(EntityNormalizer):
 
 
 def _gene_key(raw: str) -> str:
-    """Canonical lookup key: uppercase, hyphens and spaces stripped."""
     return re.sub(r"[-\s]", "", raw).upper()
 
 
 def _company_key(raw: str) -> str:
-    """Canonical lookup key: uppercase, non-alphanumeric stripped."""
     return re.sub(r"[^A-Z0-9]", "", raw.upper())
 
 
 def load_sec_company_tickers(data: dict[str, Any]) -> dict[str, str]:
-    """Build a normalized-name → ticker map from the SEC company_tickers.json payload."""
     result: dict[str, str] = {}
     for entry in data.values():
         title: str = str(entry.get("title") or "")
@@ -41,12 +38,8 @@ def load_sec_company_tickers(data: dict[str, Any]) -> dict[str, str]:
 
 
 class HgncEntityNormalizer(EntityNormalizer):
-    """Gene synonym normalizer backed by HGNC alias data and SEC company ticker mapping.
-
-    Accepts injectable mappings for testability. In production, load gene_aliases
-    from a bundled HGNC snapshot and company_tickers via load_sec_company_tickers().
-    """
-
+    # In production, load gene_aliases from a bundled HGNC snapshot and
+    # company_tickers via load_sec_company_tickers().
     def __init__(
         self,
         *,

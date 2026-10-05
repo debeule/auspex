@@ -1,8 +1,3 @@
-"""FDA drugsfda regulatory connector tests.
-
-All HTTP calls are intercepted by respx before they reach the socket layer.
-pytest-socket ensures no real network calls can slip through.
-"""
 
 import json
 from datetime import UTC, datetime

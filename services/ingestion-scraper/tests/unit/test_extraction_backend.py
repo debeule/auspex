@@ -1,4 +1,3 @@
-"""Unit tests — LLMExtractorFactory, registry validation, gate records, context length."""
 import json
 import os
 from pathlib import Path

@@ -1,5 +1,3 @@
-"""BioRxiv / MedRxiv connector — bioRxiv API details endpoint."""
-
 import hashlib
 import time
 from collections.abc import Callable, Iterator

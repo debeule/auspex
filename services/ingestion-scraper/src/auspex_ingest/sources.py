@@ -1,5 +1,3 @@
-"""Schema for sources.yaml — validated at DAG-factory load time."""
-
 from collections import Counter
 from typing import Any
 

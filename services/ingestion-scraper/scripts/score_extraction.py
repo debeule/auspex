@@ -1,16 +1,5 @@
 #!/usr/bin/env python
-"""Manual scoring script — run against the golden set to measure extraction quality.
-
-Usage:
-    uv run python scripts/score_extraction.py --model gpt-4o-mini-2024-07-18 \
-        [--golden-dir tests/golden] [--prompt-version v1.0] \
-        [--prefilter-vocab config/gene_vocab.txt] \
-        [--registry config/models/registry.yaml] \
-        [--scores-dir config/models/scores]
-
-Requires EXTRACTION_API_KEY (or OPENAI_API_KEY) in the environment.
-Never run this in CI — it makes live LLM calls.
-"""
+# Requires EXTRACTION_API_KEY (or OPENAI_API_KEY). Never run in CI — makes live LLM calls.
 import argparse
 import json
 import sys

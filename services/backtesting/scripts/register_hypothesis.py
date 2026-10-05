@@ -1,14 +1,4 @@
 #!/usr/bin/env python3
-"""Register a hypothesis YAML file into config/hypotheses/registry.jsonl.
-
-Usage:
-    uv run python scripts/register_hypothesis.py h1
-    uv run python scripts/register_hypothesis.py h1 h2 h3 ...
-
-Run from the repository root. Reads config/hypotheses/<id>.yaml and appends
-to config/hypotheses/registry.jsonl if the file content has changed since the
-last registration.
-"""
 
 import sys
 from pathlib import Path

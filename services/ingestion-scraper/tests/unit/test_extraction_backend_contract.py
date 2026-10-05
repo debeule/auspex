@@ -1,8 +1,3 @@
-"""Abstract contract tests for extraction backends.
-
-Both LocalBackendContractTest and ApiBackendContractTest inherit ExtractionBackendContractTest
-unmodified, as CorroborationServiceContractTest does in Java.
-"""
 import hashlib
 import json
 from datetime import UTC, datetime

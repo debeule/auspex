@@ -1,4 +1,3 @@
-"""Unit tests — dag_factory, RateLimitedClient, sources.yaml validation."""
 from __future__ import annotations
 
 import ast
