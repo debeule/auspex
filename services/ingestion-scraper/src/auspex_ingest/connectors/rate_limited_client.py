@@ -37,7 +37,8 @@ class _TokenBucket:
 class RateLimitedClient:
     """Must be shared across connectors so per-host buckets are not bypassed.
 
-    block=True waits for a token instead of raising; long backfill fetches need it.
+    block=True waits for a token instead of raising, for long multi-request fetches
+    where a raise would abort the whole run.
     """
 
     def __init__(

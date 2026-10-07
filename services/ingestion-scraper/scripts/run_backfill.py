@@ -8,8 +8,6 @@ A live run must name that dry run with --estimate-run-id; it aborts before any
 LLM call if the estimate exceeds BACKFILL_TIME_CEILING_HOURS (local backend) or
 BACKFILL_BUDGET_CEILING (API backend).
 
-The live run is gated on explicit human sign-off (DECISIONS.md 2026-09-20).
-
 Usage:
     cd services/ingestion-scraper
     uv run python scripts/run_backfill.py --source-type biorxiv \\

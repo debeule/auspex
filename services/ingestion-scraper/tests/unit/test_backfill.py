@@ -1,9 +1,4 @@
-"""Historical backfill runner tests.
-
-The runner plans date windows, guards the model cutoff, estimates cost/time in a
-dry run, enforces ceilings, checkpoints per (source, window) in MinIO, and calls
-`IngestionPipeline.run()` once per window. It never touches the live cursor.
-"""
+"""Historical backfill runner tests."""
 
 from __future__ import annotations
 
@@ -50,9 +45,6 @@ _NOW = datetime(2026, 10, 1, 12, 0, 0, tzinfo=UTC)
 _LOCAL_MODEL = "llama3.1:8b-instruct-q8_0"
 _API_MODEL = "gpt-4o-mini-2024-07-18"
 _VOCAB = frozenset({"CRISPR", "gene therapy"})
-
-
-# ---------------------------------------------------------------- fakes
 
 
 class _FakeMinio:
@@ -204,18 +196,12 @@ class _Harness:
 _WINDOW = {"source_type": "biorxiv", "start": date(2025, 1, 1), "end": date(2025, 2, 28)}
 
 
-# ---------------------------------------------------------------- windows
-
-
 def test_plan_windows_are_contiguous_inclusive_and_cover_the_range() -> None:
     windows = plan_windows(date(2025, 1, 1), date(2025, 3, 5), window_days=30)
     assert windows[0].start == date(2025, 1, 1)
     assert windows[-1].end == date(2025, 3, 5)
     for a, b in itertools.pairwise(windows):
         assert (b.start - a.end).days == 1
-
-
-# ---------------------------------------------------------------- cutoff guard
 
 
 def test_cutoff_guard_refuses_window_starting_before_model_cutoff_plus_margin(tmp_path: Path) -> None:
@@ -255,9 +241,6 @@ def test_cutoff_guard_lives_in_runner_not_pipeline() -> None:
     result = pipeline.run("biorxiv", datetime(2019, 1, 1, tzinfo=UTC))
     assert result.fetched == 1
     assert result.failed == 0
-
-
-# ---------------------------------------------------------------- dry run
 
 
 def test_backfill_dry_run_reports_document_and_call_estimates_without_calling_the_llm(tmp_path: Path) -> None:
@@ -309,9 +292,6 @@ def test_dry_run_fails_loudly_when_no_latency_record_exists_for_local_backend(tm
     assert "evaluate_model.py" in str(exc.value)
 
 
-# ---------------------------------------------------------------- manifest
-
-
 def test_run_manifest_written_to_minio_at_run_start(tmp_path: Path) -> None:
     h = _Harness(tmp_path, env={"BACKFILL_TIME_CEILING_HOURS": "48"})
     dry = h.runner.dry_run(**_WINDOW)
@@ -338,9 +318,6 @@ def test_run_manifest_written_to_minio_at_run_start(tmp_path: Path) -> None:
     assert manifest["start_date"] == "2025-01-01" and manifest["end_date"] == "2025-02-28"
     assert manifest["status"] == "completed"
     assert manifest["counts"]["biorxiv"]["published"] == 2
-
-
-# ---------------------------------------------------------------- ceilings
 
 
 def test_backfill_aborts_when_estimate_exceeds_configured_budget(tmp_path: Path) -> None:
@@ -387,9 +364,6 @@ def test_live_run_requires_a_matching_completed_dry_run(tmp_path: Path) -> None:
     assert h.pipeline_runs == []
 
 
-# ---------------------------------------------------------------- checkpoint + cursor
-
-
 def test_backfill_is_resumable_from_its_checkpoint(tmp_path: Path) -> None:
     h = _Harness(tmp_path, env={"BACKFILL_TIME_CEILING_HOURS": "48"})
     dry = h.runner.dry_run(**_WINDOW, window_days=31)
@@ -428,11 +402,8 @@ def test_backfill_does_not_advance_the_live_cursor(tmp_path: Path, monkeypatch: 
 
     variable.set.assert_not_called()
     variable.get.assert_not_called()
-    assert h.pipeline_runs  # it did run
+    assert h.pipeline_runs
     assert all(k.startswith("backfill/") for k in h.minio.objects)
-
-
-# ---------------------------------------------------------------- rate limiter
 
 
 @respx.mock
@@ -481,9 +452,6 @@ def test_rate_limited_client_still_raises_when_not_blocking() -> None:
     client.get("https://example.org/a")
     with pytest.raises(RateLimitExceeded):
         client.get("https://example.org/b")
-
-
-# ---------------------------------------------------------------- identity
 
 
 def test_backfilled_document_reuses_existing_event_id_when_already_ingested_live(tmp_path: Path) -> None:

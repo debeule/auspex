@@ -124,9 +124,6 @@ def check_cutoff(model: ModelProfile, start: date, margin_months: int) -> None:
         )
 
 
-# ---------------------------------------------------------------- storage
-
-
 class BackfillStore:
     """Manifest and checkpoint objects in MinIO, under `backfill/`."""
 
@@ -167,9 +164,6 @@ class BackfillStore:
         self._put_json(self._checkpoint_key(lineage, source_type, window), payload)
 
 
-# ---------------------------------------------------------------- lineage overlap
-
-
 class ExtractionHistory(Protocol):
     def models_in_window(self, source_type: str, start: date, end: date) -> dict[str, int]:
         """Documents already extracted in [start, end], counted per extraction_model."""
@@ -194,9 +188,6 @@ class CoreHubExtractionHistory:
         )
         resp.raise_for_status()
         return {row["extraction_model"]: int(row["documents"]) for row in resp.json()}
-
-
-# ---------------------------------------------------------------- reports
 
 
 @dataclass
@@ -268,9 +259,6 @@ class BackfillReport:
 _COUNT_FIELDS = ("fetched", "prefiltered_out", "published", "not_signal", "below_threshold", "failed")
 
 
-# ---------------------------------------------------------------- runner
-
-
 class BackfillRunner:
     def __init__(
         self,
@@ -296,8 +284,6 @@ class BackfillRunner:
         self._env = env
         self._now = now
         self._run_id_factory = run_id_factory or (lambda: uuid.uuid4().hex)
-
-    # -- shared helpers
 
     def _base_manifest(
         self, run_id: str, source_type: str, start: date, end: date, margin_months: int,
@@ -341,8 +327,6 @@ class BackfillRunner:
                 f"API model {self._model.model_id!r} has no {exc.args[0]} in the model registry; "
                 f"cannot estimate cost"
             ) from exc
-
-    # -- dry run
 
     def dry_run(
         self, *, source_type: str, start: date, end: date,
@@ -396,8 +380,6 @@ class BackfillRunner:
             start=start, end=end, margin_months=margin_months, windows=len(windows),
             sources={source_type: est},
         )
-
-    # -- live run
 
     def _approved_estimate(
         self, estimate_run_id: str, source_type: str, start: date, end: date

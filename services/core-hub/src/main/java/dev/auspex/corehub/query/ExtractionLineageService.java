@@ -9,9 +9,8 @@ import java.time.ZoneOffset;
 import java.util.List;
 
 /**
- * Which extraction models produced the signals in a published-date window.
- * The historical backfill's dry run uses it to report lineage overlap; the
- * scraper never reads Postgres itself.
+ * Counts signals per extraction model within a published-date window, so callers
+ * outside core-hub can check extraction lineage without reading Postgres.
  */
 @Service
 public class ExtractionLineageService {
