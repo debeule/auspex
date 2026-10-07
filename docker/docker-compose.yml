@@ -203,6 +203,9 @@ services:
       EXTRACTION_PROMPT_VERSION: ${EXTRACTION_PROMPT_VERSION}
       EXTRACTION_REGISTRY_PATH: /app/models/registry.yaml
       EXTRACTION_SCORES_DIR: /app/models/scores
+      SEC_USER_AGENT: ${SEC_USER_AGENT}
+      EPO_OPS_KEY: ${EPO_OPS_KEY}
+      EPO_OPS_SECRET: ${EPO_OPS_SECRET}
       LOG_FORMAT: json
     extra_hosts:
       # Resolves on Linux too; Docker Desktop provides it already.
