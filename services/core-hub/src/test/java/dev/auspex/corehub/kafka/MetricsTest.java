@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 
 class MetricsTest {
@@ -39,18 +40,14 @@ class MetricsTest {
     }
 
     @Test
-    void test_dlt_counter_increments_on_routing() {
+    void test_unknown_major_version_is_thrown_for_dlt_routing_without_listener_side_counting() {
         ResearchSignalEvent event = buildEvent("99.0", UUID.randomUUID(), "biorxiv");
-        try {
-            signalListener.onSignal(event, "auspex.signals.extracted");
-        } catch (UnknownMajorVersionException ignored) {
-        }
 
-        Counter counter = registry.find("auspex.dlt.events.total")
-                .tag("topic", "auspex.signals.extracted")
-                .counter();
-        assertThat(counter).isNotNull();
-        assertThat(counter.count()).isEqualTo(1.0);
+        assertThatThrownBy(() -> signalListener.onSignal(event, "auspex.signals.extracted"))
+                .isInstanceOf(UnknownMajorVersionException.class);
+
+        // Counted once, by CountingDeadLetterRecoverer, when the record is actually dead-lettered.
+        assertThat(registry.find("auspex.dlt.events.total").counter()).isNull();
     }
 
     private static ResearchSignalEvent buildEvent(String schemaVersion, UUID eventId, String sourceType) {

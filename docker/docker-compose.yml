@@ -124,7 +124,7 @@ services:
     restart: unless-stopped
 
   elasticsearch-setup:
-    image: curlimages/curl:latest
+    image: curlimages/curl:8.15.0
     container_name: auspex-elasticsearch-setup
     depends_on:
       elasticsearch:

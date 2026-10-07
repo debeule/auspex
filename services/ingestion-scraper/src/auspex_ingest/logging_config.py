@@ -17,6 +17,14 @@ class SensitiveFieldDrop:
         }
 
 
+def _ecs_log_level(logger: Any, method: str, event_dict: MutableMapping[str, Any]) -> MutableMapping[str, Any]:
+    # Same shape as core-hub's ECS output, so one Grafana/Kibana field covers both services.
+    level = event_dict.pop("level", None)
+    if level is not None:
+        event_dict["log"] = {"level": level}
+    return event_dict
+
+
 def configure_logging() -> None:
     log_format = os.getenv("LOG_FORMAT", "json")
     processors: list[structlog.types.Processor] = [
@@ -26,6 +34,8 @@ def configure_logging() -> None:
         SensitiveFieldDrop(),
     ]
     if log_format == "json":
+        processors.append(structlog.processors.EventRenamer("message"))
+        processors.append(_ecs_log_level)
         processors.append(structlog.processors.JSONRenderer())
     else:
         processors.append(structlog.dev.ConsoleRenderer())

@@ -1,17 +1,234 @@
 {
-  "annotations": {"list": []},
+  "annotations": {
+    "list": []
+  },
   "editable": true,
   "fiscalYearStartMonth": 0,
-  "graphTooltip": 0,
+  "graphTooltip": 1,
   "links": [],
-  "panels": [],
+  "panels": [
+    {
+      "id": 1,
+      "type": "timeseries",
+      "title": "Error log lines by container",
+      "datasource": {
+        "type": "elasticsearch",
+        "uid": "elasticsearch"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 0,
+        "w": 12,
+        "h": 8
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "drawStyle": "bars",
+            "fillOpacity": 60,
+            "stacking": {
+              "mode": "normal"
+            }
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "elasticsearch",
+            "uid": "elasticsearch"
+          },
+          "query": "log.level:(error OR ERROR OR critical OR CRITICAL)",
+          "timeField": "@timestamp",
+          "metrics": [
+            {
+              "id": "1",
+              "type": "count"
+            }
+          ],
+          "bucketAggs": [
+            {
+              "id": "3",
+              "type": "terms",
+              "field": "container.name",
+              "settings": {
+                "size": "10",
+                "order": "desc",
+                "orderBy": "_count",
+                "min_doc_count": "1"
+              }
+            },
+            {
+              "id": "2",
+              "type": "date_histogram",
+              "field": "@timestamp",
+              "settings": {
+                "interval": "auto"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "type": "timeseries",
+      "title": "DLT events per hour by source topic",
+      "description": "",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 0,
+        "w": 12,
+        "h": 8
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "custom": {
+            "lineWidth": 1,
+            "fillOpacity": 10
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "expr": "sum by(topic)(increase(auspex_dlt_events_total[1h]))",
+          "legendFormat": "{{topic}}"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "type": "logs",
+      "title": "Error and critical log lines",
+      "datasource": {
+        "type": "elasticsearch",
+        "uid": "elasticsearch"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 8,
+        "w": 24,
+        "h": 18
+      },
+      "options": {
+        "showTime": true,
+        "wrapLogMessage": true,
+        "sortOrder": "Descending",
+        "enableLogDetails": true,
+        "dedupStrategy": "none"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "elasticsearch",
+            "uid": "elasticsearch"
+          },
+          "query": "log.level:(error OR ERROR OR critical OR CRITICAL)",
+          "timeField": "@timestamp",
+          "metrics": [
+            {
+              "id": "1",
+              "type": "logs",
+              "settings": {
+                "limit": "500"
+              }
+            }
+          ],
+          "bucketAggs": []
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "type": "logs",
+      "title": "Failed documents (scraper)",
+      "datasource": {
+        "type": "elasticsearch",
+        "uid": "elasticsearch"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 26,
+        "w": 24,
+        "h": 10
+      },
+      "options": {
+        "showTime": true,
+        "wrapLogMessage": true,
+        "sortOrder": "Descending",
+        "enableLogDetails": true,
+        "dedupStrategy": "none"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "elasticsearch",
+            "uid": "elasticsearch"
+          },
+          "query": "message:\"document processing failed\"",
+          "timeField": "@timestamp",
+          "metrics": [
+            {
+              "id": "1",
+              "type": "logs",
+              "settings": {
+                "limit": "500"
+              }
+            }
+          ],
+          "bucketAggs": []
+        }
+      ]
+    }
+  ],
   "refresh": "1m",
   "schemaVersion": 39,
-  "tags": ["auspex", "errors"],
-  "templating": {"list": []},
-  "time": {"from": "now-6h", "to": "now"},
+  "tags": [
+    "auspex",
+    "errors"
+  ],
+  "templating": {
+    "list": []
+  },
+  "time": {
+    "from": "now-6h",
+    "to": "now"
+  },
   "timepicker": {},
-  "timezone": "browser",
+  "timezone": "utc",
   "title": "Auspex Error Drill-Down",
   "uid": "auspex-errors",
   "version": 1

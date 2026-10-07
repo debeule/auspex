@@ -16,7 +16,7 @@ Docker Compose stack for the full Auspex infrastructure.
 | `auspex-filebeat` | `elastic/filebeat:8.17.3` | — | Log shipper; Docker autodiscovery |
 | `auspex-prometheus` | `prom/prometheus:v3.14.0` | 9090 | Metrics scraper and storage |
 | `auspex-grafana` | `grafana/grafana-oss:13.0.2` | 3000 | Observability UI (logs + metrics) |
-| `auspex-elasticsearch-setup` | `curlimages/curl:latest` | — | One-shot init: applies Elasticsearch ILM policy |
+| `auspex-elasticsearch-setup` | `curlimages/curl:8.15.0` | — | One-shot init: applies the `auspex-logs-ilm` retention policy (delete after 180 days) and attaches it to existing log indices |
 | `auspex-ingestion-scraper` | built from `services/ingestion-scraper` | 8000 | Scraper HTTP API (profile `app`) |
 | `auspex-core-hub` | built from `services/core-hub` | 8080 | Signal processor (profile `app`) |
 | `auspex-airflow` | `apache/airflow:3.3.1` | 8082 | DAG scheduler |
@@ -68,6 +68,28 @@ Two databases share one container:
 Flyway runs schema migrations against `auspex` on every `core-hub` startup (`ddl-auto: validate`).
 
 ---
+
+## Observability
+
+Grafana at `http://localhost:3000` (folder **Auspex**), Prometheus at `:9090`, Elasticsearch at `:9200`. Both app services log JSON with ECS field names (`message`, `log.level`, `@timestamp`), which Filebeat ships to daily `auspex-logs-YYYY.MM.DD` indices.
+
+| Dashboard | Shows |
+|---|---|
+| Auspex Pipeline | fetched / published per source, failed documents, LLM extraction latency (p50, p95, mean), LLM error ratio, run duration, hours since last run |
+| Auspex Operations | scrape targets up, core-hub throughput, Kafka consumer lag, listener time per record, DLT events, JVM heap, scraper memory, HTTP 5xx |
+| Auspex Error Drill-Down | error log lines by container, DLT events, error log stream, failed-document log stream |
+
+| Alert | Fires when |
+|---|---|
+| DLT Backlog | any record dead-lettered in the last hour |
+| Source Silence | a source has not completed a run for 6 h |
+| Kafka Lag Critical | lag on `auspex.signals.extracted` above 1000 for 5 min |
+| Scrape Target Down | core-hub or the scraper is unscrapeable for 5 min |
+| LLM Extraction Errors | more than 20% of extraction calls fail over 15 min |
+
+Key metrics: `auspex_pipeline_documents_fetched_total`, `auspex_pipeline_documents_failed_total`, `auspex_pipeline_signals_published_total`, `auspex_llm_extraction_calls_total{result}`, `auspex_llm_extraction_duration_seconds`, `auspex_pipeline_run_duration_seconds`, `auspex_pipeline_run_last_timestamp` (scraper); `auspex_signals_processed_total`, `auspex_dlt_events_total{topic}`, `kafka_consumer_fetch_manager_records_lag`, `spring_kafka_listener_seconds` (core-hub).
+
+Smoke test after `up`: `GRAFANA_ADMIN_PASSWORD=... sh docker/grafana/test_provisioning.sh`.
 
 ## Environment
 
