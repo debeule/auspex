@@ -27,10 +27,12 @@ class SpreadEstimator:
 
     def half_spread(self, ticker: str, as_of: date) -> float:
         """Half the proportional spread, the cost of crossing it once (one leg)."""
-        bars = bars_before(self._store, ticker, as_of, self._lookback)
+        bars = bars_before(self._store, ticker, as_of, self._lookback)[["close", "high", "low"]]
+        # Provider gaps show up as NaN or zero prices; a log of either would poison the mean.
+        bars = bars[(bars > 0).all(axis=1)]
         if len(bars) < 2:
             raise PriceDataAbsentError(
-                f"{ticker}: need 2 sessions before {as_of.isoformat()} to estimate a spread, "
+                f"{ticker}: need 2 sessions with valid prices before {as_of.isoformat()}, "
                 f"found {len(bars)}"
             )
         c = [math.log(v) for v in bars["close"]]
@@ -65,7 +67,7 @@ class VolumeCap:
         self._lookback = lookback_sessions
 
     def max_shares(self, ticker: str, as_of: date) -> int:
-        bars = bars_before(self._store, ticker, as_of, self._lookback)
-        if bars.empty:
+        volume = bars_before(self._store, ticker, as_of, self._lookback)["volume"].dropna()
+        if volume.empty:
             raise PriceDataAbsentError(f"{ticker}: no volume before {as_of.isoformat()}")
-        return math.floor(float(bars["volume"].mean()) * self._fraction)
+        return math.floor(float(volume.mean()) * self._fraction)

@@ -194,3 +194,128 @@ def test_stop_fills_at_worst_price_of_the_day_on_a_binary_event_day():
 def test_stop_is_not_triggered_when_range_stays_clear():
     fills = FillModel(_one_day(open_=21.0, high=22.0, low=20.5, close=21.5))
     assert fills.stop_exit_price("BEAM", date(2025, 3, 10), stop_price=20.0) is None
+
+
+def test_spread_estimator_reads_negative_estimate_as_zero_and_cost_model_floors_it():
+    # Closes at each day's high in a steady uptrend make every cross product negative.
+    rising = _bars(
+        {d: (10.0 + i, 10.1 + i, 9.9 + i, 10.1 + i, 100_000.0) for i, d in enumerate(_SESSIONS)}
+    )
+    store = _store({"SRPT": rising})
+    assert SpreadEstimator(store).half_spread("SRPT", as_of=date(2025, 3, 14)) == 0.0
+    model = CostModel(_PARAMS, spread_estimator=SpreadEstimator(store))
+    cost = model.round_trip_cost_usd("SRPT", 10.0, 100, False, 20, entry_date=date(2025, 3, 14))
+    assert cost.spread == pytest.approx(10.0 * 100 * 2.0 / 10_000 * 2)
+
+
+def test_spread_estimator_skips_bars_with_missing_or_nonpositive_prices():
+    clean = _bouncing(bid=9.90, ask=10.10)
+    gappy = clean.copy()
+    gappy.loc[pd.Timestamp("2025-03-06", tz="UTC"), "high"] = float("nan")
+    gappy.loc[pd.Timestamp("2025-03-07", tz="UTC"), "low"] = 0.0
+    half = SpreadEstimator(_store({"CAPR": gappy})).half_spread("CAPR", as_of=date(2025, 3, 14))
+    assert math.isfinite(half)
+    assert half == pytest.approx(math.log(10.10 / 9.90) / 2, rel=0.25)
+
+
+def test_spread_estimator_raises_when_window_has_no_usable_bars():
+    broken = _bouncing(bid=9.90, ask=10.10)
+    broken["close"] = float("nan")
+    with pytest.raises(PriceDataAbsentError):
+        SpreadEstimator(_store({"CAPR": broken})).half_spread("CAPR", as_of=date(2025, 3, 14))
+
+
+def test_cost_model_without_estimator_charges_flat_spread_and_ignores_entry_date():
+    cost = CostModel(_PARAMS).round_trip_cost_usd(
+        "CAPR", 10.0, 100, False, 20, entry_date=date(2025, 3, 14)
+    )
+    assert cost.spread == pytest.approx(10.0 * 100 * 50 / 10_000 * 2)
+
+
+def test_cost_parameters_read_new_settings_from_env():
+    params = CostParameters.from_env(
+        {"FX_FEE_RATE": "0.0005", "MIN_HALF_SPREAD_BPS": "3.5", "SPREAD_BPS": "40"}
+    )
+    assert params.fx_fee_rate == 0.0005
+    assert params.min_half_spread_bps == 3.5
+    assert params.spread_bps == 40.0
+    defaults = CostParameters.from_env({})
+    assert defaults.fx_fee_rate == 0.0003
+    assert defaults.min_half_spread_bps == 2.0
+
+
+def test_volume_cap_reads_fraction_from_env(monkeypatch):
+    monkeypatch.setenv("MAX_ADV_FRACTION", "0.02")
+    bars = _bars({d: (10.0, 10.5, 9.5, 10.0, 100_000.0) for d in _SESSIONS})
+    assert VolumeCap(_store({"CAPR": bars})).max_shares("CAPR", date(2025, 3, 14)) == 2_000
+    monkeypatch.delenv("MAX_ADV_FRACTION")
+    assert VolumeCap(_store({"CAPR": bars})).max_shares("CAPR", date(2025, 3, 14)) == 1_000
+
+
+def test_volume_cap_ignores_bars_on_or_after_as_of_date():
+    bars = _bars({d: (10.0, 10.5, 9.5, 10.0, 100_000.0) for d in _SESSIONS})
+    bars.loc[bars.index >= pd.Timestamp("2025-03-12", tz="UTC"), "volume"] = 10_000_000.0
+    cap = VolumeCap(_store({"CAPR": bars}), max_adv_fraction=0.01)
+    assert cap.max_shares("CAPR", as_of=date(2025, 3, 12)) == 1_000
+
+
+def test_volume_cap_raises_without_volume_history():
+    bars = _bars({d: (10.0, 10.5, 9.5, 10.0, 100_000.0) for d in _SESSIONS})
+    cap = VolumeCap(_store({"CAPR": bars}), max_adv_fraction=0.01)
+    with pytest.raises(PriceDataAbsentError):
+        cap.max_shares("CAPR", as_of=date(2025, 3, 3))  # no session before the first bar
+    with pytest.raises(PriceDataAbsentError):
+        cap.max_shares("SRPT", as_of=date(2025, 3, 14))  # no snapshot
+    no_volume = bars.copy()
+    no_volume["volume"] = float("nan")
+    with pytest.raises(PriceDataAbsentError):
+        VolumeCap(_store({"CAPR": no_volume}), max_adv_fraction=0.01).max_shares(
+            "CAPR", as_of=date(2025, 3, 14)
+        )
+
+
+def test_volume_cap_rejects_position_when_stock_did_not_trade():
+    halted = _bars({d: (10.0, 10.0, 10.0, 10.0, 0.0) for d in _SESSIONS})
+    max_shares = VolumeCap(_store({"CAPR": halted}), max_adv_fraction=0.01).max_shares(
+        "CAPR", as_of=date(2025, 3, 14)
+    )
+    assert max_shares == 0
+    with pytest.raises(PositionTooSmallError):
+        PositionSizer().size_shares(capital_eur=1_000, fx_rate=0.9, price_usd=10.0, max_shares=0)
+
+
+def test_position_sizer_keeps_affordable_shares_when_below_volume_cap():
+    assert (
+        PositionSizer().size_shares(capital_eur=900, fx_rate=0.9, price_usd=10.0, max_shares=5_000)
+        == 100
+    )
+
+
+def test_short_stop_fills_at_stop_on_intraday_cross_and_at_high_on_binary_day():
+    fills = FillModel(_one_day(open_=20.0, high=23.0, low=19.5, close=22.5))
+    d = date(2025, 3, 10)
+    assert fills.stop_exit_price("BEAM", d, stop_price=22.0, is_short=True) == 22.0
+    assert (
+        fills.stop_exit_price("BEAM", d, stop_price=22.0, is_short=True, binary_event=True) == 23.0
+    )
+    assert fills.stop_exit_price("BEAM", d, stop_price=24.0, is_short=True) is None
+
+
+def test_binary_day_stop_not_triggered_when_range_stays_clear():
+    fills = FillModel(_one_day(open_=21.0, high=22.0, low=20.5, close=21.5))
+    assert (
+        fills.stop_exit_price("BEAM", date(2025, 3, 10), stop_price=20.0, binary_event=True) is None
+    )
+
+
+def test_stop_touching_exactly_at_low_fills_at_stop():
+    fills = FillModel(_one_day(open_=21.0, high=21.5, low=20.0, close=20.5))
+    assert fills.stop_exit_price("BEAM", date(2025, 3, 10), stop_price=20.0) == 20.0
+
+
+def test_stop_raises_when_bar_is_absent():
+    fills = FillModel(_one_day(open_=21.0, high=21.5, low=20.0, close=20.5))
+    with pytest.raises(PriceDataAbsentError):
+        fills.stop_exit_price("BEAM", date(2025, 3, 11), stop_price=20.0)
+    with pytest.raises(PriceDataAbsentError):
+        fills.stop_exit_price("CRSP", date(2025, 3, 10), stop_price=20.0)
