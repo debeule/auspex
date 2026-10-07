@@ -236,8 +236,11 @@ def test_env_pipeline_factory_wires_the_metrics_registry(monkeypatch):
     monkeypatch.setenv("MINIO_SECRET_KEY", "s")
     monkeypatch.setenv("MINIO_BUCKET", "auspex-raw")
     monkeypatch.setenv("KAFKA_BOOTSTRAP_SERVERS", "kafka.invalid:9092")
-    monkeypatch.setenv("OPENAI_API_KEY", "unused-in-this-test")
     monkeypatch.setattr(confluent_kafka, "Producer", MagicMock())
+    # The extractor needs a registered, gated model; that is covered by the extraction tests.
+    monkeypatch.setattr(
+        "auspex_ingest.extraction_backend.build_extractor_from_env", lambda **_: MagicMock()
+    )
 
     registry = _make_registry()
     sources = _make_sources("biorxiv")
