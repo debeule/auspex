@@ -18,7 +18,7 @@ from auspex_ingest.storage.minio_client import MinioArchive
 _UTC = UTC
 _T0 = datetime(2024, 6, 15, 12, 0, 0, tzinfo=_UTC)
 _BUCKET = "auspex-test"
-_LOCALSTACK_IMAGE = "localstack/localstack:2026.09.0"
+_LOCALSTACK_IMAGE = "localstack/localstack:4.9.2"
 _SCHEMA_VERSION = "1.0"
 _PROMPT_VERSION = "v1"
 _PREFILTER_VERSION = "v1"
