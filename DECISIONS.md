@@ -552,3 +552,9 @@ Create a free account at quay.io if you don't have one. No organisation-specific
 
 **What:** Ollama, run natively on the host (Docker on macOS has no Metal access). Candidates, in `config/models/local_candidates.yaml`: `mistral-small:24b-instruct-2501-q4_K_M` (primary; cutoff 2023-10 per its default system prompt, so the full 24-month window), `llama3.1:8b-instruct-q8_0` (fast fallback; cutoff 2023-12), and `gemma3:27b-it-q4_K_M` (optional; cutoff 2024-08 shortens the clean window to ~Nov 2024 onwards). The model-evaluation spec named `gemma3:27b-instruct-q4_K_M`, but that Ollama tag does not exist; the real tag is `27b-it-q4_K_M`.
 **Action:** Not a CHOICE. The passing model gets recorded under the 2026-09-19 Option A entry once `evaluate_model.py` and `score_extraction.py` have run on the backfill machine (`docs/local-model-runbook.md`).
+
+## 2026-10-07 — Local model integration — RECOMMENDATION (revises the entry above) — 24 GB backfill machine
+
+**What:** The user confirmed the backfill and steady-state machine: MacBook Pro, Apple M4 Pro (12 cores), **24 GB**, not the 36 GB the docs assumed. It also runs the Docker stack. Mistral Small 24B (~14 GB + KV cache) and Gemma 3 27B (~17 GB) do not fit next to Docker at 24 GB. The primary candidate is now `llama3.1:8b-instruct-q8_0` (~8.5 GB, cutoff 2023-12, full window), with `llama3.1:8b-instruct-q4_K_M` (~4.9 GB) as the memory and speed fallback. The recommended Docker Desktop memory limit is 8 GB. Estimated backfill: roughly 3–5 days at 10–15 s/document, to be replaced by the `evaluate_model.py` measurement.
+**Risk:** an 8B model may miss the 0.85 gate. The documented fallback is `gpt-4o-mini-2024-07-18` for the backfill (~$65).
+**Action:** Runbook, local_candidates.yaml, docker/README.md and PREREQUISITES.md updated. Still not a CHOICE; that waits for gate results.

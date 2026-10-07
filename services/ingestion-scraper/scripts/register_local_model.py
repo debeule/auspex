@@ -20,7 +20,7 @@ _MODELS_DIR = Path(__file__).parent.parent.parent.parent / "config" / "models"
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Register a pulled Ollama model with its live digest")
-    parser.add_argument("model", help="Ollama tag, e.g. mistral-small:24b-instruct-2501-q4_K_M")
+    parser.add_argument("model", help="Ollama tag, e.g. llama3.1:8b-instruct-q8_0")
     parser.add_argument("--registry", default=_MODELS_DIR / "registry.yaml", type=Path)
     parser.add_argument("--candidates", default=_MODELS_DIR / "local_candidates.yaml", type=Path)
     args = parser.parse_args()

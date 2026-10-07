@@ -112,24 +112,29 @@ def _print_feasibility(
     print(f"    24-month backfill ({backfill_docs:,} docs @ {mean_lat:.1f}s mean): ~{backfill_hours:.0f} h")
     print(f"    Steady-state daily budget ({daily_budget_docs} docs): ~{daily_hours:.1f} h/day")
 
-    # 8 GB baseline for Docker Desktop containers + model KV cache heuristic
+    # Budget: host RAM minus ~6 GB for macOS and the KV cache; Docker infra takes ~8 GB.
     model_lower = model_id.lower()
     if "27b" in model_lower:
-        model_gb = 17
+        model_gb = 17.0
     elif "24b" in model_lower:
-        model_gb = 14
+        model_gb = 14.0
     elif "8b" in model_lower:
-        model_gb = 8
+        model_gb = 5.0 if "q4" in model_lower else 8.5
     else:
-        model_gb = 0
+        model_gb = 0.0
+    host_gb = os.sysconf("SC_PAGE_SIZE") * os.sysconf("SC_PHYS_PAGES") / 2**30
+    budget = host_gb - 6
     combined = 8 + model_gb
-    if combined > 30:
-        print(f"    WARNING: combined memory ~{combined} GB exceeds 30 GB budget (Docker ~8 GB + model ~{model_gb} GB)")
+    if combined > budget:
+        print(
+            f"    WARNING: Docker ~8 GB + model ~{model_gb:.0f} GB = ~{combined:.0f} GB exceeds "
+            f"the ~{budget:.0f} GB budget on this {host_gb:.0f} GB machine"
+        )
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Evaluate a candidate model against the golden set")
-    parser.add_argument("--model", required=True, help="Registry key (e.g. mistral-small:24b-instruct-2501-q4_K_M)")
+    parser.add_argument("--model", required=True, help="Registry key (e.g. llama3.1:8b-instruct-q8_0)")
     parser.add_argument("--golden-dir", default="tests/golden", type=Path)
     parser.add_argument("--prompt-version", default="v1.0")
     parser.add_argument("--prefilter-vocab", default=None, type=Path)

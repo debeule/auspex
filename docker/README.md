@@ -124,14 +124,14 @@ default is 4096 tokens and longer prompts are silently truncated. Start Ollama w
 
 ### Memory budget
 
-The Docker stack and the Ollama model server share the host's RAM. With a 36 GB MacBook:
+The Docker stack and the Ollama model server share the host's RAM. On the 24 GB M4 Pro backfill machine:
 
 | Component | Estimated usage |
 |---|---|
-| Docker Desktop allocation | 12–16 GB (configured in Docker Desktop → Resources) |
-| Model weights | ~14 GB (mistral-small 24B Q4) · ~8.5 GB (llama3.1 8B Q8) · ~17 GB (gemma3 27B Q4) |
-| KV cache at `num_ctx=8192` | ~1–3 GB |
-| OS + other processes | ~4 GB |
+| Docker Desktop allocation | 8 GB (configured in Docker Desktop → Resources) |
+| Model weights | ~8.5 GB (llama3.1 8B Q8) · ~4.9 GB (8B Q4) |
+| KV cache at `num_ctx=8192` | ~1 GB |
+| OS + other processes | ~4–5 GB |
 
-Recommended Docker Desktop memory limit: **14 GB**. Leave ≥ 20 GB for the model server + OS.
+Recommended Docker Desktop memory limit: **8 GB**. 24B+ models do not fit next to the stack on 24 GB.
 Reduce `num_ctx` in `registry.yaml` to lower KV cache if headroom is tight.
