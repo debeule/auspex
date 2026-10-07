@@ -489,3 +489,8 @@ Filing prose confirmed; metadata-only format is no longer present.
 - `QUAY_IO_PASSWORD` — your quay.io password or robot account token
 
 Create a free account at quay.io if you don't have one. No organisation-specific permissions needed — this is just to authenticate pulls of a public image.
+
+## 2026-10-07 — Python CI — FIX — LocalStack calendar tags require a licence
+
+**What:** Python CI was red on `main` and `develop` since the switch to `localstack/localstack:2026.09.0`. Reproduced locally: the container exits with code 55, "License activation failed … set the LOCALSTACK_AUTH_TOKEN variable". LocalStack's calendar-versioned images (2026.03 onwards) refuse to start without an auth token, so every S3-backed integration test failed at fixture setup ("LocalStack never became ready"), and `test_api_integration` crashed with `UnboundLocalError` because its port-wait loop had no failure branch.
+**Action:** Pinned `localstack/localstack:4.9.2` (last community tag that starts without a token; verified 2026-10-07), added the missing `pytest.fail` branch to `test_api_integration`. All 6 S3/Kafka integration tests pass locally. VERSIONS.md updated with a do-not-bump note. The quay.io secrets from the 2026-09-26 entry are no longer needed for tests.
