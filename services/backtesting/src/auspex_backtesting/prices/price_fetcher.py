@@ -4,25 +4,27 @@ from datetime import date
 import pandas as pd
 import yfinance as yf
 from minio import Minio
-from minio.error import S3Error
 
-_BUCKET = "auspex-prices"
+from auspex_backtesting.prices.snapshot_store import PRICES_BUCKET, PriceSnapshotStore, snapshot_key
+
 _REQUIRED_COLS = ["open", "high", "low", "close", "volume"]
 
 
 class PriceFetcher:
-    def __init__(self, minio_client: Minio, bucket: str = _BUCKET) -> None:
+    def __init__(self, minio_client: Minio, bucket: str = PRICES_BUCKET) -> None:
         self._minio = minio_client
         self._bucket = bucket
+        self._snapshots = PriceSnapshotStore(minio_client, bucket)
 
     def fetch(self, ticker: str, start: date, end: date) -> pd.DataFrame:
-        key = f"{ticker}.parquet"
-        cached = self._load(key)
+        key = snapshot_key(ticker)
+        cached = self._snapshots.load(ticker)
         if cached is not None:
             return cached
 
         df = _from_yahoo(ticker, start, end)
-        if df is None:
+        if df is None or df.empty:
+            # yfinance reports a blocked or failed download as an empty frame, not an exception
             df = _from_stooq(ticker, start, end)
 
         if df is None or df.empty:
@@ -31,20 +33,6 @@ class PriceFetcher:
         normalised = _normalize(df)
         self._store(key, normalised)
         return normalised
-
-    def _load(self, key: str) -> pd.DataFrame | None:
-        try:
-            resp = self._minio.get_object(self._bucket, key)
-        except S3Error as exc:
-            if exc.code == "NoSuchKey":
-                return None
-            raise
-        try:
-            data = resp.read()
-            return pd.read_parquet(io.BytesIO(data))
-        finally:
-            resp.close()
-            resp.release_conn()
 
     def _store(self, key: str, df: pd.DataFrame) -> None:
         buf = io.BytesIO()

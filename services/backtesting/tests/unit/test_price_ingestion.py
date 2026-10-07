@@ -119,3 +119,18 @@ def test_price_dates_are_stored_utc() -> None:
     stored_df = pd.read_parquet(io.BytesIO(stored_bytes[0]))
     assert stored_df.index.tz is not None
     assert str(stored_df.index.tz) == "UTC"
+
+
+def test_empty_yahoo_result_falls_back_to_stooq() -> None:
+    minio = _minio_empty()
+    with (
+        patch("auspex_backtesting.prices.price_fetcher._from_yahoo", return_value=pd.DataFrame()),
+        patch(
+            "auspex_backtesting.prices.price_fetcher._from_stooq",
+            return_value=_sample_yfinance_df(),
+        ) as mock_stooq,
+    ):
+        result = PriceFetcher(minio_client=minio).fetch("BEAM", date(2023, 1, 1), date(2023, 2, 1))
+
+    assert mock_stooq.call_count == 1
+    assert len(result) == 3

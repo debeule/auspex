@@ -83,6 +83,7 @@ Managed with **uv**; `uv.lock` is committed. Resolved 2026-09-18 from PyPI.
 | pyarrow | 25.0.1 |
 | yfinance | 1.7.0 |
 | pandas-datareader | 0.11.1 |
+| pandas-market-calendars | 5.4.0 (resolved 2026-10-07; 5.5.0 skipped, released 2026-10-05) |
 | minio | 7.2.20 (shared with ingestion-scraper) |
 
 ## Version-sensitive claims that need re-verification

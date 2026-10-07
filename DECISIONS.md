@@ -515,3 +515,23 @@ Create a free account at quay.io if you don't have one. No organisation-specific
 **What:** Follow-up to the historical-backfill FLAG on `MinioArchive.put()`: every overlapping live re-fetch of unchanged content was re-extracted (one LLM call each), contrary to requirements §7.1 step 3. The open question was retry semantics.
 **Choice (reversible default):** the pipeline writes a processed marker `dedup/processed/{source_type}/{external_id}/{content_sha256}-{identity_hash}.json` only after a document's outcome is final (published, not a signal, below threshold) **and** the run's Kafka flush succeeded. Identity = `model|prompt_version|prefilter_version`. A re-fetch skips extraction and publish only when a marker for the same content and identity exists. So: failed extraction or undelivered signals are retried on the next fetch; an amendment (new hash) is extracted; a different model or prompt (backfill, re-extraction) re-extracts. The raw archive write stays unconditional (Invariant 13).
 **Scope:** opt-in through `IngestionPipeline(extraction_identity=...)`. The live API factory sets it. The backfill runner does not need to: its model differs from live, and leaving it unset keeps its current behaviour. A marker-write failure costs one repeat extraction, nothing else.
+
+## 2026-10-07 — Market simulation — CHOICE — PositionSizer `fx_rate` is EUR per USD
+
+**What:** The spec gives `size_shares = floor(capital_eur / fx_rate / price_usd)` and stores FX as Yahoo's `EURUSD=X`, which quotes USD per 1 EUR (~1.1). Dividing EUR by USD-per-EUR is dimensionally wrong: feeding the raw `EURUSD=X` close into that formula undersizes every position by roughly fx² (1000 EUR at 1.1 → 9 shares of a $99 stock instead of 11).
+**Action:** `fx_rate` is defined as **EUR per 1 USD**, which makes the spec's formula and its required test (1000, 1.1, 99 → 9) correct as written. `CurrencyConverter.eur_per_usd(date)` returns `1 / EURUSD=X close` and is the value callers pass in; `usd_to_eur` uses the same rate. Documented on `PositionSizer.size_shares`.
+
+## 2026-10-07 — Market simulation — CHOICE — FillModel does not shift entry dates
+
+**What:** `FillModel.entry_price` fills at the open of the `entry_date` it is given. A signal public at 11:00 ET aligns (via `alignment.aligner`) to the same session, whose open precedes it.
+**Action:** Entry timing stays with the caller, as `docs/strategy-research.md` (T+1 open) and `specs/evaluation-protocol.md` (`next_trading_day(corroborated_at + KNOWN_AT_DELAY_DAYS)`) already specify. Documented on `FillModel`. Follow-up worth considering: `aligner._next_trading_day` still uses `USFederalHolidayCalendar` and could switch to `MarketCalendar` (Good Friday is missed today and surfaces as `PriceDataAbsentError`).
+
+## 2026-10-07 — Market simulation — CHOICE — 11 tests, not 10; `scripts/fetch_prices.py`
+
+**What:** The spec builds `TradableUniverse` but lists no test for it, and refers to an "existing PriceIngestion script" that does not exist.
+**Action:** Added `test_tradable_universe_names_ticker_missing_price_data` (invariant 15). Added `scripts/fetch_prices.py`, a thin CLI over `PriceFetcher` that creates the `auspex-prices` bucket if needed. Also fixed `PriceFetcher` never reaching the Stooq fallback: yfinance returns an empty frame, not an exception, on a blocked download (`test_empty_yahoo_result_falls_back_to_stooq`).
+
+## 2026-10-07 — Market simulation — PENDING — EURUSD=X and XBI not yet in MinIO
+
+**What:** The definition of done asks for `EURUSD=X` and `XBI` snapshots in `auspex-prices`. The build session had no MinIO and Yahoo was blocked by its network proxy.
+**Action:** On the machine running the stack: `cd services/backtesting && uv run python scripts/fetch_prices.py EURUSD=X XBI --start 2023-01-01 --end <today>` (with MinIO env from `.env`). Covers the 24-month backfill window plus a margin. Record the row counts here when done. Note the Stooq fallback uses Stooq symbols (`eurusd`, `xbi.us`), so if Yahoo is rate-limiting, retry later rather than relying on it.
