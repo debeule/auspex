@@ -608,3 +608,7 @@ Create a free account at quay.io if you don't have one. No organisation-specific
 **Why it matters:** few, correlated, fat-tailed bets make full Kelly ruinous; the previous spec used shrinkage toward the prior as if it were the Kelly multiplier and let positions ride through known binary dates.
 **Options considered:** A) half Kelly via shrinkage (previous spec). B) quarter Kelly with a 5% hard cap (chosen). C) fixed 2% per name with no Kelly.
 **Action:** `specs/portfolio-and-risk.md` updated: `KELLY_FRACTION`, `MAX_POSITIONS_PER_THEME`, startup validation against the ceilings, forced exit before catalysts, six new tests (18 total).
+
+## 2026-10-07 — Pre-registration — VERIFIED — owner accepted the proposed thresholds
+**What:** The owner accepted every proposed default in the pre-registration entries above: family budget 64 cells, the `no_in_sample_effect` reading (net mean > 0 and clustered t ≥ 1.5 at some horizon), quarter Kelly with a 5% per-name ceiling and one position per theme, 30 clusters before the wild bootstrap, and the [-250, -30] estimation window with at least 120 observations.
+**Action:** `config/hypotheses/protocol.yaml` stays as registered; no re-registration needed.
