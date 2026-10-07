@@ -56,6 +56,27 @@ All in `services/ingestion-scraper/tests/unit/test_sec_edgar.py`, with respx and
 - `test_edgar_filing_is_located_by_company_cik_not_accession_prefix`
 - `test_edgar_every_sec_request_goes_through_rate_limiter_with_user_agent` (replaces the submissions rate-limiter test)
 
+Edge-case coverage, added after a mutation pass (each code mutation listed in Notes fails at least one test):
+
+- `test_press_release_exhibit_is_recognised_under_its_type_variants` (EX-99.1, EX-99.01, lower case)
+- `test_other_exhibits_are_not_taken_for_the_press_release` (EX-99.2, EX-99.10, EX-99, EX-10.1)
+- `test_first_press_release_exhibit_wins_when_the_index_lists_two`
+- `test_amended_8k_uses_its_8k_a_cover_document`
+- `test_xbrl_data_files_are_never_fetched`, `test_documents_in_the_xbrl_data_files_table_are_ignored`
+- `test_index_without_a_cover_document_keeps_the_exhibit_and_warns`
+- `test_index_with_no_documents_keeps_metadata_but_takes_the_acceptance_time`
+- `test_cover_fetch_failure_keeps_the_exhibit_and_warns`
+- `test_both_documents_failing_keeps_metadata_with_the_acceptance_time`
+- `test_network_error_on_the_index_falls_back_to_metadata_and_warns`
+- `test_index_403_falls_back_without_the_search_backoff`
+- `test_hit_without_a_company_cik_keeps_metadata_and_makes_no_archive_request`
+- `test_hit_without_an_items_field_is_skipped`
+- `test_one_document_per_accession_across_search_pages`
+- `test_acceptance_time_converts_to_utc_across_daylight_saving_changes` (5 cases around both 2024 DST changes and midnight UTC)
+- `test_file_date_fallback_in_winter_is_17_30_eastern_standard_time`
+- `test_content_hash_matches_the_fetched_text`
+- `test_identity_does_not_depend_on_fetched_content_or_acceptance_time`
+
 Red before implementation: 16 failed, 16 passed, every failure an `AssertionError` (metadata-only `raw_content`, midnight `published_date`, non-press-release 8-Ks still yielded, submissions URL requested instead of the index).
 
 ## Definition of done
@@ -64,9 +85,11 @@ Red before implementation: 16 failed, 16 passed, every failure an `AssertionErro
 cd services/ingestion-scraper && uv run pytest tests/unit/test_sec_edgar.py -q
 ```
 
-Expected: **32 passed**. Unit suite 266 passed; ruff and mypy clean.
+Expected: **60 passed**. Unit suite 294 passed; ruff and mypy clean.
 
 ## Notes
+
+- Mutation pass: each of these code changes fails at least one test: `search` instead of `fullmatch` for the exhibit type; acceptance or fallback time read as UTC instead of Eastern; fallback cutoff at midnight; acceptance time ignored; accession dedup removed; item filter removed; CIK from the accession prefix; every file table read; `/ix?doc=` prefix kept; last duplicate type wins; `User-Agent` dropped on archive requests; missing-cover warning dropped. The one surviving mutant (inserting the exhibit at position 1 of an empty list) is equivalent.
 
 - The index page layout and the Eastern-time `Accepted` field were not verified live from the implementation session (no network route to sec.gov there). A wrong parse fails safe: the document falls back to metadata or the cover, with a warning in the logs. Check the first live run's logs for `edgar filing index` warnings before starting the backfill.
 - The fixtures describe a fictional company (Northwind Gene Therapeutics, NWG-301) so they cannot be mistaken for real readouts.

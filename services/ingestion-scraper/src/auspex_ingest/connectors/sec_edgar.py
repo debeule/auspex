@@ -77,8 +77,8 @@ class _FilingIndexParser(HTMLParser):
         self._div_class: str | None = None
         self._div_text: list[str] = []
         self._last_info_head: str | None = None
-        self._tables_seen = 0
         self._in_documents_table = False
+        self._documents_table_done = False
         self._row: list[tuple[str, str | None]] | None = None
         self._cell_text: list[str] | None = None
         self._cell_href: str | None = None
@@ -90,9 +90,8 @@ class _FilingIndexParser(HTMLParser):
             self._div_class = attr.get("class")
             self._div_text = []
         elif tag == "table" and "tableFile" in (attr.get("class") or ""):
-            self._tables_seen += 1
-            # The first file table lists the filed documents; later ones hold XBRL data files.
-            self._in_documents_table = self._tables_seen == 1
+            # The first file table lists the filed documents; a later one holds XBRL data files.
+            self._in_documents_table = not self._documents_table_done
         elif not self._in_documents_table:
             return
         elif tag == "tr":
@@ -114,6 +113,7 @@ class _FilingIndexParser(HTMLParser):
             self._div_class = None
         elif tag == "table" and self._in_documents_table:
             self._in_documents_table = False
+            self._documents_table_done = True
         elif tag in ("td", "th") and self._cell_text is not None:
             text = " ".join(self._cell_text).strip()
             if self._cell_is_header:

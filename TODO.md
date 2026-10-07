@@ -12,7 +12,7 @@ Each line links to a self-contained spec in `specs/`. Open the spec and read it 
 | [Extraction backend](specs/done/extraction-backend.md) | `done` | 23 tests (15 unit + 8 contract); registry.yaml; gate record; LLMExtractorFactory; deprecation warning |
 | [EDGAR content fix](specs/done/edgar-content-fix.md) | `done` | 18 tests; full 8-K text via data.sec.gov/submissions; live fetch verified (4,282 chars) |
 | [EDGAR EFTS fixture alignment](specs/done/edgar-efts-fixture-alignment.md) | `done` | Fixtures + _map aligned to real EFTS schema (adsh, ciks, display_names, form, period_ending) |
-| [EDGAR press-release content](specs/done/edgar-press-release-content.md) | `done` | 32 tests; items 2.02/7.01/8.01 only; Exhibit 99.1 leads raw_content; published_date = acceptance time (UTC); company CIK from ciks[0] |
+| [EDGAR press-release content](specs/done/edgar-press-release-content.md) | `done` | 60 tests; items 2.02/7.01/8.01 only; Exhibit 99.1 leads raw_content; published_date = acceptance time (UTC); company CIK from ciks[0] |
 | [Model evaluation](specs/done/model-evaluation.md) | `done` | 6 tests; evaluate_model.py, check_leakage.py, compare_models.py; auspex_ingest.model_evaluation |
 | [Backtesting module](specs/done/backtesting.md) | `done` | 8 tests; entity-only and full corroboration variants; CorroborationGroup, VariantReport |
 | [Performance metrics](specs/done/performance-metrics.md) | `done` | 8 tests; variant field on MetricsReport; compute_both_variants; entity-only vs full filtering |
@@ -89,4 +89,4 @@ Each line links to a self-contained spec in `specs/`. Open the spec and read it 
 | 2026-10-07 | Local model integration | Done — 10 tests green (235 unit); production now reaches Ollama; awaiting gate runs on the backfill machine | No |
 | 2026-10-07 | Realistic cost model | Done — 27 tests green; market-simulation tests unchanged | No |
 | 2026-10-07 | Pre-registration and kill criteria | Done — 13 tests green (test_preregistered_protocol.py; 76 backtesting unit); protocol.yaml + hypothesis v2 registered before backfill; evaluation-protocol, portfolio-and-risk, strategy-metrics specs updated; 5 DECISIONS entries | No |
-| 2026-10-07 | EDGAR press-release content | Done — 32 tests green; filing index replaces submissions lookup | No |
+| 2026-10-07 | EDGAR press-release content | Done — 60 tests green, mutation-checked; filing index replaces submissions lookup | No |
