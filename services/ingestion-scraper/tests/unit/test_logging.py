@@ -125,3 +125,38 @@ def test_all_captured_log_events_are_valid_json():
             json.dumps(event)
         except TypeError as exc:
             pytest.fail(f"Log event not JSON-serializable: {exc!r}\nEvent: {event!r}")
+
+
+def test_json_logs_use_ecs_level_and_message_fields(monkeypatch, capsys):
+    from auspex_ingest.logging_config import configure_logging
+
+    monkeypatch.setenv("LOG_FORMAT", "json")
+    configure_logging()
+    try:
+        structlog.get_logger().warning("archive slow", **{"auspex.source_type": "biorxiv"})
+    finally:
+        structlog.reset_defaults()
+
+    line = json.loads(capsys.readouterr().out.strip().splitlines()[-1])
+    assert line["message"] == "archive slow"
+    assert line["log"]["level"] == "warning"
+    assert "@timestamp" in line
+    assert line["auspex.source_type"] == "biorxiv"
+
+
+def test_create_app_configures_json_logging(monkeypatch):
+    from auspex_ingest.api import create_app
+    from auspex_ingest.sources import SourceEntry, SourcesConfig
+
+    monkeypatch.setenv("LOG_FORMAT", "json")
+    sources = SourcesConfig(sources=[SourceEntry(
+        source_type="biorxiv", schedule="@daily", rate_limit_rps=3.0, initial_lookback=7,
+        max_documents_per_run=100, prefilter_vocabulary=["gene therapy"], source_config={},
+    )])
+    try:
+        create_app(pipeline_for_source=lambda _st: MagicMock(), sources_config=sources)
+        processors = structlog.get_config()["processors"]
+    finally:
+        structlog.reset_defaults()
+
+    assert any(isinstance(p, structlog.processors.JSONRenderer) for p in processors)

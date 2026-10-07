@@ -27,4 +27,7 @@ output.elasticsearch:
 setup.ilm.enabled: false
 setup.template.name: "auspex-logs"
 setup.template.pattern: "auspex-logs-*"
-setup.template.overwrite: false
+setup.template.overwrite: true
+setup.template.settings:
+  index.number_of_shards: 1
+  index.lifecycle.name: auspex-logs-ilm

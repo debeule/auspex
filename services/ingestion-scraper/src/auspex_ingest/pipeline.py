@@ -89,6 +89,7 @@ class IngestionPipeline:
                         f"doc {doc.external_id!r} has canonical_id=None"
                     )
 
+                extract_start = time.monotonic()
                 try:
                     event = self._extractor.extract(doc, self._prefilter.version, key)
                     if self._metrics:
@@ -97,6 +98,11 @@ class IngestionPipeline:
                     if self._metrics:
                         self._metrics["llm_calls"].labels(source_type=source_type, result="error").inc()
                     raise
+                finally:
+                    if self._metrics:
+                        self._metrics["llm_duration"].labels(source_type=source_type).observe(
+                            time.monotonic() - extract_start
+                        )
 
                 if event is None:
                     result.not_signal += 1
@@ -135,6 +141,8 @@ class IngestionPipeline:
 
             except Exception as exc:  # noqa: BLE001
                 result.failed += 1
+                if self._metrics:
+                    self._metrics["documents_failed"].labels(source_type=source_type).inc()
                 log.error("document processing failed", **{
                     "auspex.external_id": doc.external_id,
                     "exception_class": type(exc).__name__,

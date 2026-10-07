@@ -29,6 +29,10 @@ response=$(curl -sf -u "${AUTH}" "${GRAFANA_URL}/api/search?type=dash-db&query=A
 echo "$response" | grep -q '"title":"Auspex Operations"' || fail "Auspex Operations dashboard not found"
 echo "$response" | grep -q '"title":"Auspex Pipeline"' || fail "Auspex Pipeline dashboard not found"
 echo "$response" | grep -q '"title":"Auspex Error Drill-Down"' || fail "Auspex Error Drill-Down dashboard not found"
+for uid in auspex-pipeline auspex-operations auspex-errors; do
+  curl -sf -u "${AUTH}" "${GRAFANA_URL}/api/dashboards/uid/${uid}" | grep -q '"gridPos"' \
+    || fail "dashboard ${uid} has no panels"
+done
 echo "   PASS"
 
 echo "4. Alert rules provisioned..."
@@ -36,6 +40,8 @@ response=$(curl -sf -u "${AUTH}" "${GRAFANA_URL}/api/ruler/grafana/api/v1/rules"
 echo "$response" | grep -q '"title":"DLT Backlog"' || fail "DLT Backlog alert rule not found"
 echo "$response" | grep -q '"title":"Source Silence"' || fail "Source Silence alert rule not found"
 echo "$response" | grep -q '"title":"Kafka Lag Critical"' || fail "Kafka Lag Critical alert rule not found"
+echo "$response" | grep -q '"title":"Scrape Target Down"' || fail "Scrape Target Down alert rule not found"
+echo "$response" | grep -q '"title":"LLM Extraction Errors"' || fail "LLM Extraction Errors alert rule not found"
 echo "   PASS"
 
 echo "5. Prometheus reachable through Grafana..."

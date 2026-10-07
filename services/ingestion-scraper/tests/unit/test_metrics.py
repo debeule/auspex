@@ -156,3 +156,105 @@ def test_run_duration_histogram_records_observation():
         {"source_type": "biorxiv"},
     )
     assert count == 1.0
+
+
+def _publishing_pipeline(registry):
+    connector = MagicMock()
+    connector.fetch_since.return_value = [_make_doc()]
+    connector.provides_canonical_id = False
+    event = MagicMock()
+    event.confidence_score = 0.9
+    event.gene_targets = []
+    event.companies_mentioned = []
+    extractor = MagicMock()
+    extractor.extract.return_value = event
+    archive = MagicMock()
+    archive.put.return_value = ("key", True)
+    return _make_pipeline(connector, registry, archive=archive, extractor=extractor)
+
+
+def test_make_metrics_twice_on_one_registry_returns_the_same_collectors():
+    from auspex_ingest.metrics import make_metrics
+
+    registry = _make_registry()
+    first = make_metrics(registry)
+    second = make_metrics(registry)
+
+    assert first.keys() == second.keys()
+    for name in first:
+        assert first[name] is second[name]
+
+
+def test_pipelines_built_per_request_on_a_shared_registry_accumulate_counts():
+    registry = _make_registry()
+
+    _publishing_pipeline(registry).run("biorxiv", datetime.now(UTC))
+    _publishing_pipeline(registry).run("biorxiv", datetime.now(UTC))
+
+    count = registry.get_sample_value(
+        "auspex_pipeline_signals_published_total",
+        {"source_type": "biorxiv"},
+    )
+    assert count == 2.0
+
+
+def test_extraction_latency_histogram_observes_each_llm_call():
+    registry = _make_registry()
+
+    _publishing_pipeline(registry).run("biorxiv", datetime.now(UTC))
+
+    count = registry.get_sample_value(
+        "auspex_llm_extraction_duration_seconds_count",
+        {"source_type": "biorxiv"},
+    )
+    assert count == 1.0
+
+
+def test_failed_documents_counter_increments_on_processing_error():
+    registry = _make_registry()
+    connector = MagicMock()
+    connector.fetch_since.return_value = [_make_doc()]
+    archive = MagicMock()
+    archive.put.side_effect = RuntimeError("minio unavailable")
+
+    _make_pipeline(connector, registry, archive=archive).run("biorxiv", datetime.now(UTC))
+
+    count = registry.get_sample_value(
+        "auspex_pipeline_documents_failed_total",
+        {"source_type": "biorxiv"},
+    )
+    assert count == 1.0
+
+
+def test_env_pipeline_factory_wires_the_metrics_registry(monkeypatch):
+    import confluent_kafka
+
+    from auspex_ingest.api import _make_env_pipeline_factory
+
+    monkeypatch.setenv("MINIO_ENDPOINT", "minio.invalid:9000")
+    monkeypatch.setenv("MINIO_ACCESS_KEY", "k")
+    monkeypatch.setenv("MINIO_SECRET_KEY", "s")
+    monkeypatch.setenv("MINIO_BUCKET", "auspex-raw")
+    monkeypatch.setenv("KAFKA_BOOTSTRAP_SERVERS", "kafka.invalid:9092")
+    monkeypatch.setenv("OPENAI_API_KEY", "unused-in-this-test")
+    monkeypatch.setattr(confluent_kafka, "Producer", MagicMock())
+
+    registry = _make_registry()
+    sources = _make_sources("biorxiv")
+    factory = _make_env_pipeline_factory(
+        {e.source_type: e for e in sources.sources}, registry
+    )
+    factory("biorxiv")
+
+    registered = {m.name for m in registry.collect()}
+    assert "auspex_pipeline_documents_fetched" in registered
+
+
+def test_gunicorn_serves_from_one_process_so_metrics_are_not_split_across_workers():
+    import runpy
+    from pathlib import Path
+
+    conf = runpy.run_path(str(Path(__file__).parents[2] / "config" / "gunicorn.conf.py"))
+
+    assert conf["workers"] == 1
+    assert conf["threads"] >= 2
