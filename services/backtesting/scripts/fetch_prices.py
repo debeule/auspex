@@ -1,12 +1,14 @@
 """Fetch daily OHLCV series into the auspex-prices MinIO bucket, once.
 
+The stack fills and extends the snapshots of the watchlist, XBI and EURUSD=X by itself
+(the price-bootstrap job and the auspex_price_refresh DAG). Use this for any other ticker.
+
 Usage:
-    uv run python scripts/fetch_prices.py EURUSD=X XBI --start 2023-01-01 --end 2026-10-01
+    uv run python scripts/fetch_prices.py MRNA VRTX --start 2023-01-01 --end 2026-10-01
 
 Run from services/backtesting with MINIO_ENDPOINT, MINIO_ACCESS_KEY and MINIO_SECRET_KEY set
-(see .env.example). A ticker already in the bucket is left untouched: snapshots are fetched
-once and never refreshed, so backtests stay reproducible. Exits non-zero if any ticker comes
-back empty from both Yahoo and Stooq.
+(see .env.example). A ticker already in the bucket is left untouched. Exits non-zero if any
+ticker comes back empty from both Yahoo and Stooq.
 """
 
 import argparse

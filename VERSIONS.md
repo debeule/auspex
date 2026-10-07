@@ -86,6 +86,8 @@ Managed with **uv**; `uv.lock` is committed. Resolved 2026-09-18 from PyPI.
 | pandas-datareader | 0.11.1 |
 | pandas-market-calendars | 5.4.0 (resolved 2026-10-07; 5.5.0 skipped, released 2026-10-05) |
 | minio | 7.2.20 (shared with ingestion-scraper) |
+| flask | 3.1.3 (same as ingestion-scraper; price refresh API) |
+| gunicorn | 26.2.0 (same as ingestion-scraper) |
 
 ## Version-sensitive claims that need re-verification
 These were verified against **older** versions than we are now pinning. Confirm each at the step that depends on it and record the outcome in `DECISIONS.md`.

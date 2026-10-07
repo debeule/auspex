@@ -30,8 +30,8 @@ Kafka 4.3 (KRaft, no Zookeeper), PostgreSQL 18, Neo4j 2026.05, MinIO, Airflow 3.
 ## Quick start
 
 ```bash
-cp .env.example .env          # fill in SEC_USER_AGENT and API keys — see docs/PREREQUISITES.md
-docker compose -f docker/docker-compose.yml --env-file .env up -d --wait
+cp .env.example .env          # fill in secrets and API keys — see SETUP.md
+docker compose --profile app -f docker/docker-compose.yml --env-file .env up -d --build --wait
 cd services/ingestion-scraper && uv sync --all-extras
 uv run python scripts/run_pipeline.py --days 30 --sources clinicaltrials pubmed
 curl http://localhost:8080/api/v1/signals/BEAM
@@ -53,6 +53,7 @@ curl http://localhost:8080/api/v1/signals/BEAM
 | Java: unit tests | `cd services/core-hub && ./gradlew test` |
 | Java: container tests | `cd services/core-hub && ./gradlew integrationTest` |
 | Java: everything | `cd services/core-hub && ./gradlew check` |
+| Backtesting: unit tests | `cd services/backtesting && uv run pytest tests/unit -q` |
 | Smoke test | `./verify_pipeline.sh` |
 
 ---
@@ -64,10 +65,11 @@ auspex/
 ├── services/
 │   ├── ingestion-scraper/   Python scraper — fetch, archive, extract, publish
 │   ├── core-hub/            Java Spring Boot — sole DB writer, corroboration, REST
-│   └── backtesting/         Phase 4 placeholder
+│   └── backtesting/         Prices, market simulation, backtests; price refresh API
 ├── orchestration/airflow/   Airflow DAGs (Phase 2+)
-├── docker/                  Docker Compose stack + Kafka topic provisioning
+├── docker/                  Docker Compose stack + startup data bootstrap
 ├── docs/                    Reference docs: plan, requirements, decisions, prerequisites
+├── SETUP.md                 The manual steps, in order; everything else fills itself on `up`
 ├── CLAUDE.md                Claude Code operational context (auto-loaded)
 ├── PROGRESS.md              Execution ledger (test counts, step status)
 ├── VERSIONS.md              Pinned versions — single source of truth

@@ -12,8 +12,12 @@ docker compose -f docker/docker-compose.yml --env-file .env down -v         # wi
 
 ## Topic provisioning
 
-`provision.sh` runs on first `up` and creates Kafka topics from `topics.yaml`.
-If topic counts are wrong: `down -v` then `up` again.
+The `kafka-init` one-shot (`kafka-init/create-topics.sh`) creates topics from `topics.yaml` on every `up`;
+`minio-init` creates the buckets and `price-bootstrap` fills missing price snapshots. All three are
+no-ops when the data exists. If topic counts are wrong: `down -v` then `up` again.
+
+Startup data belongs in a one-shot compose service that is a no-op when the data exists; data that
+must stay current belongs in an Airflow DAG calling a service HTTP API. Never a script to run by hand.
 
 **DLT topic partition count must match the source topic.** Spring's `DeadLetterPublishingRecoverer`
 uses partition `-1` (producer chooses from available partitions) — if counts differ, DLT publishing

@@ -16,10 +16,14 @@ Docker Compose stack for the full Auspex infrastructure.
 | `auspex-filebeat` | `elastic/filebeat:8.17.3` | — | Log shipper; Docker autodiscovery |
 | `auspex-prometheus` | `prom/prometheus:v3.14.0` | 9090 | Metrics scraper and storage |
 | `auspex-grafana` | `grafana/grafana-oss:13.0.2` | 3000 | Observability UI (logs + metrics) |
+| `auspex-kafka-init` | `apache/kafka:4.3.0` | — | One-shot init: creates every topic in `topics.yaml` (`--if-not-exists`) |
+| `auspex-minio-init` | built from `services/backtesting` | — | One-shot init: creates the `auspex-raw` and `auspex-prices` buckets |
+| `auspex-price-bootstrap` | built from `services/backtesting` | — | One-shot init: fills missing price snapshots (watchlist, `XBI`, `EURUSD=X`) from `PRICE_HISTORY_START` and appends bars since the last run; fails `up --wait` if a ticker has no data at all |
+| `auspex-price-service` | built from `services/backtesting` | 8001 | Price refresh HTTP API (`POST /prices/refresh`) that the `auspex_price_refresh` DAG calls |
 | `auspex-elasticsearch-setup` | `curlimages/curl:8.15.0` | — | One-shot init: applies the `auspex-logs-ilm` retention policy (delete after 180 days) and attaches it to existing log indices |
 | `auspex-ingestion-scraper` | built from `services/ingestion-scraper` | 8000 | Scraper HTTP API (profile `app`) |
 | `auspex-core-hub` | built from `services/core-hub` | 8080 | Signal processor (profile `app`) |
-| `auspex-airflow` | `apache/airflow:3.3.1` | 8082 | DAG scheduler |
+| `auspex-airflow` | `apache/airflow:3.3.1` | 8082 | DAG scheduler: ingestion DAGs (paused at creation) and `auspex_price_refresh` (active, Mon–Fri 22:30 UTC) |
 
 All ports bound to `127.0.0.1` — local only, intentional. Services in the `app` profile (`ingestion-scraper`, `core-hub`) only start with `--profile app`.
 
@@ -33,13 +37,13 @@ docker compose -f docker/docker-compose.yml --env-file .env down            # ke
 docker compose -f docker/docker-compose.yml --env-file .env down -v         # wipe volumes
 ```
 
-`--wait` blocks until all healthchecks pass. `auspex-airflow` healthcheck is slow (~60s) — normal.
+`--wait` blocks until all healthchecks pass and every one-shot init has exited 0. `auspex-airflow` healthcheck is slow (~60s) — normal. Manual steps that remain (secrets, the local model, sign-offs) are in [`SETUP.md`](../SETUP.md).
 
 ---
 
 ## Kafka topics
 
-Provisioned by `provision.sh` on first startup from `topics.yaml`.
+Created by the `kafka-init` one-shot on every `up` from `topics.yaml`; existing topics are left alone.
 
 | Topic | Partitions | Retention | Notes |
 |---|---|---|---|
@@ -52,7 +56,7 @@ Provisioned by `provision.sh` on first startup from `topics.yaml`.
 
 DLT partition count must match the source topic — Spring's `DeadLetterPublishingRecoverer` publishes to the same partition number.
 
-If topic counts are wrong after a compose restart: `down -v` then `up` again to reprovision.
+`--if-not-exists` never alters an existing topic. If partition counts are wrong: `down -v` then `up` again.
 
 ---
 

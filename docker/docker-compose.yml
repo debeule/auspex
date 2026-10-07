@@ -28,6 +28,18 @@ services:
       retries: 15
       start_period: 30s
 
+  kafka-init:
+    image: apache/kafka:4.3.0
+    container_name: auspex-kafka-init
+    depends_on:
+      kafka:
+        condition: service_healthy
+    volumes:
+      - ./kafka-init/create-topics.sh:/create-topics.sh:ro
+      - ./topics.yaml:/config/topics.yaml:ro
+    entrypoint: ["/create-topics.sh"]
+    restart: "no"
+
   postgres:
     image: postgres:18.6
     container_name: auspex-postgres
@@ -89,6 +101,59 @@ services:
       timeout: 5s
       retries: 5
       start_period: 10s
+
+  minio-init:
+    build: &backtesting-build
+      context: ../services/backtesting
+      dockerfile: Dockerfile
+      args:
+        UV_VERSION: ${UV_VERSION}
+    image: auspex-backtesting
+    container_name: auspex-minio-init
+    depends_on:
+      minio:
+        condition: service_healthy
+    environment: &minio-env
+      MINIO_ENDPOINT: minio:9000
+      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}
+      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
+      MINIO_BUCKET: ${MINIO_BUCKET}
+    command: ["uv", "run", "--no-project", "python", "-m", "auspex_backtesting.stack_bootstrap", "buckets"]
+    restart: "no"
+
+  price-bootstrap:
+    build: *backtesting-build
+    image: auspex-backtesting
+    container_name: auspex-price-bootstrap
+    depends_on:
+      minio-init:
+        condition: service_completed_successfully
+    environment: &price-env
+      <<: *minio-env
+      WATCHED_TICKERS: ${WATCHED_TICKERS}
+      PRICE_HISTORY_START: ${PRICE_HISTORY_START:-2023-01-01}
+    command: ["uv", "run", "--no-project", "python", "-m", "auspex_backtesting.stack_bootstrap", "prices"]
+    restart: "no"
+
+  price-service:
+    build: *backtesting-build
+    image: auspex-backtesting
+    container_name: auspex-price-service
+    depends_on:
+      minio-init:
+        condition: service_completed_successfully
+    environment: *price-env
+    ports:
+      - "127.0.0.1:8001:8001"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:8001/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    labels:
+      co.elastic.logs/enabled: "true"
 
   elasticsearch:
     image: elasticsearch:${ELASTIC_VERSION}
@@ -184,10 +249,10 @@ services:
     profiles: ["app"]
     restart: unless-stopped
     depends_on:
-      kafka:
-        condition: service_healthy
-      minio:
-        condition: service_healthy
+      kafka-init:
+        condition: service_completed_successfully
+      minio-init:
+        condition: service_completed_successfully
     environment:
       KAFKA_BOOTSTRAP_SERVERS: kafka:9094
       KAFKA_RAW_TOPIC: auspex.raw.ingested
@@ -235,8 +300,8 @@ services:
         condition: service_healthy
       neo4j:
         condition: service_healthy
-      kafka:
-        condition: service_healthy
+      kafka-init:
+        condition: service_completed_successfully
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
@@ -268,7 +333,7 @@ services:
         condition: service_healthy
       kafka:
         condition: service_healthy
-      minio:
+      price-service:
         condition: service_healthy
     environment:
       AIRFLOW__CORE__EXECUTOR: LocalExecutor
@@ -279,8 +344,10 @@ services:
       AIRFLOW__WEBSERVER__DEFAULT_UI_TIMEZONE: UTC
       AUSPEX_SOURCES_YAML: /opt/airflow/config/sources.yaml
       SCRAPER_API_URL: ${SCRAPER_API_URL:-http://ingestion-scraper:8000}
+      PRICE_API_URL: ${PRICE_API_URL:-http://price-service:8001}
     volumes:
-      - ../services/ingestion-scraper/dags:/opt/airflow/dags:ro
+      - ../services/ingestion-scraper/dags:/opt/airflow/dags/ingestion:ro
+      - ../services/backtesting/dags:/opt/airflow/dags/prices:ro
       - ../services/ingestion-scraper/config:/opt/airflow/config:ro
       - airflow_logs:/opt/airflow/logs
     ports:

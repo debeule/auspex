@@ -1,6 +1,6 @@
 # Prerequisites — outstanding items
 
-Everything here needs a person before the blocked step can proceed.
+Everything here needs a person before the blocked step can proceed. [`SETUP.md`](../SETUP.md) puts the ones needed to run the system in order.
 
 ---
 

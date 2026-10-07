@@ -12,6 +12,7 @@ Those two are imported, so they are already in context — do not re-read them f
 - `docs/PREREQUISITES.md` — read when a spec is blocked on a credential or user decision.
 - `DECISIONS.md` — read before flagging something (it may already be logged); append when you flag.
 - `docs/plan.md` — reference only; contains original phase definitions for Phases 0–6.
+- `SETUP.md` — the only manual steps (secrets, host installs, sign-offs), in order. Everything else loads on `docker compose up` or refreshes on an Airflow schedule. A new manual step goes there, and only if it cannot be automated.
 
 **The first `ready` spec in TODO.md is the work.** Update it as items complete, not at the end of the session.
 
@@ -87,6 +88,7 @@ This is not hypothetical: v1 of this plan contained a test (`test_dag_task_only_
 | Java: one test class | `cd services/core-hub && ./gradlew test --tests '*GraphUpdateServiceTest'` |
 | Java: forked-TZ execution | `cd services/core-hub && ./gradlew timezoneCheck` |
 | Java: force re-run (defeat up-to-date) | `cd services/core-hub && ./gradlew test --rerun-tasks` |
+| Backtesting: unit tests | `cd services/backtesting && uv run pytest tests/unit -q` |
 | Smoke test | `./verify_pipeline.sh` |
 | Regenerate contract fixture | `cd services/ingestion-scraper && uv run pytest tests/unit/test_contract_fixture.py` |
 
@@ -214,6 +216,7 @@ git checkout develop          # reset for the next spec
 | `docs/requirements.md` | What the system must satisfy. Cited by specs when verifying tests. |
 | `docs/PREREQUISITES.md` | Outstanding credentials and user decisions. |
 | `docs/local-model-runbook.md` | Install Ollama, register and gate a local extraction model, switch the pipeline to it. |
+| `SETUP.md` | Manual setup steps in order; what the stack fills by itself. |
 | `docs/HISTORY.md` | Completed phases (0–3) — test counts, pre-fix failures, key decisions. |
 | `docs/plan.md` | Reference only — original phase definitions. Superseded by `specs/` for active work. |
 
