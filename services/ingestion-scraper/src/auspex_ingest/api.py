@@ -147,8 +147,7 @@ def _make_env_pipeline_factory(
     from minio import Minio
 
     from .connectors import RateLimitedClient
-    from .connectors.biorxiv import BiorxivConnector
-    from .connectors.clinicaltrials import ClinicalTrialConnector
+    from .connectors.registry import CONNECTOR_HOSTS, build_connector
     from .extraction_backend import BackendLLMExtractor, build_extractor_from_env
     from .messaging import KafkaProducerClient
     from .normalizer import IdentityNormalizer
@@ -156,14 +155,15 @@ def _make_env_pipeline_factory(
     from .prefilter import Prefilter
     from .storage.minio_client import MinioArchive
 
-    rate_limits: dict[str, float] = {
-        "api.biorxiv.org": 3.0,
-        "clinicaltrials.gov": 5.0,
-        "eutils.ncbi.nlm.nih.gov": 3.0,
-        "sec.gov": 4.0,
-        "ops.epo.org": 2.0,
-    }
-    http_client = RateLimitedClient(rate_limits)
+    # One shared limiter, per-host rates from sources.yaml; waits rather than aborting a run.
+    http_client = RateLimitedClient(
+        {
+            CONNECTOR_HOSTS[st]: e.rate_limit_rps
+            for st, e in sources_by_type.items()
+            if st in CONNECTOR_HOSTS
+        },
+        block=True,
+    )
 
     minio_client = Minio(
         os.environ["MINIO_ENDPOINT"],
@@ -188,16 +188,11 @@ def _make_env_pipeline_factory(
         signals_topic=os.environ.get("KAFKA_SIGNALS_TOPIC", "auspex.signals.extracted"),
     )
 
-    def _build_connector(source_type: str, entry: SourceEntry) -> Any:
-        if source_type == "biorxiv":
-            return BiorxivConnector(client=http_client)
-        if source_type == "clinicaltrials":
-            return ClinicalTrialConnector(client=http_client)
-        raise ValueError(f"No connector registered for source_type={source_type!r}")
-
     def factory(source_type: str) -> IngestionPipeline:
         entry = sources_by_type[source_type]
-        connector = _build_connector(source_type, entry)
+        connector = build_connector(
+            source_type, client=http_client, source_config=entry.source_config, env=os.environ
+        )
         extractor = _extractor()
         return IngestionPipeline(
             connector=connector,

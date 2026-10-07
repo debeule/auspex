@@ -13,6 +13,8 @@
 
 **Branch:** `feature/historical-backfill`
 
+**Progress (2026-10-07):** Runner built and unit-tested (`tests/unit/test_backfill.py`, 19 passed), plus `ExtractionLineageIT` for the core-hub overlap endpoint. Blockers 1, 2, 5 and 6 still stand for the *live* run; the dry run can be executed now. Implementation choices and findings are in DECISIONS.md 2026-10-07 entries. Additions beyond the original text: live runs require `--estimate-run-id` of an approved dry run; `--window-days` sets checkpoint/query window size; connectors accept an optional `until`; `RateLimitedClient(block=True)`.
+
 ---
 
 ## Context

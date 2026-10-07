@@ -8,4 +8,7 @@ models:
     temperature: 0
     seed: 42
     structured_output_mode: "JSON"
+    # Used by run_backfill.py --dry-run cost estimate (USD per million tokens).
+    input_price_per_mtok: 0.15
+    output_price_per_mtok: 0.60
     # deprecation_date: "YYYY-MM-DD"  # set when OpenAI announces EOL
