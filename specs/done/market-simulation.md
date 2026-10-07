@@ -1,7 +1,7 @@
 # Market Simulation
 
-**Status:** blocked
-**Blocked by:** backtesting module entity-only variant (`specs/backtesting.md`) — `BacktestRunner` must exist before `FillModel` can integrate with it. Price data (`specs/done/price-ingestion.md`) and alignment (`specs/done/point-in-time-alignment.md`) are already done.
+**Status:** done
+**Blocked by:** — (backtesting entity-only variant done 2026-09-25)
 
 **Branch:** `feature/market-simulation`
 
@@ -74,6 +74,7 @@ In `tests/unit/test_market_simulation.py`:
 - `test_position_sizer_floors_to_integer_shares` — `capital_eur=1000, fx_rate=1.1, price_usd=99.0` → `floor(1000/1.1/99.0) = 9` shares
 - `test_position_sizer_raises_when_capital_too_small` — `capital_eur=50, fx_rate=1.1, price_usd=200.0` → `floor(50/1.1/200.0) = 0` → raises `PositionTooSmallError`
 - `test_currency_converter_raises_when_fx_data_absent` — no Parquet for `EURUSD=X` on the target date → raises `PriceDataAbsentError`
+- `test_tradable_universe_names_ticker_missing_price_data` — a ticker whose snapshot starts after the range start raises `MissingPriceDataError` naming the ticker and range (added at implementation; see DECISIONS.md 2026-10-07)
 
 ## Definition of done
 
@@ -81,7 +82,7 @@ In `tests/unit/test_market_simulation.py`:
 cd services/backtesting && uv run pytest tests/unit/test_market_simulation.py -q
 ```
 
-Expected: 10 passed.
+Expected: 11 passed.
 
 Then: `EURUSD=X` and `XBI` price data fetched and committed to MinIO (or recorded as fetched in DECISIONS.md) so the evaluation-protocol spec can use them without re-fetching.
 
