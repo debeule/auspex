@@ -49,12 +49,12 @@ Each line links to a self-contained spec in `specs/`. Open the spec and read it 
 | [Kafka Streams correlation](specs/kafka-streams-correlation.md) | `draft` | Conditional — only if scheduled query proves inadequate |
 | [Company-program corroboration](specs/company-program-corroboration.md) | `blocked` | Blocked by company-level event extraction + requirements §4/§9 amendment approval; Program nodes, COMPANY_PROGRAM kind, configurable window, point-in-time score |
 | [Point-in-time universe](specs/point-in-time-universe.md) | `blocked` | Blocked by backtest look-ahead fix; scope decided 2026-10-07 (SIC 2834/2836/8731, $50M cap, $500k ADV, free delisted prices); rules-based biotech universe incl. delisted, monthly snapshots |
-| [Forward paper trading](specs/forward-paper-trading.md) | `blocked` | Blocked by strategy-runtime + look-ahead fix + pre-registration + realistic costs; daily paper ledger at €10k/€50k/€250k, heartbeats, gap detection, forward-check report per tier. **Gates live trading:** no real capital until its forward check passes, and its per-tier results set how much |
+| [Forward paper trading](specs/forward-paper-trading.md) | `blocked` | Blocked by strategy-runtime + look-ahead fix; daily paper ledger at €10k/€50k/€250k, heartbeats, gap detection, forward-check report per tier. **Gates live trading:** no real capital until its forward check passes, and its per-tier results set how much |
 | [Structured source extraction](specs/structured-source-extraction.md) | `blocked` | Blocked by company-level event extraction; deterministic mapper path + issuer-scope pre-filter for structured filings |
 | [Insider buying connector](specs/insider-buying-connector.md) | `blocked` | Blocked by company-level event extraction + structured source extraction; SEC Form 4 open-market purchases |
 | [Equity offering connector](specs/equity-offering-connector.md) | `blocked` | Blocked by company-level event extraction + structured source extraction; S-3, 424B5, 424B4 |
 | [Short interest snapshots](specs/short-interest-snapshots.md) | `blocked` | Blocked by company-level event extraction; FINRA short interest as MinIO Parquet, known at publication date |
-| [Catalyst calendar](specs/catalyst-calendar.md) | `blocked` | Blocked by company-level event extraction + EDGAR press-release content; PDUFA dates from filings, as-of calendar endpoint |
+| [Catalyst calendar](specs/catalyst-calendar.md) | `blocked` | Blocked by company-level event extraction; PDUFA dates from filings, as-of calendar endpoint |
 | [FDA advisory committee connector](specs/fda-advisory-committee-connector.md) | `blocked` | Blocked by company-level event extraction + catalyst calendar; Federal Register meeting notices |
 
 ---
@@ -99,5 +99,4 @@ Each line links to a self-contained spec in `specs/`. Open the spec and read it 
 | 2026-10-07 | Realistic cost model | Done — 27 tests green; market-simulation tests unchanged | No |
 | 2026-10-07 | Pre-registration and kill criteria | Done — 13 tests green (test_preregistered_protocol.py; 76 backtesting unit); protocol.yaml + hypothesis v2 registered before backfill; evaluation-protocol, portfolio-and-risk, strategy-metrics specs updated; 5 DECISIONS entries | No |
 | 2026-10-07 | EDGAR press-release content | Done — 60 tests green, mutation-checked; filing index replaces submissions lookup | No |
-| 2026-10-07 | Second-wave specs from the edge feasibility audit | Scoping session — 9 specs written (all blocked); historical-backfill, strategy-runtime, portfolio-and-risk reconciled; universe scope choices await the user | Yes (universe scope) |
 | 2026-10-07 | Second-wave specs from the edge feasibility audit | Scoping session — 9 specs written (all blocked); historical-backfill, strategy-runtime, portfolio-and-risk reconciled; universe scope decided by the user (defaults, free delisted prices) | No |
