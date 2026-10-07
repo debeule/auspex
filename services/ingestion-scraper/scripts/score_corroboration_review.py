@@ -2,7 +2,7 @@
 """Score a completed corroboration review file and report precision.
 
 Usage:
-    uv run python scripts/score_corroboration_review.py review_3_2.jsonl
+    uv run python scripts/score_corroboration_review.py review.jsonl
 
 Each line in the input must have a "verdict" field set to one of:
   "genuine"          — the two sources independently report the same real signal

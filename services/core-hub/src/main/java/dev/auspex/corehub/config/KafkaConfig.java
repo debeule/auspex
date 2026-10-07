@@ -117,7 +117,6 @@ class KafkaConfig {
     /**
      * Routes to lowercase .dlt and partition -1 (producer chooses).
      * Default resolver gives uppercase .DLT and same partition — both wrong for us.
-     * Re-verified against Spring Kafka 4.1 — see DECISIONS.md.
      *
      * Two templates handle the two DLT failure modes:
      *  byte[].class  → deserialization failures: DLPR extracts raw bytes from EHD headers

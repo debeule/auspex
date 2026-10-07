@@ -27,8 +27,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
- * Unit tests for ResearchSignalEvent JSON contract.
- * No Spring context — uses ObjectMapper configured identically to the application.
+ * Deserializes the generated contract fixture with an ObjectMapper configured like the
+ * application's, without starting a Spring context.
  */
 class ResearchSignalEventTest {
 

@@ -9,7 +9,7 @@ import org.testcontainers.containers.PostgreSQLContainer;
 /**
  * Defines singleton container beans for the shared Spring test context.
  * All IT classes import this configuration so one context (and one container set)
- * serves the entire integration suite — matching the "under 3 minutes" target.
+ * serves the entire integration suite instead of starting containers per class.
  */
 @TestConfiguration(proxyBeanMethods = false)
 class TestContainersConfig {

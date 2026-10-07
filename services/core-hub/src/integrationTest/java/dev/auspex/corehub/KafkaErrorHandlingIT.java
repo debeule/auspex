@@ -58,8 +58,7 @@ class KafkaErrorHandlingIT extends AbstractIT {
 
     @Test
     void test_transient_failure_is_retried_and_then_succeeds() throws Exception {
-        // With FixedBackOff(1000L, 2), a transient deserialization failure retries up to 2 times.
-        // A single malformed message goes to DLT after exhausting retries.
+        // A message that fails validation is dead-lettered; it must not block the partition.
         publish(SIGNAL_TOPIC, "{\"schema_version\": \"1.0\", \"event_id\": null}"); // invalid: null UUID
 
         await().atMost(15, SECONDS).untilAsserted(() ->

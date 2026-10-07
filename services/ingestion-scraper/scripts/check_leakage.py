@@ -1,5 +1,8 @@
 #!/usr/bin/env python
-# Never run in CI. Flags months with ≥70% correct answers after the model's claimed cutoff.
+"""Flag months with ≥70% correct answers after the model's claimed knowledge cutoff.
+
+Never run in CI.
+"""
 import argparse
 import json
 import os

@@ -7,8 +7,8 @@ import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
 /**
- * Uses `CREATE CONSTRAINT ... IF NOT EXISTS` (Neo4j 2026.05 calendar-versioned syntax).
- * Records a (:GraphSchema {version}) node so schema changes are traceable.
+ * Creates the uniqueness constraints that the MERGE-based graph writes rely on. Safe to run on
+ * every startup; records a (:GraphSchema {version}) node so the applied schema is traceable.
  */
 @Component
 class Neo4jSchemaInitializer {

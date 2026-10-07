@@ -1,7 +1,7 @@
 # Kafka topic declarations. Single source of truth for topic names, partition counts, and retention.
 # Read by: docker/provision.sh (compose init), IngestionPipeline startup, Java test fixture.
-# All source topics: 6 partitions, RF 1. DLTs match source partition count (Spring's
-# DeadLetterPublishingRecoverer publishes to the same partition number — a smaller DLT fails).
+# All source topics: 6 partitions, RF 1. DLTs mirror their source topic's partition count, so a
+# dead-letter publish never depends on core-hub's resolver choosing partition -1.
 
 topics:
   - name: auspex.raw.ingested

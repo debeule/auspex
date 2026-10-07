@@ -208,7 +208,7 @@ def test_connector_runs_through_the_unchanged_ingestion_pipeline():
     assert result.failed == 0
 
 
-# ── document-fetch tests (new in edgar-content-fix spec) ──────────────────────
+# ── document fetch ───────────────────────────────────────────────────────────
 
 _SINGLE_HIT_BEAM = {
     "hits": {

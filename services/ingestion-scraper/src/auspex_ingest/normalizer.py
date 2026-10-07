@@ -38,8 +38,9 @@ def load_sec_company_tickers(data: dict[str, Any]) -> dict[str, str]:
 
 
 class HgncEntityNormalizer(EntityNormalizer):
-    # In production, load gene_aliases from a bundled HGNC snapshot and
-    # company_tickers via load_sec_company_tickers().
+    """In production, load `gene_aliases` from a bundled HGNC snapshot and `company_tickers`
+    via `load_sec_company_tickers()`."""
+
     def __init__(
         self,
         *,

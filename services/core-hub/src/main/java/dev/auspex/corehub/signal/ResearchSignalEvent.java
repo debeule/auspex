@@ -12,7 +12,6 @@ import java.util.UUID;
 /**
  * Wire contract for the auspex.signals.extracted Kafka topic.
  * Snake_case mapping is applied by the application Jackson ObjectMapper.
- * Every @Transactional use site must qualify the transaction manager.
  */
 public record ResearchSignalEvent(
         @NotNull String schemaVersion,

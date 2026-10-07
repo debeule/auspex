@@ -16,6 +16,13 @@ from auspex_strategy.models import (
 
 
 class AsOfContext(ABC):
+    """The only data channel available to `Strategy.decide()`.
+
+    A record is visible once its known-at time (`corroborated_at` plus the known-at delay) is at
+    or before `as_of`. Implementations raise `AsOfViolationError` on any read past that boundary,
+    so look-ahead fails loudly instead of silently filtering.
+    """
+
     @property
     @abstractmethod
     def as_of(self) -> datetime: ...
@@ -62,7 +69,9 @@ class Strategy(ABC):
     def declared_inputs(self) -> frozenset[InputSource]: ...
 
     @abstractmethod
-    def decide(self, context: AsOfContext, trigger: Trigger) -> list[TradeIntent]: ...
+    def decide(self, context: AsOfContext, trigger: Trigger) -> list[TradeIntent]:
+        """Must be pure: no network, clock, randomness or shared state, so a backtest replay and
+        the live runtime produce the same intents from the same context."""
 
     @classmethod
     @abstractmethod

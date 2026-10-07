@@ -10,10 +10,6 @@ import java.util.Random;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-/**
- * Unit tests for CorroborationScorer — no Spring context.
- * Score weights source-type diversity and recency; never leaves [0, 1].
- */
 class CorroborationScorerTest {
 
     private static final Instant NOW = Instant.parse("2024-06-15T12:00:00Z");

@@ -2,7 +2,7 @@ version: "1"
 
 # Vocabulary for ticker-restricted pre-filter.
 # A document must match at least one term from any category (case-insensitive substring match)
-# to pass through to LLM extraction. Refined at Step 2.0 against the golden set.
+# to pass through to LLM extraction. Tuned against the golden set.
 
 terms:
   mechanisms:

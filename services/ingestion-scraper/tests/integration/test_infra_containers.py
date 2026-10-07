@@ -1,4 +1,5 @@
-# Prerequisites: docker compose -f docker/docker-compose.yml up -d --wait && ./docker/provision.sh
+"""Prerequisites: docker compose -f docker/docker-compose.yml up -d --wait && ./docker/provision.sh"""
+
 import socket
 import subprocess
 

@@ -40,13 +40,8 @@ class SchemaIT extends AbstractIT {
 
     @Test
     void test_ddl_auto_is_validate() {
-        // If ddl-auto were anything other than "validate", JPA would silently create/alter tables
-        // instead of failing loudly on a mismatch. This test verifies the application context
-        // boots successfully when the schema is valid — which only happens under ddl-auto=validate
-        // (create would rebuild, none would skip, update would silently patch).
-        //
-        // The assertion is simply that the context started without error (established by @SpringBootTest
-        // reaching this test at all). Any schema/entity mismatch would prevent context startup.
+        // Reaching this test means the context started under ddl-auto=validate, so every entity
+        // matches the Flyway schema; create or update would have silently rebuilt or patched it.
         assertThatCode(() -> {
             jdbcTemplate.queryForObject("SELECT COUNT(*) FROM signal_current", Integer.class);
         }).doesNotThrowAnyException();

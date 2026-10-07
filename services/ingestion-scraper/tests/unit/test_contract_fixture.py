@@ -1,7 +1,11 @@
-# Run to regenerate when the Python model changes:
-#   cd services/ingestion-scraper && uv run pytest tests/unit/test_contract_fixture.py -v
-# Writes services/core-hub/src/test/resources/contract/signal_event_v1.json,
-# which ResearchSignalEventTest reads to verify Java deserialization of every field.
+"""Generates the Java contract fixture; re-run whenever the Python model changes.
+
+    cd services/ingestion-scraper && uv run pytest tests/unit/test_contract_fixture.py -v
+
+Writes services/core-hub/src/test/resources/contract/signal_event_v1.json, which
+ResearchSignalEventTest reads to verify Java deserialization of every field.
+"""
+
 import json
 from datetime import UTC, datetime
 from pathlib import Path
