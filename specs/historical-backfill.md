@@ -9,7 +9,7 @@
 5. `golden-set-expansion` spec must be done first: gate records for the chosen model on the expanded (multi-gene-target) golden set must exist before running at scale.
 6. **Human project review** — the live run (any invocation without `--dry-run`) is gated on explicit human sign-off. The dry run may be executed freely; the live run must not be started until the review has concluded and continuation is confirmed. See `DECISIONS.md` 2026-09-20 BLOCKED.
 
-7. **Universe scope** — `specs/point-in-time-universe.md` scope choices confirmed and recorded in `DECISIONS.md`. The universe decides which companies' filings and trials are backfilled (company-scoped EDGAR and ClinicalTrials.gov queries read `config/universe/backfill_scope.yaml` when it exists). The universe build itself is not a blocker; settling its scope is.
+7. **Universe scope** — decided 2026-10-07 (`DECISIONS.md` CHOICE "point-in-time universe scope"); `specs/point-in-time-universe.md` lists it. The universe decides which companies' filings and trials are backfilled (company-scoped EDGAR and ClinicalTrials.gov queries read `config/universe/backfill_scope.yaml` when it exists). The universe build itself is not a blocker; settling its scope is.
 
 **Recommended before starting (not a hard blocker but significantly affects signal yield):** `edgar-content-fix` spec — without it, EDGAR 8-K documents in the backfill window will produce metadata-only `raw_content` and no extractable signals (8 of 13 Phase 2 FNs were this failure mode).
 

@@ -645,3 +645,8 @@ Create a free account at quay.io if you don't have one. No organisation-specific
 **Why it matters:** the universe decides what gets backfilled and how long the backfill runs on the 24 GB machine.
 **Action:** asked the user. Record their answer here as a CHOICE before the spec or the backfill starts.
 
+## 2026-10-07 — Second-wave specs — CHOICE — point-in-time universe scope
+**What:** The user answered the 2026-10-07 BLOCKED entry: defaults for the universe rules (SIC 2834, 2836 and 8731; NYSE, Nasdaq and NYSE American; market cap ≥ $50M; 20-day median dollar volume ≥ $500k; no ceiling; EDGAR and ClinicalTrials.gov backfill scoped to universe companies), and **free sources only** for delisted price data (yfinance, then Stooq; no paid vendor).
+**Why it matters:** some delisted names will have missing or partial price history, which biases returns upward if they are dropped silently.
+**Action:** `specs/point-in-time-universe.md` updated: incomplete members stay in the snapshot; an event is excluded only when its holding window is not fully priced; exclusions are counted by exit reason; the report adds a bound (−30% for delisted or deregistered, 0% for acquired); over 10% excluded marks the hypothesis `survivorship_gap = material`. Universe scope no longer blocks the historical backfill.
+

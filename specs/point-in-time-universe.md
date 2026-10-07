@@ -3,7 +3,7 @@
 **Status:** blocked
 **Blocked by:**
 1. Backtest look-ahead fix (in progress, first wave) — backtest events must be built from corroboration records as of `corroborated_at` and windows must use the NYSE calendar before a wider universe is fed through the runner.
-2. User decision on the scope choices listed under **Scope choices** below. Defaults are written in; the user confirms or changes them, and the outcome is recorded in `DECISIONS.md` as a CHOICE before implementation starts. The audit asks for this to be settled **before the historical backfill runs**, because the universe decides which companies' filings and trials get backfilled.
+2. ~~User decision on the scope choices~~ — decided 2026-10-07 (`DECISIONS.md` CHOICE "point-in-time universe scope"); see **Scope** below.
 
 **Branch:** `feature/point-in-time-universe`
 
@@ -34,26 +34,36 @@ SEC data available without a key (descriptive `User-Agent` required, 10 req/s ag
    - `MarketCapEstimator` — shares outstanding as last reported **on or before** the evaluation date (XBRL fact filed date, never period end) × that day's close.
    - `UniverseBuilder.build(month) → UniverseSnapshot` — members at the first NYSE session of the month that satisfy every rule using only data known on that date. Each member row: `cik, ticker, name, sic, exchange, market_cap_usd, median_dollar_volume_20d, entered_on, exited_on (nullable), exit_reason (delisted | acquired | deregistered | null)`.
    - Snapshots written to MinIO `auspex-prices/universe/{rules_version}/{yyyy-mm}.parquet` and never overwritten (a rules change writes under a new version).
-3. **Delisted-name price coverage.** `scripts/build_universe.py` fetches price history for every member (including delisted ones) through the chosen source, writes snapshots through the existing `PriceSnapshotStore`, and prints a coverage report: members, members with full price history, members with partial history and why.
+3. **Delisted-name price coverage.** `scripts/build_universe.py` fetches price history for every member (including delisted ones) from free sources only (yfinance, then Stooq; no paid vendor), writes snapshots through the existing `PriceSnapshotStore`, and prints a coverage report: members, members with full price history, members with partial history and why.
 4. **Backtest integration.**
    - `TradableUniverse` accepts membership spans: a ticker is validated over `[entered_on, exited_on]`, not the full backtest range.
    - `_window_returns` stops silently truncating: a window that runs past a member's last price ends at the last close with `exit_reason` set from the universe row, and the result is counted separately in the report. A window that runs out of data for any other reason raises `PriceDataAbsentError`.
    - The backtest takes its tickers from the universe snapshot for the event's month, not from `WATCHED_TICKERS` or the watchlist. Events on companies outside the universe that month are dropped and counted.
 5. **Backfill scope file.** `scripts/build_universe.py --export-backfill-scope` writes the union of members over the backfill window (CIKs, tickers, names) to `config/universe/backfill_scope.yaml`, which the historical-backfill spec reads to scope company-level sources.
 
-## Scope choices
+## Scope
 
-The findings leave these open. Defaults in **bold**; confirm or change before implementation.
+Decided by the user on 2026-10-07 (`DECISIONS.md` CHOICE "point-in-time universe scope"):
 
-| Choice | Default | Alternatives | Why it matters |
-|---|---|---|---|
-| SIC codes | **2834, 2836, 8731** | 2834 and 2836 only (the audit's list) | Many clinical-stage biotechs file under 8731 (commercial biological research); leaving it out drops a large share of small biotechs. |
-| Exchanges | **NYSE, Nasdaq, NYSE American** | add OTC | OTC names are untradeable at a useful size and have the worst price data. |
-| Market-cap floor (at rebalance) | **$50M** | $100M, $300M | Lower floors add under-covered names (where an edge might exist) and costs. |
-| Liquidity floor | **20-day median dollar volume ≥ $500k** | $250k, $1M | Ties into the cost model's ADV cap (1 to 2% of ADV per trade). |
-| Market-cap ceiling | **none** (a ceiling is tested as a pre-registered subgroup) | $2B, $5B | The audit suggests a niche big funds skip; making it a subgroup keeps both readings. |
-| Delisted price source | **free first**: yfinance + Stooq, measure coverage; if under 90% of delisted members have full history, buy one month of a paid vendor with delisted US equities, snapshot once, cancel | paid from the start; accept the gap | A missing delisted name biases results upward. "Fetch once" means a single paid month is enough. |
-| Backfill breadth | **company-scoped for EDGAR and ClinicalTrials.gov** (filings by universe CIK; trials by universe lead sponsor), topic-scoped (current vocabulary) for bioRxiv, PubMed and patents | topic-scoped for all sources (smaller, as today) | A universe of several hundred names multiplies 8-K and trial volume; on the 24 GB laptop this adds roughly one to two days of extraction (inferred, to be replaced by the backfill dry run). |
+| Rule | Value |
+|---|---|
+| SIC codes | 2834, 2836, 8731 |
+| Exchanges | NYSE, Nasdaq, NYSE American (no OTC) |
+| Market-cap floor (at rebalance) | $50M |
+| Liquidity floor | 20-day median dollar volume ≥ $500k |
+| Market-cap ceiling | none (a ceiling may be tested as a pre-registered subgroup) |
+| Delisted price source | free sources only: yfinance, then Stooq. No paid vendor. |
+| Backfill breadth | company-scoped for EDGAR and ClinicalTrials.gov (filings by universe CIK, trials by universe lead sponsor); topic-scoped (current vocabulary) for bioRxiv, PubMed and patents |
+
+### Members with incomplete price history
+
+Free sources will miss some delisted names (inferred: Yahoo drops many delisted tickers; Stooq coverage is partial). The rules, so the gap is visible and bounded instead of silently biasing results upward:
+
+1. **Complete** — prices cover `[entered_on, exited_on or window end]`. Used normally. A window that runs past a delisting ends at the last close with `exit_reason` from the universe row.
+2. **Incomplete** — no history, or history that starts after `entered_on` or ends before `exited_on` (or before window end for a live name). The member stays in the universe snapshot, so event counts and the denominator are honest, with `price_coverage = none | partial`. An event on it is **excluded from return statistics only when its holding window is not fully covered by prices**; an event whose full window is covered is kept.
+3. **Excluded events are counted and reported**, per hypothesis and variant: number and share of events excluded, split by the member's `exit_reason`.
+4. **Delisting bound.** The evaluation report adds one sensitivity row that puts the excluded events back with an assumed return over the missing part of the window: −30% for `delisted` and `deregistered` names (Shumway 1997 average performance-delisting return, inferred to apply to biotech), 0% for `acquired` names (deal price close to the last trade). The primary result is the one without them; the bound shows how much the gap could move it.
+5. **Threshold flag.** If excluded events exceed 10% of a hypothesis's events, its evaluation report is marked `survivorship_gap = material`, and that is written into `DECISIONS.md` with the numbers before the result is used for any promotion decision.
 
 ## Out of scope
 
@@ -88,6 +98,11 @@ In `services/backtesting/tests/unit/test_universe.py`:
 - `test_window_running_out_of_data_without_a_delisting_raises`
 - `test_backtest_drops_and_counts_events_on_companies_outside_the_universe`
 - `test_backfill_scope_export_is_the_union_of_members_over_the_window`
+- `test_member_without_price_history_stays_in_snapshot_with_coverage_none`
+- `test_event_whose_window_is_not_fully_priced_is_excluded_and_counted_by_exit_reason`
+- `test_event_on_partial_coverage_member_with_fully_priced_window_is_kept`
+- `test_delisting_bound_applies_minus_thirty_percent_to_delisted_and_zero_to_acquired`
+- `test_excluded_share_above_ten_percent_marks_survivorship_gap_material`
 
 ## Definition of done
 
@@ -95,13 +110,13 @@ In `services/backtesting/tests/unit/test_universe.py`:
 cd services/backtesting && uv run pytest tests/unit/test_universe.py -q --strict-markers
 ```
 
-Expected: 13 passed.
+Expected: 18 passed.
 
 Then:
 - `scripts/build_universe.py` run for the backfill window on the stack machine; member count per month, delisted count, and price coverage report recorded in `DECISIONS.md`.
 - `config/universe/backfill_scope.yaml` committed.
 - `CLAUDE.md` naming table: `auspex-prices` described as "market and reference data snapshots (OHLCV, universe)".
-- `services/backtesting` README and `docs/PREREQUISITES.md` updated (delisted price source resolved or its gap stated).
+- `services/backtesting` README and `docs/PREREQUISITES.md` updated with the measured delisted coverage.
 
 ## Notes
 

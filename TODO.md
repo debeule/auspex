@@ -48,7 +48,7 @@ Each line links to a self-contained spec in `specs/`. Open the spec and read it 
 | [Neo4j indexing at scale](specs/neo4j-indexing.md) | `blocked` | Blocked by historical backfill; thresholds are placeholders — treat as blocked-and-draft until after backfill |
 | [Kafka Streams correlation](specs/kafka-streams-correlation.md) | `draft` | Conditional — only if scheduled query proves inadequate |
 | [Company-program corroboration](specs/company-program-corroboration.md) | `blocked` | Blocked by company-level event extraction + requirements §4/§9 amendment approval; Program nodes, COMPANY_PROGRAM kind, configurable window, point-in-time score |
-| [Point-in-time universe](specs/point-in-time-universe.md) | `blocked` | Blocked by backtest look-ahead fix + user's scope choices (settle before backfill); rules-based biotech universe incl. delisted, monthly snapshots |
+| [Point-in-time universe](specs/point-in-time-universe.md) | `blocked` | Blocked by backtest look-ahead fix; scope decided 2026-10-07 (SIC 2834/2836/8731, $50M cap, $500k ADV, free delisted prices); rules-based biotech universe incl. delisted, monthly snapshots |
 | [Forward paper trading](specs/forward-paper-trading.md) | `blocked` | Blocked by strategy-runtime + look-ahead fix + pre-registration; daily paper ledger, heartbeats, gap detection, forward-check report |
 | [Structured source extraction](specs/structured-source-extraction.md) | `blocked` | Blocked by company-level event extraction; deterministic mapper path + issuer-scope pre-filter for structured filings |
 | [Insider buying connector](specs/insider-buying-connector.md) | `blocked` | Blocked by company-level event extraction + structured source extraction; SEC Form 4 open-market purchases |
@@ -100,3 +100,4 @@ Each line links to a self-contained spec in `specs/`. Open the spec and read it 
 | 2026-10-07 | Pre-registration and kill criteria | Done — 13 tests green (test_preregistered_protocol.py; 76 backtesting unit); protocol.yaml + hypothesis v2 registered before backfill; evaluation-protocol, portfolio-and-risk, strategy-metrics specs updated; 5 DECISIONS entries | No |
 | 2026-10-07 | EDGAR press-release content | Done — 60 tests green, mutation-checked; filing index replaces submissions lookup | No |
 | 2026-10-07 | Second-wave specs from the edge feasibility audit | Scoping session — 9 specs written (all blocked); historical-backfill, strategy-runtime, portfolio-and-risk reconciled; universe scope choices await the user | Yes (universe scope) |
+| 2026-10-07 | Second-wave specs from the edge feasibility audit | Scoping session — 9 specs written (all blocked); historical-backfill, strategy-runtime, portfolio-and-risk reconciled; universe scope decided by the user (defaults, free delisted prices) | No |
