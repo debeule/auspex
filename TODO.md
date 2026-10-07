@@ -87,5 +87,4 @@ Each line links to a self-contained spec in `specs/`. Open the spec and read it 
 | 2026-10-07 | Market simulation | Done — 11 tests green (49 backtesting unit total); pandas-market-calendars 5.4.0; fetch_prices.py; EURUSD=X/XBI fetch pending | No |
 | 2026-10-07 | Local model integration | Done — 10 tests green (235 unit); production now reaches Ollama; awaiting gate runs on the backfill machine | No |
 | 2026-10-07 | Realistic cost model | Done — 27 tests green; market-simulation tests unchanged | No |
-| 2026-10-07 | Pre-registration and kill criteria | Done — protocol.yaml + hypothesis v2 registered before backfill; evaluation-protocol, portfolio-and-risk, strategy-metrics specs updated; 5 DECISIONS entries | No |
 | 2026-10-07 | Pre-registration and kill criteria | Done — 13 tests green (test_preregistered_protocol.py; 76 backtesting unit); protocol.yaml + hypothesis v2 registered before backfill; evaluation-protocol, portfolio-and-risk, strategy-metrics specs updated; 5 DECISIONS entries | No |
