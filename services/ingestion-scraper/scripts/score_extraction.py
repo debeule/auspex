@@ -88,6 +88,10 @@ def _run_extraction(
                 "mechanisms": event.mechanisms,
                 "companies_mentioned": event.companies_mentioned,
                 "directionality": event.directionality,
+                "event_type": event.event_type,
+                "primary_company": event.primary_company,
+                "program_identifiers": event.program_identifiers,
+                "trial_ids": event.trial_ids,
                 "prompt_version": event.prompt_version,
                 "prefilter_version": event.prefilter_version,
                 "prefilter_passed": True,
@@ -112,6 +116,18 @@ def _print_report(golden: list[GoldenDocument], results: list[dict | None], scor
         print(f"\n {field} (macro over signal docs)")
         print(f"  precision={s['precision']:.3f}  recall={s['recall']:.3f}  f1={s['f1']:.3f}")
 
+    for field in ["event_type", "primary_company"]:
+        s = scores[field]
+        if s["labelled"]:
+            print(f"\n {field} ({s['labelled']} labelled signal docs)")
+            print(f"  accuracy={s['accuracy']:.3f}")
+
+    for field in ["program_identifiers", "trial_ids"]:
+        s = scores[field]
+        if s["labelled"]:
+            print(f"\n {field} ({s['labelled']} labelled signal docs)")
+            print(f"  precision={s['precision']:.3f}  recall={s['recall']:.3f}  f1={s['f1']:.3f}")
+
     pf_should_pass = [d for d in golden if d.labels.get("prefilter_should_pass")]
     pf_rejected = [
         d
@@ -133,7 +149,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Score LLM extraction against the golden set")
     parser.add_argument("--model", required=True, help="Registry key (e.g. gpt-4o-mini-2024-07-18)")
     parser.add_argument("--golden-dir", default="tests/golden", type=Path)
-    parser.add_argument("--prompt-version", default="v1.0")
+    parser.add_argument("--prompt-version", default="v1.1")
     parser.add_argument("--prefilter-vocab", default=None, type=Path)
     parser.add_argument(
         "--registry",

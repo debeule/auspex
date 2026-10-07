@@ -11,7 +11,7 @@ from typing import Any
 import yaml
 
 from .identity import compute_event_id, compute_extraction_id
-from .models import RawDocument, ResearchSignalEvent
+from .models import EVENT_SCHEMA_VERSION, RawDocument, ResearchSignalEvent
 
 _REQUIRED_FIELDS = frozenset({
     "backend",
@@ -25,7 +25,7 @@ _REQUIRED_FIELDS = frozenset({
 })
 _PROMPT_DIR = Path(__file__).parent.parent.parent / "prompts" / "extraction"
 _REPO_MODELS_DIR = Path(__file__).parents[4] / "config" / "models"
-_DEFAULT_PROMPT_VERSION = "v1.0"
+_DEFAULT_PROMPT_VERSION = "v1.1"
 _MAX_CONTENT_CHARS = 4_000
 # ~4 characters per token is a rough but consistent estimate; exact tokenisation
 # requires the model's tokeniser which is not worth importing at startup.
@@ -188,7 +188,7 @@ class BackendLLMExtractor:
     def extract(
         self, doc: RawDocument, prefilter_version: str, raw_object_key: str
     ) -> ResearchSignalEvent | None:
-        from .extractor import _ExtractionResult  # reuse existing Pydantic model
+        from .extractor import _ExtractionResult, resolve_trial_ids
 
         if self._pending_check is not None:
             # Deferred from startup because the model server was unreachable then.
@@ -261,6 +261,10 @@ class BackendLLMExtractor:
             prompt_version=self._prompt_version,
             prefilter_version=prefilter_version,
             extraction_model=self._model_id,
+            event_type=result.event_type,
+            primary_company=result.primary_company,
+            program_identifiers=result.program_identifiers,
+            trial_ids=resolve_trial_ids(result.trial_ids, doc.canonical_id),
         )
 
 
@@ -354,7 +358,7 @@ def _transport_errors() -> type[Exception]:
 def build_extractor_from_env(
     environ: Mapping[str, str] | None = None,
     *,
-    schema_version: str = "1.0",
+    schema_version: str = EVENT_SCHEMA_VERSION,
     prompt_version: str | None = None,
     model_id: str | None = None,
     gene_vocab: frozenset[str] | None = None,
@@ -405,7 +409,7 @@ def make_evaluation_extractor(
     prompt_version: str,
     base_url: str | None,
     api_key: str | None,
-    schema_version: str = "1.0",
+    schema_version: str = EVENT_SCHEMA_VERSION,
     model_info_fn: Callable[[str], str] | None = None,
 ) -> BackendLLMExtractor:
     # Same configuration as production minus the gate check: these scripts write the gate.

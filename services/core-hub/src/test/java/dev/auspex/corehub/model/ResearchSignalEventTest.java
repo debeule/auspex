@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
@@ -53,9 +54,9 @@ class ResearchSignalEventTest {
         String json = loadFixture("contract/signal_event_v1.json");
         ResearchSignalEvent event = mapper.readValue(json, ResearchSignalEvent.class);
 
-        assertThat(event.schemaVersion()).isEqualTo("1.0");
+        assertThat(event.schemaVersion()).isEqualTo("1.1");
         assertThat(event.eventId()).isEqualTo(UUID.fromString("c1261cdc-1cf0-5bca-922d-7d098c8f0d6f"));
-        assertThat(event.extractionId()).isEqualTo(UUID.fromString("ff46e2f9-35f9-55dc-9d3e-080de1f77cca"));
+        assertThat(event.extractionId()).isEqualTo(UUID.fromString("b3bf98e4-bc23-59be-ab4e-425aa86d631d"));
         assertThat(event.externalId()).isEqualTo("ext-contract-001");
         assertThat(event.canonicalId()).isEqualTo("doi:10.1101/2024.06.01.600001");
         assertThat(event.rawObjectKey()).startsWith("raw/biorxiv/");
@@ -68,6 +69,10 @@ class ResearchSignalEventTest {
         assertThat(event.confidenceScore()).isEqualByComparingTo(new BigDecimal("0.92"));
         assertThat(event.promptVersion()).isEqualTo("v1");
         assertThat(event.extractionModel()).isEqualTo("gpt-4o");
+        assertThat(event.eventType()).isEqualTo("preclinical_data");
+        assertThat(event.primaryCompany()).isEqualTo("Beam Therapeutics");
+        assertThat(event.programIdentifiers()).containsExactly("BEAM-101");
+        assertThat(event.trialIds()).containsExactly("NCT05456880");
 
         Set<ConstraintViolation<ResearchSignalEvent>> violations = validator.validate(event);
         assertThat(violations).isEmpty();
@@ -76,14 +81,27 @@ class ResearchSignalEventTest {
     @Test
     void test_minor_version_bump_with_extra_field_is_accepted() throws Exception {
         String json = loadFixture("contract/signal_event_v1.json");
-        // Inject an unknown field that a 1.1 schema might add
+        // Inject an unknown field that a 1.2 schema might add
         String extended = json.replace(
-                "\"schema_version\": \"1.0\"",
-                "\"schema_version\": \"1.1\", \"new_field_added_in_v1_1\": \"some value\""
+                "\"schema_version\": \"1.1\"",
+                "\"schema_version\": \"1.2\", \"new_field_added_in_v1_2\": \"some value\""
         );
         ResearchSignalEvent event = mapper.readValue(extended, ResearchSignalEvent.class);
-        assertThat(event.schemaVersion()).isEqualTo("1.1");
+        assertThat(event.schemaVersion()).isEqualTo("1.2");
         // Unknown field was silently ignored (FAIL_ON_UNKNOWN_PROPERTIES=false)
+    }
+
+    @Test
+    void test_schema_one_zero_event_without_company_fields_is_valid() throws Exception {
+        ObjectNode payload = (ObjectNode) mapper.readTree(loadFixture("contract/signal_event_v1.json"));
+        payload.put("schema_version", "1.0");
+        payload.remove(List.of("event_type", "primary_company", "program_identifiers", "trial_ids"));
+
+        ResearchSignalEvent event = mapper.treeToValue(payload, ResearchSignalEvent.class);
+
+        assertThat(event.eventType()).isNull();
+        assertThat(event.trialIds()).isNull();
+        assertThat(validator.validate(event)).isEmpty();
     }
 
     @Test
@@ -135,6 +153,10 @@ class ResearchSignalEventTest {
         assertThat(event.promptVersion()).isNotNull();
         assertThat(event.prefilterVersion()).isNotNull();
         assertThat(event.extractionModel()).isNotNull();
+        assertThat(event.eventType()).isNotNull();
+        assertThat(event.primaryCompany()).isNotNull();
+        assertThat(event.programIdentifiers()).isNotNull().isNotEmpty();
+        assertThat(event.trialIds()).isNotNull().isNotEmpty();
     }
 
     @Test

@@ -11,7 +11,7 @@ Pulls documents from 5 public biotech sources, archives raw content to MinIO (un
 3. Unchanged re-fetch check — when the pipeline has an `extraction_identity` (model + prompt; the live API sets it), a document whose identical content was already fully processed under that identity and prefilter version is skipped (requirements §7.1 step 3). Markers live under `dedup/processed/` and are written only after Kafka delivery is confirmed, so failed documents are retried and a new model re-extracts.
 4. Pre-filter — vocabulary gate; skips LLM cost on irrelevant docs
 5. Canonical dedup check — skips re-extraction when content hash has been seen before
-6. LLM extract — `instructor` + OpenAI returns `ResearchSignalEvent | None`
+6. LLM extract — `instructor` + OpenAI returns `ResearchSignalEvent | None`, including the company-level fields (`event_type`, `primary_company`, `program_identifiers`, `trial_ids`; NCT IDs validated)
 7. Normalize — `HgncEntityNormalizer` resolves gene aliases and company tickers
 8. Publish — Kafka `auspex.signals.extracted` (signals only) + `auspex.raw.ingested` (all)
 
@@ -23,7 +23,7 @@ Pulls documents from 5 public biotech sources, archives raw content to MinIO (un
 |---|---|---|---|
 | bioRxiv | `BiorxivConnector` | `biorxiv` | Active |
 | PubMed | `PubmedConnector` | `pubmed` | Active |
-| ClinicalTrials.gov | `ClinicalTrialConnector` | `clinicaltrials` | Active |
+| ClinicalTrials.gov | `ClinicalTrialConnector` | `clinicaltrials` | Active — `raw_content` includes the lead sponsor |
 | SEC EDGAR | `SecEdgarConnector` | `edgar` | Active — fetches full 8-K filing text via `data.sec.gov/submissions` |
 | openFDA approvals | `FdaApprovalConnector` | `fda` | Active |
 | EPO OPS patents | `EpoOpsConnector` | `epo_ops` | Blocked — needs EPO OPS credentials |

@@ -28,6 +28,7 @@ Each line links to a self-contained spec in `specs/`. Open the spec and read it 
 | [Decision trace](specs/decision-trace.md) | `blocked` | Blocked by strategy-framework + strategy-runtime; immutable TraceRecord from raw doc to P&L, TraceStore, TraceValidator |
 | [Golden set expansion](specs/golden-set-expansion.md) | `blocked` | Blocked by model-evaluation — local model must be chosen before gate records can be written |
 | [Historical backfill](specs/historical-backfill.md) | `blocked` | Budget approval + extraction-backend + model-evaluation + golden-set-expansion first |
+| [Company-level extraction](specs/done/company-level-extraction.md) | `done` | Schema 1.1: event_type, primary_company, program_identifiers, trial_ids; prompt v1.1; Flyway V4; gate needs a v1.1 run |
 | [Patent connector (EPO OPS)](specs/done/patent-connector.md) | `done` | 10 tests, live DOCDB confirmed |
 | [Price data ingestion](specs/done/price-ingestion.md) | `done` | 5 tests passed |
 | [Point-in-time alignment](specs/done/point-in-time-alignment.md) | `done` | 10 tests passed |
@@ -85,3 +86,4 @@ Each line links to a self-contained spec in `specs/`. Open the spec and read it 
 | 2026-09-26 | Strategy framework | Done — 9 tests green; services/strategy/; Strategy ABC, AsOfContext, StrategyRegistry, VersionConflictError; 6 seed stubs | No |
 | 2026-10-07 | Market simulation | Done — 11 tests green (49 backtesting unit total); pandas-market-calendars 5.4.0; fetch_prices.py; EURUSD=X/XBI fetch pending | No |
 | 2026-10-07 | Local model integration | Done — 10 tests green (235 unit); production now reaches Ollama; awaiting gate runs on the backfill machine | No |
+| 2026-10-07 | Company-level extraction | Done — 9 new Python tests, 1 new Java unit, 2 new IT; 261 Python unit + 42 Java unit green; gate re-run at v1.1 pending | No |

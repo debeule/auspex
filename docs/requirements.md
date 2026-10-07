@@ -331,6 +331,8 @@ extraction_id = uuid5(NAMESPACE_URL,
 
 `schema_version`, `event_id`, `extraction_id`, `external_id`, `canonical_id`, `raw_object_key`, `source_type` (enum), `source_url`, `published_date`, `published_date_field`, `ingested_at`, `title`, `raw_text_snippet`, `gene_targets` (list), `mechanisms` (list), `companies_mentioned`, `summary`, `directionality` (enum), `confidence_score`, `prompt_version`, `prefilter_version`, `extraction_model`.
 
+Schema 1.1 adds the company-level fields: `event_type` (closed set: `trial_readout`, `trial_initiation`, `trial_halted`, `trial_revised`, `clinical_hold`, `regulatory_submission`, `regulatory_designation`, `regulatory_approval`, `complete_response_letter`, `preclinical_data`, `patent_publication`, `other`), `primary_company` (nullable), `program_identifiers` (list) and `trial_ids` (list of `NCT` + 8 digits). Consumers treat them as absent on 1.0 events.
+
 `external_id` and `raw_object_key` are what keep the chain of custody intact — without them a signal cannot be joined to its audit row, re-extracted from its snapshot, or resolved back to the per-source dates Phase 4 needs. `gene_targets` is a list because real papers name several; getting this wrong is expensive to correct once the graph and the topic key both depend on it.
 
 ### 10.3 `confidence_score`

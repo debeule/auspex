@@ -99,7 +99,7 @@ def main() -> None:
     )
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--sample", type=int, default=100)
-    parser.add_argument("--prompt-version", default="v1.0")
+    parser.add_argument("--prompt-version", default="v1.1")
     args = parser.parse_args()
 
     raw_registry = yaml.safe_load(args.registry.read_text())

@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.util.List;
 
 /**
  * Writes to signal_current, signal_extraction_history, and source_observation atomically.
@@ -23,8 +24,9 @@ public class PostgresWriteService implements SignalRecordPort {
                 external_id, canonical_id, raw_object_key, published_date, published_date_field,
                 ingested_at, title, raw_text_snippet, gene_targets, mechanisms,
                 companies_mentioned, summary, directionality, confidence_score,
-                prompt_version, prefilter_version, extraction_model, last_updated_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, now())
+                prompt_version, prefilter_version, extraction_model, event_type,
+                primary_company, program_identifiers, trial_ids, last_updated_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, now())
             ON CONFLICT (event_id) DO UPDATE SET
                 extraction_id        = EXCLUDED.extraction_id,
                 schema_version       = EXCLUDED.schema_version,
@@ -44,6 +46,10 @@ public class PostgresWriteService implements SignalRecordPort {
                 prompt_version       = EXCLUDED.prompt_version,
                 prefilter_version    = EXCLUDED.prefilter_version,
                 extraction_model     = EXCLUDED.extraction_model,
+                event_type           = EXCLUDED.event_type,
+                primary_company      = EXCLUDED.primary_company,
+                program_identifiers  = EXCLUDED.program_identifiers,
+                trial_ids            = EXCLUDED.trial_ids,
                 last_updated_at      = now()
             """;
 
@@ -99,8 +105,16 @@ public class PostgresWriteService implements SignalRecordPort {
             ps.setString(20, e.promptVersion());
             ps.setString(21, e.prefilterVersion());
             ps.setString(22, e.extractionModel());
+            ps.setString(23, e.eventType());
+            ps.setString(24, e.primaryCompany());
+            ps.setArray(25,  conn.createArrayOf("text", orEmpty(e.programIdentifiers()).toArray()));
+            ps.setArray(26,  conn.createArrayOf("text", orEmpty(e.trialIds()).toArray()));
             return ps;
         });
+    }
+
+    private static List<String> orEmpty(List<String> values) {
+        return values == null ? List.of() : values;
     }
 
     private void insertExtractionHistory(ResearchSignalEvent e) {

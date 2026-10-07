@@ -40,6 +40,41 @@ class SignalPersistenceIT extends AbstractIT {
     }
 
     @Test
+    void test_company_level_fields_are_persisted_to_signal_current() throws Exception {
+        publish(SIGNAL_TOPIC, companyLevelSignalJson());
+
+        await().atMost(10, SECONDS).untilAsserted(() -> {
+            var rows = jdbcTemplate.queryForList("""
+                    SELECT event_type, primary_company,
+                           array_to_string(program_identifiers, ',') AS programs,
+                           array_to_string(trial_ids, ',') AS trials
+                    FROM signal_current WHERE event_id = ?""",
+                    UUID.fromString(BASE_EVENT_ID));
+            assertThat(rows).hasSize(1);
+            assertThat(rows.getFirst())
+                    .containsEntry("event_type", "trial_readout")
+                    .containsEntry("primary_company", "Beam Therapeutics")
+                    .containsEntry("programs", "BEAM-101")
+                    .containsEntry("trials", "NCT05456880");
+        });
+    }
+
+    @Test
+    void test_schema_one_zero_event_is_persisted_with_empty_company_level_fields() throws Exception {
+        publish(SIGNAL_TOPIC, validSignalJson());
+
+        await().atMost(10, SECONDS).untilAsserted(() -> {
+            var rows = jdbcTemplate.queryForList("""
+                    SELECT event_type, cardinality(trial_ids) AS trials
+                    FROM signal_current WHERE event_id = ?""",
+                    UUID.fromString(BASE_EVENT_ID));
+            assertThat(rows).hasSize(1);
+            assertThat(rows.getFirst().get("event_type")).isNull();
+            assertThat(rows.getFirst()).containsEntry("trials", 0);
+        });
+    }
+
+    @Test
     void test_duplicate_delivery_creates_one_audit_row() throws Exception {
         publish(RAW_TOPIC, validRawJson());
         publish(RAW_TOPIC, validRawJson()); // same raw_object_key

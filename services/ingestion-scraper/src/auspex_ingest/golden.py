@@ -58,6 +58,38 @@ def _macro(field_results: list[dict[str, float]]) -> dict[str, float]:
     }
 
 
+_LABELLED_SCALAR_FIELDS = ("event_type", "primary_company")
+_LABELLED_LIST_FIELDS = ("program_identifiers", "trial_ids")
+
+
+def _same_label(predicted: object, expected: object) -> bool:
+    if isinstance(predicted, str) and isinstance(expected, str):
+        return predicted.strip().casefold() == expected.strip().casefold()
+    return predicted == expected
+
+
+def _score_labelled_fields(
+    golden: list[GoldenDocument], results: list[dict[str, Any] | None]
+) -> dict[str, dict[str, float]]:
+    # Older golden documents predate these labels, so each field is scored only where labelled.
+    out: dict[str, dict[str, float]] = {}
+    for f in _LABELLED_SCALAR_FIELDS:
+        hits = [
+            _same_label((pred or {}).get(f), doc.labels[f])
+            for doc, pred in zip(golden, results)
+            if doc.labels.get("is_signal") and f in doc.labels
+        ]
+        out[f] = {"accuracy": sum(hits) / len(hits) if hits else 0.0, "labelled": len(hits)}
+    for f in _LABELLED_LIST_FIELDS:
+        per_doc = [
+            score_field(list((pred or {}).get(f, [])), list(doc.labels[f]))
+            for doc, pred in zip(golden, results)
+            if doc.labels.get("is_signal") and f in doc.labels
+        ]
+        out[f] = {**_macro(per_doc), "labelled": len(per_doc)}
+    return out
+
+
 def score_batch(
     golden: list[GoldenDocument],
     results: list[dict[str, Any] | None],
@@ -72,6 +104,8 @@ def score_batch(
     Returns a dict with:
       - "is_signal": {"tp", "fp", "fn", "tn"}
       - per list field: macro {"precision", "recall", "f1"} over signal-labeled docs
+      - "event_type", "primary_company": {"accuracy", "labelled"} over signal docs carrying
+        that label; "program_identifiers", "trial_ids": macro scores plus "labelled"
       - "prefilter_fn_rate": fraction of prefilter_should_pass=True docs that were rejected
         (requires "prefilter_passed" key in each result dict; omitted if not present)
     """
@@ -102,5 +136,6 @@ def score_batch(
     out: dict[str, Any] = {"is_signal": is_signal_cm}
     for f in _list_fields:
         out[f] = _macro(field_acc[f])
+    out.update(_score_labelled_fields(golden, results))
 
     return out

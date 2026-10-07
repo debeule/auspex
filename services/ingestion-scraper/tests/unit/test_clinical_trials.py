@@ -84,6 +84,15 @@ def test_nct_id_is_set_as_typed_canonical_id():
 
 
 @respx.mock
+def test_clinicaltrials_raw_content_names_lead_sponsor():
+    route = respx.get(_CT_URL).mock(return_value=Response(200, json=_PAGE1))
+    docs = list(_connector().fetch_since(_CURSOR))
+    assert "Lead sponsor: Beam Therapeutics Inc." in docs[0].raw_content
+    assert "Lead sponsor: Sarepta Therapeutics, Inc." in docs[1].raw_content
+    assert "LeadSponsorName" in route.calls[0].request.url.params["fields"]
+
+
+@respx.mock
 def test_published_date_is_the_public_posting_date_not_retrieved_at():
     respx.get(_CT_URL).mock(return_value=Response(200, json=_PAGE1))
     docs = list(_connector().fetch_since(_CURSOR))

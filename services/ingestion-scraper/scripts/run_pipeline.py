@@ -100,7 +100,7 @@ def _build_pipeline(source_type: str, entry):  # type: ignore[no-untyped-def]
     )
     archive = MinioArchive(client=minio_client, bucket=os.environ["MINIO_BUCKET"])
 
-    extractor = build_extractor_from_env(schema_version="1.0")
+    extractor = build_extractor_from_env()
 
     kafka_producer = KafkaProducerClient(
         ConfluentProducer({"bootstrap.servers": os.environ["KAFKA_BOOTSTRAP_SERVERS"]}),
