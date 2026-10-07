@@ -51,6 +51,8 @@ In `services/backtesting/tests/unit/test_short_interest.py`:
 - `test_store_appends_new_periods_without_rewriting_existing_ones`
 - `test_missing_ticker_in_a_period_is_recorded_as_absent_not_zero`
 - `test_short_interest_pct_of_shares_is_null_when_shares_outstanding_unknown`
+- `test_fetcher_stores_publication_date_from_the_finra_calendar_not_settlement_date`
+- `test_period_already_stored_is_not_refetched`
 
 ## Definition of done
 
@@ -58,6 +60,6 @@ In `services/backtesting/tests/unit/test_short_interest.py`:
 cd services/backtesting && uv run pytest tests/unit/test_short_interest.py -q --strict-markers
 ```
 
-Expected: 6 passed.
+Expected: 8 passed.
 
 Then: one live fetch for the watchlist tickers over the backfill window; history depth and any gaps recorded in `DECISIONS.md`. `services/backtesting` README updated; `CLAUDE.md` naming table describes `auspex-prices` as market and reference data snapshots if the point-in-time universe has not already changed it.

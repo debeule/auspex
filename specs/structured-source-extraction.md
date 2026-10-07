@@ -48,6 +48,8 @@ In `services/ingestion-scraper/tests/unit/test_structured_extraction.py`:
 - `test_issuer_scope_prefilter_admits_only_in_scope_ciks`
 - `test_mapper_version_change_keeps_event_id_and_changes_extraction_id`
 - `test_llm_sources_are_unaffected_by_the_extraction_field_default`
+- `test_structured_not_signal_is_counted_in_run_result_like_llm_not_signal`
+- `test_vocabulary_prefilter_remains_the_default`
 
 ## Definition of done
 
@@ -55,7 +57,7 @@ In `services/ingestion-scraper/tests/unit/test_structured_extraction.py`:
 cd services/ingestion-scraper && uv run pytest tests/unit/test_structured_extraction.py -q --strict-markers && uv run pytest tests/unit -q && uv run ruff check . && uv run mypy src
 ```
 
-Expected: 8 new tests pass; full unit suite green with a non-zero count.
+Expected: 10 new tests pass; full unit suite green with a non-zero count.
 
 Then: `services/ingestion-scraper/README.md` pipeline stages and `sources.yaml` schema table list `extraction`, `structured_mapper` and `prefilter`; `docs/requirements.md` §6.2 and §6.6 state the structured path and the issuer-scope pre-filter; the lineage amendment recorded in `DECISIONS.md` and reflected in `specs/historical-backfill.md`.
 

@@ -91,6 +91,11 @@ In `services/backtesting/tests/unit/test_universe.py`:
 - `test_company_with_excluded_sic_code_is_excluded`
 - `test_delisted_company_is_a_member_until_its_delisting_notice` — `25-NSE` accepted mid-month: member in that month's snapshot, `exited_on` set, absent from the next
 - `test_ipo_company_enters_on_first_rebalance_after_listing`
+- `test_deregistration_filing_ends_membership_with_exit_reason_deregistered`
+- `test_rebalance_date_is_first_nyse_session_of_the_month`
+- `test_ticker_without_filing_history_is_stamped_current`
+- `test_coverage_report_lists_every_member_without_full_price_history`
+- `test_rules_file_change_without_version_bump_is_refused`
 - `test_snapshot_is_written_under_rules_version_and_never_overwritten`
 - `test_universe_build_is_deterministic_for_the_same_inputs`
 - `test_tradable_universe_validates_delisted_ticker_over_its_membership_span_only`
@@ -110,7 +115,7 @@ In `services/backtesting/tests/unit/test_universe.py`:
 cd services/backtesting && uv run pytest tests/unit/test_universe.py -q --strict-markers
 ```
 
-Expected: 18 passed.
+Expected: 23 passed.
 
 Then:
 - `scripts/build_universe.py` run for the backfill window on the stack machine; member count per month, delisted count, and price coverage report recorded in `DECISIONS.md`.

@@ -57,6 +57,8 @@ Java unit (`./gradlew test`):
 
 Java integration (`./gradlew integrationTest`):
 - `CatalystCalendarIT.revisionAppendsARowAndNeverUpdates`
+- `CatalystCalendarIT.signalWithTwoCatalystsWritesTwoRows`
+- `CatalystCalendarIT.endpointReturnsEffectiveCatalystsForTickerAndAsOf`
 - `CatalystCalendarIT.catalystEndpointRejectsInvalidTicker`
 - `CatalystCalendarIT.catalystEndpointIsNotInjectable`
 - `ResearchSignalEventTest` (existing, unit) — passes against the regenerated fixture
@@ -68,6 +70,6 @@ cd services/ingestion-scraper && uv run pytest tests/unit/test_catalyst_extracti
   && cd ../core-hub && ./gradlew test --rerun-tasks && ./gradlew integrationTest --rerun-tasks
 ```
 
-Expected: 3 Python, 2 Java unit and 3 Java integration tests new and passing; existing contract tests green on the regenerated fixture.
+Expected: 3 Python, 2 Java unit and 5 Java integration tests new and passing; existing contract tests green on the regenerated fixture.
 
 Then: gate record for the active model re-scored with the new prompt version (extraction precision must stay ≥ 0.85, and catalyst-date precision is reported); `services/core-hub/README.md` endpoint section and `docs/requirements.md` §3.7 and §10.2 updated.

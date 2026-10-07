@@ -65,6 +65,8 @@ In `services/strategy/src/auspex_strategy/paper/`:
 In `services/strategy/tests/unit/test_paper_ledger.py`:
 - `test_heartbeat_written_for_each_paper_strategy_on_a_session_without_events`
 - `test_missing_heartbeat_is_reported_as_a_gap`
+- `test_gap_gauges_report_gap_count_and_last_session_age`
+- `test_close_out_refreshes_session_closes_for_open_tickers_xbi_and_eurusd`
 - `test_rejected_intent_is_still_recorded_in_the_ledger`
 - `test_entry_fill_is_next_session_open_after_intent_as_of` — intent after Friday's close → Monday open; Good Friday skipped
 - `test_ledger_file_for_a_session_is_never_overwritten` — second write for the same session raises; a correction lands as a new row in a later file
@@ -86,7 +88,7 @@ In `services/strategy/tests/unit/test_paper_ledger.py`:
 cd services/strategy && uv run pytest tests/unit/test_paper_ledger.py -q --strict-markers
 ```
 
-Expected: 16 passed.
+Expected: 18 passed.
 
 Then: the runtime container runs on the stack with at least one `paper` strategy; after 5 consecutive NYSE sessions the ledger has 5 heartbeat files with no gaps and `scripts/paper_report.py` prints a report; the start date recorded in `DECISIONS.md`. The audit's "30 days without gaps" criterion is checked in a later session and recorded there; it is not a merge condition.
 

@@ -45,6 +45,8 @@ In `services/ingestion-scraper/tests/unit/test_federal_register.py`:
 - `test_pagination_follows_next_page_until_exhausted`
 - `test_postponement_notice_is_yielded_as_a_new_document`
 - `test_general_matters_meeting_is_prefiltered_out`
+- `test_requests_go_through_the_rate_limited_client`
+- `test_cancellation_notice_is_yielded_as_a_new_document`
 
 ## Definition of done
 
@@ -52,6 +54,6 @@ In `services/ingestion-scraper/tests/unit/test_federal_register.py`:
 cd services/ingestion-scraper && uv run pytest tests/unit/test_federal_register.py -q --strict-markers && uv run pytest tests/unit -q && uv run ruff check . && uv run mypy src
 ```
 
-Expected: 6 passed; full unit suite green.
+Expected: 8 passed; full unit suite green.
 
 Then: a live fetch over the last six months; notice count, product-specific meetings found, and extraction spot-check (company and date correct on 10 notices) recorded in `DECISIONS.md`. `services/ingestion-scraper/README.md` connectors table and known API constraints updated.

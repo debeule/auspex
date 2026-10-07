@@ -63,6 +63,7 @@ Unit (`./gradlew test`):
 - `CorroborationScorerTest.recencyIsMeasuredAgainstAsOfNotWallClock` — `asOf = corroboratedAt + 45 days` → recency factor 0.5
 - `EntityNormalizerTest.programKeyPrefersDrugCodeThenNctIdThenCompany`
 - `EntityNormalizerTest.drugCodeVariantsNormalizeToOneProgram` — `SRP-9001`, `SRP 9001`, `srp-9001` → one key
+- `EntityNormalizerTest.tickerResolvedFromTodaysMappingIsStampedCurrent` — CIK resolved through `SecTickerCache` carries `ticker_source = 'current'`
 - `CorroborationScannerTest.windowDaysIsReadFromConfiguration` — window 7: signals 8 days apart do not match; 7 days apart do
 
 Integration (`./gradlew integrationTest`):
@@ -72,6 +73,7 @@ Integration (`./gradlew integrationTest`):
 - `CompanyProgramCorroborationIT.corroborationEventCarriesKindAndResolvedTickers`
 - `CompanyProgramCorroborationIT.mechanismOnlyGeneTargetCorroborationIsFlagged`
 - `CompanyProgramCorroborationIT.degreeCapSkipsAreCountedAndListed`
+- `CompanyProgramCorroborationIT.corroborationRecordsTheWindowDaysThatProducedIt`
 - `CompanyProgramCorroborationIT.companyNodesWithNullCikAreNotMerged` — two unrelated companies without CIK stay two nodes
 - `SignalRestIT.corroborationScoreForAPastAsOfIsStableAcrossRuns` — `?as_of=` on a fixed corroboration returns the same score under two different `Clock` beans
 - `CorroborationServiceContractTest` (existing, unmodified) — still green
@@ -82,7 +84,7 @@ Integration (`./gradlew integrationTest`):
 cd services/core-hub && ./gradlew test --rerun-tasks && ./gradlew integrationTest --rerun-tasks
 ```
 
-Expected: 5 new unit tests and 8 new integration tests pass alongside the existing suite; `build/reports/tests/` shows a non-zero count for both tasks; the contract test file is unchanged in the diff.
+Expected: 6 new unit tests and 9 new integration tests pass alongside the existing suite; `build/reports/tests/` shows a non-zero count for both tasks; the contract test file is unchanged in the diff.
 
 Then: `docs/requirements.md` §4 and §9 amended; `services/core-hub/README.md` corroboration section updated; the degree-cap report run against the stack and its result (which watched targets exceed the cap) recorded in `DECISIONS.md`.
 

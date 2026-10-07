@@ -52,6 +52,8 @@ In `services/ingestion-scraper/tests/unit/test_sec_offerings.py`:
 - `test_offering_size_is_read_from_fee_exhibit_and_null_when_absent`
 - `test_other_form_types_are_skipped`
 - `test_out_of_scope_issuer_is_prefiltered_out`
+- `test_requests_go_through_the_shared_sec_rate_limiter`
+- `test_amended_424b_publishes_under_original_event_id`
 
 ## Definition of done
 
@@ -59,7 +61,7 @@ In `services/ingestion-scraper/tests/unit/test_sec_offerings.py`:
 cd services/ingestion-scraper && uv run pytest tests/unit/test_sec_offerings.py -q --strict-markers && uv run pytest tests/unit -q && uv run ruff check . && uv run mypy src
 ```
 
-Expected: 8 passed; full unit suite green.
+Expected: 10 passed; full unit suite green.
 
 Then: one live `fetch_since` over a recent month; counts per event type and fee-exhibit coverage recorded in `DECISIONS.md`. `services/ingestion-scraper/README.md` connectors table and known API constraints updated.
 

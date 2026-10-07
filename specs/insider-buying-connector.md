@@ -51,6 +51,8 @@ In `services/ingestion-scraper/tests/unit/test_sec_form4.py`:
 - `test_amendment_publishes_under_original_event_id`
 - `test_out_of_scope_issuer_is_prefiltered_out`
 - `test_requests_carry_the_configured_user_agent`
+- `test_requests_go_through_the_shared_sec_rate_limiter`
+- `test_backfill_window_reads_quarterly_full_index`
 
 ## Definition of done
 
@@ -58,6 +60,6 @@ In `services/ingestion-scraper/tests/unit/test_sec_form4.py`:
 cd services/ingestion-scraper && uv run pytest tests/unit/test_sec_form4.py -q --strict-markers && uv run pytest tests/unit -q && uv run ruff check . && uv run mypy src
 ```
 
-Expected: 10 passed; full unit suite green.
+Expected: 12 passed; full unit suite green.
 
 Then: one live `fetch_since` over a recent week on the stack machine; filing count, purchase count and any surprises recorded in `DECISIONS.md`. `services/ingestion-scraper/README.md` connectors table and known API constraints updated.
