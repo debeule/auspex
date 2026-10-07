@@ -578,7 +578,7 @@ Create a free account at quay.io if you don't have one. No organisation-specific
 
 ## 2026-10-07 — Historical backfill — FLAG — RateLimitedClient raised instead of waiting
 **What:** `RateLimitedClient` raises `RateLimitExceeded` when a host's bucket is empty, and no connector catches it. A burst of more requests than `rate_limit_rps` within a second aborts the whole fetch. EDGAR makes 2 `sec.gov` requests per filing back-to-back, so a backfill window would die within its first few filings.
-**Action:** Added an opt-in `block=True` mode that sleeps until a token is free. The backfill uses it; the default and its existing tests are unchanged. `api.py` and `scripts/run_pipeline.py` (live paths) still use the raising mode. Recommend switching them to `block=True`; that is out of this spec's scope.
+**Action:** Added an opt-in `block=True` mode that sleeps until a token is free. The backfill and the scraper HTTP API (`api.py`, which also now builds every source through `connectors/registry.py` instead of an `if source_type ==` chain covering only bioRxiv and ClinicalTrials) use it. The default and its existing tests are unchanged. `scripts/run_pipeline.py` still uses the raising mode and its own `if` chain.
 
 ## 2026-10-07 — Historical backfill — FLAG — content-hash dedup does not fire across runs (§7.1.3)
 **What:** `MinioArchive.put()` reports `is_new=False` only if the *exact* key exists, and the key embeds `retrieved_at` to the second. A later re-fetch of unchanged content gets a new key, `is_new=True`, and is re-extracted. §7.1.3 says the same `content_sha256` for the same `(source_type, external_id)` should be a no-op.
