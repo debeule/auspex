@@ -225,6 +225,9 @@ def _live_pipeline_factory(args, model, minio_client, bucket, prefilter_factory)
             normalizer=IdentityNormalizer(),
             now=lambda: datetime.now(UTC),
             min_confidence_to_publish=0.5,
+            # Unchanged documents already processed under this model + prompt are skipped,
+            # so re-running an interrupted window does not re-extract them.
+            extraction_identity=f"{model.model_id}|{model.prompt_version}",
         )
 
     return build
