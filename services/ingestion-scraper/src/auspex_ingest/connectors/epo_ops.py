@@ -57,6 +57,7 @@ class EpoOpsConnector(SourceConnector):
         token_url: str = _DEFAULT_TOKEN_URL,
         cpc_classes: list[str] | None = None,
         now: Callable[[], datetime] | None = None,
+        until: datetime | None = None,
         sleep: Callable[[float], None] | None = None,
         mono_clock: Callable[[], float] | None = None,
         max_retries: int = 3,
@@ -71,6 +72,8 @@ class EpoOpsConnector(SourceConnector):
         self._token_url = token_url
         self._cpc_classes = cpc_classes or list(_CPC_CLASSES)
         self._now = now or (lambda: datetime.now(UTC))
+        # Inclusive upper bound of the query window; None means "up to now".
+        self._until = until
         self._sleep: Callable[[float], None] = sleep or time.sleep
         self._mono = mono_clock or time.monotonic
         self._max_retries = max_retries
@@ -78,7 +81,7 @@ class EpoOpsConnector(SourceConnector):
 
     def fetch_since(self, cursor: datetime) -> Iterator[RawDocument]:
         start = cursor.strftime("%Y%m%d")
-        end = self._now().strftime("%Y%m%d")
+        end = (self._until or self._now()).strftime("%Y%m%d")
         retrieved_at = self._now()
 
         cpc_filter = " or ".join(f"cpc = {c}" for c in self._cpc_classes)

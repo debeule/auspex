@@ -32,6 +32,10 @@ class _TokenBucket:
             return True
         return False
 
+    def seconds_until_available(self) -> float:
+        """Seconds until one token is available, given the current fill level."""
+        return max(0.0, (1.0 - self._tokens) / self._rate)
+
 
 class RateLimitedClient:
     """Wraps `httpx.Client` with per-host token-bucket rate limiting.
@@ -39,6 +43,11 @@ class RateLimitedClient:
     Every connector must issue HTTP through one shared instance of this class
     so that the per-host buckets are shared across connectors that hit the
     same host.
+
+    By default a request over the limit raises `RateLimitExceeded`. With
+    `block=True` the request waits for a token instead, which long-running
+    callers (the historical backfill) need: a raise mid-fetch aborts the
+    whole window.
     """
 
     def __init__(
@@ -47,9 +56,13 @@ class RateLimitedClient:
         *,
         _httpx_client: httpx.Client | None = None,
         _clock: Callable[[], float] | None = None,
+        _sleep: Callable[[float], None] | None = None,
         timeout: float = 30.0,
+        block: bool = False,
     ) -> None:
         clock = _clock or time.monotonic
+        self._sleep = _sleep or time.sleep
+        self._block = block
         self._http = _httpx_client or httpx.Client(timeout=timeout)
         self._buckets: dict[str, _TokenBucket] = {
             host: _TokenBucket(rps, clock) for host, rps in host_limits.items()
@@ -64,8 +77,12 @@ class RateLimitedClient:
                 if host.endswith(f".{configured_host}"):
                     bucket = b
                     break
-        if bucket is not None and not bucket.try_acquire():
-            raise RateLimitExceeded(f"Rate limit exceeded for host {host!r}")
+        if bucket is None:
+            return
+        while not bucket.try_acquire():
+            if not self._block:
+                raise RateLimitExceeded(f"Rate limit exceeded for host {host!r}")
+            self._sleep(bucket.seconds_until_available())
 
     def get(self, url: str, **kwargs: Any) -> httpx.Response:
         self._acquire(url)

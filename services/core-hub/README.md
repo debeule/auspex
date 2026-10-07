@@ -63,6 +63,8 @@ Scorer: `score = 0.7 × diversity_factor + 0.3 × recency_factor`, clamped [0, 1
 - Cypher query returns both direct observations and corroborated neighbors.
 - Injection test verifies both Cypher-injection and MATCH DELETE payloads are rejected.
 
+`GET /api/v1/extractions/models?source_type=&from=YYYY-MM-DD&to=YYYY-MM-DD` — per `extraction_model`, the number of signals of that source whose `published_date` falls in the inclusive window. Used by the historical backfill's dry run to report lineage overlap (the scraper never reads Postgres).
+
 ---
 
 ## Development commands

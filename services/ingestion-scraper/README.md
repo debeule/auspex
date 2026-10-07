@@ -84,6 +84,7 @@ uv run python scripts/run_pipeline.py --days 30 --sources clinicaltrials pubmed
 | Script | Purpose |
 |---|---|
 | `scripts/run_pipeline.py` | Run one source from CLI without Airflow |
+| `scripts/run_backfill.py` | Historical backfill of one source over a date window: cutoff guard, `--dry-run` estimate + lineage overlap, ceilings, MinIO checkpoints/manifests (`backfill/`) |
 | `scripts/score_extraction.py` | Precision/recall against the golden set (writes gate record) |
 | `scripts/evaluate_model.py` | Candidate comparison: precision, latency, feasibility; writes `config/models/latency/<slug>.json` |
 | `scripts/check_leakage.py` | Leakage canary: flags months ≥70% correct after claimed cutoff |
@@ -94,6 +95,10 @@ uv run python scripts/run_pipeline.py --days 30 --sources clinicaltrials pubmed
 ---
 
 ## Known API constraints
+- **Backfill window ends.** Every connector takes an optional `until` (inclusive window end); `None` means "up to now". The backfill builds one connector per window; live runs never set it.
+- **EDGAR EFTS caps a query at 10,000 hits** and the connector fetches every 8-K's text before the pre-filter (2 `sec.gov` requests each). Use `--window-days 14` for `edgar` backfills.
+- **EPO OPS caps a query at 2,000 results.** Use `--window-days 7` for `epo_ops` backfills.
+- **ClinicalTrials.gov returns only the current version of a study.** A backfill of 2024 finds a trial only if its *latest* update fell in the window; earlier versions are not retrievable through `/api/v2/studies`.
 
 - **SEC** blocks IPs at 10 req/s aggregate across all `*.sec.gov` (including `data.sec.gov`). Descriptive `User-Agent` is mandatory (403 without it). Primary document lookup uses `data.sec.gov/submissions/CIK{cik_padded}.json`; the `Archives/{cik}/{accession}/index.json` directory endpoint exists but has no sequence/form metadata. The EFTS `_source` schema uses `adsh`/`ciks`/`display_names` — not `accession_no`/`entity_id`/`entity_name`.
 - **EPO OPS**: OAuth2 client credentials, free standard tier at 2.5 req/s. Register at developers.epo.org.

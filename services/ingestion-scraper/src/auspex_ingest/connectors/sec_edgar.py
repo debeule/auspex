@@ -64,18 +64,21 @@ class SecEdgarConnector(SourceConnector):
         client: RateLimitedClient,
         user_agent: str = _USER_AGENT,
         now: Callable[[], datetime] | None = None,
+        until: datetime | None = None,
         sleep: Callable[[float], None] | None = None,
         max_retries: int = 3,
     ) -> None:
         self._client = client
         self._user_agent = user_agent
         self._now = now or (lambda: datetime.now(UTC))
+        # Inclusive upper bound of the query window; None means "up to now".
+        self._until = until
         self._sleep: Callable[[float], None] = sleep or time.sleep
         self._max_retries = max_retries
 
     def fetch_since(self, cursor: datetime) -> Iterator[RawDocument]:
         start = cursor.strftime("%Y-%m-%d")
-        end = self._now().strftime("%Y-%m-%d")
+        end = (self._until or self._now()).strftime("%Y-%m-%d")
         retrieved_at = self._now()
         from_ = 0
 

@@ -26,6 +26,7 @@ class BiorxivConnector(SourceConnector):
         server: str = "biorxiv",
         base_url: str = "https://api.biorxiv.org",
         now: Callable[[], datetime] | None = None,
+        until: datetime | None = None,
         sleep: Callable[[float], None] | None = None,
         max_retries: int = 3,
     ) -> None:
@@ -33,12 +34,14 @@ class BiorxivConnector(SourceConnector):
         self._server = server
         self._base_url = base_url.rstrip("/")
         self._now = now or (lambda: datetime.now(UTC))
+        # Inclusive upper bound of the query window; None means "up to now".
+        self._until = until
         self._sleep: Callable[[float], None] = sleep or time.sleep
         self._max_retries = max_retries
 
     def fetch_since(self, cursor: datetime) -> Iterator[RawDocument]:
         start = cursor.strftime("%Y-%m-%d")
-        end = self._now().strftime("%Y-%m-%d")
+        end = (self._until or self._now()).strftime("%Y-%m-%d")
         page = 0
         retrieved_at = self._now()
 

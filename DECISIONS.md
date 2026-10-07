@@ -489,3 +489,32 @@ Filing prose confirmed; metadata-only format is no longer present.
 - `QUAY_IO_PASSWORD` — your quay.io password or robot account token
 
 Create a free account at quay.io if you don't have one. No organisation-specific permissions needed — this is just to authenticate pulls of a public image.
+
+## 2026-10-07 — Historical backfill — CHOICE — lineage overlap comes from a core-hub endpoint
+**What:** The dry-run overlap report needs `signal_extraction_history`, but the scraper must never touch Postgres (Invariants 1 & 2, services/CLAUDE.md "No DB access, ever"). core-hub now serves `GET /api/v1/extractions/models?source_type=&from=&to=` (signals per `extraction_model` whose `published_date` falls in the window); `run_backfill.py` reads it via `CORE_HUB_URL`.
+**Why it matters:** Keeps the read on the service that owns the table. The count covers published signals only: documents an earlier model judged not-a-signal never reach core-hub, so they are invisible to the overlap report.
+**Action:** Implemented with `ExtractionLineageIT`. The dry run asks core-hub before it starts fetching, so a stopped core-hub fails in seconds, not hours.
+
+## 2026-10-07 — Historical backfill — CHOICE — a live run must name its approved dry run
+**What:** A live run takes `--estimate-run-id <dry-run id>` and checks its ceiling against that dry run's recorded estimate. It refuses if the dry run is missing, incomplete, or was for a different source, window, model, prompt or pre-filter version.
+**Why it matters:** Estimating in-process would mean fetching everything twice; for EDGAR that is roughly a day of `sec.gov` requests. It also makes "dry run → human approval → live run" (2026-09-19 CHOICE, steps 3–4) something the tool enforces.
+**Options considered:** Re-estimate inside the live run (doubles fetch time), or trust a ceiling with no estimate (defeats the ceiling).
+**Action:** Implemented. The dry run fetches and pre-filters only. It does not archive, because it is a measurement and not a pipeline run; the live run archives everything it fetches, as the pipeline always does.
+
+## 2026-10-07 — Historical backfill — FLAG — RateLimitedClient raised instead of waiting
+**What:** `RateLimitedClient` raises `RateLimitExceeded` when a host's bucket is empty, and no connector catches it. A burst of more requests than `rate_limit_rps` within a second aborts the whole fetch. EDGAR makes 2 `sec.gov` requests per filing back-to-back, so a backfill window would die within its first few filings.
+**Action:** Added an opt-in `block=True` mode that sleeps until a token is free. The backfill uses it; the default and its existing tests are unchanged. `api.py` and `scripts/run_pipeline.py` (live paths) still use the raising mode. Recommend switching them to `block=True`; that is out of this spec's scope.
+
+## 2026-10-07 — Historical backfill — FLAG — content-hash dedup does not fire across runs (§7.1.3)
+**What:** `MinioArchive.put()` reports `is_new=False` only if the *exact* key exists, and the key embeds `retrieved_at` to the second. A later re-fetch of unchanged content gets a new key, `is_new=True`, and is re-extracted. §7.1.3 says the same `content_sha256` for the same `(source_type, external_id)` should be a no-op.
+**Why it matters:** For the backfill (Option A) the effect is benign or even helpful: in-window documents already extracted live are re-extracted under the backfill model with the same `event_id`, which is what lineage purity needs. For live ingestion it means every overlapping re-fetch costs an LLM call. A naive fix (skip if any snapshot with the same hash exists) would also make a document whose extraction failed after archiving permanently skipped, so it needs a decision on retry semantics.
+**Action:** Not changed (storage/pipeline behaviour, outside this spec). Needs a user decision and its own spec.
+
+## 2026-10-07 — Historical backfill — VERIFIED — source limits that shape the windows
+**What:** EDGAR EFTS caps a query at 10,000 hits; the connector queries every 8-K (`q=""`) and fetches each one's text before the pre-filter. EPO OPS caps a query at 2,000. ClinicalTrials.gov `/api/v2/studies` returns only each study's current version, and the connector queries by `LastUpdatePostDate`. So a 2024 window only finds trials whose *latest* update is in 2024; trials updated again later are found in the later window, with their current text.
+**Why it matters:** EDGAR fetch time dominates the backfill (~140k 8-Ks over 24 months × 2 requests at 4 req/s ≈ 20 h). Clinical-trial history before each trial's last update is not recoverable this way: no look-ahead leak, but sparse early coverage.
+**Action:** Use `--window-days 14` for edgar and `7` for epo_ops. Recommend a follow-up to restrict the EDGAR EFTS query to watched CIKs or vocabulary terms, which would cut that fetch by orders of magnitude.
+
+## 2026-10-07 — Historical backfill — FLAG — model cutoff vs window on a 24 GB machine
+**What:** The cutoff guard refuses windows starting before `cutoff_date + margin_months` (default 3). The backfill runs on an M4 Pro with 24 GB that also hosts the Docker stack. Llama 3.1 8B (cutoff 2023-12) allows a start from 2024-03-01 and fits in memory. Gemma 3 27B Q4 (~17 GB) does not fit next to the stack's ~8 GB. Any Gemma 3 model (cutoff 2024-08) would move the earliest start to 2024-11-01, shortening the planned Sep 2024 – Sep 2026 window.
+**Action:** Input for the local-model choice. The backfill tooling is model-agnostic: set `EXTRACTION_MODEL` and register its cutoff, digest, gate record and latency record.
