@@ -113,6 +113,7 @@ def _make_env_reextract_runner() -> ReextractionRunner:
 
     from .extraction_backend import build_extractor_from_env
     from .messaging import KafkaProducerClient
+    from .models import EVENT_SCHEMA_VERSION
     from .storage.minio_client import MinioArchive
 
     minio_client = Minio(
@@ -124,7 +125,7 @@ def _make_env_reextract_runner() -> ReextractionRunner:
     archive = MinioArchive(client=minio_client, bucket=os.environ["MINIO_BUCKET"])
 
     extractor = build_extractor_from_env(
-        schema_version=os.environ.get("SCHEMA_VERSION", "1.0"),
+        schema_version=os.environ.get("SCHEMA_VERSION", EVENT_SCHEMA_VERSION),
     )
 
     producer = KafkaProducerClient(
@@ -179,7 +180,7 @@ def _make_env_pipeline_factory(
 
     def _extractor() -> BackendLLMExtractor:
         if not extractor_cache:
-            extractor_cache.append(build_extractor_from_env(schema_version="1.0"))
+            extractor_cache.append(build_extractor_from_env())
         return extractor_cache[0]
 
     kafka_producer = KafkaProducerClient(

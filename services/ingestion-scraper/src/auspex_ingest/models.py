@@ -5,6 +5,9 @@ from pydantic import BaseModel, Field, field_serializer, field_validator
 
 _CANONICAL_PREFIXES: frozenset[str] = frozenset({"doi:", "nct:", "epo-app:", "edgar:", "fda:"})
 
+# Stamped on every extracted event; the Java record and the contract fixture follow it.
+EVENT_SCHEMA_VERSION = "1.1"
+
 
 class RawDocument(BaseModel):
     schema_version: str
@@ -62,6 +65,10 @@ class ResearchSignalEvent(BaseModel):
     prompt_version: str
     prefilter_version: str
     extraction_model: str
+    event_type: str = "other"
+    primary_company: str | None = None
+    program_identifiers: list[str] = Field(default_factory=list)
+    trial_ids: list[str] = Field(default_factory=list)
 
     @field_validator("published_date", "ingested_at", mode="before")
     @classmethod

@@ -11,11 +11,11 @@ from datetime import UTC, datetime
 from pathlib import Path
 
 from auspex_ingest.identity import compute_event_id, compute_extraction_id
-from auspex_ingest.models import ResearchSignalEvent
+from auspex_ingest.models import EVENT_SCHEMA_VERSION, ResearchSignalEvent
 
 _UTC = UTC
 _T0 = datetime(2024, 6, 15, 12, 0, 0, tzinfo=_UTC)
-_SCHEMA = "1.0"
+_SCHEMA = EVENT_SCHEMA_VERSION
 _PROMPT = "v1"
 _PREFILTER = "v1"
 _MODEL = "gpt-4o"
@@ -50,6 +50,10 @@ def _make_fixture() -> ResearchSignalEvent:
         summary="BCL11A base editing shows efficacy in sickle cell disease model",
         directionality="positive",
         confidence_score=0.92,
+        event_type="preclinical_data",
+        primary_company="Beam Therapeutics",
+        program_identifiers=["BEAM-101"],
+        trial_ids=["NCT05456880"],
         prompt_version=_PROMPT,
         prefilter_version=_PREFILTER,
         extraction_model=_MODEL,
@@ -66,6 +70,10 @@ def test_generate_contract_fixture():
     assert payload["extraction_id"] is not None
     assert payload["confidence_score"] == 0.92
     assert payload["gene_targets"] == ["BCL11A", "HBB"]
+    assert payload["event_type"] == "preclinical_data"
+    assert payload["primary_company"] == "Beam Therapeutics"
+    assert payload["program_identifiers"] == ["BEAM-101"]
+    assert payload["trial_ids"] == ["NCT05456880"]
     assert payload["published_date"].endswith("Z")
     assert payload["ingested_at"].endswith("Z")
 

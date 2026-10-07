@@ -670,3 +670,18 @@ Create a free account at quay.io if you don't have one. No organisation-specific
 **What:** The aligner entered at the open of the session in which a signal appeared, even when that open had already traded, and treated date-only timestamps (midnight UTC, used by every connector) as known that day. `_window_returns` counted price rows, and fell back to the last available close when data ran out.
 **Action:** `aligner.entry_session` returns the first NYSE session (`MarketCalendar`) whose open is after the timestamp; a date-only timestamp is known after that day's close, so it enters the next session. Returns run from that session's open to the close of `next_trading_day(entry + N calendar days)`, the same rule as `FillModel`. A missing entry or exit row gives `None`. Delisted names therefore drop out until the point-in-time universe work supplies their prices; that is visible as a smaller `n`, not a truncated return.
 **EDGAR timing:** the EDGAR press-release work now stores the filing's `acceptanceDateTime` as `published_date`, so an 8-K accepted before 09:30 ET enters that day's open and one accepted later enters the next session's. Date-only sources keep the after-close rule.
+
+## 2026-10-07 — Company-level extraction — CHOICE — event taxonomy and identifier fields (schema 1.1)
+
+**What:** The edge feasibility audit (rows 4 and 6) asks for company and program identifiers and a typed event taxonomy on every extracted event, before the backfill.
+**Action:** `ResearchSignalEvent` 1.1 adds `event_type`, `primary_company`, `program_identifiers` and `trial_ids`; prompt `v1.1` asks for them and is the production default. Choices made:
+1. Direction stays in `directionality`. A negative readout is `trial_readout` + `negative`, not a separate `readout_negative` type, so the two fields cannot disagree.
+2. Financing and offerings are not in the taxonomy. The prompt still marks pure financial events `is_signal=false`; changing that would move the gate's `is_signal` labels. Offerings come with their own connectors (audit row 9).
+3. `trial_ids` is validated (`NCT` + 8 digits) and always includes the document's own trial when `canonical_id` is `nct:`. Unknown `event_type` values become `other` instead of failing the document.
+4. `core-hub` persists the fields to `signal_current` (Flyway `V4`) but not to Neo4j. Without the columns the backfill would drop them, and the company-program corroboration would need a full re-extraction on the local model. The graph model is left to that spec.
+5. CT.gov `raw_content` now includes `Lead sponsor:`. This changes `content_sha256` for every trial, so the first fetch after deploy re-archives and re-extracts each trial once. Acceptable before the backfill.
+
+## 2026-10-07 — Company-level extraction — PENDING — gate record for prompt v1.1
+
+**What:** Production refuses a model without a passing gate record at the active prompt version, and the default is now `v1.1`. No `v1.1` record exists.
+**Action:** On the backfill machine, run `score_extraction.py --model <chosen tag>` (the scripts default to `v1.1`) after `evaluate_model.py`, as in `docs/local-model-runbook.md`. The golden set has no labels for the new fields yet, so the gate still measures `is_signal` precision only; the new fields are reported once documents carry their labels (`tests/golden/FORMAT.txt`).

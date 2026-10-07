@@ -151,6 +151,10 @@ def test_prompt_and_prefilter_versions_are_recorded_on_every_extracted_event():
     mock_result.summary = "summary"
     mock_result.directionality = "positive"
     mock_result.confidence_score = 0.9
+    mock_result.event_type = "preclinical_data"
+    mock_result.primary_company = None
+    mock_result.program_identifiers = []
+    mock_result.trial_ids = []
 
     mock_client = MagicMock()
     mock_client.chat.completions.create.return_value = mock_result
@@ -178,3 +182,37 @@ def test_prompt_and_prefilter_versions_are_recorded_on_every_extracted_event():
     assert event.prompt_version == "v1"
     assert event.prefilter_version == "v1"
     assert event.extraction_model == "gpt-4o"
+
+
+def test_new_fields_are_scored_only_on_documents_labelled_for_them():
+    labelled, unlabelled = _toy_golden()[:2]
+    labelled.labels.update({
+        "event_type": "trial_readout",
+        "primary_company": "Beam Therapeutics",
+        "program_identifiers": ["BEAM-101"],
+        "trial_ids": ["NCT05456880"],
+    })
+    predictions: list[dict | None] = [
+        {
+            "event_type": "trial_readout",
+            "primary_company": "beam therapeutics",
+            "program_identifiers": ["BEAM-101", "BEAM-302"],
+            "trial_ids": [],
+        },
+        {
+            "event_type": "other",
+            "primary_company": None,
+            "program_identifiers": ["X"],
+            "trial_ids": ["NCT00000001"],
+        },
+    ]
+
+    scores = score_batch([labelled, unlabelled], predictions)
+
+    assert scores["event_type"] == {"accuracy": 1.0, "labelled": 1}
+    assert scores["primary_company"] == {"accuracy": 1.0, "labelled": 1}
+    assert scores["program_identifiers"]["precision"] == 0.5
+    assert scores["program_identifiers"]["recall"] == 1.0
+    assert scores["program_identifiers"]["labelled"] == 1
+    assert scores["trial_ids"]["recall"] == 0.0
+    assert scores["trial_ids"]["labelled"] == 1

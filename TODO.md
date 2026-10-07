@@ -31,6 +31,7 @@ Each line links to a self-contained spec in `specs/`. Open the spec and read it 
 | [Decision trace](specs/decision-trace.md) | `blocked` | Blocked by strategy-framework + strategy-runtime; immutable TraceRecord from raw doc to P&L, TraceStore, TraceValidator |
 | [Golden set expansion](specs/golden-set-expansion.md) | `blocked` | Blocked by model-evaluation — local model must be chosen before gate records can be written |
 | [Historical backfill](specs/historical-backfill.md) | `blocked` | Budget approval + extraction-backend + model-evaluation + golden-set-expansion first |
+| [Company-level extraction](specs/done/company-level-extraction.md) | `done` | Schema 1.1: event_type, primary_company, program_identifiers, trial_ids; prompt v1.1; Flyway V4; gate needs a v1.1 run |
 | [Patent connector (EPO OPS)](specs/done/patent-connector.md) | `done` | 10 tests, live DOCDB confirmed |
 | [Price data ingestion](specs/done/price-ingestion.md) | `done` | 5 tests passed |
 | [Point-in-time alignment](specs/done/point-in-time-alignment.md) | `done` | 10 tests passed |
@@ -102,3 +103,4 @@ Each line links to a self-contained spec in `specs/`. Open the spec and read it 
 | 2026-10-07 | EDGAR press-release content | Done — 60 tests green, mutation-checked; filing index replaces submissions lookup | No |
 | 2026-10-07 | Second-wave specs from the edge feasibility audit | Scoping session — 9 specs written (all blocked); historical-backfill, strategy-runtime, portfolio-and-risk reconciled; universe scope decided by the user (defaults, free delisted prices) | No |
 | 2026-10-07 | Backtest look-ahead fix | Done — 26 new tests, mutation-checked; member signals no longer counted; NYSE calendar; calendar-day windows | No |
+| 2026-10-07 | Company-level extraction | Done — 9 new Python tests, 1 new Java unit, 2 new IT; 261 Python unit + 42 Java unit green; gate re-run at v1.1 pending | No |

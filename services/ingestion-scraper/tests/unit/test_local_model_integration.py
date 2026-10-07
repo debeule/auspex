@@ -151,7 +151,7 @@ def test_instructor_client_uses_registry_mode_timeout_and_base_url():
 def test_extractor_from_env_targets_configured_model_and_base_url(tmp_path):
     registry = _write_registry(tmp_path, {_TAG: {**_LOCAL_ENTRY, "digest": _DIGEST}})
     scores = tmp_path / "scores"
-    _write_score(scores, _TAG, "v1.0", PREFILTER_VERSION)
+    _write_score(scores, _TAG, "v1.1", PREFILTER_VERSION)
     env = {
         "EXTRACTION_MODEL": _TAG,
         "EXTRACTION_BASE_URL": _BASE_URL,
@@ -161,7 +161,7 @@ def test_extractor_from_env_targets_configured_model_and_base_url(tmp_path):
     }
     extractor = build_extractor_from_env(env, model_info_fn=lambda tag: _DIGEST)
     assert extractor._model_id == _TAG
-    assert extractor._prompt_version == "v1.0"
+    assert extractor._prompt_version == "v1.1"
     assert str(extractor._client.client.base_url).rstrip("/") == _BASE_URL
 
 

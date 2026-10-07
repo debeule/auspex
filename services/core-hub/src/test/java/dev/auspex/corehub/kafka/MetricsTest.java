@@ -59,7 +59,8 @@ class MetricsTest {
                 Instant.parse("2023-01-10T13:00:00Z"), "Test title",
                 "Test snippet", List.of("BRCA1"), List.of("inhibition"),
                 List.of("BEAM"), "Summary", "positive",
-                BigDecimal.valueOf(0.85), "v1", "v1", "gpt-4o"
+                BigDecimal.valueOf(0.85), "v1", "v1", "gpt-4o",
+                "preclinical_data", null, List.of(), List.of()
         );
     }
 }

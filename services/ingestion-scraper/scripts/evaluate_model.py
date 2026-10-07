@@ -138,7 +138,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Evaluate a candidate model against the golden set")
     parser.add_argument("--model", required=True, help="Registry key (e.g. llama3.1:8b-instruct-q8_0)")
     parser.add_argument("--golden-dir", default="tests/golden", type=Path)
-    parser.add_argument("--prompt-version", default="v1.0")
+    parser.add_argument("--prompt-version", default="v1.1")
     parser.add_argument("--prefilter-vocab", default=None, type=Path)
     parser.add_argument(
         "--registry",

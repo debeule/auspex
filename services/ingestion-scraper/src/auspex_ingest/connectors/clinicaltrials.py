@@ -47,7 +47,7 @@ class ClinicalTrialConnector(SourceConnector):
                 "fields": (
                     "NCTId,BriefTitle,BriefSummary,"
                     "StudyFirstSubmitDate,StudyFirstPostDate,"
-                    "LastUpdateSubmitDate,LastUpdatePostDate,OverallStatus"
+                    "LastUpdateSubmitDate,LastUpdatePostDate,OverallStatus,LeadSponsorName"
                 ),
             }
             if page_token:
@@ -68,6 +68,7 @@ class ClinicalTrialConnector(SourceConnector):
         ident = proto.get("identificationModule") or {}
         desc = proto.get("descriptionModule") or {}
         status = proto.get("statusModule") or {}
+        sponsors = proto.get("sponsorCollaboratorsModule") or {}
 
         nct_id: str | None = ident.get("nctId")
         if not nct_id:
@@ -80,6 +81,7 @@ class ClinicalTrialConnector(SourceConnector):
         last_update_date: str = (status.get("lastUpdatePostDateStruct") or {}).get("date", "")
         first_submit_date: str = str(status.get("studyFirstSubmitDate") or "")
         overall_status: str = str(status.get("overallStatus") or "")
+        lead_sponsor: str = str((sponsors.get("leadSponsor") or {}).get("name") or "")
 
         # Use last_update_date for amendments; first_post_date for new studies.
         is_amendment = last_update_date and first_post_date and last_update_date > first_post_date
@@ -89,6 +91,7 @@ class ClinicalTrialConnector(SourceConnector):
         raw_content = (
             f"{title}\n\n{summary}\n\n"
             f"NCT ID: {nct_id}\n"
+            f"Lead sponsor: {lead_sponsor}\n"
             f"Overall status: {overall_status}\n"
             f"Study first posted: {first_post_date}\n"
             f"Last updated: {last_update_date}\n"

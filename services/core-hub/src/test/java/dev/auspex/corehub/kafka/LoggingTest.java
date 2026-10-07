@@ -118,7 +118,11 @@ class LoggingTest {
                 BigDecimal.valueOf(0.85),
                 "v1",
                 "v1",
-                "gpt-4o"
+                "gpt-4o",
+                "preclinical_data",
+                null,
+                List.of(),
+                List.of()
         );
     }
 }

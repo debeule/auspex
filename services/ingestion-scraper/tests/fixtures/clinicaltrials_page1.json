@@ -6,6 +6,12 @@
           "nctId": "NCT06123456",
           "briefTitle": "CRISPR Base Editing for Sickle Cell Disease"
         },
+        "sponsorCollaboratorsModule": {
+          "leadSponsor": {
+            "name": "Beam Therapeutics Inc.",
+            "class": "INDUSTRY"
+          }
+        },
         "descriptionModule": {
           "briefSummary": "A phase 1 trial evaluating BCL11A erythroid enhancer base editing in patients with sickle cell disease."
         },
@@ -29,6 +35,12 @@
         "identificationModule": {
           "nctId": "NCT06234567",
           "briefTitle": "AAV Gene Therapy for Duchenne Muscular Dystrophy"
+        },
+        "sponsorCollaboratorsModule": {
+          "leadSponsor": {
+            "name": "Sarepta Therapeutics, Inc.",
+            "class": "INDUSTRY"
+          }
         },
         "descriptionModule": {
           "briefSummary": "Evaluating micro-dystrophin delivery via AAV in DMD patients."
