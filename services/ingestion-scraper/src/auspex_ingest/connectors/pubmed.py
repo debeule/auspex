@@ -32,6 +32,7 @@ class PubmedConnector(SourceConnector):
         base_url: str = _EUTILS_BASE,
         api_key: str | None = None,
         now: Callable[[], datetime] | None = None,
+        until: datetime | None = None,
         sleep: Callable[[float], None] | None = None,
         max_retries: int = 3,
     ) -> None:
@@ -40,12 +41,14 @@ class PubmedConnector(SourceConnector):
         self._base_url = base_url.rstrip("/")
         self._api_key = api_key
         self._now = now or (lambda: datetime.now(UTC))
+        # Inclusive upper bound of the query window; None means "up to now".
+        self._until = until
         self._sleep: Callable[[float], None] = sleep or time.sleep
         self._max_retries = max_retries
 
     def fetch_since(self, cursor: datetime) -> Iterator[RawDocument]:
         start = cursor.strftime("%Y/%m/%d")
-        end = self._now().strftime("%Y/%m/%d")
+        end = (self._until or self._now()).strftime("%Y/%m/%d")
         retrieved_at = self._now()
 
         retstart = 0
