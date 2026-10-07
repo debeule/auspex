@@ -108,7 +108,7 @@ public class PostgresWriteService implements SignalRecordPort {
             ps.setString(23, e.eventType());
             ps.setString(24, e.primaryCompany());
             ps.setArray(25,  conn.createArrayOf("text", orEmpty(e.programIdentifiers()).toArray()));
-            ps.setArray(26,  conn.createArrayOf("text", orEmpty(e.trialIds()).toArray()));
+            ps.setArray(26,  conn.createArrayOf("text", e.trialIds().toArray()));
             return ps;
         });
     }
