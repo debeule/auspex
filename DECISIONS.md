@@ -655,3 +655,18 @@ Create a free account at quay.io if you don't have one. No organisation-specific
 **Why it matters:** with minimum commissions and TOB, a small account and a large one can reach opposite verdicts on the same signals.
 **Action:** spec and TODO.md updated; live trading is gated on the paper-trading results (TODO.md). Defaults are reversible in `.env` before the ledger starts.
 
+## 2026-10-07 — Backtest look-ahead fix — FLAG — variant returns counted signals that predate their corroboration
+
+**What:** `BacktestRunner._compute_variants` qualified a gene target on its whole history, and `MetricsCalculator.compute_both_variants` then counted every member signal's return from that signal's own entry date. A signal on day 0 corroborated by another on day 60 contributed its day-0 return, which no live system could have traded. Found by the 2026-10-07 edge feasibility audit (recommendation 1).
+**Action:** Fixed in `specs/done/backtest-look-ahead-fix.md`. Variants are now corroboration events entered at `entry_session(corroborated_at)`, one return per event.
+
+## 2026-10-07 — Backtest look-ahead fix — CHOICE — one backtest event per corroboration, not per superseding record
+
+**What:** requirements §4.1 writes a new record whenever a signal joins an entity's group and marks the smaller one superseded. Counting each record would double-count the same evidence; counting only the latest would date the event by its last participant.
+**Action:** Per `(gene_target, ticker)`, signals are replayed in publication order. An event fires when the signals within the preceding 90 days span two source types, and only if none of them belonged to the previous event. A joining signal extends the existing event; a later, disjoint pair on the same target is a new event. The full-variant weight uses the participants known at the event.
+
+## 2026-10-07 — Backtest look-ahead fix — CHOICE — entry and holding-window timing
+
+**What:** The aligner entered at the open of the session in which a signal appeared, even when that open had already traded, and treated date-only timestamps (midnight UTC, used by every connector) as known that day. `_window_returns` counted price rows, and fell back to the last available close when data ran out.
+**Action:** `aligner.entry_session` returns the first NYSE session (`MarketCalendar`) whose open is after the timestamp; a date-only timestamp is known after that day's close, so it enters the next session. Returns run from that session's open to the close of `next_trading_day(entry + N calendar days)`, the same rule as `FillModel`. A missing entry or exit row gives `None`. Delisted names therefore drop out until the point-in-time universe work supplies their prices; that is visible as a smaller `n`, not a truncated return.
+**EDGAR timing:** the EDGAR press-release work now stores the filing's `acceptanceDateTime` as `published_date`, so an 8-K accepted before 09:30 ET enters that day's open and one accepted later enters the next session's. Date-only sources keep the after-close rule.

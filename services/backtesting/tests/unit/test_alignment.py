@@ -9,6 +9,7 @@ from auspex_backtesting.alignment.aligner import (
     align,
     align_corroboration,
     align_signal,
+    entry_session,
 )
 
 
@@ -116,3 +117,27 @@ def test_signal_on_market_holiday_aligns_to_next_trading_day():
     prices = _prices(["2023-01-17", "2023-01-18"])
     result = align_signal(signal, prices)
     assert result.index[0].date() == date(2023, 1, 17)
+
+
+def test_good_friday_signal_enters_the_following_monday():
+    # 2023-04-07 is Good Friday: NYSE closed, not a US federal holiday
+    assert entry_session(_dt("2023-04-07T14:00:00")) == date(2023, 4, 10)
+
+
+def test_columbus_day_is_a_trading_session():
+    # 2023-10-09 is Columbus Day: a federal holiday on which NYSE trades
+    assert entry_session(_dt("2023-10-09T12:00:00")) == date(2023, 10, 9)
+
+
+def test_signal_during_market_hours_enters_at_the_next_sessions_open():
+    # 2023-01-11 16:00 UTC is 11:00 ET: that day's open has already traded
+    assert entry_session(_dt("2023-01-11T16:00:00")) == date(2023, 1, 12)
+
+
+def test_date_only_published_date_is_known_after_that_days_close():
+    # Connectors store a date-only published_date as midnight UTC
+    assert entry_session(_dt("2023-01-11T00:00:00")) == date(2023, 1, 12)
+
+
+def test_date_only_published_date_on_a_friday_enters_monday():
+    assert entry_session(_dt("2023-01-13T00:00:00")) == date(2023, 1, 17)  # Mon 16th is MLK Day

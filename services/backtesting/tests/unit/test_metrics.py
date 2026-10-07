@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import UTC, date, datetime
 
 import pandas as pd
 import pytest
@@ -88,14 +88,20 @@ def test_run_parameters_stored_with_results():
 def _beam_prices() -> pd.DataFrame:
     dates = ["2023-01-09", "2023-01-10", "2023-01-11", "2023-01-12", "2023-01-13"]
     idx = pd.DatetimeIndex(dates, tz="UTC", name="date")
-    return pd.DataFrame({"close": [15.0, 15.5, 16.0, 14.5, 17.0]}, index=idx)
+    closes = [15.0, 15.5, 16.0, 14.5, 17.0]
+    return pd.DataFrame({"open": closes, "close": closes}, index=idx)
 
 
-def _corr_event(event_id: str, source_type: str, directionality: str = "positive") -> BacktestEvent:
+def _corr_event(
+    event_id: str,
+    source_type: str,
+    directionality: str = "positive",
+    published_date: datetime = datetime(2023, 1, 9, 10, tzinfo=UTC),
+) -> BacktestEvent:
     return BacktestEvent(
         event_id=event_id,
         ticker="BEAM",
-        entry_date=date(2023, 1, 9),
+        published_date=published_date,
         raw_object_key=f"raw/{source_type}/{event_id}.json",
         gene_target="BCL11A",
         source_type=source_type,
@@ -110,23 +116,60 @@ def test_metrics_output_includes_variant_field():
 
 
 def test_entity_only_and_full_variants_reported_side_by_side():
-    report = BacktestRunner(windows=(5,)).run(
+    report = BacktestRunner(windows=(1,)).run(
         [_corr_event("e1", "pubmed"), _corr_event("e2", "clinicaltrials")],
         {"BEAM": _beam_prices()},
     )
-    entity_m, full_m = MetricsCalculator().compute_both_variants(report, _make_params(), window_days=5)
+    entity_m, full_m = MetricsCalculator().compute_both_variants(report, _make_params(), window_days=1)
     assert entity_m.variant == "entity-only"
     assert full_m.variant == "full"
 
 
 def test_entity_only_metrics_independent_of_directionality():
-    # e1 positive, e2 negative — dirs disagree → full group weight=0 → full excludes both
-    report = BacktestRunner(windows=(5,)).run(
+    # e1 positive, e2 negative: directions disagree, so the full variant weights the event at 0
+    report = BacktestRunner(windows=(1,)).run(
         [_corr_event("e1", "pubmed", "positive"), _corr_event("e2", "clinicaltrials", "negative")],
         {"BEAM": _beam_prices()},
     )
-    entity_m, full_m = MetricsCalculator().compute_both_variants(report, _make_params(), window_days=5)
+    entity_m, full_m = MetricsCalculator().compute_both_variants(report, _make_params(), window_days=1)
     assert entity_m.mean_return.value is not None
-    assert entity_m.mean_return.n == 2
+    assert entity_m.mean_return.n == 1
     assert full_m.mean_return.value is None
+    assert full_m.mean_return.n == 0
+
+
+def test_member_signal_predating_its_corroboration_is_not_counted():
+    # a on day 0, b on day 60: one event entering after b; a's own return must not count
+    sessions = pd.bdate_range("2023-01-03", "2023-04-28", tz="UTC", name="date")
+    prices = pd.DataFrame({"open": 10.0, "close": 10.0}, index=sessions)
+    prices.loc[pd.Timestamp("2023-01-12", tz="UTC"), "close"] = 30.0  # a's 2-day exit
+    prices.loc[pd.Timestamp("2023-03-13", tz="UTC"), "close"] = 11.0  # the event's 2-day exit
+    report = BacktestRunner(windows=(2,)).run(
+        [
+            _corr_event("a", "pubmed", published_date=datetime(2023, 1, 9, tzinfo=UTC)),
+            _corr_event("b", "clinicaltrials", published_date=datetime(2023, 3, 9, tzinfo=UTC)),
+        ],
+        {"BEAM": prices},
+    )
+
+    entity_m, full_m = MetricsCalculator().compute_both_variants(report, _make_params(), window_days=2)
+
+    assert entity_m.mean_return.n == 1
+    assert entity_m.mean_return.value == pytest.approx(0.1)
+    assert full_m.mean_return.n == 1
+    assert full_m.mean_return.value == pytest.approx(0.1)
+
+
+def test_variant_metrics_are_empty_when_no_signal_carries_a_gene_target():
+    report = BacktestRunner(windows=(1,)).run(
+        [BacktestEvent(
+            event_id="e1",
+            ticker="BEAM",
+            published_date=datetime(2023, 1, 9, 10, tzinfo=UTC),
+            raw_object_key="raw/e1.json",
+        )],
+        {"BEAM": _beam_prices()},
+    )
+    entity_m, full_m = MetricsCalculator().compute_both_variants(report, _make_params(), window_days=1)
+    assert entity_m.mean_return.n == 0
     assert full_m.mean_return.n == 0

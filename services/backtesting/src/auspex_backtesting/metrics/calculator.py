@@ -1,7 +1,12 @@
 import math
 from dataclasses import dataclass
 
-from auspex_backtesting.backtest.runner import BacktestReport, BacktestResult, VariantReport
+from auspex_backtesting.backtest.runner import (
+    BacktestReport,
+    BacktestResult,
+    VariantReport,
+    WindowReturn,
+)
 
 
 @dataclass(frozen=True)
@@ -49,11 +54,8 @@ class MetricsCalculator:
         params: RunParameters,
         window_days: int,
     ) -> tuple[MetricsReport, MetricsReport]:
-        entity_results = _qualifying_results(backtest.results, backtest.entity_only)
-        full_results = _qualifying_results(backtest.results, backtest.full)
-
-        entity_returns = _returns_from_results(entity_results, window_days)
-        full_returns = _returns_from_results(full_results, window_days)
+        entity_returns = _variant_returns(backtest.entity_only, window_days)
+        full_returns = _variant_returns(backtest.full, window_days)
 
         n_e = len(entity_returns)
         n_f = len(full_returns)
@@ -75,34 +77,37 @@ class MetricsCalculator:
         )
 
 
-def _qualifying_results(
-    results: tuple[BacktestResult, ...],
-    variant_report: VariantReport | None,
-) -> list[BacktestResult]:
+def _variant_returns(variant_report: VariantReport | None, window_days: int) -> list[float]:
+    """One return per corroboration event, entered after `corroborated_at`.
+
+    Member signals are deliberately not counted: a member published before its corroboration
+    existed would contribute a return no live system could have traded.
+    """
     if variant_report is None:
-        return list(results)
-    qualifying: list[BacktestResult] = []
-    for result in results:
-        if not result.gene_target:
+        return []
+    out: list[float] = []
+    for group in variant_report.groups:
+        if group.weight <= 0:
             continue
-        for group in variant_report.groups:
-            if (
-                result.gene_target == group.gene_target
-                and result.source_type in group.source_types
-                and group.weight > 0
-            ):
-                qualifying.append(result)
-                break
-    return qualifying
+        pct = _pct_for_window(group.window_returns, window_days)
+        if pct is not None:
+            out.append(pct)
+    return out
+
+
+def _pct_for_window(window_returns: tuple[WindowReturn, ...], window_days: int) -> float | None:
+    for wr in window_returns:
+        if wr.days == window_days:
+            return wr.pct
+    return None
 
 
 def _returns_from_results(results: list[BacktestResult], window_days: int) -> list[float]:
     out: list[float] = []
     for r in results:
-        for wr in r.window_returns:
-            if wr.days == window_days and wr.pct is not None:
-                out.append(wr.pct)
-                break
+        pct = _pct_for_window(r.window_returns, window_days)
+        if pct is not None:
+            out.append(pct)
     return out
 
 
