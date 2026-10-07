@@ -23,6 +23,17 @@ The generated file is `services/core-hub/src/test/resources/contract/signal_even
 
 Topic provisioning is in `docker/topics.yaml`. DLT partition count must match the source topic — Spring's `DeadLetterPublishingRecoverer` publishes to the same partition number; a mismatch fails silently.
 
+## Comment conventions per stack
+
+The rule itself (what a comment may and may not say) is in the root `CLAUDE.md` under "Code comments".
+
+| Stack | Form | Notes |
+|---|---|---|
+| Java (`core-hub`) | Javadoc `/** */` on types and on public or package-level methods whose contract isn't obvious; `//` for a local why | No `@param`/`@return` tags that only repeat names and types. |
+| Python (`ingestion-scraper`, `backtesting`, `strategy`) | PEP 257 docstrings; `#` for a local why | Prose with backticked names, matching the existing code. A module or script note goes in the module docstring, not in `#` lines at the top. |
+| TypeScript (`dashboard`) | TSDoc `/** */` on exported components, hooks and API helpers whose behaviour isn't obvious from props and types | No JSDoc type annotations; the types are in TypeScript. |
+| Shell, YAML, Dockerfile | `#` | Units on magic numbers (`# 7 days`), why a flag exists. |
+
 ## Hard boundary (Invariants 1 & 2)
 
 - `ingestion-scraper` writes **only** to MinIO and Kafka. No DB access, ever.
