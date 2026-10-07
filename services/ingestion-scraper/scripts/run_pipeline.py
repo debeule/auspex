@@ -39,13 +39,6 @@ def _load_env() -> None:
 _load_env()
 
 
-def _openai_api_key() -> str:
-    key = os.environ.get("OPENAI_API_KEY") or os.environ.get("OPEN_AI_KEY") or ""
-    if not key:
-        print("WARNING: no OpenAI API key found (OPENAI_API_KEY / OPEN_AI_KEY)", file=sys.stderr)
-    return key
-
-
 def _build_connector(source_type: str, entry, rate_limited_client):  # type: ignore[no-untyped-def]
     from auspex_ingest.connectors.biorxiv import BiorxivConnector
     from auspex_ingest.connectors.clinicaltrials import ClinicalTrialConnector
@@ -78,13 +71,11 @@ def _build_connector(source_type: str, entry, rate_limited_client):  # type: ign
 
 
 def _build_pipeline(source_type: str, entry):  # type: ignore[no-untyped-def]
-    import instructor
-    import openai
     from confluent_kafka import Producer as ConfluentProducer
     from minio import Minio
 
     from auspex_ingest.connectors import RateLimitedClient
-    from auspex_ingest.extractor import LLMExtractor
+    from auspex_ingest.extraction_backend import build_extractor_from_env
     from auspex_ingest.messaging import KafkaProducerClient
     from auspex_ingest.normalizer import IdentityNormalizer
     from auspex_ingest.pipeline import IngestionPipeline
@@ -109,13 +100,7 @@ def _build_pipeline(source_type: str, entry):  # type: ignore[no-untyped-def]
     )
     archive = MinioArchive(client=minio_client, bucket=os.environ["MINIO_BUCKET"])
 
-    llm_client = instructor.from_openai(openai.OpenAI(api_key=_openai_api_key()))
-    extractor = LLMExtractor(
-        client=llm_client,
-        model=os.environ.get("OPEN_AI_EXTRACTION_MODEL", "gpt-4o-mini"),
-        schema_version="1.0",
-        prompt_version="v1",
-    )
+    extractor = build_extractor_from_env(schema_version="1.0")
 
     kafka_producer = KafkaProducerClient(
         ConfluentProducer({"bootstrap.servers": os.environ["KAFKA_BOOTSTRAP_SERVERS"]}),

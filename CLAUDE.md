@@ -198,6 +198,7 @@ git checkout develop          # reset for the next spec
 - **`make_metrics()` is cached per registry.** The API builds a pipeline per request; registering collectors twice on one registry raises `DuplicateTimeseries`.
 - **LocalStack calendar tags (`2026.x`) need a licence token** and exit with code 55 without one. Integration tests pin `localstack/localstack:4.9.2`.
 - **Local model backend — Docker/Metal:** Docker Desktop on macOS cannot use Metal. Run the model server (Ollama) on the host; the scraper reaches it via `host.docker.internal` in `EXTRACTION_BASE_URL`. See `docker/README.md` for the memory budget table.
+- **Local model backend — context length:** Ollama's OpenAI-compatible `/v1` endpoint ignores per-request `num_ctx`. The server default is 4096 tokens and longer prompts are silently truncated, so the registry's `num_ctx` only holds if Ollama runs with `OLLAMA_CONTEXT_LENGTH` ≥ that value. See `docs/local-model-runbook.md`.
 - **Local model backend — tag re-pointing:** `ollama pull gemma3:27b` downloads whatever HEAD is at that tag at pull time. The registry pins the exact digest (`gemma3:27b@sha256:...`); `LLMExtractorFactory` compares the registered digest against `ollama show` output at startup and fails before any extraction runs if they differ.
 
 ## File map
@@ -212,6 +213,7 @@ git checkout develop          # reset for the next spec
 | `DECISIONS.md` | Append-only log of flags, blocks, and choices made. |
 | `docs/requirements.md` | What the system must satisfy. Cited by specs when verifying tests. |
 | `docs/PREREQUISITES.md` | Outstanding credentials and user decisions. |
+| `docs/local-model-runbook.md` | Install Ollama, register and gate a local extraction model, switch the pipeline to it. |
 | `docs/HISTORY.md` | Completed phases (0–3) — test counts, pre-fix failures, key decisions. |
 | `docs/plan.md` | Reference only — original phase definitions. Superseded by `specs/` for active work. |
 
