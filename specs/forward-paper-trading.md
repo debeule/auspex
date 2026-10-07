@@ -5,7 +5,8 @@
 1. `specs/strategy-runtime.md` — `StreamingRuntime`, `VirtualBook` (paper mode) and `BacktestReplayRunner` must exist.
 2. Backtest look-ahead fix (in progress, first wave) — the paper ledger and the backtest must build events the same way (one event per corroboration record as of `corroborated_at`, NYSE calendar, after-close timing), or the forward results cannot be compared with the backtest.
 3. Pre-registration and kill criteria (in progress, first wave) — the hypotheses, trial ledger, clustered standard errors and the "forward check" kill criterion must be recorded before any forward trade is logged; a hypothesis edited after paper trading starts is a new trial.
-4. Recommended, not a hard blocker: `specs/company-program-corroboration.md`. Paper trading can start on gene-target corroboration, but the audit expects company-program events to be the ones worth testing; starting earlier only buys calendar time.
+4. Realistic trading costs (PR #13, first wave) — per-ticker spread (`SpreadEstimator`), FX conversion fee, average-daily-volume cap and gap risk. The capital tiers below are only meaningful with size-dependent costs.
+5. Recommended, not a hard blocker: `specs/company-program-corroboration.md`. Paper trading can start on gene-target corroboration, but the audit expects company-program events to be the ones worth testing; starting earlier only buys calendar time.
 
 **Branch:** `feature/forward-paper-trading`
 
@@ -24,6 +25,8 @@ What exists or is specified:
 
 ## What this builds
 
+Paper trading is the gate for real capital: its results decide whether any capital is justified and how much (the user's framing, 2026-10-07). So the ledger runs the same intents at several notional account sizes in parallel, and the report shows where fixed costs and capacity start to erode returns.
+
 In `services/strategy/src/auspex_strategy/paper/`:
 
 1. **`PaperLedger`** — append-only, one Parquet file per NYSE session in MinIO: `strategy/paper/ledger/{yyyy-mm-dd}.parquet`. Row kinds:
@@ -31,11 +34,13 @@ In `services/strategy/src/auspex_strategy/paper/`:
    - `fill` / `exit` — from `VirtualBook` (paper mode), with `FillModel` price, `CostModel` costs, and EUR P&L via `CurrencyConverter`.
    - `mark` — end-of-session mark-to-market of every open position.
    - `heartbeat` — exactly one per `paper` strategy per session, written even when nothing happened. A missing heartbeat is a gap.
+   Every `fill`, `exit` and `mark` row carries a `capital_tier_eur`. Tiers come from `PAPER_CAPITAL_TIERS_EUR` in `.env` (default `10000,50000,250000`). Each tier is its own paper `VirtualBook` per strategy: the same intents, sized with `PositionSizer` for that tier's capital, filled and costed with the realistic cost model, so commission minimums, Belgian TOB, FX fees, spread and the ADV cap all scale as they would for real. An intent the ADV cap clips or rejects at a tier is recorded as such for that tier, never silently resized. `intent` and `heartbeat` rows are tier-independent.
    A file for a session is written once; a correction is a new row with `is_correction = true` in a later session's file.
 2. **`DailyCloseOut`** — subscribed to `CALENDAR_TICK` after the NYSE close: refreshes the session's closes for open-position tickers, XBI and `EURUSD=X` through the existing price path, writes marks and heartbeats, and closes positions whose holding rule expired. Runs inside the strategy runtime container (the runtime is not an Airflow DAG; `DECISIONS.md` 2026-09-20).
 3. **`LedgerGapDetector`** — lists NYSE sessions since the ledger start with a missing heartbeat for any `paper` strategy. Exposed as Prometheus gauges `auspex_paper_ledger_gap_sessions` and `auspex_paper_ledger_last_session_age_days` (alert in Grafana when the age exceeds 2 sessions).
 4. **Hypothesis freeze check** — at startup and before each session's writes, every `paper` strategy's hypothesis must pass `verify_hypothesis()`; a modified hypothesis stops that strategy's ledger (logged, gap visible) rather than silently continuing under a changed definition.
 5. **`scripts/paper_report.py`** — per hypothesis: ledger start date, sessions covered, gaps, events, independent events (clustered by ticker and month, the same clustering the pre-registration work defines), mean net abnormal return vs XBI (market model from the evaluation protocol), clustered t, and the forward-check verdict: `insufficient` (under 12 months or under 60 independent events), `pass`, or `fail`.
+   **Per capital tier**, side by side: gross and net return, cost drag (fixed costs such as minimum commissions, and proportional costs such as TOB, FX and spread, shown separately), share of intents clipped or rejected by the ADV cap, and net abnormal return with clustered t. The report names the smallest tier where fixed costs stop dominating and the largest tier before capacity clipping cuts net return by more than a quarter (both read from the tier results, not extrapolated). The verdict is given per tier: a hypothesis can pass at €10k and fail at €250k.
 
 ## Out of scope
 
@@ -69,6 +74,11 @@ In `services/strategy/tests/unit/test_paper_ledger.py`:
 - `test_research_status_strategy_writes_no_ledger_rows`
 - `test_paper_report_verdict_is_insufficient_before_twelve_months_or_sixty_independent_events`
 - `test_paper_report_verdict_requires_positive_mean_and_clustered_t_above_two`
+- `test_each_capital_tier_gets_its_own_book_from_the_same_intents`
+- `test_fixed_costs_take_a_larger_share_of_returns_at_the_smallest_tier` — same trade, €10k vs €250k; minimum commission share of cost is higher at €10k
+- `test_adv_cap_clip_is_recorded_per_tier_not_silently_resized`
+- `test_capital_tiers_are_read_from_env_with_documented_default`
+- `test_paper_report_gives_a_verdict_per_capital_tier`
 
 ## Definition of done
 
@@ -76,11 +86,12 @@ In `services/strategy/tests/unit/test_paper_ledger.py`:
 cd services/strategy && uv run pytest tests/unit/test_paper_ledger.py -q --strict-markers
 ```
 
-Expected: 11 passed.
+Expected: 16 passed.
 
 Then: the runtime container runs on the stack with at least one `paper` strategy; after 5 consecutive NYSE sessions the ledger has 5 heartbeat files with no gaps and `scripts/paper_report.py` prints a report; the start date recorded in `DECISIONS.md`. The audit's "30 days without gaps" criterion is checked in a later session and recorded there; it is not a merge condition.
 
 ## Notes
 
+- Capital tiers: €10k, €50k and €250k are defaults chosen because the user's capital is undecided; change them in `.env` before the ledger starts. Adding a tier later is fine (it starts its own forward record that day); removing one discards nothing.
 - Why a heartbeat row: without one, "no events today" and "the job did not run" look identical, and a silent gap in forward data is unrecoverable.
 - Which strategies go to `paper`: every hypothesis the pre-registration work keeps (H3 first per the audit triage). Logging intents for every registered hypothesis, including ones that would not be traded, is cheap and keeps the forward trial count honest.

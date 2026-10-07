@@ -650,3 +650,8 @@ Create a free account at quay.io if you don't have one. No organisation-specific
 **Why it matters:** some delisted names will have missing or partial price history, which biases returns upward if they are dropped silently.
 **Action:** `specs/point-in-time-universe.md` updated: incomplete members stay in the snapshot; an event is excluded only when its holding window is not fully priced; exclusions are counted by exit reason; the report adds a bound (−30% for delisted or deregistered, 0% for acquired); over 10% excluded marks the hypothesis `survivorship_gap = material`. Universe scope no longer blocks the historical backfill.
 
+## 2026-10-07 — Second-wave specs — CHOICE — paper trading gates capital, run at several sizes
+**What:** The user sees forward paper trading as the step that decides what capital is justified; their capital is undecided. `specs/forward-paper-trading.md` now runs every paper strategy at notional tiers from `PAPER_CAPITAL_TIERS_EUR` (default €10k, €50k, €250k) with the realistic cost model, and reports per tier where fixed costs and ADV capacity erode returns, with a forward-check verdict per tier.
+**Why it matters:** with minimum commissions and TOB, a small account and a large one can reach opposite verdicts on the same signals.
+**Action:** spec and TODO.md updated; live trading is gated on the paper-trading results (TODO.md). Defaults are reversible in `.env` before the ledger starts.
+
