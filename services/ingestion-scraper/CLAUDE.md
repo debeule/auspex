@@ -32,3 +32,5 @@ Importable package `auspex_ingest` under `src/`. MinIO bucket `auspex-raw`. Topi
 - `confluent-kafka` `produce()` is async — `flush()` and check delivery reports, or a run can publish nothing and report success.
 - `strftime` on a non-UTC aware datetime writes local wall time with a `Z` suffix. Convert first.
 - `instructor` with a non-optional response model will invent field values rather than return nothing. That is why `extract()` returns `ResearchSignalEvent | None` and the model carries `is_signal`.
+- gunicorn runs **one** process with threads: Prometheus counters are per process. Do not raise `workers` without switching `prometheus_client` to multiprocess mode.
+- `configure_logging()` runs in `create_app()`; JSON output uses ECS names (`message`, `log.level`) so Filebeat/Grafana see the same fields as core-hub.

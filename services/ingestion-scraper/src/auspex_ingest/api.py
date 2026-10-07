@@ -7,6 +7,7 @@ from typing import Any
 from flask import Flask, Response, jsonify, request
 from prometheus_client import REGISTRY, CollectorRegistry, generate_latest
 
+from .logging_config import configure_logging
 from .pipeline import RunResult
 from .reextract import ReextractionRunner
 from .sources import SourceEntry, SourcesConfig
@@ -20,12 +21,13 @@ def create_app(
     now: Callable[[], datetime] | None = None,
     metrics_registry: CollectorRegistry | None = None,
 ) -> Flask:
+    configure_logging()
     app = Flask(__name__)
     _registry = metrics_registry if metrics_registry is not None else REGISTRY
 
     _sources = sources_config or _load_sources_config()
     _sources_by_type: dict[str, SourceEntry] = {e.source_type: e for e in _sources.sources}
-    _pipeline_for = pipeline_for_source or _make_env_pipeline_factory(_sources_by_type)
+    _pipeline_for = pipeline_for_source or _make_env_pipeline_factory(_sources_by_type, _registry)
     _runner: ReextractionRunner | None = reextract_runner
     _now = now or (lambda: datetime.now(UTC))
 
@@ -143,6 +145,7 @@ def _make_env_reextract_runner() -> ReextractionRunner:
 
 def _make_env_pipeline_factory(
     sources_by_type: dict[str, SourceEntry],
+    metrics_registry: CollectorRegistry,
 ) -> Callable[[str], Any]:
     import os
     from datetime import UTC, datetime
@@ -213,6 +216,7 @@ def _make_env_pipeline_factory(
             normalizer=IdentityNormalizer(),
             now=lambda: datetime.now(UTC),
             min_confidence_to_publish=0.5,
+            metrics_registry=metrics_registry,
         )
 
     return factory

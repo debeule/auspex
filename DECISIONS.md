@@ -494,3 +494,18 @@ Create a free account at quay.io if you don't have one. No organisation-specific
 
 **What:** Python CI was red on `main` and `develop` since the switch to `localstack/localstack:2026.09.0`. Reproduced locally: the container exits with code 55, "License activation failed … set the LOCALSTACK_AUTH_TOKEN variable". LocalStack's calendar-versioned images (2026.03 onwards) refuse to start without an auth token, so every S3-backed integration test failed at fixture setup ("LocalStack never became ready"), and `test_api_integration` crashed with `UnboundLocalError` because its port-wait loop had no failure branch.
 **Action:** Pinned `localstack/localstack:4.9.2` (last community tag that starts without a token; verified 2026-10-07), added the missing `pytest.fail` branch to `test_api_integration`. All 6 S3/Kafka integration tests pass locally. VERSIONS.md updated with a do-not-bump note. The quay.io secrets from the 2026-09-26 entry are no longer needed for tests.
+
+## 2026-10-07 — Observability — FIX — monitoring was blind to the pipeline
+
+**What (found while checking readiness for a long backfill):**
+1. All three provisioned Grafana dashboards had `"panels": []`; the provisioning smoke test only checked titles, so it passed.
+2. The scraper's production pipeline factory never passed a metrics registry, so no `auspex_pipeline_*` / `auspex_llm_*` series existed. Wiring it naively would have crashed the second `/ingest` call (`DuplicateTimeseries`), because a pipeline is built per request.
+3. gunicorn ran 4 workers with per-process Prometheus counters: each scrape would hit a different worker.
+4. `configure_logging()` was never called in the service, so logs were structlog's console format, not JSON; Filebeat could not parse them. Python also used `level`/`event` where Grafana's Elasticsearch datasource reads `log.level`/`message` (core-hub's ECS names).
+5. core-hub's custom consumer factories had no Micrometer listener, so `kafka_consumer_*` metrics did not exist and the Kafka Lag alert (which also used a non-existent metric name) could never fire (`noDataState: OK`).
+6. `auspex.dlt.events.total` only counted unknown-major-version records; deserialization failures, validation failures and exhausted retries on either topic were dead-lettered uncounted.
+7. The ILM policy was created but never attached to any index, and its `rollover` action needs a write alias the daily indices do not have. Logs were never deleted.
+8. `elasticsearch-setup` used `curlimages/curl:latest`.
+
+**Action:** fixed each (tests added first for 2–6). DLT counting moved from `SignalListener` to `CountingDeadLetterRecoverer`, which wraps both DLT recoverers, so a record is counted once, when it is actually dead-lettered; the existing listener test now asserts the throw instead of the count. ILM policy: rollover, shrink and freeze removed, delete after 180 days kept; Filebeat's template attaches it to new indices and `setup.sh` attaches it to existing ones (verified on ES 8.17.3). Dashboards built and the smoke test now fails on empty dashboards. Added alerts: Scrape Target Down, LLM Extraction Errors.
+**Not changed:** `scripts/run_pipeline.py` still builds its pipeline without metrics or JSON logging; a one-shot CLI process has nothing to scrape. Runs through the HTTP API (the DAG path) are fully instrumented.

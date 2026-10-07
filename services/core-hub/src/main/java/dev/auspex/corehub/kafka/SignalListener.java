@@ -41,10 +41,6 @@ public class SignalListener {
         try {
             SchemaVersion sv = SchemaVersion.parse(event.schemaVersion());
             if (!SchemaVersion.isKnownMajor(sv)) {
-                Counter.builder("auspex.dlt.events.total")
-                        .tag("topic", topic)
-                        .register(meterRegistry)
-                        .increment();
                 log.error("routing to DLT: exception_class={} auspex.topic={}",
                         UnknownMajorVersionException.class.getSimpleName(), topic);
                 throw new UnknownMajorVersionException(

@@ -1,7 +1,9 @@
 package dev.auspex.corehub.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import dev.auspex.corehub.kafka.CountingDeadLetterRecoverer;
 import dev.auspex.corehub.kafka.UnknownMajorVersionException;
+import io.micrometer.core.instrument.MeterRegistry;
 import dev.auspex.corehub.signal.ResearchSignalEvent;
 import org.apache.kafka.common.serialization.ByteArraySerializer;
 import org.apache.kafka.common.serialization.StringDeserializer;
@@ -17,6 +19,7 @@ import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaProducerFactory;
 import org.springframework.kafka.core.KafkaOperations;
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.core.MicrometerConsumerListener;
 import org.springframework.kafka.core.ProducerFactory;
 import org.springframework.kafka.listener.DefaultErrorHandler;
 import org.springframework.kafka.listener.DeadLetterPublishingRecoverer;
@@ -39,7 +42,7 @@ class KafkaConfig {
     private String bootstrapServers;
 
     @Bean
-    ConsumerFactory<String, ResearchSignalEvent> signalConsumerFactory(ObjectMapper objectMapper) {
+    ConsumerFactory<String, ResearchSignalEvent> signalConsumerFactory(ObjectMapper objectMapper, MeterRegistry meterRegistry) {
         JsonDeserializer<ResearchSignalEvent> jsonDeser =
                 new JsonDeserializer<>(ResearchSignalEvent.class, objectMapper);
         jsonDeser.setUseTypeHeaders(false);
@@ -47,11 +50,13 @@ class KafkaConfig {
         ErrorHandlingDeserializer<ResearchSignalEvent> valueDeser =
                 new ErrorHandlingDeserializer<>(jsonDeser);
 
-        return new DefaultKafkaConsumerFactory<>(
+        var factory = new DefaultKafkaConsumerFactory<>(
                 consumerProps("corehub-signal"),
                 new StringDeserializer(),
                 valueDeser
         );
+        factory.addListener(new MicrometerConsumerListener<>(meterRegistry));
+        return factory;
     }
 
     @Bean
@@ -66,14 +71,16 @@ class KafkaConfig {
     }
 
     @Bean
-    ConsumerFactory<String, String> rawConsumerFactory() {
+    ConsumerFactory<String, String> rawConsumerFactory(MeterRegistry meterRegistry) {
         ErrorHandlingDeserializer<String> valueDeser =
                 new ErrorHandlingDeserializer<>(new StringDeserializer());
-        return new DefaultKafkaConsumerFactory<>(
+        var factory = new DefaultKafkaConsumerFactory<>(
                 consumerProps("corehub-raw"),
                 new StringDeserializer(),
                 valueDeser
         );
+        factory.addListener(new MicrometerConsumerListener<>(meterRegistry));
+        return factory;
     }
 
     @Bean
@@ -89,18 +96,22 @@ class KafkaConfig {
 
     @Bean
     DefaultErrorHandler signalErrorHandler(
-            DeadLetterPublishingRecoverer signalDltRecoverer
+            DeadLetterPublishingRecoverer signalDltRecoverer,
+            MeterRegistry meterRegistry
     ) {
-        DefaultErrorHandler handler = new DefaultErrorHandler(signalDltRecoverer, new FixedBackOff(1000L, 2));
+        DefaultErrorHandler handler = new DefaultErrorHandler(
+                new CountingDeadLetterRecoverer(signalDltRecoverer, meterRegistry), new FixedBackOff(1000L, 2));
         handler.addNotRetryableExceptions(UnknownMajorVersionException.class);
         return handler;
     }
 
     @Bean
     DefaultErrorHandler rawErrorHandler(
-            DeadLetterPublishingRecoverer rawDltRecoverer
+            DeadLetterPublishingRecoverer rawDltRecoverer,
+            MeterRegistry meterRegistry
     ) {
-        return new DefaultErrorHandler(rawDltRecoverer, new FixedBackOff(1000L, 2));
+        return new DefaultErrorHandler(
+                new CountingDeadLetterRecoverer(rawDltRecoverer, meterRegistry), new FixedBackOff(1000L, 2));
     }
 
     /**
