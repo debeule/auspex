@@ -53,7 +53,7 @@ In `services/ingestion-scraper/tests/unit/test_sec_offerings.py`:
 - `test_other_form_types_are_skipped`
 - `test_out_of_scope_issuer_is_prefiltered_out`
 - `test_requests_go_through_the_shared_sec_rate_limiter`
-- `test_amended_424b_publishes_under_original_event_id`
+- `test_s3asr_maps_to_shelf_registered`
 
 ## Definition of done
 
