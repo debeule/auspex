@@ -16,7 +16,7 @@ Verified current as of **2026-08-15**. Anything marked *resolve at 0.0* must be 
 | PostgreSQL | `postgres:18.6` | 18 is current; **19 is in beta — do not use.** |
 | Neo4j | `neo4j:2026.05-community` | Neo4j moved to calendar versioning; the 5.x line ended at 5.26 LTS. **See open question 4.** |
 | MinIO | `quay.io/minio/minio:RELEASE.2025-09-07T16-13-09Z` | Compose stack only. quay.io requires auth — not usable in CI without secrets. |
-| LocalStack (testcontainers) | `localstack/localstack:2026.09.0` | Integration tests only. Replaces minio/minio (removed from Docker Hub; quay.io requires auth). Docker Hub, no auth required. |
+| LocalStack (testcontainers) | `localstack/localstack:4.9.2` | Integration tests only. Replaces minio/minio (removed from Docker Hub; quay.io requires auth). **Do not move to calendar-versioned tags (`2026.x`)** — from 2026.03 the image exits with code 55 unless `LOCALSTACK_AUTH_TOKEN` is set. 4.9.2 is the last tag verified to start without a licence (2026-10-07). |
 | Airflow | `apache/airflow:3.3.1` | Phase 2 only. Python 3.14 compatible. |
 
 ## Java dependencies

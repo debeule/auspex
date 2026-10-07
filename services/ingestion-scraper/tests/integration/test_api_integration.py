@@ -27,7 +27,7 @@ from auspex_ingest.storage.minio_client import MinioArchive
 
 os.environ.setdefault("TESTCONTAINERS_RYUK_DISABLED", "true")
 
-_LOCALSTACK_IMAGE = "localstack/localstack:2026.09.0"
+_LOCALSTACK_IMAGE = "localstack/localstack:4.9.2"
 _BUCKET = "auspex-test-api"
 _RAW_TOPIC = "auspex.raw.ingested"
 _SIG_TOPIC = "auspex.signals.extracted"
@@ -99,6 +99,8 @@ def test_ingest_round_trip_publishes_signal_to_kafka():
                 break
             except Exception:  # noqa: BLE001
                 time.sleep(0.5)
+        else:
+            pytest.fail("LocalStack port never became available")
 
         minio_host = minio_ctr.get_container_host_ip()
         minio_client = Minio(

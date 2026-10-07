@@ -45,3 +45,5 @@ docker/volumes/
 # Secrets
 *.pem
 *.key
+# TypeScript incremental build cache
+*.tsbuildinfo
