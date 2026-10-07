@@ -173,3 +173,14 @@ def test_variant_metrics_are_empty_when_no_signal_carries_a_gene_target():
     entity_m, full_m = MetricsCalculator().compute_both_variants(report, _make_params(), window_days=1)
     assert entity_m.mean_return.n == 0
     assert full_m.mean_return.n == 0
+
+
+def test_corroboration_event_without_a_return_is_left_out_of_the_sample():
+    # prices end before the 20-day exit, so the event has no 20-day return
+    report = BacktestRunner(windows=(20,)).run(
+        [_corr_event("e1", "pubmed"), _corr_event("e2", "clinicaltrials")],
+        {"BEAM": _beam_prices()},
+    )
+    entity_m, full_m = MetricsCalculator().compute_both_variants(report, _make_params(), window_days=20)
+    assert entity_m.mean_return.n == 0
+    assert full_m.mean_return.n == 0

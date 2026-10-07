@@ -141,3 +141,19 @@ def test_date_only_published_date_is_known_after_that_days_close():
 
 def test_date_only_published_date_on_a_friday_enters_monday():
     assert entry_session(_dt("2023-01-13T00:00:00")) == date(2023, 1, 17)  # Mon 16th is MLK Day
+
+
+def test_signal_before_the_open_enters_the_same_sessions_open():
+    # 13:29 UTC is 08:29 ET on a winter day
+    assert entry_session(_dt("2023-01-11T13:29:00")) == date(2023, 1, 11)
+
+
+def test_signal_at_the_opening_bell_enters_the_next_session():
+    # 14:30 UTC is 09:30 ET: the open is the first trade, so it was not available to this signal
+    assert entry_session(_dt("2023-01-11T14:30:00")) == date(2023, 1, 12)
+
+
+def test_session_boundary_follows_daylight_saving_time():
+    # 2023-07-11 13:29 UTC is 09:29 EDT, before the open
+    assert entry_session(_dt("2023-07-11T13:29:00")) == date(2023, 7, 11)
+    assert entry_session(_dt("2023-07-11T13:30:00")) == date(2023, 7, 12)

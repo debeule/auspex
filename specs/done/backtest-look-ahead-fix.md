@@ -25,7 +25,7 @@ The edge feasibility audit (2026-10-07, recommendations 1 and 2) found two ways 
 
 ## Out of scope
 
-- Capturing EDGAR `acceptanceDateTime` in `connectors/sec_edgar.py` (the EDGAR press-release work owns that connector). Until then 8-Ks are date-only and enter the session after the filing date, which is conservative.
+- Capturing EDGAR `acceptanceDateTime` in `connectors/sec_edgar.py`; the EDGAR press-release work stores it as `published_date`, and `entry_session` uses the time of day it carries.
 - `KNOWN_AT_DELAY_DAYS`, abnormal returns, trial ledgers (evaluation protocol).
 - Delisted price data (point-in-time universe work).
 
@@ -44,6 +44,9 @@ The edge feasibility audit (2026-10-07, recommendations 1 and 2) found two ways 
 - `test_signal_during_market_hours_enters_at_the_next_sessions_open`
 - `test_date_only_published_date_is_known_after_that_days_close`
 - `test_date_only_published_date_on_a_friday_enters_monday`
+- `test_signal_before_the_open_enters_the_same_sessions_open`
+- `test_signal_at_the_opening_bell_enters_the_next_session`
+- `test_session_boundary_follows_daylight_saving_time`
 
 `tests/unit/test_backtest.py`:
 - `test_after_close_8k_enters_at_the_next_sessions_open`
@@ -56,10 +59,16 @@ The edge feasibility audit (2026-10-07, recommendations 1 and 2) found two ways 
 - `test_disjoint_later_corroboration_on_the_same_target_is_a_new_event`
 - `test_corroboration_events_are_per_ticker`
 - `test_corroboration_event_return_runs_from_its_own_entry_not_the_earliest_member`
+- `test_window_return_is_none_when_the_entry_session_has_no_price`
+- `test_window_return_is_none_for_a_ticker_without_price_data`
+- `test_signals_exactly_90_days_apart_corroborate`
+- `test_two_signals_from_one_source_type_do_not_corroborate`
+- `test_full_weight_ignores_signals_published_after_the_event`
 
 `tests/unit/test_metrics.py`:
 - `test_member_signal_predating_its_corroboration_is_not_counted` (audit done-when: A on day 0, B on day 60 gives one event entering after day 60; A's return is excluded)
 - `test_variant_metrics_are_empty_when_no_signal_carries_a_gene_target`
+- `test_corroboration_event_without_a_return_is_left_out_of_the_sample`
 - `test_entity_only_metrics_independent_of_directionality` changed from `n == 2` (both members) to `n == 1` (one event)
 
 Red before implementation: `ImportError: cannot import name 'entry_session'` in `test_alignment.py`; `TypeError: BacktestEvent.__init__() got an unexpected keyword argument 'published_date'` across `test_backtest.py` and `test_metrics.py`.
@@ -70,4 +79,6 @@ Red before implementation: `ImportError: cannot import name 'entry_session'` in 
 cd services/backtesting && uv run pytest tests/unit -q
 ```
 
-Expected: 66 passed.
+Expected: 89 passed (26 of them from this spec).
+
+Mutation check: each of these deliberate breakages fails at least one test: the close instead of the open as the session boundary, no date-only rule, no NYSE calendar, entry at the earliest member, a wrong window length, same-source corroboration, an 89-day window, full weight from later signals, no supersession check, a missing entry price, weight-0 events counted.

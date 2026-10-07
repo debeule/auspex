@@ -282,3 +282,61 @@ def test_corroboration_event_return_runs_from_its_own_entry_not_the_earliest_mem
     assert report.entity_only is not None
     (event,) = report.entity_only.groups
     assert event.window_returns[0].pct == pytest.approx(0.05)
+
+
+def test_window_return_is_none_when_the_entry_session_has_no_price():
+    prices = _session_prices(date(2023, 1, 3), date(2023, 3, 31)).drop(pd.Timestamp("2023-01-09", tz="UTC"))
+    signal = _event(published_date=_dt("2023-01-09T13:00:00"))
+
+    result = BacktestRunner(windows=(5,)).run([signal], {"BEAM": prices}).results[0]
+
+    assert result.window_returns[0].pct is None
+
+
+def test_window_return_is_none_for_a_ticker_without_price_data():
+    result = BacktestRunner(windows=(5,)).run([_event(ticker="GONE")], {"BEAM": _BEAM_PRICES}).results[0]
+
+    assert result.window_returns[0].pct is None
+
+
+def test_signals_exactly_90_days_apart_corroborate():
+    prices = {"BEAM": _session_prices(date(2023, 1, 3), date(2023, 6, 30))}
+    signal_a = _corr_event("a", "DMD", "pubmed", published_date=_dt("2023-01-09T00:00:00"))
+    signal_b = _corr_event("b", "DMD", "clinicaltrials", published_date=_dt("2023-04-09T00:00:00"))
+
+    report = BacktestRunner(windows=(5,)).run([signal_a, signal_b], prices)
+
+    assert report.entity_only is not None
+    (event,) = report.entity_only.groups
+    assert event.participant_event_ids == ("a", "b")
+
+
+def test_two_signals_from_one_source_type_do_not_corroborate():
+    prices = {"BEAM": _session_prices(date(2023, 1, 3), date(2023, 6, 30))}
+    signals = [
+        _corr_event("a", "DMD", "pubmed", published_date=_dt("2023-01-09T00:00:00")),
+        _corr_event("b", "DMD", "pubmed", published_date=_dt("2023-01-20T00:00:00")),
+    ]
+
+    report = BacktestRunner(windows=(5,)).run(signals, prices)
+
+    assert report.entity_only is not None
+    assert report.entity_only.groups == ()
+
+
+def test_full_weight_ignores_signals_published_after_the_event():
+    prices = {"BEAM": _session_prices(date(2023, 1, 3), date(2023, 6, 30))}
+    signals = [
+        _corr_event("a", "DMD", "pubmed", confidence_score=0.8, published_date=_dt("2023-01-09T00:00:00")),
+        _corr_event("b", "DMD", "clinicaltrials", confidence_score=0.6, published_date=_dt("2023-02-09T00:00:00")),
+        _corr_event(
+            "c", "DMD", "patents", directionality="negative", confidence_score=0.1,
+            published_date=_dt("2023-03-09T00:00:00"),
+        ),
+    ]
+
+    report = BacktestRunner(windows=(5,)).run(signals, prices)
+
+    assert report.full is not None
+    (event,) = report.full.groups
+    assert event.weight == pytest.approx(0.7)
