@@ -37,6 +37,7 @@ class IngestionPipeline:
         now: Callable[[], datetime],
         min_confidence_to_publish: float = 0.0,
         metrics_registry: Any = None,
+        extraction_identity: str | None = None,
     ) -> None:
         self._connector = connector
         self._archive = archive
@@ -47,6 +48,10 @@ class IngestionPipeline:
         self._now = now
         self._min_confidence = min_confidence_to_publish
         self._metrics = make_metrics(metrics_registry) if metrics_registry is not None else None
+        # Model and prompt that produce this pipeline's extractions. When set, a document whose
+        # identical content was already fully processed under the same identity is not
+        # re-extracted (requirements §7.1 step 3). None disables the check.
+        self._extraction_identity = extraction_identity
 
     def run(self, source_type: str, cursor: datetime) -> RunResult:
         log = structlog.get_logger().bind(**{
@@ -55,6 +60,12 @@ class IngestionPipeline:
         })
         result = RunResult()
         start = time.monotonic()
+        identity = (
+            f"{self._extraction_identity}|{self._prefilter.version}"
+            if self._extraction_identity is not None
+            else None
+        )
+        completed: list[Any] = []
 
         for doc in self._connector.fetch_since(cursor):
             result.fetched += 1
@@ -71,6 +82,11 @@ class IngestionPipeline:
 
                 if not is_new:
                     result.prefiltered_out += 1
+                    continue
+
+                if identity is not None and self._archive.has_processed_marker(doc, identity):
+                    result.prefiltered_out += 1
+                    log.info("unchanged re-fetch skipped", **{"auspex.external_id": doc.external_id})
                     continue
 
                 if doc.canonical_id is not None:
@@ -106,10 +122,12 @@ class IngestionPipeline:
 
                 if event is None:
                     result.not_signal += 1
+                    completed.append(doc)
                     continue
 
                 if event.confidence_score < self._min_confidence:
                     result.below_threshold += 1
+                    completed.append(doc)
                     continue
 
                 normalized_genes = [
@@ -126,6 +144,7 @@ class IngestionPipeline:
                 self._producer.publish_raw(doc, key, doc.schema_version)
                 self._producer.publish_signal(event)
                 result.published += 1
+                completed.append(doc)
                 if self._metrics:
                     self._metrics["signals_published"].labels(source_type=source_type).inc()
 
@@ -152,6 +171,18 @@ class IngestionPipeline:
             self._producer.flush()
         except Exception:  # noqa: BLE001
             result.failed += 1
+            completed.clear()  # delivery unconfirmed: leave unmarked so the next fetch retries
+
+        if identity is not None:
+            for doc in completed:
+                try:
+                    self._archive.put_processed_marker(doc, identity)
+                except Exception as exc:  # noqa: BLE001
+                    # Costs one repeat extraction on the next fetch; nothing is lost.
+                    log.warning("processed marker write failed", **{
+                        "auspex.external_id": doc.external_id,
+                        "exception_class": type(exc).__name__,
+                    })
 
         if self._metrics:
             self._metrics["run_duration"].labels(source_type=source_type).observe(

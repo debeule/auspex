@@ -15,6 +15,14 @@ def minio_key(doc: RawDocument) -> str:
     return f"raw/{doc.source_type}/{doc.external_id}/{ts}-{doc.content_sha256[:8]}.json"
 
 
+def _processed_marker_key(doc: RawDocument, identity: str) -> str:
+    identity_hash = hashlib.sha256(identity.encode()).hexdigest()[:16]
+    return (
+        f"dedup/processed/{doc.source_type}/{doc.external_id}/"
+        f"{doc.content_sha256}-{identity_hash}.json"
+    )
+
+
 class MinioArchive:
     def __init__(self, client: Minio, bucket: str) -> None:
         self._client = client
@@ -58,6 +66,30 @@ class MinioArchive:
         self._client.put_object(
             self._bucket,
             key,
+            io.BytesIO(payload),
+            len(payload),
+            content_type="application/json",
+        )
+
+    def has_processed_marker(self, doc: RawDocument, identity: str) -> bool:
+        try:
+            self._client.stat_object(self._bucket, _processed_marker_key(doc, identity))
+            return True
+        except S3Error as e:
+            if e.code in ("NoSuchKey", "NoSuchObject"):
+                return False
+            raise
+
+    def put_processed_marker(self, doc: RawDocument, identity: str) -> None:
+        payload = json.dumps({
+            "source_type": doc.source_type,
+            "external_id": doc.external_id,
+            "content_sha256": doc.content_sha256,
+            "identity": identity,
+        }).encode()
+        self._client.put_object(
+            self._bucket,
+            _processed_marker_key(doc, identity),
             io.BytesIO(payload),
             len(payload),
             content_type="application/json",

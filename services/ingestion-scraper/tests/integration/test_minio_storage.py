@@ -124,3 +124,26 @@ def test_same_second_refetch_of_different_content_creates_a_distinct_key(archive
     key2, _ = archive.put(doc2)
 
     assert key1 != key2
+
+
+@pytest.mark.integration
+def test_processed_marker_matches_only_same_content_and_identity(archive: MinioArchive):
+    doc = _make_doc("same content", _T1)
+    refetched = _make_doc("same content", _T2)
+    amended = _make_doc("amended content", _T2)
+
+    assert not archive.has_processed_marker(doc, "llama3.1:8b|v1|pf1")
+    archive.put_processed_marker(doc, "llama3.1:8b|v1|pf1")
+
+    assert archive.has_processed_marker(refetched, "llama3.1:8b|v1|pf1")
+    assert not archive.has_processed_marker(refetched, "gemma3:12b|v1|pf1")
+    assert not archive.has_processed_marker(amended, "llama3.1:8b|v1|pf1")
+
+
+@pytest.mark.integration
+def test_processed_markers_live_outside_the_raw_prefix(archive: MinioArchive):
+    doc = _make_doc("same content", _T1)
+    archive.put(doc)
+    archive.put_processed_marker(doc, "llama3.1:8b|v1|pf1")
+
+    assert len(list(archive.list_raw_keys("biorxiv"))) == 1

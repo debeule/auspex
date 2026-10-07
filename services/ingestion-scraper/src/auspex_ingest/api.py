@@ -184,9 +184,10 @@ def _make_env_pipeline_factory(
 
     api_key = os.environ.get("OPENAI_API_KEY") or ""
     llm_client = instructor.from_openai(openai.OpenAI(api_key=api_key))
+    extraction_model = os.environ.get("EXTRACTION_MODEL", "gpt-4o-mini-2024-07-18")
     extractor = LLMExtractor(
         client=llm_client,
-        model=os.environ.get("EXTRACTION_MODEL", "gpt-4o-mini-2024-07-18"),
+        model=extraction_model,
         schema_version="1.0",
         prompt_version="v1",
     )
@@ -217,6 +218,7 @@ def _make_env_pipeline_factory(
             now=lambda: datetime.now(UTC),
             min_confidence_to_publish=0.5,
             metrics_registry=metrics_registry,
+            extraction_identity=f"{extraction_model}|v1",
         )
 
     return factory
