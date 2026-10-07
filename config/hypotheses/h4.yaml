@@ -1,6 +1,7 @@
 id: h4
-version: 1
+version: 2
 description: "Directional premium over entity-only baseline — LLM directionality adds return signal"
+role: promotable
 signal_definition:
   variant: full
   filter: same_directionality
@@ -11,5 +12,6 @@ holding_period_days: [5, 10, 20, 30]
 benchmark: XBI
 exit: fixed_horizon_close
 direction: long_and_short
-status: pre-registered
-registered_at: "2026-09-20T00:00:00Z"
+status: suspended
+suspended_reason: "Rework around typed company events (readout positive or negative, CRL, clinical hold) instead of LLM directionality on gene-target pairs. Re-register before any backtest."
+registered_at: "2026-10-07T00:00:00Z"

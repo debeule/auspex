@@ -21,10 +21,10 @@ Each line links to a self-contained spec in `specs/`. Open the spec and read it 
 | [Local model integration](specs/done/local-model-integration.md) | `done` | 10 tests; registry-driven extractor in api/scripts; Ollama digest lookup; register_local_model.py; runbook |
 | [Realistic cost model](specs/done/realistic-cost-model.md) | `done` | 27 tests; per-ticker spread (Abdi-Ranaldo), FX fee, ADV volume cap, gap-through-stop fills |
 | [Market simulation](specs/done/market-simulation.md) | `done` | 11 tests; market_sim: MarketCalendar (NYSE), FillModel, CostModel (TOB), CurrencyConverter, PositionSizer, TradableUniverse; EURUSD=X + XBI fetch pending on stack machine |
-| [Evaluation protocol](specs/evaluation-protocol.md) | `blocked` | Blocked by market-simulation + performance-metrics entity-only; abnormal returns vs XBI, walk-forward, deflated Sharpe, holdout |
+| [Evaluation protocol](specs/evaluation-protocol.md) | `blocked` | Spec blockers (market-simulation, performance-metrics) are done; end-to-end run waits on backfill; protocol pre-registered 2026-10-07 (config/hypotheses/protocol.yaml); market-model abnormal returns vs XBI, clustered t, family trial ledger, kill criteria, walk-forward, deflated Sharpe, holdout; 22 tests |
 | [Strategy framework](specs/done/strategy-framework.md) | `done` | 9 tests; Strategy ABC, AsOfContext, TradeIntent, StrategyRegistry, versioning; 6 seed stubs (H1, H4–H8) |
 | [Strategy runtime](specs/strategy-runtime.md) | `blocked` | Blocked by strategy-framework + market-simulation; BacktestReplayRunner, StreamingRuntime, VirtualBook, InputHealthMonitor |
-| [Portfolio and risk](specs/portfolio-and-risk.md) | `blocked` | Blocked by strategy-runtime + market-simulation; KellySizer, exposure limits, binary-event guard, short guards, kill switches |
+| [Portfolio and risk](specs/portfolio-and-risk.md) | `blocked` | Blocked by strategy-runtime; quarter-Kelly sizer, 5% per-name and one-per-theme ceilings, exposure limits, exit before binary events, short guards, kill switches; 18 tests |
 | [Strategy metrics](specs/strategy-metrics.md) | `blocked` | Blocked by strategy-framework + hypothesis-registry + evaluation-protocol; activity funnel, deflated Sharpe, correlation matrix, API |
 | [Decision trace](specs/decision-trace.md) | `blocked` | Blocked by strategy-framework + strategy-runtime; immutable TraceRecord from raw doc to P&L, TraceStore, TraceValidator |
 | [Golden set expansion](specs/golden-set-expansion.md) | `blocked` | Blocked by model-evaluation — local model must be chosen before gate records can be written |
@@ -87,3 +87,4 @@ Each line links to a self-contained spec in `specs/`. Open the spec and read it 
 | 2026-10-07 | Market simulation | Done — 11 tests green (49 backtesting unit total); pandas-market-calendars 5.4.0; fetch_prices.py; EURUSD=X/XBI fetch pending | No |
 | 2026-10-07 | Local model integration | Done — 10 tests green (235 unit); production now reaches Ollama; awaiting gate runs on the backfill machine | No |
 | 2026-10-07 | Realistic cost model | Done — 27 tests green; market-simulation tests unchanged | No |
+| 2026-10-07 | Pre-registration and kill criteria | Done — protocol.yaml + hypothesis v2 registered before backfill; evaluation-protocol, portfolio-and-risk, strategy-metrics specs updated; 5 DECISIONS entries | No |

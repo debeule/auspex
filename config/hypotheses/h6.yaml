@@ -1,6 +1,7 @@
 id: h6
-version: 1
+version: 2
 description: "Gene target novelty premium — first corroboration per (ticker, gene_target) pair"
+role: promotable
 signal_definition:
   variant: entity-only
   filter: first_appearance
@@ -11,5 +12,6 @@ holding_period_days: [20]
 benchmark: XBI
 exit: fixed_horizon_close
 direction: long
-status: pre-registered
-registered_at: "2026-09-20T00:00:00Z"
+status: suspended
+suspended_reason: "Deferred until the company-level event definition exists; the version worth testing then is a first-time company-program event. Re-register before any backtest."
+registered_at: "2026-10-07T00:00:00Z"

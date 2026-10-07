@@ -1,10 +1,12 @@
 id: h5
-version: 1
-description: "Source-type composition effect — abnormal return varies by source_type pair"
+version: 2
+description: "Source-type composition effect — abnormal return by source_type pair, reported descriptively"
+role: descriptive
 signal_definition:
   variant: entity-only
   filter: source_type_pair
   join_field: corroborated_at
+  note: "Under 20 events per pair; reported as a table, never tested for significance, never promoted, not counted as trials"
   source_type_pairs:
     - [clinicaltrials, pubmed]
     - [clinicaltrials, biorxiv]
@@ -15,8 +17,9 @@ signal_definition:
     - [edgar, pubmed]
 entry_timing_days: 1
 holding_period_days: [20]
+known_at_delay_days: [1]
 benchmark: XBI
 exit: fixed_horizon_close
 direction: long
 status: pre-registered
-registered_at: "2026-09-20T00:00:00Z"
+registered_at: "2026-10-07T00:00:00Z"

@@ -1,6 +1,7 @@
 id: h3
-version: 1
-description: "Pre-announcement drift — diagnostic comparison of pre- vs post-corroboration windows"
+version: 2
+description: "Pre-announcement drift — diagnostic comparison of pre- vs post-corroboration windows; runs first and gates H1"
+role: diagnostic
 signal_definition:
   variant: entity-only
   filter: none
@@ -9,8 +10,11 @@ signal_definition:
 entry_timing_days: 0
 holding_period_days_pre: [-20, -1]
 holding_period_days_post: [1, 20]
+known_at_delay_days: [1]
 benchmark: XBI
 exit: diagnostic
 direction: diagnostic
+kill_criteria: [lagging_signal]
+run_order: 1
 status: pre-registered
-registered_at: "2026-09-20T00:00:00Z"
+registered_at: "2026-10-07T00:00:00Z"

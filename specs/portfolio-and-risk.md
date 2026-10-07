@@ -15,6 +15,8 @@ The strategy runtime generates `TradeIntent`s from strategy decision functions. 
 
 Every limit is a configurable parameter with a test that verifies it is read from `.env`, not hardcoded. No defaults in source code — startup fails with a descriptive message if a required limit is absent from `.env`. See `.env.example`.
 
+**Pre-registered sizing ceilings.** `config/hypotheses/protocol.yaml` (registered 2026-10-07, before the backfill) fixes a `sizing` section: Kelly multiplier at most 0.25 (quarter Kelly), at most 5% of capital per name, at most one open position per correlated theme, and no holding through a known binary event unless the strategy trades that event type. Few, correlated, fat-tailed bets make full Kelly ruinous. The `.env` limits below may be set tighter than these ceilings, never looser: at startup the risk layer verifies the protocol file's hash with the hypothesis registry and fails, naming the variable, when an `.env` value exceeds its ceiling.
+
 ## What this builds
 
 ### `services/strategy/src/auspex_strategy/risk/`
@@ -22,8 +24,9 @@ Every limit is a configurable parameter with a test that verifies it is read fro
 **`KellySizer`**
 - `size(intent, estimates, capital_eur, fx_rate, price_usd) → int` — fractional Kelly with shrinkage, floored to integer shares.
 - Kelly fraction: `f = (p × (b + 1) − 1) / b` where `p` is win probability and `b` is mean win / mean loss, both estimated from the strategy's closed trade history (`VirtualBook.closed_trades()`).
-- Shrinkage: blend toward the uninformed prior (`p_prior = 0.5, b_prior = 1.0`) using `KELLY_SHRINKAGE_FACTOR` from `.env` (default 0.5, meaning half-Kelly). `p_shrunk = p_prior + KELLY_SHRINKAGE_FACTOR × (p_estimated − p_prior)`.
-- Cap: `f × capital_eur` is capped at `MAX_POSITION_PCT × total_capital_eur` (`MAX_POSITION_PCT` from `.env`).
+- Shrinkage: blend toward the uninformed prior (`p_prior = 0.5, b_prior = 1.0`) using `KELLY_SHRINKAGE_FACTOR` from `.env` (recommended 0.5). `p_shrunk = p_prior + KELLY_SHRINKAGE_FACTOR × (p_estimated − p_prior)`. Shrinkage corrects the estimate; it is not the Kelly multiplier.
+- Fractional Kelly: the sized fraction is `KELLY_FRACTION × f(p_shrunk, b)`, with `KELLY_FRACTION` from `.env` (recommended 0.25) and at most `sizing.max_kelly_fraction` (0.25).
+- Cap: the sized amount is capped at `MAX_POSITION_PCT × total_capital_eur` (`MAX_POSITION_PCT` from `.env`, recommended 0.03, at most `sizing.max_position_pct` = 0.05).
 - Final integer shares via `PositionSizer.size_shares()` from market-simulation spec. Raises `PositionTooSmallError` if result is 0.
 - When trade history is below `MIN_TRADES_FOR_KELLY` (from `.env`, default 20), falls back to `FALLBACK_POSITION_PCT × total_capital_eur` so early-stage strategies can still size without a Kelly estimate.
 
@@ -33,13 +36,16 @@ Every limit is a configurable parameter with a test that verifies it is read fro
 - `MAX_GROSS_EXPOSURE` — sum of absolute position sizes / total capital cannot exceed this.
 - `MAX_NET_EXPOSURE` — (longs − shorts) / total capital cannot exceed this in either direction.
 - `MAX_POSITIONS_PER_STRATEGY` — maximum number of concurrent open positions per strategy.
+- `MAX_POSITIONS_PER_THEME` — maximum concurrent open positions across all strategies in tickers sharing a theme (at most `sizing.max_positions_per_theme` = 1). Themes come from `config/themes.yaml`, a ticker → theme map; the current 8 watched tickers are one theme. A ticker absent from the map is rejected with `check_name = "THEME_UNMAPPED"` rather than treated as uncorrelated.
 - All from `.env`.
 
 **`BinaryEventGuard`**
 - `CATALYST_GUARD_DAYS` from `.env` (default 3): if a ticker has a known scheduled catalyst within this many calendar days, no new position is opened in that ticker.
 - Catalyst calendar is sourced from `config/catalysts/upcoming.yaml` — a manually maintained file (machine-readable feed deferred to session 3). An absent or empty file disables the guard with a startup WARNING.
-- **Shorts**: the guard is mandatory for shorts and cannot be overridden per strategy. For longs, override is allowed via an explicit `allow_catalyst_entry: true` in the strategy's parameters, and every such override is recorded in the decision trace.
-- Existing positions: the guard does not force-close an open position when a catalyst appears after entry. It blocks new entries only.
+- **Shorts**: the guard is mandatory for shorts and cannot be overridden per strategy.
+- **Longs**: a strategy may enter or hold through a catalyst only when its parameters declare that catalyst's type in `trades_catalyst_types` (for example a strategy whose event is the readout itself). There is no blanket override. Every such entry or hold is recorded in the decision trace.
+- Existing positions: when a catalyst is known within `CATALYST_GUARD_DAYS` of an open position in that ticker, and the owning strategy does not trade that catalyst type, the guard emits an exit intent at the last close before the catalyst date. This applies whether the catalyst was known at entry or appeared later.
+- Catalyst entries carry a `type` field (`readout`, `pdufa`, `adcom`, `other`).
 
 **`ShortGuard`**
 - `MAX_BORROW_FEE_ANNUAL_PCT` from `.env` — short intents rejected if `CostModel.borrow_fee_annual_pct` for the ticker exceeds this.
@@ -80,7 +86,13 @@ Order execution and broker connectivity (session 3). Live price feed (risks use 
 
 In `tests/unit/test_portfolio_and_risk.py`:
 
-- `test_kelly_sizer_shrinks_estimate_toward_prior` — `p=0.9, b=2.0, KELLY_SHRINKAGE_FACTOR=0.5` → sized fraction equals half-Kelly of shrunk `p_shrunk = 0.7`
+- `test_kelly_sizer_shrinks_estimate_toward_prior` — `p=0.9, b=2.0, KELLY_SHRINKAGE_FACTOR=0.5, KELLY_FRACTION=0.25` → `p_shrunk = 0.7`; sized fraction equals 0.25 × Kelly(0.7, 2.0) = 0.1375
+- `test_kelly_fraction_above_protocol_ceiling_fails_startup` — `KELLY_FRACTION=0.5` → startup error naming `KELLY_FRACTION` and the ceiling 0.25
+- `test_max_position_pct_above_protocol_ceiling_fails_startup` — `MAX_POSITION_PCT=0.10` → startup error naming `MAX_POSITION_PCT` and the ceiling 0.05
+- `test_second_position_in_same_theme_is_rejected` — open SRPT long from strategy A; BEAM long from strategy B, same theme in `config/themes.yaml` → rejected with `check_name = "THEME_LIMIT"`
+- `test_ticker_without_theme_is_rejected` — intent for a ticker absent from `config/themes.yaml` → rejected with `check_name = "THEME_UNMAPPED"`
+- `test_open_position_is_exited_before_known_catalyst` — open SRPT long, `readout` catalyst added 2 days ahead, strategy does not declare `readout` → exit intent dated the last close before the catalyst
+- `test_strategy_trading_the_catalyst_type_may_hold_through_it` — same setup, strategy declares `trades_catalyst_types: [readout]` → no exit intent; the hold is recorded in the decision trace
 - `test_kelly_sizer_caps_at_max_position_pct` — full Kelly exceeds `MAX_POSITION_PCT × capital`; result equals `floor(MAX_POSITION_PCT × capital / fx / price)`
 - `test_kelly_falls_back_below_minimum_trade_count` — fewer than `MIN_TRADES_FOR_KELLY` closed trades; sizing uses `FALLBACK_POSITION_PCT` instead of history-derived Kelly
 - `test_gross_exposure_limit_rejects_intent_at_ceiling` — book at `MAX_GROSS_EXPOSURE`; new long intent → `ApprovalDecision.approved = False, check_name = "GROSS_EXPOSURE"`
@@ -99,9 +111,10 @@ In `tests/unit/test_portfolio_and_risk.py`:
 cd services/strategy && uv run pytest tests/unit/test_portfolio_and_risk.py -q
 ```
 
-Expected: 12 passed.
+Expected: 18 passed.
 
 Then:
-- `config/catalysts/upcoming.yaml` exists (may be empty) with format documented in the file.
+- `config/catalysts/upcoming.yaml` exists (may be empty) with format documented in the file, including the `type` field.
+- `config/themes.yaml` maps every watched ticker to a theme.
 - `.env.example` documents all 15+ limit variables with recommended starting values.
 - `python -m auspex_strategy kill --help` prints usage.

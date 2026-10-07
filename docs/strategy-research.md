@@ -49,7 +49,7 @@ For each hypothesis, the table covers: mechanism, signal definition (in Auspex f
 
 | | |
 |---|---|
-| **Mechanism** | Multi-source corroboration reduces uncertainty about a clinical development. If markets are slow to aggregate signals across heterogeneous specialised sources (Cohen & Lou 2014, "complicated firms"), abnormal returns should follow corroboration by days to weeks. This is the premise of the whole system; H1 is the null hypothesis. |
+| **Mechanism** | Multi-source corroboration reduces uncertainty about a clinical development. If markets are slow to aggregate signals across heterogeneous specialised sources (Cohen & Lou 2012, "complicated firms"), abnormal returns should follow corroboration by days to weeks. This is the premise of the whole system; H1 is the null hypothesis. |
 | **Signal definition** | All corroborations on watched tickers, entity-only variant: `entity_key` + `corroborated_at` + `source_count ≥ 2`. No directionality or confidence filter. |
 | **Direction** | Long. The extractor's `is_signal=true` gate is calibrated toward clinical-stage positive events; the dataset skews positive by design. |
 | **Entry** | T+1 NYSE open after `corroborated_at + known_at_delay_days` |
@@ -60,7 +60,7 @@ For each hypothesis, the table covers: mechanism, signal definition (in Auspex f
 | **MDE (80% power)** | At n=100, 20-day window: ~2.0% mean abnormal return (biotech annualised vol ~80%; 20-day σ ≈ 7%) |
 | **Cost survivability** | Probably not at 5-day window (MDE < 2.5% break-even); likely at 20-day window if effect > 3% |
 | **Capacity** | €500–2,000 per position before market impact at ADTV of these names |
-| **Prior evidence** | Cohen & Lou (2014) slow diffusion for complex firms; Engelberg, Reed & Ringgenberg (2012) short sellers and hard-to-process news; Da, Engelberg & Gao (2011) attention and returns |
+| **Prior evidence** | Cohen & Lou (2012) slow diffusion for complex firms; Engelberg, Reed & Ringgenberg (2012) short sellers and hard-to-process news; Da, Engelberg & Gao (2011) attention and returns |
 
 ---
 
@@ -221,6 +221,23 @@ For each hypothesis, the table covers: mechanism, signal definition (in Auspex f
 | 6 | H6 — Gene target novelty | Plausible mechanism; moderate sample; straightforward to implement from H1 |
 | 7 | H7 — Confidence gradient | Small subgroups; contamination-exposed; lower priority than structure-based hypotheses |
 | 8 | H8 — Negative asymmetry | Short-side operational complexity; very small sample; Belgian tax risk; defer until H1 confirms long-side edge |
+
+### Triage (2026-10-07, supersedes the ranking above for execution order)
+
+The edge feasibility audit found that gene-target corroboration does not map to a company, and that the price reaction to trial and FDA news finishes within one or two days. The hypotheses were re-registered as version 2 with a `role` and `status`, under the evaluation protocol locked in `config/hypotheses/protocol.yaml`.
+
+| Hypothesis | Role | Status | Call |
+|---|---|---|---|
+| H3 — Pre-announcement drift | diagnostic | pre-registered | Run first. If the pre-window carries the move, the `lagging_signal` kill criterion retires gene-target corroboration as a trading trigger. |
+| H2 — Time decay | diagnostic | pre-registered | Free diagnostic on H1 events; never promoted. |
+| H1 — Structural convergence | promotable | suspended | Re-register on a company-level event definition. Primary cell fixed now: 20 days, known-at delay 1, entity-only; 32 trial cells. |
+| H4 — Directional premium | promotable | suspended | Rework around typed company events (readout positive or negative, CRL, clinical hold). |
+| H8 — Negative asymmetry | promotable | suspended | Rework as an exit or avoid filter on long holdings; no shorting. |
+| H6 — Gene target novelty | promotable | suspended | Defer; the version worth testing is a first-time company-program event. |
+| H5 — Source-type composition | descriptive | pre-registered | Reported as a table; no significance test. |
+| H7 — Confidence gradient | descriptive | pre-registered | Reported only; confidence may be used as a declared entry filter. |
+
+Every subgroup below about 50 events is noise at biotech volatility. Only promotable hypotheses count toward the family trial budget of 64 cells.
 
 ---
 

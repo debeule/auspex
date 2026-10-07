@@ -42,8 +42,8 @@ Computed from `VirtualBook.closed_trades()`:
 - `cumulative_abnormal_return_series` — one data point per closed trade in time order
 - `sharpe` — annualised Sharpe of trade-level abnormal returns
 - `deflated_sharpe` — `DeflatedSharpe.compute(sharpe, n_obs=n_closed, n_trials=trial_count_from_registry)`
-  - `trial_count` = line count of `config/hypotheses/trials/h<n>.jsonl` for the strategy's `hypothesis_id`
-  - This is the honest guard: every backtest run increments the trial count and deflates the reported Sharpe
+  - `trial_count` = `TrialLedger.family_trial_count()` from the evaluation-protocol spec: cells evaluated across every promotable hypothesis on the corpus, per the registered `config/hypotheses/protocol.yaml`
+  - This is the honest guard: every cell evaluated on any promotable hypothesis increments the trial count and deflates the reported Sharpe
 - `max_drawdown_pct` — maximum peak-to-trough drawdown of the cumulative P&L curve
 - `bootstrap_ci_95` on `mean_abnormal_return` from `BootstrapCI`
 - All with `n` alongside
@@ -103,7 +103,7 @@ In `tests/unit/test_strategy_metrics.py`:
 - `test_metrics_reproduce_hand_computed_on_toy_trade_set` — 5-trade fixture with known entry/exit prices and costs; `hit_rate`, `expectancy_eur`, `mean_abnormal_return` match hand-computed expected values to 4 decimal places
 - `test_versions_are_never_mixed` — two `VirtualBook` fixtures for same strategy name but versions "1.0" and "1.1"; `TradeMetrics` for "1.0" uses only "1.0" trades; verified by trade count
 - `test_insufficient_data_raises_not_silently_zero` — 3 closed trades with `MIN_TRADES_FOR_METRICS=20`; calling `TradeMetrics.compute()` raises `InsufficientTradeDataError`; `StrategyMetricsSummary` has `insufficient_data: true` and null statistics
-- `test_deflated_sharpe_reads_trial_count_from_registry` — synthetic `trials/h1.jsonl` with 5 entries; `deflated_sharpe` computed from `DeflatedSharpe.compute(n_trials=5)` matches expected value; matches neither the raw Sharpe nor a value computed with `n_trials=1`
+- `test_deflated_sharpe_reads_trial_count_from_registry` — synthetic `trials/h1.jsonl` with one run of 4 cells and `trials/h4.jsonl` with one run of 1 cell (both promotable); `deflated_sharpe` computed from `DeflatedSharpe.compute(n_trials=5)` matches expected value; matches neither the raw Sharpe nor a value computed with `n_trials=1`
 - `test_backtest_paper_comparison_flags_deviation_outside_ci` — paper `mean_abnormal_return = 0.01`; backtest `bootstrap_ci_95 = (0.03, 0.07)`; `is_inside_backtest_ci = False`; `deviation_from_backtest_ci` is negative
 - `test_correlation_matrix_covers_all_active_versions` — three strategy version fixtures with 25+ trades each; matrix is 3×3 symmetric; diagonal entries are 1.0
 - `test_metrics_api_returns_computed_not_raw` — API endpoint called with MinIO fixture; response body contains `hit_rate` and `mean_abnormal_return`; does not contain raw trade rows

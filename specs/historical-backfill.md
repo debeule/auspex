@@ -11,6 +11,8 @@
 
 **Recommended before starting (not a hard blocker but significantly affects signal yield):** `edgar-content-fix` spec — without it, EDGAR 8-K documents in the backfill window will produce metadata-only `raw_content` and no extractable signals (8 of 13 Phase 2 FNs were this failure mode).
 
+**Pre-registration (in place since 2026-10-07):** `config/hypotheses/protocol.yaml` and hypothesis versions 2 are registered before any backfill data exists. Do not change either after the live run starts without a new registration and a `DECISIONS.md` entry saying the change was made after the corpus was visible.
+
 **Branch:** `feature/historical-backfill`
 
 ---

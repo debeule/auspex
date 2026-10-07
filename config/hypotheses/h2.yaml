@@ -1,15 +1,17 @@
 id: h2
-version: 1
+version: 2
 description: "Signal time decay — cumulative abnormal return decay curve across H1 event set"
+role: diagnostic
 signal_definition:
   variant: entity-only
   filter: none
   join_field: corroborated_at
-  note: "Same event set as H1; six measurement points reported as a decay curve"
+  note: "Same event set as H1; six measurement points reported as a decay curve; never promoted and not counted as trials"
 entry_timing_days: 1
 holding_period_days: [1, 3, 5, 10, 20, 30]
+known_at_delay_days: [1]
 benchmark: XBI
 exit: fixed_horizon_close
 direction: long
 status: pre-registered
-registered_at: "2026-09-20T00:00:00Z"
+registered_at: "2026-10-07T00:00:00Z"

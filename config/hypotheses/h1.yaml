@@ -1,14 +1,23 @@
 id: h1
-version: 1
-description: "Structural convergence premium — entity-only corroboration precedes abnormal return"
+version: 2
+description: "Structural convergence premium — corroboration precedes abnormal return"
+role: promotable
 signal_definition:
   variant: entity-only
   filter: none
   join_field: corroborated_at
 entry_timing_days: 1
 holding_period_days: [5, 10, 20, 30]
+variants: [entity-only, full]
+known_at_delay_days: [0, 1, 3, 5]
+primary_cell:
+  holding_period_days: 20
+  known_at_delay_days: 1
+  variant: entity-only
+trial_cells: 32
 benchmark: XBI
 exit: fixed_horizon_close
 direction: long
-status: pre-registered
-registered_at: "2026-09-20T00:00:00Z"
+status: suspended
+suspended_reason: "Gene-target corroboration does not map to a company. Re-register on a company-level event definition before any backtest; primary_cell and the trial grid stay as declared here."
+registered_at: "2026-10-07T00:00:00Z"
