@@ -36,7 +36,7 @@ Invariant 2 (core-hub sole writer to application DB) constrains where state is p
 **`VirtualBook`**
 - One instance per strategy per mode (paper/live-confirm/live-auto). Backed to MinIO as append-only Parquet (`strategy/books/<strategy_name>/<mode>/trades.parquet`).
 - On receiving a filled intent (from `FillModel`): appends an open position row.
-- On exit trigger (holding_rule fires or stop-loss reached): appends a closed position row with entry price, exit price, shares, costs (from `CostModel`), P&L in USD and EUR.
+- On exit trigger (holding_rule fires or stop-loss reached; a stop fills via `FillModel.stop_exit_price`, worst price of the day on a binary event day): appends a closed position row with entry price, exit price, shares, costs (from `CostModel`), P&L in USD and EUR.
 - `VirtualBook.snapshot()` → current open positions and closed trade history (read from Parquet).
 - The real portfolio (live capital) is tracked as a separate `VirtualBook` with `mode=live` in addition to the per-strategy books; all fills are attributed back to the originating strategy book for comparison.
 

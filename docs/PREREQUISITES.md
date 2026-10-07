@@ -53,7 +53,10 @@ Everything here needs a person before the blocked step can proceed. [`SETUP.md`]
 | `HOLDOUT_MONTHS` | `.env` | Months sealed at the end of the backfill window. Default: `3`. Do not change after any in-sample backtest has run. |
 | `PROMOTION_T_THRESHOLD` | `.env` | Minimum t-statistic for promotion. Default: `3.0` (Harvey, Liu & Zhu 2016). |
 | `PROMOTION_DEFLATED_SHARPE_THRESHOLD` | `.env` | Minimum deflated Sharpe for promotion. Default: `0.95` (Bailey & López de Prado 2014). |
-| `SPREAD_BPS` | `.env` | Estimated half-spread in basis points per leg. Default: `50`. Update per-ticker if execution analysis is done. |
+| `SPREAD_BPS` | `.env` | Flat half-spread in basis points per leg, used only when `CostModel` has no `SpreadEstimator`. Default: `50`. Backtests should pass a `SpreadEstimator` for per-ticker spreads. |
+| `MIN_HALF_SPREAD_BPS` | `.env` | Floor on the estimated per-ticker half-spread, basis points per leg. Default: `2.0`. |
+| `FX_FEE_RATE` | `.env` | IBKR EUR/USD conversion fee per leg, fraction of notional. Default: `0.0003`. |
+| `MAX_ADV_FRACTION` | `.env` | Largest order as a fraction of 20-session average daily volume. Default: `0.01`. |
 | `BORROW_FEE_ANNUAL_PCT` | `.env` | Annualised borrow fee for short positions. Default: `3.0`. Update with IBKR actual rates per ticker. |
 | `IBKR_RATE_PER_SHARE` | `.env` | IBKR commission per share (USD). Default: `0.005`. |
 | `USD_MIN_COMMISSION` | `.env` | IBKR minimum commission per order (USD). Default: `1.00`. |

@@ -74,6 +74,7 @@ In `tests/unit/test_evaluation_protocol.py`:
 - `test_deflated_sharpe_is_lower_than_sharpe_for_multiple_trials` — `compute(sr=1.5, n_obs=100, n_trials=5)` < 1.5; `compute(sr=1.5, n_obs=100, n_trials=1)` is closer to 1.5
 - `test_holdout_raises_error_before_promotion` — `HoldoutGuard.run_holdout()` raises `HoldoutSealedError` when `is_promotable(result) = False`
 - `test_evaluation_result_includes_variant_field` — `EvaluationResult.variant` is `'entity-only'` when run with entity-only variant; `'full'` otherwise
+- `test_report_lists_cost_components_per_trade` — each trade in the report carries `RoundTripCost.components()` (commission, spread, tob, fx_fee, borrow_fee); the cost model is built with a `SpreadEstimator` so spreads are per ticker
 - `test_net_expectancy_is_computed_net_of_costs` — `net_expectancy_eur` equals mean_abnormal_return_in_eur minus `CostModel.round_trip_cost_usd` converted to EUR; fixture with known values matches hand-computed result
 
 ## Definition of done

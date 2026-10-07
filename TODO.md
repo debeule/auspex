@@ -19,6 +19,7 @@ Each line links to a self-contained spec in `specs/`. Open the spec and read it 
 | [Watchlist UI](specs/done/watchlist-ui.md) | `done` | 8 tests; WatchlistPage, CompanyDetail; NavBar; /watchlist + /watchlist/[ticker] routes |
 | [Hypothesis registry](specs/done/hypothesis-registry.md) | `done` | 6 tests; hypothesis.py; register_hypothesis.py; config/hypotheses/h1–h8.yaml; registry.jsonl |
 | [Local model integration](specs/done/local-model-integration.md) | `done` | 10 tests; registry-driven extractor in api/scripts; Ollama digest lookup; register_local_model.py; runbook |
+| [Realistic cost model](specs/done/realistic-cost-model.md) | `done` | 13 tests; per-ticker spread (Abdi-Ranaldo), FX fee, ADV volume cap, gap-through-stop fills |
 | [Market simulation](specs/done/market-simulation.md) | `done` | 11 tests; market_sim: MarketCalendar (NYSE), FillModel, CostModel (TOB), CurrencyConverter, PositionSizer, TradableUniverse; EURUSD=X + XBI fetch pending on stack machine |
 | [Evaluation protocol](specs/evaluation-protocol.md) | `blocked` | Blocked by market-simulation + performance-metrics entity-only; abnormal returns vs XBI, walk-forward, deflated Sharpe, holdout |
 | [Strategy framework](specs/done/strategy-framework.md) | `done` | 9 tests; Strategy ABC, AsOfContext, TradeIntent, StrategyRegistry, versioning; 6 seed stubs (H1, H4–H8) |
@@ -85,3 +86,4 @@ Each line links to a self-contained spec in `specs/`. Open the spec and read it 
 | 2026-09-26 | Strategy framework | Done — 9 tests green; services/strategy/; Strategy ABC, AsOfContext, StrategyRegistry, VersionConflictError; 6 seed stubs | No |
 | 2026-10-07 | Market simulation | Done — 11 tests green (49 backtesting unit total); pandas-market-calendars 5.4.0; fetch_prices.py; EURUSD=X/XBI fetch pending | No |
 | 2026-10-07 | Local model integration | Done — 10 tests green (235 unit); production now reaches Ollama; awaiting gate runs on the backfill machine | No |
+| 2026-10-07 | Realistic cost model | Done — 13 tests green; market-simulation tests unchanged | No |

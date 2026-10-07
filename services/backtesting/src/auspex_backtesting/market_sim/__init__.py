@@ -7,6 +7,7 @@ from auspex_backtesting.market_sim.errors import (
 )
 from auspex_backtesting.market_sim.fills import FillModel
 from auspex_backtesting.market_sim.fx import FX_TICKER, CurrencyConverter
+from auspex_backtesting.market_sim.liquidity import SpreadEstimator, VolumeCap
 from auspex_backtesting.market_sim.sizing import PositionSizer
 from auspex_backtesting.market_sim.universe import TradableUniverse
 from auspex_backtesting.prices.snapshot_store import PriceSnapshotStore
@@ -24,5 +25,7 @@ __all__ = [
     "PriceDataAbsentError",
     "PriceSnapshotStore",
     "RoundTripCost",
+    "SpreadEstimator",
     "TradableUniverse",
+    "VolumeCap",
 ]
