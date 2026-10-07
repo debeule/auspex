@@ -103,4 +103,4 @@ Each line links to a self-contained spec in `specs/`. Open the spec and read it 
 | 2026-10-07 | EDGAR press-release content | Done — 60 tests green, mutation-checked; filing index replaces submissions lookup | No |
 | 2026-10-07 | Second-wave specs from the edge feasibility audit | Scoping session — 9 specs written (all blocked); historical-backfill, strategy-runtime, portfolio-and-risk reconciled; universe scope decided by the user (defaults, free delisted prices) | No |
 | 2026-10-07 | Backtest look-ahead fix | Done — 26 new tests, mutation-checked; member signals no longer counted; NYSE calendar; calendar-day windows | No |
-| 2026-10-07 | Company-level extraction | Done — 9 new Python tests, 1 new Java unit, 2 new IT; 261 Python unit + 42 Java unit green; gate re-run at v1.1 pending | No |
+| 2026-10-07 | Company-level extraction | Done — 30 new Python tests, 1 new Java unit, 2 new IT; 282 Python unit + 42 Java unit green; gate re-run at v1.1 pending | No |
