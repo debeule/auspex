@@ -39,12 +39,10 @@ _load_env()
 
 
 def _build_runner(args: argparse.Namespace):  # type: ignore[no-untyped-def]
-    import instructor
-    import openai
     from confluent_kafka import Producer as ConfluentProducer
     from minio import Minio
 
-    from auspex_ingest.extractor import LLMExtractor
+    from auspex_ingest.extraction_backend import build_extractor_from_env
     from auspex_ingest.messaging import KafkaProducerClient
     from auspex_ingest.reextract import ReextractionRunner
     from auspex_ingest.storage.minio_client import MinioArchive
@@ -62,13 +60,10 @@ def _build_runner(args: argparse.Namespace):  # type: ignore[no-untyped-def]
         vocab_path = Path(args.gene_vocab_file)
         gene_vocab = frozenset(vocab_path.read_text().splitlines())
 
-    openai_key = os.environ.get("OPENAI_API_KEY") or os.environ.get("OPEN_AI_KEY") or ""
-    llm_client = instructor.from_openai(openai.OpenAI(api_key=openai_key))
-    extractor = LLMExtractor(
-        client=llm_client,
-        model=args.model or os.environ.get("OPEN_AI_EXTRACTION_MODEL", "gpt-4o-mini"),
+    extractor = build_extractor_from_env(
         schema_version=args.schema_version,
         prompt_version=args.prompt_version,
+        model_id=args.model,
         gene_vocab=gene_vocab,
     )
 
@@ -88,8 +83,11 @@ def main() -> None:
     parser.add_argument("--source-type", help="Restrict to a single source type")
     parser.add_argument("--since", help="Only re-extract documents published on or after this date (YYYY-MM-DD)")
     parser.add_argument("--until", help="Only re-extract documents published on or before this date (YYYY-MM-DD)")
-    parser.add_argument("--prompt-version", default="v1", help="Prompt version to use (default: v1)")
-    parser.add_argument("--model", help="LLM model to use (default: $OPEN_AI_EXTRACTION_MODEL)")
+    parser.add_argument(
+        "--prompt-version",
+        help="Prompt version to use (default: $EXTRACTION_PROMPT_VERSION, else v1.0)",
+    )
+    parser.add_argument("--model", help="Registry key of the model to use (default: $EXTRACTION_MODEL)")
     parser.add_argument("--schema-version", default="1.0", help="Schema version to stamp on events")
     parser.add_argument("--prefilter-version", default="v1", help="Pre-filter version to stamp on events")
     parser.add_argument(

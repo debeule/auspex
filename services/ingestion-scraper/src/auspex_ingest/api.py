@@ -106,12 +106,10 @@ def _load_sources_config() -> SourcesConfig:
 def _make_env_reextract_runner() -> ReextractionRunner:
     import os
 
-    import instructor
-    import openai
     from confluent_kafka import Producer as ConfluentProducer
     from minio import Minio
 
-    from .extractor import LLMExtractor
+    from .extraction_backend import build_extractor_from_env
     from .messaging import KafkaProducerClient
     from .storage.minio_client import MinioArchive
 
@@ -123,13 +121,8 @@ def _make_env_reextract_runner() -> ReextractionRunner:
     )
     archive = MinioArchive(client=minio_client, bucket=os.environ["MINIO_BUCKET"])
 
-    api_key = os.environ.get("OPENAI_API_KEY") or ""
-    llm_client = instructor.from_openai(openai.OpenAI(api_key=api_key))
-    extractor = LLMExtractor(
-        client=llm_client,
-        model=os.environ.get("EXTRACTION_MODEL", "gpt-4o-mini-2024-07-18"),
+    extractor = build_extractor_from_env(
         schema_version=os.environ.get("SCHEMA_VERSION", "1.0"),
-        prompt_version=os.environ.get("PROMPT_VERSION", "v1"),
     )
 
     producer = KafkaProducerClient(
@@ -147,15 +140,13 @@ def _make_env_pipeline_factory(
     import os
     from datetime import UTC, datetime
 
-    import instructor
-    import openai
     from confluent_kafka import Producer as ConfluentProducer
     from minio import Minio
 
     from .connectors import RateLimitedClient
     from .connectors.biorxiv import BiorxivConnector
     from .connectors.clinicaltrials import ClinicalTrialConnector
-    from .extractor import LLMExtractor
+    from .extraction_backend import BackendLLMExtractor, build_extractor_from_env
     from .messaging import KafkaProducerClient
     from .normalizer import IdentityNormalizer
     from .pipeline import IngestionPipeline
@@ -179,14 +170,14 @@ def _make_env_pipeline_factory(
     )
     archive = MinioArchive(client=minio_client, bucket=os.environ["MINIO_BUCKET"])
 
-    api_key = os.environ.get("OPENAI_API_KEY") or ""
-    llm_client = instructor.from_openai(openai.OpenAI(api_key=api_key))
-    extractor = LLMExtractor(
-        client=llm_client,
-        model=os.environ.get("EXTRACTION_MODEL", "gpt-4o-mini-2024-07-18"),
-        schema_version="1.0",
-        prompt_version="v1",
-    )
+    # Built on first use so a missing gate record surfaces as a 500 naming the model,
+    # not as a scraper container that cannot start.
+    extractor_cache: list[BackendLLMExtractor] = []
+
+    def _extractor() -> BackendLLMExtractor:
+        if not extractor_cache:
+            extractor_cache.append(build_extractor_from_env(schema_version="1.0"))
+        return extractor_cache[0]
 
     kafka_producer = KafkaProducerClient(
         ConfluentProducer({"bootstrap.servers": os.environ["KAFKA_BOOTSTRAP_SERVERS"]}),
@@ -207,7 +198,7 @@ def _make_env_pipeline_factory(
         return IngestionPipeline(
             connector=connector,
             archive=archive,
-            extractor=extractor,
+            extractor=_extractor(),
             producer=kafka_producer,
             prefilter=Prefilter.from_vocab(set(entry.prefilter_vocabulary)),
             normalizer=IdentityNormalizer(),

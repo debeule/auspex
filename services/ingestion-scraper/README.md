@@ -88,6 +88,7 @@ uv run python scripts/run_pipeline.py --days 30 --sources clinicaltrials pubmed
 | `scripts/evaluate_model.py` | Candidate comparison: precision, latency, feasibility; writes `config/models/latency/<slug>.json` |
 | `scripts/check_leakage.py` | Leakage canary: flags months ≥70% correct after claimed cutoff |
 | `scripts/compare_models.py` | Cross-model agreement: Jaccard, directionality, confidence correlation |
+| `scripts/register_local_model.py` | Add a pulled Ollama model to `config/models/registry.yaml` with its live digest (fields from `config/models/local_candidates.yaml`) |
 | `scripts/sample_corroborations.py` | Pull N corroborations from live DB for review |
 | `scripts/score_corroboration_review.py` | Score completed review JSONL against 0.85 gate |
 

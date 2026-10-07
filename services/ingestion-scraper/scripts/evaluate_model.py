@@ -2,7 +2,7 @@
 """Candidate model comparison against the golden set.
 
 Usage:
-    uv run python scripts/evaluate_model.py --model gemma3:27b-instruct-q4_K_M \\
+    uv run python scripts/evaluate_model.py --model mistral-small:24b-instruct-2501-q4_K_M \\
         [--golden-dir tests/golden] [--prompt-version v1.0] \\
         [--prefilter-vocab config/gene_vocab.txt] \\
         [--registry config/models/registry.yaml] \\
@@ -45,28 +45,20 @@ def _run_extraction(
     prefilter: Prefilter,
     prompt_version: str,
     model_id: str,
+    registry_path: Path,
     base_url: str | None,
     api_key: str | None,
 ) -> tuple[list[dict | None], list[float]]:
-    import instructor
-    import openai
-
-    from auspex_ingest.extractor import LLMExtractor
+    from auspex_ingest.extraction_backend import make_evaluation_extractor
     from auspex_ingest.models import RawDocument
 
-    prompt_dir = Path(__file__).parent.parent / "prompts" / "extraction"
-    prompt_text = (prompt_dir / f"{prompt_version}.txt").read_text()
-
-    client = instructor.from_openai(
-        openai.OpenAI(api_key=api_key or "sk-dummy", base_url=base_url)
-    )
-    extractor = LLMExtractor(
-        client=client,
-        model=model_id,
-        schema_version="1.0",
+    extractor = make_evaluation_extractor(
+        registry_path=registry_path,
+        model_id=model_id,
         prompt_version=prompt_version,
+        base_url=base_url,
+        api_key=api_key,
     )
-    extractor._prompt = prompt_text
 
     results: list[dict | None] = []
     latencies: list[float] = []
@@ -134,6 +126,8 @@ def _print_feasibility(
     model_lower = model_id.lower()
     if "27b" in model_lower:
         model_gb = 17
+    elif "24b" in model_lower:
+        model_gb = 14
     elif "8b" in model_lower:
         model_gb = 8
     else:
@@ -145,7 +139,7 @@ def _print_feasibility(
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Evaluate a candidate model against the golden set")
-    parser.add_argument("--model", required=True, help="Registry key (e.g. gemma3:27b-instruct-q4_K_M)")
+    parser.add_argument("--model", required=True, help="Registry key (e.g. mistral-small:24b-instruct-2501-q4_K_M)")
     parser.add_argument("--golden-dir", default="tests/golden", type=Path)
     parser.add_argument("--prompt-version", default="v1.0")
     parser.add_argument("--prefilter-vocab", default=None, type=Path)
@@ -174,7 +168,9 @@ def main() -> None:
     api_key = os.environ.get("EXTRACTION_API_KEY") or os.environ.get("OPENAI_API_KEY")
 
     print(f"Model: {args.model}  docs: {len(golden)}/{len(golden_all)}  prompt: {args.prompt_version}")
-    results, latencies = _run_extraction(golden, prefilter, args.prompt_version, args.model, base_url, api_key)
+    results, latencies = _run_extraction(
+        golden, prefilter, args.prompt_version, args.model, args.registry, base_url, api_key
+    )
 
     scores = compute_candidate_scores(golden, results, latencies)
     cm = scores["cm"]

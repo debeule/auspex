@@ -197,8 +197,18 @@ services:
       MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
       MINIO_BUCKET: ${MINIO_BUCKET}
       OPENAI_API_KEY: ${OPENAI_API_KEY}
-      OPEN_AI_EXTRACTION_MODEL: ${OPEN_AI_EXTRACTION_MODEL}
+      EXTRACTION_MODEL: ${EXTRACTION_MODEL}
+      EXTRACTION_BASE_URL: ${EXTRACTION_BASE_URL}
+      EXTRACTION_API_KEY: ${EXTRACTION_API_KEY}
+      EXTRACTION_PROMPT_VERSION: ${EXTRACTION_PROMPT_VERSION}
+      EXTRACTION_REGISTRY_PATH: /app/models/registry.yaml
+      EXTRACTION_SCORES_DIR: /app/models/scores
       LOG_FORMAT: json
+    extra_hosts:
+      # Resolves on Linux too; Docker Desktop provides it already.
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - ../config/models:/app/models:ro
     ports:
       - "127.0.0.1:8000:8000"
     healthcheck:

@@ -1,14 +1,16 @@
 from .models import RawDocument
 
+PREFILTER_VERSION = "v1"
+
 
 class Prefilter:
-    def __init__(self, vocab: frozenset[str], version: str = "v1") -> None:
+    def __init__(self, vocab: frozenset[str], version: str = PREFILTER_VERSION) -> None:
         self._vocab = frozenset(t.lower() for t in vocab)
         self.version = version
 
     @classmethod
     def from_vocab(
-        cls, vocab: set[str] | frozenset[str], version: str = "v1"
+        cls, vocab: set[str] | frozenset[str], version: str = PREFILTER_VERSION
     ) -> Prefilter:
         return cls(frozenset(vocab), version)
 

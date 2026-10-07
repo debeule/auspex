@@ -18,6 +18,7 @@ Verified current as of **2026-08-15**. Anything marked *resolve at 0.0* must be 
 | MinIO | `quay.io/minio/minio:RELEASE.2025-09-07T16-13-09Z` | Compose stack only. quay.io requires auth — not usable in CI without secrets. |
 | LocalStack (testcontainers) | `localstack/localstack:2026.09.0` | Integration tests only. Replaces minio/minio (removed from Docker Hub; quay.io requires auth). Docker Hub, no auth required. |
 | Airflow | `apache/airflow:3.3.1` | Phase 2 only. Python 3.14 compatible. |
+| Ollama (host, not a container) | *resolve at install* | Local extraction model server. Record `ollama --version` here when installed (`docs/local-model-runbook.md`). Model weights are pinned by digest in `config/models/registry.yaml`, not here. |
 
 ## Java dependencies
 | Component | Pin | Notes |

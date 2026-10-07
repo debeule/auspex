@@ -489,3 +489,21 @@ Filing prose confirmed; metadata-only format is no longer present.
 - `QUAY_IO_PASSWORD` — your quay.io password or robot account token
 
 Create a free account at quay.io if you don't have one. No organisation-specific permissions needed — this is just to authenticate pulls of a public image.
+
+## 2026-10-07 — Local model integration — FLAG — production extraction never used the model registry
+
+**What:** `api.py`, `scripts/run_pipeline.py` and `scripts/reextract.py` built a bare OpenAI client with no `base_url`, so `EXTRACTION_BASE_URL` was ignored and a local model could not be reached. `LLMExtractorFactory` (gate, digest check) was never called outside tests. The evaluation scripts used the legacy `LLMExtractor`, which ignores the registry's temperature, seed, timeout and structured-output mode, so the gate scored a different configuration from production.
+**Action:** Fixed in `specs/done/local-model-integration.md`. All production and evaluation paths now build the extractor from the registry entry.
+
+## 2026-10-07 — Local model integration — CHOICE — gate threshold and version labels aligned
+
+**What:**
+1. `score_extraction.py` passed at precision ≥ 0.90; every other document (Option A choice, PREREQUISITES.md, `compute_candidate_scores`) says 0.85. Aligned to `GATE_PRECISION = 0.85` in `model_evaluation`.
+2. Production stamped `prompt_version="v1"`; the scripts and gate records use `v1.0`. The two prompt files are byte-identical. Production now reads `EXTRACTION_PROMPT_VERSION` (default `v1.0`), so a gate record can match it. This changes `extraction_id` for future events (never `event_id`). It lands at the same moment as the switch to a local model, which starts a new lineage anyway.
+3. The prefilter version production stamps is `v1` (`PREFILTER_VERSION`). `score_extraction.py` writes that value too.
+**Consequence:** the existing `gpt-4o-mini-2024-07-18` gate record was hand-written with `prefilter_version: "v1.0"`, so production now refuses that model until it is re-scored (`score_extraction.py --model gpt-4o-mini-2024-07-18`). This is the gate working as specified. The record was not edited because it would claim a score that was never measured at `v1`.
+
+## 2026-10-07 — Local model integration — RECOMMENDATION — local runtime and candidates
+
+**What:** Ollama, run natively on the host (Docker on macOS has no Metal access). Candidates, in `config/models/local_candidates.yaml`: `mistral-small:24b-instruct-2501-q4_K_M` (primary; cutoff 2023-10 per its default system prompt, so the full 24-month window), `llama3.1:8b-instruct-q8_0` (fast fallback; cutoff 2023-12), and `gemma3:27b-it-q4_K_M` (optional; cutoff 2024-08 shortens the clean window to ~Nov 2024 onwards). The model-evaluation spec named `gemma3:27b-instruct-q4_K_M`, but that Ollama tag does not exist; the real tag is `27b-it-q4_K_M`.
+**Action:** Not a CHOICE. The passing model gets recorded under the 2026-09-19 Option A entry once `evaluate_model.py` and `score_extraction.py` have run on the backfill machine (`docs/local-model-runbook.md`).

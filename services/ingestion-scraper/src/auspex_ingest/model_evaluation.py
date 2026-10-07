@@ -3,9 +3,32 @@ from __future__ import annotations
 
 import random
 import statistics
+from datetime import UTC, datetime
 from typing import Any
 
 from .golden import GoldenDocument, score_batch
+
+# is_signal precision a model must reach on the golden set before it may extract.
+GATE_PRECISION = 0.85
+
+
+def gate_record(
+    model_id: str,
+    prompt_version: str,
+    prefilter_version: str,
+    *,
+    precision: float,
+    now: datetime | None = None,
+) -> dict[str, Any]:
+    scored_at = (now or datetime.now(UTC)).astimezone(UTC)
+    return {
+        "model_id": model_id,
+        "prompt_version": prompt_version,
+        "prefilter_version": prefilter_version,
+        "precision": round(precision, 4),
+        "passed": precision >= GATE_PRECISION,
+        "scored_at": scored_at.strftime("%Y-%m-%dT%H:%M:%SZ"),
+    }
 
 
 def sample_golden(
@@ -36,7 +59,7 @@ def compute_candidate_scores(
         "cm": cm,
         "mean_latency_s": mean_lat,
         "p95_latency_s": p95_lat,
-        "passed": precision >= 0.85,
+        "passed": precision >= GATE_PRECISION,
     }
 
 

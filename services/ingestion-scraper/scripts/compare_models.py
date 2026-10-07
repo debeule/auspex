@@ -30,28 +30,20 @@ def _extract_batch(
     docs: list[dict],
     model_id: str,
     prompt_version: str,
+    registry_path: Path,
     base_url: str | None,
     api_key: str | None,
 ) -> list[dict | None]:
-    import instructor
-    import openai
-
-    from auspex_ingest.extractor import LLMExtractor
+    from auspex_ingest.extraction_backend import make_evaluation_extractor
     from auspex_ingest.models import RawDocument
 
-    prompt_dir = Path(__file__).parent.parent / "prompts" / "extraction"
-    prompt_text = (prompt_dir / f"{prompt_version}.txt").read_text()
-
-    client = instructor.from_openai(
-        openai.OpenAI(api_key=api_key or "sk-dummy", base_url=base_url)
-    )
-    extractor = LLMExtractor(
-        client=client,
-        model=model_id,
-        schema_version="1.0",
+    extractor = make_evaluation_extractor(
+        registry_path=registry_path,
+        model_id=model_id,
         prompt_version=prompt_version,
+        base_url=base_url,
+        api_key=api_key,
     )
-    extractor._prompt = prompt_text
 
     results: list[dict | None] = []
     for i, doc in enumerate(docs, 1):
@@ -141,14 +133,25 @@ def main() -> None:
     keys = sample_archive_keys(all_keys, seed=args.seed, n=args.sample)
     docs = _load_from_minio(keys)
 
-    base_url = os.environ.get("EXTRACTION_BASE_URL")
-    api_key = os.environ.get("EXTRACTION_API_KEY") or os.environ.get("OPENAI_API_KEY")
+    # A local model is reached through EXTRACTION_BASE_URL (Ollama); an API model through
+    # its default endpoint, so one run can compare a local model against an API model.
+    local_base_url = os.environ.get("EXTRACTION_BASE_URL")
+    models = raw_registry["models"]
+
+    def _endpoint(model_id: str) -> tuple[str | None, str | None]:
+        if models[model_id]["backend"] == "local":
+            return local_base_url, os.environ.get("EXTRACTION_API_KEY") or "ollama"
+        return None, os.environ.get("OPENAI_API_KEY") or os.environ.get("EXTRACTION_API_KEY")
 
     print(f"Model A: {args.model_a}")
-    results_a = _extract_batch(docs, args.model_a, args.prompt_version, base_url, api_key)
+    results_a = _extract_batch(
+        docs, args.model_a, args.prompt_version, args.registry, *_endpoint(args.model_a)
+    )
 
     print(f"\nModel B: {args.model_b}")
-    results_b = _extract_batch(docs, args.model_b, args.prompt_version, base_url, api_key)
+    results_b = _extract_batch(
+        docs, args.model_b, args.prompt_version, args.registry, *_endpoint(args.model_b)
+    )
 
     m = compute_model_agreement(results_a, results_b)
     print(f"\n  is_signal  agreement={m['is_signal_agreement']:.0%}  "

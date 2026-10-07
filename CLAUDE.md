@@ -186,6 +186,7 @@ git checkout develop          # reset for the next spec
 - **Both PatentsView URLs are superseded, and Lens.org is not free for this use case.** `api.patentsview.org` discontinued 2025-05-01; `search.patentsview.org` migrated to USPTO ODP (requires government ID). Lens.org classifies investment research as commercial use (institutional subscription required). Use **EPO OPS** instead: `https://ops.epo.org/3.2/rest-services/`, OAuth2 client credentials (`EPO_OPS_KEY` / `EPO_OPS_SECRET`), free public service, no government ID, no commercial-use restriction. Register at `developers.epo.org`.
 - **Airflow 3 renamed `schedule_interval` to `schedule`.** Task code cannot touch the metadata DB directly; Variables and Connections are proxied through the Task SDK.
 - **Local model backend — Docker/Metal:** Docker Desktop on macOS cannot use Metal. Run the model server (Ollama) on the host; the scraper reaches it via `host.docker.internal` in `EXTRACTION_BASE_URL`. See `docker/README.md` for the memory budget table.
+- **Local model backend — context length:** Ollama's OpenAI-compatible `/v1` endpoint ignores per-request `num_ctx`. The server default is 4096 tokens and longer prompts are silently truncated, so the registry's `num_ctx` only holds if Ollama runs with `OLLAMA_CONTEXT_LENGTH` ≥ that value. See `docs/local-model-runbook.md`.
 - **Local model backend — tag re-pointing:** `ollama pull gemma3:27b` downloads whatever HEAD is at that tag at pull time. The registry pins the exact digest (`gemma3:27b@sha256:...`); `LLMExtractorFactory` compares the registered digest against `ollama show` output at startup and fails before any extraction runs if they differ.
 
 ## File map
@@ -200,6 +201,7 @@ git checkout develop          # reset for the next spec
 | `DECISIONS.md` | Append-only log of flags, blocks, and choices made. |
 | `docs/requirements.md` | What the system must satisfy. Cited by specs when verifying tests. |
 | `docs/PREREQUISITES.md` | Outstanding credentials and user decisions. |
+| `docs/local-model-runbook.md` | Install Ollama, register and gate a local extraction model, switch the pipeline to it. |
 | `docs/HISTORY.md` | Completed phases (0–3) — test counts, pre-fix failures, key decisions. |
 | `docs/plan.md` | Reference only — original phase definitions. Superseded by `specs/` for active work. |
 

@@ -18,6 +18,7 @@ Each line links to a self-contained spec in `specs/`. Open the spec and read it 
 | [Watchlist backend](specs/done/watchlist-backend.md) | `done` | 11 tests (8 unit + 3 integration); Flyway V3; CRUD + preview + summary; SecTickerCache; WireMock CT stub |
 | [Watchlist UI](specs/done/watchlist-ui.md) | `done` | 8 tests; WatchlistPage, CompanyDetail; NavBar; /watchlist + /watchlist/[ticker] routes |
 | [Hypothesis registry](specs/done/hypothesis-registry.md) | `done` | 6 tests; hypothesis.py; register_hypothesis.py; config/hypotheses/h1–h8.yaml; registry.jsonl |
+| [Local model integration](specs/done/local-model-integration.md) | `done` | 10 tests; registry-driven extractor in api/scripts; Ollama digest lookup; register_local_model.py; runbook |
 | [Market simulation](specs/market-simulation.md) | `blocked` | Blocked by backtesting entity-only variant; MarketCalendar (NYSE), FillModel, CostModel (TOB), CurrencyConverter, PositionSizer |
 | [Evaluation protocol](specs/evaluation-protocol.md) | `blocked` | Blocked by market-simulation + performance-metrics entity-only; abnormal returns vs XBI, walk-forward, deflated Sharpe, holdout |
 | [Strategy framework](specs/done/strategy-framework.md) | `done` | 9 tests; Strategy ABC, AsOfContext, TradeIntent, StrategyRegistry, versioning; 6 seed stubs (H1, H4–H8) |
@@ -82,3 +83,4 @@ Each line links to a self-contained spec in `specs/`. Open the spec and read it 
 | 2026-09-26 | Watchlist UI | Done — 8 tests green (13 total); WatchlistPage, CompanyDetail, NavBar; /watchlist + /watchlist/[ticker] routes | No |
 | 2026-09-26 | Hypothesis registry | Done — 6 tests green; hypothesis.py; register_hypothesis.py; h1–h8.yaml; registry.jsonl | No |
 | 2026-09-26 | Strategy framework | Done — 9 tests green; services/strategy/; Strategy ABC, AsOfContext, StrategyRegistry, VersionConflictError; 6 seed stubs | No |
+| 2026-10-07 | Local model integration | Done — 10 tests green (235 unit); production now reaches Ollama; awaiting gate runs on the backfill machine | No |

@@ -8,7 +8,8 @@ Usage:
         [--registry config/models/registry.yaml] \
         [--scores-dir config/models/scores]
 
-Requires EXTRACTION_API_KEY (or OPENAI_API_KEY) in the environment.
+For a local model set EXTRACTION_BASE_URL (e.g. the Ollama /v1 endpoint); for the API
+set EXTRACTION_API_KEY (or OPENAI_API_KEY).
 Never run this in CI — it makes live LLM calls.
 """
 import argparse
@@ -21,7 +22,9 @@ sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
 import yaml
 
+from auspex_ingest.extraction_backend import score_file_name
 from auspex_ingest.golden import GoldenDocument, load_golden_set, score_batch
+from auspex_ingest.model_evaluation import GATE_PRECISION, gate_record
 from auspex_ingest.prefilter import Prefilter
 
 
@@ -37,33 +40,20 @@ def _run_extraction(
     prefilter: Prefilter,
     prompt_version: str,
     model_id: str,
-    registry_entry: dict,
+    registry_path: Path,
     base_url: str | None,
     api_key: str | None,
 ) -> list[dict | None]:
-    import instructor
-    import openai
-
-    from auspex_ingest.extractor import LLMExtractor
+    from auspex_ingest.extraction_backend import make_evaluation_extractor
     from auspex_ingest.models import RawDocument
 
-    prompt_dir = Path(__file__).parent.parent / "prompts" / "extraction"
-    prompt_text = (prompt_dir / f"{prompt_version}.txt").read_text()
-
-    raw_client = openai.OpenAI(
-        api_key=api_key or "sk-dummy",
-        base_url=base_url,
-    )
-    client = instructor.from_openai(raw_client)
-
-    extractor = LLMExtractor(
-        client=client,
-        model=model_id,
-        schema_version="1.0",
+    extractor = make_evaluation_extractor(
+        registry_path=registry_path,
+        model_id=model_id,
         prompt_version=prompt_version,
+        base_url=base_url,
+        api_key=api_key,
     )
-    # override with registry parameters
-    extractor._prompt = prompt_text
 
     results = []
     for i, doc in enumerate(golden, 1):
@@ -173,7 +163,6 @@ def main() -> None:
     if args.model not in models:
         print(f"Model {args.model!r} not found in registry. Available: {sorted(models)}")
         sys.exit(1)
-    registry_entry = models[args.model]
 
     golden = load_golden_set(args.golden_dir)
     if not golden:
@@ -192,7 +181,7 @@ def main() -> None:
         prefilter,
         args.prompt_version,
         args.model,
-        registry_entry,
+        args.registry,
         base_url,
         api_key,
     )
@@ -201,21 +190,17 @@ def main() -> None:
 
     cm = scores["is_signal"]
     precision = cm["tp"] / (cm["tp"] + cm["fp"]) if (cm["tp"] + cm["fp"]) else 0.0
-    passed = precision >= 0.9
+    record = gate_record(args.model, args.prompt_version, prefilter.version, precision=precision)
+    passed = record["passed"]
 
     args.scores_dir.mkdir(parents=True, exist_ok=True)
-    score_file = args.scores_dir / f"{args.model}.json"
-    record = {
-        "model_id": args.model,
-        "prompt_version": args.prompt_version,
-        "prefilter_version": prefilter.version,
-        "precision": round(precision, 4),
-        "passed": passed,
-        "scored_at": datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ"),
-    }
+    score_file = args.scores_dir / score_file_name(args.model)
     score_file.write_text(json.dumps(record, indent=2))
     status = "PASSED" if passed else "FAILED"
-    print(f"\nGate {status} (precision={precision:.3f}). Score written to {score_file}")
+    print(
+        f"\nGate {status} (precision={precision:.3f}, threshold={GATE_PRECISION}). "
+        f"Score written to {score_file}"
+    )
 
 
 if __name__ == "__main__":

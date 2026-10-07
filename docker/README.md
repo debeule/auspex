@@ -92,6 +92,14 @@ EXTRACTION_API_KEY=ollama
 EXTRACTION_MODEL=<registry key matching the Ollama digest>
 ```
 
+The scraper service maps `host.docker.internal` to the host gateway (`extra_hosts`), so the same
+value works on Linux. `config/models/` is mounted read-only at `/app/models` so the registry and
+gate records are read from the repo, not baked into the image.
+
+**Context length:** Ollama's OpenAI-compatible endpoint ignores per-request `num_ctx`; the server
+default is 4096 tokens and longer prompts are silently truncated. Start Ollama with
+`OLLAMA_CONTEXT_LENGTH` ≥ the registry's `num_ctx` (8192). Full steps: `docs/local-model-runbook.md`.
+
 ### Memory budget
 
 The Docker stack and the Ollama model server share the host's RAM. With a 36 GB MacBook:
@@ -99,8 +107,8 @@ The Docker stack and the Ollama model server share the host's RAM. With a 36 GB 
 | Component | Estimated usage |
 |---|---|
 | Docker Desktop allocation | 12–16 GB (configured in Docker Desktop → Resources) |
-| gemma3:27b model weights | ~17 GB |
-| KV cache at `num_ctx=4096` | ~2 GB |
+| Model weights | ~14 GB (mistral-small 24B Q4) · ~8.5 GB (llama3.1 8B Q8) · ~17 GB (gemma3 27B Q4) |
+| KV cache at `num_ctx=8192` | ~1–3 GB |
 | OS + other processes | ~4 GB |
 
 Recommended Docker Desktop memory limit: **14 GB**. Leave ≥ 20 GB for the model server + OS.
