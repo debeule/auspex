@@ -52,6 +52,11 @@ class _ExtractionResult(BaseModel):
         # A small model's near-miss label should not fail the whole document.
         return v if v in _EVENT_TYPES else "other"
 
+    @field_validator("program_identifiers", "trial_ids", mode="before")
+    @classmethod
+    def _null_list_is_empty(cls, v: object) -> object:
+        return [] if v is None else v
+
     @field_validator("primary_company", mode="before")
     @classmethod
     def _blank_company_is_none(cls, v: object) -> object:

@@ -86,4 +86,4 @@ Each line links to a self-contained spec in `specs/`. Open the spec and read it 
 | 2026-09-26 | Strategy framework | Done — 9 tests green; services/strategy/; Strategy ABC, AsOfContext, StrategyRegistry, VersionConflictError; 6 seed stubs | No |
 | 2026-10-07 | Market simulation | Done — 11 tests green (49 backtesting unit total); pandas-market-calendars 5.4.0; fetch_prices.py; EURUSD=X/XBI fetch pending | No |
 | 2026-10-07 | Local model integration | Done — 10 tests green (235 unit); production now reaches Ollama; awaiting gate runs on the backfill machine | No |
-| 2026-10-07 | Company-level extraction | Done — 9 new Python tests, 1 new Java unit, 2 new IT; 261 Python unit + 42 Java unit green; gate re-run at v1.1 pending | No |
+| 2026-10-07 | Company-level extraction | Done — 30 new Python tests, 1 new Java unit, 2 new IT; 282 Python unit + 42 Java unit green; gate re-run at v1.1 pending | No |
