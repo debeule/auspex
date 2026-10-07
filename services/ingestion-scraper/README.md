@@ -8,11 +8,12 @@ Pulls documents from 5 public biotech sources, archives raw content to MinIO (un
 
 1. `fetch_since(cursor)` — connector fetches and maps to `RawDocument`
 2. MinIO archive — unconditional write; returns `(key, is_new)`
-3. Pre-filter — vocabulary gate; skips LLM cost on irrelevant docs
-4. Canonical dedup check — skips re-extraction when content hash has been seen before
-5. LLM extract — `instructor` + OpenAI returns `ResearchSignalEvent | None`
-6. Normalize — `HgncEntityNormalizer` resolves gene aliases and company tickers
-7. Publish — Kafka `auspex.signals.extracted` (signals only) + `auspex.raw.ingested` (all)
+3. Unchanged re-fetch check — when the pipeline has an `extraction_identity` (model + prompt; the live API sets it), a document whose identical content was already fully processed under that identity and prefilter version is skipped (requirements §7.1 step 3). Markers live under `dedup/processed/` and are written only after Kafka delivery is confirmed, so failed documents are retried and a new model re-extracts.
+4. Pre-filter — vocabulary gate; skips LLM cost on irrelevant docs
+5. Canonical dedup check — skips re-extraction when content hash has been seen before
+6. LLM extract — `instructor` + OpenAI returns `ResearchSignalEvent | None`
+7. Normalize — `HgncEntityNormalizer` resolves gene aliases and company tickers
+8. Publish — Kafka `auspex.signals.extracted` (signals only) + `auspex.raw.ingested` (all)
 
 ---
 
