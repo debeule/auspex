@@ -9,6 +9,7 @@ dependencies = [
     "pyarrow==25.0.1",
     "yfinance==1.7.0",
     "pandas-datareader==0.11.1",
+    "pandas-market-calendars==5.4.0",
 ]
 
 [build-system]

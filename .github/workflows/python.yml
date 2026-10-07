@@ -56,3 +56,25 @@ jobs:
 
       - name: Contract fixture drift check
         run: git diff --exit-code services/core-hub/src/test/resources/contract/
+
+  backtesting:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.14
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.14'
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+
+      - name: Install dependencies
+        working-directory: services/backtesting
+        run: uv sync --locked
+
+      - name: Run unit tests
+        working-directory: services/backtesting
+        run: uv run pytest tests/unit -q
