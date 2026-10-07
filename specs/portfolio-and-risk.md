@@ -73,7 +73,7 @@ Every limit is a configurable parameter with a test that verifies it is read fro
 
 ## Out of scope
 
-Order execution and broker connectivity (session 3). Live price feed (risks use current price from `FillModel`'s most recent Parquet data for the trade day). CGT calculation (post-trade accounting). Catalyst calendar auto-feed. Short interest data auto-feed.
+Order execution and broker connectivity (session 3). Live price feed (risks use current price from `FillModel`'s most recent Parquet data for the trade day). CGT calculation (post-trade accounting). Catalyst calendar auto-feed (catalyst-calendar spec provides `GET /api/v1/catalysts?as_of=`; switching `BinaryEventGuard` to it is a follow-up once that spec is done). Short interest data auto-feed (short-interest-snapshots spec provides `ShortInterestStore.as_of()`).
 
 ## Constraints
 

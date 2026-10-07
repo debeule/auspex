@@ -66,7 +66,7 @@ In paper/live mode, if multiple strategies subscribe to `CORROBORATION_NEW` and 
 
 ## Out of scope
 
-Risk checking and position sizing (portfolio-and-risk spec). Decision trace format and storage (decision-trace spec). Broker connectivity and live order routing (session 3). Airflow DAG changes. Core-hub changes. New Kafka topics (the runtime is a consumer of `auspex.signals.corroborated`; any new producer topic is session 3 scope).
+Risk checking and position sizing (portfolio-and-risk spec). Daily paper ledger close-out, heartbeat and gap detection, and the forward-check report (forward-paper-trading spec). Decision trace format and storage (decision-trace spec). Broker connectivity and live order routing (session 3). Airflow DAG changes. Core-hub changes. New Kafka topics (the runtime is a consumer of `auspex.signals.corroborated`; any new producer topic is session 3 scope).
 
 ## Constraints
 

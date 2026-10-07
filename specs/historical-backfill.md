@@ -9,6 +9,8 @@
 5. `golden-set-expansion` spec must be done first: gate records for the chosen model on the expanded (multi-gene-target) golden set must exist before running at scale.
 6. **Human project review** — the live run (any invocation without `--dry-run`) is gated on explicit human sign-off. The dry run may be executed freely; the live run must not be started until the review has concluded and continuation is confirmed. See `DECISIONS.md` 2026-09-20 BLOCKED.
 
+7. **Universe scope** — `specs/point-in-time-universe.md` scope choices confirmed and recorded in `DECISIONS.md`. The universe decides which companies' filings and trials are backfilled (company-scoped EDGAR and ClinicalTrials.gov queries read `config/universe/backfill_scope.yaml` when it exists). The universe build itself is not a blocker; settling its scope is.
+
 **Recommended before starting (not a hard blocker but significantly affects signal yield):** `edgar-content-fix` spec — without it, EDGAR 8-K documents in the backfill window will produce metadata-only `raw_content` and no extractable signals (8 of 13 Phase 2 FNs were this failure mode).
 
 **Pre-registration (in place since 2026-10-07):** `config/hypotheses/protocol.yaml` and hypothesis versions 2 are registered before any backfill data exists. Do not change either after the live run starts without a new registration and a `DECISIONS.md` entry saying the change was made after the corpus was visible.
@@ -103,5 +105,7 @@ Then:
 ## Notes
 
 Budget estimate: ~26,000 LLM calls at `gpt-4o-mini-2024-07-18` pricing ≈ $65 (API). For a local model at mean latency from `evaluate_model.py`, e.g. ~5 s/document at Ollama on 36 GB: 26,000 × 5 s ≈ 36 hours. Run under `caffeinate -i` and rely on checkpoints for restarts. Set `BACKFILL_TIME_CEILING_HOURS=48` (36-hour estimate plus ~33% for latency variance and rate-limit backoff) before starting. `.env.example` must document both ceiling variables.
+
+Structured sources (`specs/structured-source-extraction.md`: Form 4, offerings) make no LLM call and are stamped `extraction_model = "structured:<mapper>"`. The single-lineage check below applies to LLM-extracted rows; structured rows are checked separately for one mapper version per source.
 
 The single-lineage requirement means: before backtesting, verify `SELECT DISTINCT extraction_model FROM signal_extraction_history WHERE published_date >= backfill_start` returns exactly one model identifier. If it returns more than one, re-extract the minority under the backfill model before computing Phase 4 metrics.

@@ -619,3 +619,29 @@ Create a free account at quay.io if you don't have one. No organisation-specific
 **Why:** Readouts and CRLs are furnished as Exhibit 99.1, which the connector never fetched. The submissions JSON lists only recent filings (about a year or 1,000 filings), so a 24-month backfill would have fallen back to metadata for older filings. The old lookup also took the CIK from the accession prefix, which is the filing agent (for example 0001193125) for most large filers, so those filings also fell back to metadata. A file date at midnight UTC entered after-close filings at the same day's open.
 **Not verified live:** the session had no network route to sec.gov. The parser fails safe (metadata or cover only, with a warning). Check the first live run's logs for `edgar filing index` or `exhibit 99.1` warnings before the backfill.
 **Left open:** the extractor's 4,000-character limit is unchanged; the exhibit leads `raw_content` so the headline and first paragraphs fit. Raising it is shared extraction code.
+## 2026-10-07 — Second-wave specs — FLAG — corroboration is matched on gene target, not company
+**What:** The edge feasibility audit (rows 4, 11, 13) found that corroboration links signals through `GeneTarget`/`Mechanism` nodes (requirements §4, §9), which do not map to a stock, and that `CorroborationScorer` measures recency against the wall clock. `specs/company-program-corroboration.md` adds a second, company-program corroboration kind and a point-in-time score.
+**Why it matters:** its tests contradict §4 and §9 as written, so per the rule that matters most they must not be written until the requirements are amended.
+**Options considered:** A) a new `CorroborationService` implementation (cannot pass the gene-target contract cases unmodified); B) a second scanner inside the existing implementation, writing a `kind` column, gene-target kept as context; C) replace gene-target corroboration.
+**Action:** spec written for B, with the §4/§9 amendment as its first step. Needs the user's approval of the amendment before implementation.
+
+## 2026-10-07 — Second-wave specs — CHOICE — structured filings bypass the LLM
+**What:** Form 4 and offering filings carry their facts as fields. `specs/structured-source-extraction.md` adds a config-selected deterministic mapper path and an issuer-scope pre-filter, instead of sending them through the LLM and the gene-vocabulary pre-filter.
+**Why it matters:** amends requirements §6.2 (single extraction path) and §6.6, and the historical-backfill single-lineage check, which now applies to LLM-extracted rows only. Reversible: a source can switch back to `extraction: llm` in `sources.yaml`.
+**Action:** spec written; requirements and backfill text change with its implementation. `specs/historical-backfill.md` notes already updated.
+
+## 2026-10-07 — Second-wave specs — CHOICE — short interest is a market-data snapshot, not a connector
+**What:** The audit (row 9) lists short interest among "new connectors and `sources.yaml` entries". It is a twice-monthly time series per ticker, not a document, so `specs/short-interest-snapshots.md` follows the price-snapshot pattern in `services/backtesting` (MinIO `auspex-prices/short_interest/`), known at FINRA's publication date, not the settlement date.
+**Why it matters:** sending a time series through the document pipeline would need a fake document per ticker per period and an extraction step with nothing to extract.
+**Action:** spec written. FINRA endpoint and authentication unverified (the scoping session's network blocked it); first step of the spec.
+
+## 2026-10-07 — Second-wave specs — FLAG — catalyst fields change the extraction schema
+**What:** `specs/catalyst-calendar.md` adds `catalysts` (PDUFA, advisory committee, expected topline dates) to the extraction schema and prompt.
+**Why it matters:** if it lands after the historical backfill, in-window 8-Ks must be re-extracted to get catalyst dates (reextraction CLI; about the 8-K share of the backfill, not all of it).
+**Action:** recorded as a blocker on the spec. The user decides whether it lands before the backfill or accepts the 8-K re-extraction later.
+
+## 2026-10-07 — Second-wave specs — BLOCKED — point-in-time universe scope
+**What:** `specs/point-in-time-universe.md` replaces the 8 hand-picked tickers with a rules-based universe. The audit asks for its scope to be settled before the backfill. Open choices with defaults: SIC 2834, 2836 and 8731; NYSE, Nasdaq and NYSE American; market cap ≥ $50M; 20-day median dollar volume ≥ $500k; no market-cap ceiling; delisted prices free first, one paid month if coverage < 90%; EDGAR and ClinicalTrials.gov backfill scoped to universe companies.
+**Why it matters:** the universe decides what gets backfilled and how long the backfill runs on the 24 GB machine.
+**Action:** asked the user. Record their answer here as a CHOICE before the spec or the backfill starts.
+
