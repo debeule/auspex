@@ -18,6 +18,9 @@ from auspex_ingest.golden import GoldenDocument, load_golden_set
 from auspex_ingest.model_evaluation import compute_candidate_scores, sample_golden
 from auspex_ingest.prefilter import Prefilter
 
+_DOCKER_STACK_GB = 8
+_OS_AND_KV_CACHE_GB = 6
+
 
 def _slug(model_id: str) -> str:
     return re.sub(r"[^a-zA-Z0-9._-]", "_", model_id)
@@ -112,7 +115,6 @@ def _print_feasibility(
     print(f"    24-month backfill ({backfill_docs:,} docs @ {mean_lat:.1f}s mean): ~{backfill_hours:.0f} h")
     print(f"    Steady-state daily budget ({daily_budget_docs} docs): ~{daily_hours:.1f} h/day")
 
-    # Budget: host RAM minus ~6 GB for macOS and the KV cache; Docker infra takes ~8 GB.
     model_lower = model_id.lower()
     if "27b" in model_lower:
         model_gb = 17.0
@@ -123,11 +125,11 @@ def _print_feasibility(
     else:
         model_gb = 0.0
     host_gb = os.sysconf("SC_PAGE_SIZE") * os.sysconf("SC_PHYS_PAGES") / 2**30
-    budget = host_gb - 6
-    combined = 8 + model_gb
+    budget = host_gb - _OS_AND_KV_CACHE_GB
+    combined = _DOCKER_STACK_GB + model_gb
     if combined > budget:
         print(
-            f"    WARNING: Docker ~8 GB + model ~{model_gb:.0f} GB = ~{combined:.0f} GB exceeds "
+            f"    WARNING: Docker ~{_DOCKER_STACK_GB} GB + model ~{model_gb:.0f} GB = ~{combined:.0f} GB exceeds "
             f"the ~{budget:.0f} GB budget on this {host_gb:.0f} GB machine"
         )
 
