@@ -612,3 +612,10 @@ Create a free account at quay.io if you don't have one. No organisation-specific
 ## 2026-10-07 — Pre-registration — VERIFIED — owner accepted the proposed thresholds
 **What:** The owner accepted every proposed default in the pre-registration entries above: family budget 64 cells, the `no_in_sample_effect` reading (net mean > 0 and clustered t ≥ 1.5 at some horizon), quarter Kelly with a 5% per-name ceiling and one position per theme, 30 clusters before the wild bootstrap, and the [-250, -30] estimation window with at least 120 observations.
 **Action:** `config/hypotheses/protocol.yaml` stays as registered; no re-registration needed.
+
+## 2026-10-07 — EDGAR press-release content — CHOICE — filing index replaces the submissions lookup
+
+**What:** The 8-K connector now reads each filing's `-index.htm` page instead of `data.sec.gov/submissions`. One request gives the cover document, Exhibit 99.1 and the acceptance time. Only 8-Ks with item 2.02, 7.01 or 8.01 are kept, and `published_date` is the acceptance time in UTC, as `docs/requirements.md` §6.7 already required.
+**Why:** Readouts and CRLs are furnished as Exhibit 99.1, which the connector never fetched. The submissions JSON lists only recent filings (about a year or 1,000 filings), so a 24-month backfill would have fallen back to metadata for older filings. The old lookup also took the CIK from the accession prefix, which is the filing agent (for example 0001193125) for most large filers, so those filings also fell back to metadata. A file date at midnight UTC entered after-close filings at the same day's open.
+**Not verified live:** the session had no network route to sec.gov. The parser fails safe (metadata or cover only, with a warning). Check the first live run's logs for `edgar filing index` or `exhibit 99.1` warnings before the backfill.
+**Left open:** the extractor's 4,000-character limit is unchanged; the exhibit leads `raw_content` so the headline and first paragraphs fit. Raising it is shared extraction code.

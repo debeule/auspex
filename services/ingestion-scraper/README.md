@@ -24,7 +24,7 @@ Pulls documents from 5 public biotech sources, archives raw content to MinIO (un
 | bioRxiv | `BiorxivConnector` | `biorxiv` | Active |
 | PubMed | `PubmedConnector` | `pubmed` | Active |
 | ClinicalTrials.gov | `ClinicalTrialConnector` | `clinicaltrials` | Active |
-| SEC EDGAR | `SecEdgarConnector` | `edgar` | Active — fetches full 8-K filing text via `data.sec.gov/submissions` |
+| SEC EDGAR | `SecEdgarConnector` | `edgar` | Active — 8-Ks with items 2.02, 7.01 or 8.01; Exhibit 99.1 press release plus cover text, found via the filing's `-index.htm`; `published_date` is the acceptance time |
 | openFDA approvals | `FdaApprovalConnector` | `fda` | Active |
 | EPO OPS patents | `EpoOpsConnector` | `epo_ops` | Blocked — needs EPO OPS credentials |
 
@@ -97,7 +97,7 @@ uv run python scripts/run_pipeline.py --days 30 --sources clinicaltrials pubmed
 
 ## Known API constraints
 
-- **SEC** blocks IPs at 10 req/s aggregate across all `*.sec.gov` (including `data.sec.gov`). Descriptive `User-Agent` is mandatory (403 without it). Primary document lookup uses `data.sec.gov/submissions/CIK{cik_padded}.json`; the `Archives/{cik}/{accession}/index.json` directory endpoint exists but has no sequence/form metadata. The EFTS `_source` schema uses `adsh`/`ciks`/`display_names` — not `accession_no`/`entity_id`/`entity_name`.
+- **SEC** blocks IPs at 10 req/s aggregate across all `*.sec.gov` (including `data.sec.gov`). Descriptive `User-Agent` is mandatory (403 without it). Filing documents are found on `Archives/edgar/data/{company_cik}/{accession_nodash}/{accession}-index.htm`, whose document table carries the type (`8-K`, `EX-99.1`) and whose `Accepted` field is the acceptance time in US Eastern time; the `index.json` directory endpoint has no type metadata, and `data.sec.gov/submissions` only lists recent filings (about a year or 1,000 filings), too few for a backfill. Use the company CIK from `ciks[0]`, not the accession prefix, which names the filing agent for most large filers. Inline-XBRL documents link as `/ix?doc=/Archives/...`. Full-text search may return a hit per filed document, so hits are deduplicated by accession. The EFTS `_source` schema uses `adsh`/`ciks`/`display_names` — not `accession_no`/`entity_id`/`entity_name`.
 - **EPO OPS**: OAuth2 client credentials, free standard tier at 2.5 req/s. Register at developers.epo.org.
 - **openFDA**: 1,000 requests/day without key; key raises limit significantly. No designations endpoint (no Fast Track/RMAT/orphan data).
 - **ClinicalTrials API v2**: uses `filter.advanced=AREA[LastUpdatePostDate]RANGE[start,end]` syntax — the `filter.lastUpdatePostDate` param was removed.

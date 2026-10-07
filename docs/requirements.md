@@ -217,7 +217,7 @@ A cheap deterministic filter runs before every LLM call: the document must match
 | Patents | `https://ops.epo.org/3.2/rest-services/published-data/search` | **OAuth2 client credentials (`EPO_OPS_KEY` / `EPO_OPS_SECRET`)** | Live and stable. Free standard tier, email registration at `developers.epo.org`, no government ID, no commercial-use restriction. DOCDB: ~130M documents, covers US, EP, PCT. Both PatentsView URLs are superseded and Lens.org requires institutional subscription — see CLAUDE.md known traps. |
 | Clinical trials | `https://clinicaltrials.gov/api/v2/studies` | none | Live and stable. `nextPageToken`, `pageSize` ≤ 1000, `fields` projection. v1 retired June 2024. |
 | Regulatory | `https://api.fda.gov/drug/{drugsfda,label,enforcement,drugshortages}.json` | optional key (needed for the daily quota) | Live — see §6.9. |
-| Material disclosures | `https://efts.sec.gov/LATEST/search-index` + `https://data.sec.gov/submissions/CIK##########.json` | none; mandatory `User-Agent` | Live. EFTS is **undocumented** — no published parameter list, schema, or stability commitment. Keep the mapping thin. |
+| Material disclosures | `https://efts.sec.gov/LATEST/search-index` + `https://www.sec.gov/Archives/edgar/data/{cik}/{accession_nodash}/{accession}-index.htm` | none; mandatory `User-Agent` | Live. EFTS is **undocumented** — no published parameter list, schema, or stability commitment. Keep the mapping thin. |
 | Ticker resolution | `https://www.sec.gov/files/company_tickers.json` | none; mandatory `User-Agent` | Live. Ticker/CIK/name for all EDGAR filers. Resolution source for §9. |
 
 ### 6.9 Regulatory connector rescoped `[B14]`
