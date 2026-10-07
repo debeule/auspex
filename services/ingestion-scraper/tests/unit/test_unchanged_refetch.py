@@ -186,10 +186,13 @@ def test_live_api_pipelines_skip_unchanged_refetches_for_their_model(monkeypatch
     for name, value in {
         "MINIO_ENDPOINT": "minio.invalid:9000", "MINIO_ACCESS_KEY": "k", "MINIO_SECRET_KEY": "s",
         "MINIO_BUCKET": "auspex-raw", "KAFKA_BOOTSTRAP_SERVERS": "kafka.invalid:9092",
-        "OPENAI_API_KEY": "unused-in-this-test", "EXTRACTION_MODEL": "llama3.1:8b",
     }.items():
         monkeypatch.setenv(name, value)
     monkeypatch.setattr(confluent_kafka, "Producer", MagicMock())
+    extractor = MagicMock(model_id="llama3.1:8b", prompt_version="v1.0")
+    monkeypatch.setattr(
+        "auspex_ingest.extraction_backend.build_extractor_from_env", lambda **_: extractor
+    )
     built = MagicMock()
     monkeypatch.setattr(pipeline_module, "IngestionPipeline", built)
 
@@ -199,4 +202,4 @@ def test_live_api_pipelines_skip_unchanged_refetches_for_their_model(monkeypatch
     )
     _make_env_pipeline_factory({"biorxiv": entry}, CollectorRegistry())("biorxiv")
 
-    assert built.call_args.kwargs["extraction_identity"] == "llama3.1:8b|v1"
+    assert built.call_args.kwargs["extraction_identity"] == "llama3.1:8b|v1.0"
