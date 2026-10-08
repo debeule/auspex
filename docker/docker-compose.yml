@@ -131,7 +131,7 @@ services:
     environment: &price-env
       <<: *minio-env
       WATCHED_TICKERS: ${WATCHED_TICKERS}
-      PRICE_HISTORY_START: ${PRICE_HISTORY_START:-2023-01-01}
+      PRICE_HISTORY_START: ${PRICE_HISTORY_START:-2013-01-01}
     command: ["uv", "run", "--no-project", "python", "-m", "auspex_backtesting.stack_bootstrap", "prices"]
     restart: "no"
 

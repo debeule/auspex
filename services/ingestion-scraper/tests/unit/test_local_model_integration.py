@@ -225,3 +225,22 @@ def test_register_local_model_refuses_tag_already_registered(tmp_path):
     candidates.write_text(yaml.safe_dump({"candidates": {_TAG: _LOCAL_ENTRY}}))
     with pytest.raises(ConfigurationError, match="already registered"):
         register_local_model(registry, candidates, _TAG, model_info_fn=lambda tag: _DIGEST)
+
+
+_CANDIDATES_FILE = Path(__file__).resolve().parents[4] / "config" / "models" / "local_candidates.yaml"
+
+
+@pytest.mark.parametrize(
+    "tag",
+    [
+        "llama3.1:8b-instruct-q8_0",
+        "llama3.1:8b-instruct-q4_K_M",
+        "phi3:14b-medium-128k-instruct-q4_K_M",
+    ],
+)
+def test_gated_local_candidate_registers_into_a_loadable_registry(tmp_path, tag):
+    registry = _write_registry(tmp_path, {"gpt-4o-mini-2024-07-18": {**_LOCAL_ENTRY, "backend": "api"}})
+    register_local_model(registry, _CANDIDATES_FILE, tag, model_info_fn=lambda t: f"{t}@sha256:{_HEX}")
+    entry = _load_registry(registry)[tag]
+    assert entry["backend"] == "local"
+    assert entry["num_ctx"] >= 8192

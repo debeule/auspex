@@ -67,6 +67,7 @@ Each line links to a self-contained spec in `specs/`. Open the spec and read it 
 | [Pipeline control view](specs/pipeline-control-view.md) | `blocked` | Blocked by dashboard foundation + wiring fixes; Airflow runs, trigger, pause, cursors, run counts, re-extract DAG, dead letters; 20 tests |
 | [Lineage trace view](specs/lineage-trace-view.md) | `blocked` | Blocked by signal browse views + wiring fixes; corroboration evidence, reproducible score, lineage endpoints, /trace; 20 tests |
 | [Research results view](specs/research-results-view.md) | `draft` | Blocked by the strategy direction decision (PR #19) and the result-producing specs; strategy-agnostic read API, decision references, results views |
+| [First run on the stack machine](specs/first-run-on-stack-machine.md) | `blocked` | Runs only on the user's Mac, started there by name; cloud sessions skip it. Stack up with prices from 2013, first universe build + coverage + backfill scope (closes point-in-time universe), Ollama gate at v1.1 (Llama 3.1 8B Q8 vs Phi-3 14B, rule fixed in advance), one-source extraction test, backfill dry run if PR #8 has merged |
 
 ---
 

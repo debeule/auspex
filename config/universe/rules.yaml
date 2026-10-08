@@ -10,8 +10,8 @@ min_market_cap_usd: 50000000         # USD at the rebalance session
 min_median_dollar_volume_usd: 500000 # USD, median close x volume
 liquidity_sessions: 20
 rebalance: monthly
-# Starts two months after PRICE_HISTORY_START so the first rebalance has 20 sessions of prices
-# behind it. end: null runs to the current month.
+# PRICE_HISTORY_START must be at least two months earlier so the first rebalance has 20 sessions
+# of prices behind it. end: null runs to the current month.
 window:
   start: 2023-03-01
   end: null

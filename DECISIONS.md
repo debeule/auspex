@@ -745,3 +745,13 @@ Create a free account at quay.io if you don't have one. No organisation-specific
 5. Grafana alert rules have no contact point, so alerts reach no one.
 6. `specs/company-program-corroboration.md` planned `V4__corroboration_kind.sql`, but `V4` is taken; changed to the next free version.
 **Action:** 1–3 in `specs/graph-and-connector-wiring-fixes.md`; 4 in `specs/dashboard-foundation.md`; 5 in `specs/infrastructure-observability.md`; 6 fixed in the spec.
+
+## 2026-10-08 — First run on the stack machine — CHOICE — price history from 2013, set before the first `up`
+**What:** `PRICE_HISTORY_START` defaults to `2013-01-01` (was `2023-01-01`) in `.env.example` and the compose file. `PriceRefresher` fetches from that date only for a ticker with no snapshot and afterwards only appends, so a first `up` at 2023 would leave every watchlist and universe snapshot unable to serve the slow-signal study's 2014–2021 in-sample period (FLAG "universe window" on the edge-research scoping branch). Extending a stored snapshot backwards means deleting stored history, which the 2026-10-07 "Startup data" entry treats as a deliberate act. No stack has been started yet, so setting it now costs nothing but a longer first download.
+**Why 2013-01-01:** a year of lookback before the 2014 window for trailing volatility and rolling 12-month beta. Universe rules version 1 (window from 2023-03) reads only bars before each rebalance, so its result does not change.
+**Action:** `specs/first-run-on-stack-machine.md` checks the value before the first `up` and checks `XBI`'s first bar after it. The 2014 universe itself is built only once its rules are on `develop`, after version 1.
+
+## 2026-10-08 — First run on the stack machine — CHOICE — local model decision rule, fixed before the gate runs
+**What:** Three candidates are gated at prompt `v1.1` on the Mac: `llama3.1:8b-instruct-q8_0`, `phi3:14b-medium-128k-instruct-q4_K_M` (added to `local_candidates.yaml`), `llama3.1:8b-instruct-q4_K_M`. Eligible means `is_signal` precision ≥ 0.85 and the run grew swap by less than 1 GB with the stack up. The 8B Q8 is chosen if eligible; Phi-3 replaces it only with an F1 at least 0.05 higher; the 8B Q4 is chosen only if the Q8 fails on memory alone; if none is eligible there is no CHOICE and the next step is the user's.
+**Why:** the golden set has 46 prefiltered documents and one document moves precision by 2–3 points, so a smaller gap cannot be told from noise, and the 8B is about 1.4x faster. The golden set carries no `v1.1` labels yet; the gate production enforces (`is_signal` precision) is fully measurable without them, and the new fields are labelled under `specs/golden-set-expansion.md`, not here.
+**Action:** step 5 of `specs/first-run-on-stack-machine.md`.
