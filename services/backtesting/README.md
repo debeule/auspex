@@ -22,11 +22,21 @@ Stored in the `auspex-prices` bucket under `universe/{rules_version}/`:
 | `{yyyy-mm}.parquet` | once per month; never overwritten |
 | `rules.yaml` | on the version's first build; a different file under the same version is refused |
 | `coverage.json` | every build: members, how many have complete prices, and every member without, with the reason |
+| `listings.parquet` | every build: every listing span as now known, exits included; backtests read exits and coverage from it |
 | `backfill_scope.yaml` | every build: the union of members over the window, for the historical backfill |
 
 Each member row: `cik, ticker, ticker_source (current | filing | unresolved), name, sic, exchange, market_cap_usd, median_dollar_volume_20d, entered_on, exited_on, exit_reason (delisted | acquired | deregistered), price_coverage (complete | partial | none), coverage_note`.
 
 The stack builds it by itself: the `auspex_universe_build` DAG calls `POST /universe/build` on the price service in the first week of every month and on the first start. Measured price coverage of delisted members is recorded in `DECISIONS.md` after the first build.
+
+### In backtests
+
+`load_membership(UniverseStore(minio), rules_version)` gives a `UniverseMembership`; pass it to `BacktestRunner.run` or `run_backtest(..., universe=...)`. Then:
+
+- only events on companies that were members in their entry month are traded; the rest are counted in `BacktestReport.outside_universe`;
+- a window past a delisted member's last price ends at that close, with `WindowReturn.exit_reason` set;
+- a window the prices do not cover is `excluded` and counted by exit reason; a fully priced, still-listed member running out of data raises `PriceDataAbsentError`;
+- each `MetricsReport` carries a `survivorship` summary: excluded count and share by exit reason, a bounded mean that puts excluded events back at −30% (delisted, deregistered) or 0% (acquired) over their unpriced part, and `survivorship_gap = material` above 10% excluded.
 
 ## Scripts
 

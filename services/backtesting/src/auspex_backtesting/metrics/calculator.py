@@ -7,6 +7,7 @@ from auspex_backtesting.backtest.runner import (
     VariantReport,
     WindowReturn,
 )
+from auspex_backtesting.metrics.survivorship import SurvivorshipSummary, survivorship_summary
 
 
 @dataclass(frozen=True)
@@ -32,6 +33,7 @@ class MetricsReport:
     std_return: MetricValue
     run_parameters: RunParameters
     variant: str = "full"
+    survivorship: SurvivorshipSummary | None = None
 
 
 class MetricsCalculator:
@@ -46,6 +48,9 @@ class MetricsCalculator:
             std_return=MetricValue(value=_std(returns), n=n),
             run_parameters=params,
             variant=params.variant,
+            survivorship=survivorship_summary(
+                _window(r.window_returns, window_days) for r in backtest.results
+            ),
         )
 
     def compute_both_variants(
@@ -66,6 +71,7 @@ class MetricsCalculator:
                 std_return=MetricValue(_std(entity_returns), n_e),
                 run_parameters=params,
                 variant="entity-only",
+                survivorship=_variant_survivorship(backtest.entity_only, window_days),
             ),
             MetricsReport(
                 hit_rate=MetricValue(_hit_rate(full_returns), n_f),
@@ -73,6 +79,7 @@ class MetricsCalculator:
                 std_return=MetricValue(_std(full_returns), n_f),
                 run_parameters=params,
                 variant="full",
+                survivorship=_variant_survivorship(backtest.full, window_days),
             ),
         )
 
@@ -93,6 +100,22 @@ def _variant_returns(variant_report: VariantReport | None, window_days: int) -> 
         if pct is not None:
             out.append(pct)
     return out
+
+
+def _variant_survivorship(
+    variant_report: VariantReport | None, window_days: int
+) -> SurvivorshipSummary:
+    groups = variant_report.groups if variant_report is not None else ()
+    return survivorship_summary(
+        _window(g.window_returns, window_days) for g in groups if g.weight > 0
+    )
+
+
+def _window(window_returns: tuple[WindowReturn, ...], window_days: int) -> WindowReturn:
+    for wr in window_returns:
+        if wr.days == window_days:
+            return wr
+    return WindowReturn(days=window_days, pct=None)
 
 
 def _pct_for_window(window_returns: tuple[WindowReturn, ...], window_days: int) -> float | None:

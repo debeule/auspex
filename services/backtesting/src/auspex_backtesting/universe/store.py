@@ -1,12 +1,14 @@
 """Universe snapshots in MinIO, under `universe/{rules_version}/` in the prices bucket.
 
-`{yyyy-mm}.parquet` holds a month's members and is written once. `rules.yaml` is the rules file
+`{yyyy-mm}.parquet` holds a month's members and is written once. `listings.parquet` is every
+listing span as the latest build knows it, exits included, and is replaced on every build. `rules.yaml` is the rules file
 the version was first built with; a different file under the same version is refused, so an
 edited rule can never mix into snapshots built under the old one.
 """
 
 import hashlib
 import io
+import re
 from dataclasses import asdict, fields
 from datetime import date
 from pathlib import Path
@@ -35,6 +37,9 @@ _SCHEMA = pa.schema([
     ("price_coverage", pa.string()),
     ("coverage_note", pa.string()),
 ])
+
+
+_MONTH_KEY = re.compile(r"(\d{4}-\d{2})\.parquet")
 
 
 class SnapshotExistsError(Exception):
@@ -79,33 +84,45 @@ class UniverseStore:
             raise SnapshotExistsError(
                 f"universe {snapshot.month} under rules version {snapshot.rules_version}"
             )
-        table = pa.Table.from_pylist(
-            [asdict(m) for m in snapshot.members],
-            schema=_SCHEMA.with_metadata({
+        self._put(
+            _snapshot_key(snapshot.rules_version, snapshot.month),
+            _parquet(snapshot.members, {
                 "rules_version": str(snapshot.rules_version),
                 "month": snapshot.month,
                 "rebalance_date": snapshot.rebalance_date.isoformat(),
             }),
-        )
-        buf = io.BytesIO()
-        pq.write_table(table, buf)
-        self._put(
-            _snapshot_key(snapshot.rules_version, snapshot.month),
-            buf.getvalue(),
             "application/octet-stream",
         )
+
+    def write_listings(
+        self, rules_version: int, rows: list[UniverseMember], as_of: date
+    ) -> None:
+        self._put(
+            f"{_prefix(rules_version)}listings.parquet",
+            _parquet(rows, {"as_of": as_of.isoformat()}),
+            "application/octet-stream",
+        )
+
+    def read_listings(self, rules_version: int) -> tuple[list[UniverseMember], date] | None:
+        data = self._get(f"{_prefix(rules_version)}listings.parquet")
+        if data is None:
+            return None
+        rows, meta = _rows(data)
+        return list(rows), date.fromisoformat(meta["as_of"])
+
+    def months(self, rules_version: int) -> list[str]:
+        """Months with a stored snapshot under `rules_version`, in order."""
+        names = (
+            o.object_name.rsplit("/", 1)[-1]
+            for o in self._minio.list_objects(self._bucket, prefix=_prefix(rules_version))
+        )
+        return sorted(m.group(1) for n in names if (m := _MONTH_KEY.fullmatch(n or "")))
 
     def read(self, rules_version: int, month: str) -> UniverseSnapshot | None:
         data = self._get(_snapshot_key(rules_version, month))
         if data is None:
             return None
-        table = pq.read_table(io.BytesIO(data))
-        meta = {k.decode(): v.decode() for k, v in (table.schema.metadata or {}).items()}
-        names = {f.name for f in fields(UniverseMember)}
-        members = tuple(
-            UniverseMember(**{k: v for k, v in row.items() if k in names})
-            for row in table.to_pylist()
-        )
+        members, meta = _rows(data)
         return UniverseSnapshot(
             int(meta["rules_version"]),
             meta["month"],
@@ -140,6 +157,23 @@ class UniverseStore:
         )
 
 
+def _parquet(rows: tuple[UniverseMember, ...] | list[UniverseMember], meta: dict[str, str]) -> bytes:
+    table = pa.Table.from_pylist([asdict(m) for m in rows], schema=_SCHEMA.with_metadata(meta))
+    buf = io.BytesIO()
+    pq.write_table(table, buf)
+    return buf.getvalue()
+
+
+def _rows(data: bytes) -> tuple[tuple[UniverseMember, ...], dict[str, str]]:
+    table = pq.read_table(io.BytesIO(data))
+    meta = {k.decode(): v.decode() for k, v in (table.schema.metadata or {}).items()}
+    names = {f.name for f in fields(UniverseMember)}
+    members = tuple(
+        UniverseMember(**{k: v for k, v in row.items() if k in names}) for row in table.to_pylist()
+    )
+    return members, meta
+
+
 def _prefix(rules_version: int) -> str:
     return f"universe/{rules_version}/"
 
@@ -150,3 +184,4 @@ def _snapshot_key(rules_version: int, month: str) -> str:
 
 def _sha256(content: bytes) -> str:
     return hashlib.sha256(content).hexdigest()
+

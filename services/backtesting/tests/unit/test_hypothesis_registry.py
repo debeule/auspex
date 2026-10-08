@@ -132,3 +132,26 @@ def test_verify_hypothesis_passes_when_content_is_unchanged(tmp_path: Path) -> N
     register_hypothesis("h1", _H1_YAML, config_dir=config_dir, registry_path=registry_path)
 
     verify_hypothesis("h1", config_dir=config_dir, registry_path=registry_path)
+
+
+def test_backtest_with_a_universe_logs_events_dropped_outside_it(tmp_path: Path) -> None:
+    from datetime import UTC, date, datetime
+
+    from auspex_backtesting.backtest.membership import UniverseMembership
+    from auspex_backtesting.backtest.runner import BacktestEvent
+
+    config_dir, registry_path, trials_dir = _dirs(tmp_path)
+    register_hypothesis("h1", _H1_YAML, config_dir=config_dir, registry_path=registry_path)
+    event = BacktestEvent("e1", "ZZZZ", datetime(2024, 3, 4, 12, tzinfo=UTC), "raw/e1.json")
+
+    report = run_backtest(
+        "h1", [event], {},
+        config_dir=config_dir,
+        registry_path=registry_path,
+        trials_dir=trials_dir,
+        universe=UniverseMembership([], [], as_of=date(2024, 12, 31)),
+    )
+
+    assert report.outside_universe == 1
+    (line,) = (trials_dir / "h1.jsonl").read_text().splitlines()
+    assert json.loads(line)["result_summary"]["outside_universe"] == 1

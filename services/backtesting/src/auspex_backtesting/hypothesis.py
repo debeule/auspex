@@ -7,6 +7,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
+from auspex_backtesting.backtest.membership import UniverseMembership
 from auspex_backtesting.backtest.runner import BacktestEvent, BacktestReport, BacktestRunner
 
 
@@ -97,6 +98,7 @@ def run_backtest(
     registry_path: Path | None = None,
     trials_dir: Path | None = None,
     windows: tuple[int, ...] = (5, 20, 60),
+    universe: UniverseMembership | None = None,
 ) -> BacktestReport:
     verify_hypothesis(hypothesis_id, config_dir=config_dir, registry_path=registry_path)
     reg = _resolve_registry(registry_path)
@@ -104,7 +106,7 @@ def run_backtest(
     assert entry is not None
 
     runner = BacktestRunner(windows=windows)
-    report = runner.run(events, price_data)
+    report = runner.run(events, price_data, universe)
 
     _append_trial(hypothesis_id, entry["file_hash"], report, trials_dir=trials_dir)
     return report
@@ -129,6 +131,7 @@ def _append_trial(
             "results_count": len(report.results),
             "entity_only_groups": len(report.entity_only.groups) if report.entity_only else 0,
             "full_groups": len(report.full.groups) if report.full else 0,
+            "outside_universe": report.outside_universe,
         },
     }
     with trial_file.open("a", encoding="utf-8") as fh:

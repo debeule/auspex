@@ -163,9 +163,11 @@ class UniverseBuildJob:
                 self._store.write(snapshot)
                 built.append(_month_summary(snapshot))
                 log.info("universe %s: %s", month, built[-1])
+            self._store.write_listings(rules.version, builder.listings(), today)
 
         snapshots = [s for m in months if (s := self._store.read(rules.version, m)) is not None]
-        report = coverage_report(snapshots).as_dict()
+        stored_listings = self._store.read_listings(rules.version)
+        report = coverage_report(snapshots, stored_listings[0] if stored_listings else ()).as_dict()
         self._store.put_report(
             rules.version, "coverage.json", json.dumps(report, indent=2).encode(), "application/json"
         )

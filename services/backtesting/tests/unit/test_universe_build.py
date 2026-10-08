@@ -341,3 +341,78 @@ def test_universe_build_endpoint_refuses_edited_rules_without_a_version_bump() -
     resp = _client(job).post("/universe/build")
 
     assert resp.status_code == 409
+
+
+def test_build_job_stores_latest_listings_that_a_backtest_loads_as_membership(
+    tmp_path: Path,
+) -> None:
+    from auspex_backtesting.backtest.membership import load_membership
+
+    minio = _ListingMinio()
+    _job(tmp_path, minio, _Filings(), date(2024, 3, 1)).run()
+
+    membership = load_membership(UniverseStore(minio), 1)  # type: ignore[arg-type]
+
+    assert membership.as_of == date(2024, 3, 1)
+    gone = membership.member("GONE", date(2024, 2, 5))
+    assert gone is not None and gone.exited_on == date(2024, 2, 15)
+    assert membership.member("GONE", date(2024, 3, 4)) is None
+    assert membership.member("ALPH", date(2024, 3, 4)) is not None
+
+
+def test_backtest_membership_without_stored_listings_is_refused() -> None:
+    from auspex_backtesting.backtest.membership import load_membership
+
+    with pytest.raises(LookupError, match="listings"):
+        load_membership(UniverseStore(_ListingMinio()), 1)  # type: ignore[arg-type]
+
+
+def test_listings_carry_an_exit_that_happened_after_a_month_was_stored(tmp_path: Path) -> None:
+    from auspex_backtesting.universe import UniverseBuilder, coverage_report
+    from auspex_backtesting.universe.rules import parse_rules
+
+    rules = parse_rules(_RULES_YAML)
+    listed = CompanyRecord("1", "Late", "2836", ("Nasdaq",), ("LATE",),
+                           (Filing("8-A12B", date(2019, 5, 1)),))
+    acquired = CompanyRecord("1", "Late", "2836", (), (), (
+        Filing("8-A12B", date(2019, 5, 1)),
+        Filing("10-Q", date(2024, 2, 10), (), "late-20231231.htm"),
+        Filing("8-K", date(2024, 4, 9), ("5.01",)),
+        Filing("25-NSE", date(2024, 4, 10)),
+    ))
+    prices = _Prices()
+    march = UniverseBuilder(rules, [listed], {}, prices, as_of=date(2024, 3, 1)).build("2024-03")
+    later = UniverseBuilder(rules, [acquired], {}, prices, as_of=date(2024, 5, 1)).listings()
+
+    (row,) = later
+    assert row.exited_on == date(2024, 4, 10) and row.exit_reason == "acquired"
+    report = coverage_report([march], later)
+    assert report.delisted == 1
+
+
+def test_listings_leave_out_spans_that_ended_before_the_window() -> None:
+    from auspex_backtesting.universe import UniverseBuilder
+    from auspex_backtesting.universe.rules import parse_rules
+
+    relisted = CompanyRecord("1", "Back", "2836", ("Nasdaq",), ("BACK",), (
+        Filing("8-A12B", date(2015, 5, 1)),
+        Filing("25-NSE", date(2018, 6, 1)),
+        Filing("8-A12B", date(2023, 6, 1)),
+    ))
+
+    rows = UniverseBuilder(
+        parse_rules(_RULES_YAML), [relisted], {}, _Prices(), as_of=date(2024, 3, 1)
+    ).listings()
+
+    assert [r.entered_on for r in rows] == [date(2023, 6, 1)]
+
+
+class _ListingMinio(_FakeMinio):
+    def list_objects(self, bucket: str, prefix: str) -> list[MagicMock]:
+        objects = []
+        for key in sorted(self.objects):
+            if key.startswith(prefix):
+                obj = MagicMock()
+                obj.object_name = key
+                objects.append(obj)
+        return objects

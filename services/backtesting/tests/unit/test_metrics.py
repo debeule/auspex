@@ -184,3 +184,32 @@ def test_corroboration_event_without_a_return_is_left_out_of_the_sample():
     entity_m, full_m = MetricsCalculator().compute_both_variants(report, _make_params(), window_days=20)
     assert entity_m.mean_return.n == 0
     assert full_m.mean_return.n == 0
+
+
+def test_metrics_report_carries_the_survivorship_summary_per_variant() -> None:
+    from auspex_backtesting.backtest.runner import CorroborationGroup, VariantReport
+
+    def group(window: WindowReturn, weight: float = 1.0) -> CorroborationGroup:
+        return CorroborationGroup(
+            gene_target="DMD", ticker="BEAM", source_types=frozenset({"a", "b"}), weight=weight,
+            participant_event_ids=("x",), corroborated_at=datetime(2024, 3, 4, tzinfo=UTC),
+            entry_date=date(2024, 3, 5), window_returns=(window,),
+        )
+
+    kept = WindowReturn(days=5, pct=0.02)
+    dropped = WindowReturn(days=5, pct=None, excluded=True, exit_reason="acquired")
+    backtest = BacktestReport(
+        results=(BacktestResult("e", "BEAM", "raw/e.json", date(2024, 3, 5), (dropped,)),),
+        entity_only=VariantReport("entity-only", (group(kept), group(dropped))),
+        full=VariantReport("full", (group(kept), group(dropped, weight=0.0))),
+    )
+    calc = MetricsCalculator()
+
+    entity, full = calc.compute_both_variants(backtest, _make_params(), 5)
+    single = calc.compute(backtest, _make_params(), 5)
+
+    assert entity.survivorship is not None and entity.survivorship.excluded == 1
+    assert full.survivorship is not None and full.survivorship.excluded == 0
+    assert single.survivorship is not None
+    assert single.survivorship.excluded_by_reason == {"acquired": 1}
+    assert entity.mean_return.n == 1

@@ -702,3 +702,16 @@ Create a free account at quay.io if you don't have one. No organisation-specific
 
 **What:** The spec asks for both bulk archive URLs to be re-verified at the start of the session. This session's network blocks `sec.gov`, so they could not be checked; they are SEC's documented locations (`Archives/edgar/daily-index/bulkdata/submissions.zip`, `Archives/edgar/daily-index/xbrl/companyfacts.zip`) and live in `.env`, not code.
 **Action:** The first `auspex_universe_build` run on the stack is the check: a wrong URL fails the run red in Airflow (HTTP 502 with the error). After it succeeds, record the members per month, delisted count and price coverage report (`universe/1/coverage.json` in `auspex-prices`) here, and commit `config/universe/backfill_scope.yaml` via `scripts/build_universe.py --export-backfill-scope`.
+
+## 2026-10-08 — Point-in-time universe — CHOICE — windows the prices do not cover
+
+**What:** The spec says a window running out of data for a reason other than a delisting raises `PriceDataAbsentError`, and also that an event whose window is not fully priced is excluded and counted. Applied literally, the first would stop every backtest on the first member with incomplete history, and on any event whose window has not ended yet. The look-ahead fix's rule (a missing row gives `None`) also still applies to backtests run without a universe.
+**Action:** With a universe (`BacktestRunner.run(..., universe=...)`):
+1. A window ending after the universe's `as_of` (the last build date) is still running: `pct` is `None`, neither kept nor excluded.
+2. A window past a delisted member's last price ends at that close with the member's `exit_reason`, when the member's price coverage is complete.
+3. A window the prices do not cover on a member with partial or no coverage is excluded and counted by `exit_reason`, as is an event after a delisted member's last trade and a missing bar inside the price range (a trading halt): no neighbouring close is borrowed.
+4. A member with complete coverage that is still listed and has run out of data raises: that is a broken snapshot, not a market event.
+5. The delisting bound treats an excluded window on a still-listed company (a data gap, `exit_reason` empty, reported as `listed`) as flat over its unpriced part; the spec names only delisted, deregistered and acquired.
+6. A backtest without a universe keeps the earlier `None` behaviour.
+
+`survivorship_gap = material` is set on each `MetricsReport` above 10% excluded; writing those numbers into this file stays a step for whoever runs the evaluation, as the spec says, before a result is used for a promotion decision.

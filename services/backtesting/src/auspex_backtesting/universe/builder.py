@@ -91,6 +91,22 @@ class UniverseBuilder:
             )
         })
 
+    def listings(self) -> list[UniverseMember]:
+        """Every eligible company's listing spans that overlap the window, as known on `as_of`,
+        with price coverage. Unlike a month's snapshot, this view is rebuilt on every build, so
+        it carries exits that happened after a month was stored."""
+        window_start = self._rules.window_start
+        rows = []
+        for company, history in self._companies:
+            for span in history.spans:
+                if span.entered_on > self._as_of or (
+                    span.exited_on is not None and span.exited_on < window_start
+                ):
+                    continue
+                prices = self._prices_for(company, history, span)
+                rows.append(self._row(company, history, span, prices, None, None))
+        return rows
+
     def build(self, month: str) -> UniverseSnapshot:
         d = rebalance_date(month, self._calendar)
         self._check_month(month, d)
@@ -137,6 +153,17 @@ class UniverseBuilder:
             return None
         if liquidity is not None and liquidity < self._rules.min_median_dollar_volume_usd:
             return None
+        return self._row(company, history, span, prices, cap, liquidity)
+
+    def _row(
+        self,
+        company: CompanyRecord,
+        history: ListingHistory,
+        span: ListingSpan,
+        prices: _Prices,
+        cap: float | None,
+        liquidity: float | None,
+    ) -> UniverseMember:
         return UniverseMember(
             cik=company.cik,
             ticker=history.ticker,

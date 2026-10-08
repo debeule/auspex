@@ -36,8 +36,14 @@ class CoverageReport:
         }
 
 
-def coverage_report(snapshots: Iterable[UniverseSnapshot]) -> CoverageReport:
+def coverage_report(
+    snapshots: Iterable[UniverseSnapshot], listings: Iterable[UniverseMember] = ()
+) -> CoverageReport:
+    """`listings`, when given, replace a member's snapshot row with the latest view of the same
+    listing, so exits and price coverage are current."""
     latest = _latest_rows(snapshots)
+    current = {(m.cik, m.entered_on): m for m in listings}
+    latest = {cik: current.get((m.cik, m.entered_on), m) for cik, m in latest.items()}
     gaps = tuple(
         CoverageGap(m.cik, m.ticker, m.name, m.exit_reason, m.price_coverage, m.coverage_note)
         for m in latest.values()

@@ -1,6 +1,7 @@
 import io
 from collections.abc import Iterable
-from datetime import date
+from dataclasses import replace
+from datetime import date, datetime
 from pathlib import Path
 from unittest.mock import MagicMock
 
@@ -8,7 +9,15 @@ import pandas as pd
 import pytest
 from minio.error import S3Error
 
+from auspex_backtesting.backtest.membership import UniverseMembership
+from auspex_backtesting.backtest.runner import BacktestEvent, BacktestRunner, WindowReturn
+from auspex_backtesting.market_sim import (
+    MissingPriceDataError,
+    PriceDataAbsentError,
+    TradableUniverse,
+)
 from auspex_backtesting.market_sim.calendar import MarketCalendar
+from auspex_backtesting.metrics.survivorship import survivorship_summary
 from auspex_backtesting.universe import (
     CompanyRecord,
     Filing,
@@ -628,3 +637,287 @@ def test_snapshot_month_whose_rebalance_is_after_as_of_is_refused() -> None:
     with pytest.raises(ValueError, match="2024-04"):
         builder.build("2024-04")
 
+
+
+# --- backtest integration ----------------------------------------------------------------------
+
+
+def _row(
+    ticker: str,
+    *,
+    cik: str | None = None,
+    entered: str = "2019-05-01",
+    exited: str | None = None,
+    reason: str | None = None,
+    coverage: str = "complete",
+) -> UniverseMember:
+    return UniverseMember(
+        cik=cik or f"cik-{ticker}",
+        ticker=ticker,
+        ticker_source="current",
+        name=ticker,
+        sic="2836",
+        exchange="Nasdaq",
+        market_cap_usd=None,
+        median_dollar_volume_20d=None,
+        entered_on=date.fromisoformat(entered),
+        exited_on=date.fromisoformat(exited) if exited else None,
+        exit_reason=reason,  # type: ignore[arg-type]
+        price_coverage=coverage,  # type: ignore[arg-type]
+        coverage_note="",
+    )
+
+
+def _membership(
+    months: dict[str, list[UniverseMember]],
+    *,
+    listings: list[UniverseMember] | None = None,
+    as_of: str = "2024-12-31",
+) -> UniverseMembership:
+    snapshots = [
+        UniverseSnapshot(1, month, rebalance_date(month), tuple(rows))
+        for month, rows in months.items()
+    ]
+    return UniverseMembership(snapshots, listings or [], as_of=date.fromisoformat(as_of))
+
+
+def _ohlc(start: str, end: str, open_: float = 10.0, close: float = 10.0) -> pd.DataFrame:
+    return _bars(start, end, close=close).assign(open=open_)
+
+
+def _signal(ticker: str, published: str, event_id: str = "e1") -> BacktestEvent:
+    # Before the open, so the entry session is the publication day.
+    return BacktestEvent(
+        event_id=event_id,
+        ticker=ticker,
+        published_date=datetime.fromisoformat(f"{published}T12:00:00+00:00"),
+        raw_object_key=f"raw/{event_id}.json",
+    )
+
+
+def test_tradable_universe_validates_delisted_ticker_over_its_membership_span_only() -> None:
+    gone = _ohlc("2024-01-02", "2024-03-14")
+    store = MagicMock()
+    store.load.return_value = gone
+    universe = TradableUniverse(store)
+
+    universe.validate(
+        ["GONE"], date(2024, 1, 2), date(2024, 6, 28),
+        spans={"GONE": (date(2019, 5, 1), date(2024, 3, 15))},
+    )
+    with pytest.raises(MissingPriceDataError, match="GONE"):
+        universe.validate(["GONE"], date(2024, 1, 2), date(2024, 6, 28))
+    with pytest.raises(MissingPriceDataError, match="GONE"):
+        universe.validate(
+            ["GONE"], date(2024, 1, 2), date(2024, 6, 28),
+            spans={"GONE": (date(2019, 5, 1), date(2024, 5, 15))},
+        )
+
+
+def test_window_running_past_delisting_ends_at_last_close_with_exit_reason() -> None:
+    membership = _membership(
+        {"2024-03": [_row("GONE", exited="2024-03-15", reason="acquired")]}
+    )
+    prices = {"GONE": _ohlc("2024-01-02", "2024-03-14", open_=10.0, close=12.0)}
+
+    report = BacktestRunner(windows=(5, 60)).run(
+        [_signal("GONE", "2024-03-04")], prices, universe=membership
+    )
+
+    short, long = report.results[0].window_returns
+    assert short.pct == pytest.approx(0.2) and short.exit_reason is None
+    assert long.pct == pytest.approx(0.2)
+    assert long.exit_reason == "acquired"
+    assert long.excluded is False
+
+
+def test_window_running_out_of_data_without_a_delisting_raises() -> None:
+    membership = _membership({"2024-03": [_row("ALPH")]})
+    prices = {"ALPH": _ohlc("2024-01-02", "2024-03-14")}
+
+    with pytest.raises(PriceDataAbsentError, match="ALPH"):
+        BacktestRunner(windows=(60,)).run([_signal("ALPH", "2024-03-04")], prices, universe=membership)
+
+
+def test_entry_after_the_last_price_of_a_listed_member_raises() -> None:
+    membership = _membership({"2024-03": [_row("ALPH")]})
+    prices = {"ALPH": _ohlc("2024-01-02", "2024-03-08")}
+
+    with pytest.raises(PriceDataAbsentError, match="entry session"):
+        BacktestRunner(windows=(5,)).run([_signal("ALPH", "2024-03-12")], prices, universe=membership)
+
+
+def test_tradable_universe_needs_prices_only_from_a_members_listing() -> None:
+    store = MagicMock()
+    store.load.return_value = _ohlc("2024-02-15", "2024-06-28")
+
+    TradableUniverse(store).validate(
+        ["NEWB"], date(2024, 1, 2), date(2024, 6, 28), spans={"NEWB": (date(2024, 2, 14), None)}
+    )
+
+
+def test_window_ending_after_the_universe_as_of_date_is_pending_not_an_error() -> None:
+    membership = _membership({"2024-03": [_row("ALPH")]}, as_of="2024-03-20")
+    prices = {"ALPH": _ohlc("2024-01-02", "2024-03-19")}
+
+    report = BacktestRunner(windows=(60,)).run(
+        [_signal("ALPH", "2024-03-04")], prices, universe=membership
+    )
+
+    (window,) = report.results[0].window_returns
+    assert window.pct is None and window.excluded is False
+
+
+def test_backtest_drops_and_counts_events_on_companies_outside_the_universe() -> None:
+    membership = _membership({
+        "2024-03": [_row("ALPH")],
+        "2024-04": [_row("BETA")],
+    })
+    prices = {t: _ohlc("2024-01-02", "2024-09-30") for t in ("ALPH", "BETA")}
+    events = [
+        _signal("ALPH", "2024-03-04", "in"),
+        _signal("BETA", "2024-03-05", "beta-not-yet-member"),
+        _signal("ALPH", "2024-04-02", "alph-no-longer-member"),
+        _signal("ZZZZ", "2024-03-06", "never-member"),
+        _signal("ALPH", "2023-12-04", "before-the-window"),
+    ]
+
+    report = BacktestRunner(windows=(5,)).run(events, prices, universe=membership)
+
+    assert [r.event_id for r in report.results] == ["in"]
+    assert report.outside_universe == 4
+
+
+def test_event_whose_window_is_not_fully_priced_is_excluded_and_counted_by_exit_reason() -> None:
+    membership = _membership({"2024-03": [
+        _row("DLST", exited="2024-05-15", reason="delisted", coverage="partial"),
+        _row("ACQD", exited="2024-05-15", reason="acquired", coverage="none"),
+        _row("FULL"),
+    ]})
+    prices = {
+        "DLST": _ohlc("2024-01-02", "2024-03-20", open_=10.0, close=8.0),
+        "FULL": _ohlc("2024-01-02", "2024-09-30", open_=10.0, close=11.0),
+    }
+    events = [
+        _signal("DLST", "2024-03-04", "d"),
+        _signal("ACQD", "2024-03-04", "a"),
+        _signal("FULL", "2024-03-04", "f"),
+    ]
+
+    report = BacktestRunner(windows=(60,)).run(events, prices, universe=membership)
+    by_id = {r.event_id: r.window_returns[0] for r in report.results}
+
+    assert by_id["d"].excluded and by_id["d"].exit_reason == "delisted"
+    assert by_id["a"].excluded and by_id["a"].exit_reason == "acquired"
+    assert not by_id["f"].excluded and by_id["f"].pct == pytest.approx(0.1)
+    summary = survivorship_summary([r.window_returns[0] for r in report.results])
+    assert summary.excluded == 2
+    assert summary.excluded_by_reason == {"delisted": 1, "acquired": 1}
+
+
+def test_event_on_partial_coverage_member_with_fully_priced_window_is_kept() -> None:
+    membership = _membership({"2024-03": [
+        _row("PART", exited="2024-08-15", reason="delisted", coverage="partial"),
+    ]})
+    prices = {"PART": _ohlc("2024-02-01", "2024-06-28", open_=10.0, close=9.0)}
+
+    report = BacktestRunner(windows=(20,)).run(
+        [_signal("PART", "2024-03-04")], prices, universe=membership
+    )
+
+    (window,) = report.results[0].window_returns
+    assert window.excluded is False
+    assert window.pct == pytest.approx(-0.1)
+
+
+def test_exit_details_come_from_the_latest_listing_not_the_months_snapshot() -> None:
+    # March was built live, before the company was acquired in April.
+    membership = _membership(
+        {"2024-03": [_row("LATE", cik="7")]},
+        listings=[_row("LATE", cik="7", exited="2024-04-10", reason="acquired")],
+    )
+    prices = {"LATE": _ohlc("2024-01-02", "2024-04-12", open_=10.0, close=15.0)}
+
+    report = BacktestRunner(windows=(60,)).run(
+        [_signal("LATE", "2024-03-04")], prices, universe=membership
+    )
+
+    (window,) = report.results[0].window_returns
+    assert window.exit_reason == "acquired"
+    assert window.pct == pytest.approx(0.5)
+
+
+def test_event_after_a_members_last_trade_is_excluded() -> None:
+    membership = _membership({"2024-03": [_row("GONE", exited="2024-03-05", reason="delisted")]})
+    prices = {"GONE": _ohlc("2024-01-02", "2024-03-12")}
+
+    report = BacktestRunner(windows=(5,)).run(
+        [_signal("GONE", "2024-03-14")], prices, universe=membership
+    )
+
+    (window,) = report.results[0].window_returns
+    assert window.excluded and window.exit_reason == "delisted"
+
+
+def test_gap_inside_a_window_excludes_the_event_instead_of_using_another_close() -> None:
+    membership = _membership({"2024-03": [_row("HALT")]})
+    bars = _ohlc("2024-01-02", "2024-09-30")
+    bars = bars[pd.DatetimeIndex(bars.index).date != date(2024, 3, 11)]
+
+    report = BacktestRunner(windows=(5,)).run(
+        [_signal("HALT", "2024-03-04")], {"HALT": bars}, universe=membership
+    )
+
+    (window,) = report.results[0].window_returns
+    assert window.excluded and window.exit_reason is None
+
+
+def test_corroboration_variants_use_the_same_universe_rules() -> None:
+    membership = _membership({"2024-03": [
+        _row("DLST", exited="2024-05-15", reason="delisted", coverage="partial"),
+    ]})
+    prices = {"DLST": _ohlc("2024-01-02", "2024-03-20")}
+    events = [
+        replace(_signal("DLST", "2024-03-04", "x"), gene_target="DMD", source_type="biorxiv"),
+        replace(_signal("DLST", "2024-03-05", "y"), gene_target="DMD", source_type="patents"),
+        replace(_signal("ZZZZ", "2024-03-05", "z"), gene_target="DMD", source_type="patents"),
+    ]
+
+    report = BacktestRunner(windows=(60,)).run(events, prices, universe=membership)
+
+    assert report.entity_only is not None
+    (group,) = report.entity_only.groups
+    assert group.ticker == "DLST"
+    assert group.window_returns[0].excluded
+
+
+def test_delisting_bound_applies_minus_thirty_percent_to_delisted_and_zero_to_acquired() -> None:
+    returns = [
+        WindowReturn(days=60, pct=0.10),
+        WindowReturn(days=60, pct=None, excluded=True, exit_reason="delisted", priced_pct=0.0),
+        WindowReturn(days=60, pct=None, excluded=True, exit_reason="deregistered", priced_pct=None),
+        WindowReturn(days=60, pct=None, excluded=True, exit_reason="acquired", priced_pct=0.2),
+    ]
+
+    summary = survivorship_summary(returns)
+
+    # 0.10 kept; delisted 0% then -30%; deregistered unpriced -30%; acquired +20% then 0%.
+    assert summary.bounded_mean_return == pytest.approx((0.10 - 0.30 - 0.30 + 0.20) / 4)
+    assert summary.bounded_n == 4
+
+
+def test_excluded_share_above_ten_percent_marks_survivorship_gap_material() -> None:
+    kept = [WindowReturn(days=5, pct=0.01)] * 9
+    excluded = WindowReturn(days=5, pct=None, excluded=True, exit_reason="delisted")
+
+    assert survivorship_summary([*kept, excluded]).survivorship_gap == "immaterial"
+    two_of_eleven = survivorship_summary([*kept, excluded, excluded])
+    assert two_of_eleven.survivorship_gap == "material"
+    assert two_of_eleven.excluded_share == pytest.approx(2 / 11)
+
+
+def test_pending_windows_count_neither_as_kept_nor_as_excluded() -> None:
+    summary = survivorship_summary([WindowReturn(days=5, pct=None), WindowReturn(days=5, pct=0.0)])
+
+    assert summary.events == 1
+    assert summary.excluded == 0
