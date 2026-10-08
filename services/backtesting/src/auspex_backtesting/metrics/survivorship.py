@@ -12,7 +12,7 @@ from typing import Final, Literal
 
 from auspex_backtesting.backtest.runner import WindowReturn
 
-# Average return on a performance delisting (Shumway 1997), assumed to carry over to biotech.
+# Average return on a performance delisting (Shumway 1997), assumed to carry over to biotech names.
 # An acquisition closes near the deal price, which the last trade already reflects. A listed
 # company whose window is unpriced is a data gap with no direction, so it is assumed flat.
 _ASSUMED_RETURN_AFTER_LAST_PRICE: Final = {"delisted": -0.30, "deregistered": -0.30}
