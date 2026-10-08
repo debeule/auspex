@@ -22,6 +22,7 @@ docker compose --profile app -f docker/docker-compose.yml --env-file .env up -d 
 | On a schedule | How |
 |---|---|
 | New daily bars for the same tickers, Mon–Fri 22:30 UTC | Airflow DAG `auspex_price_refresh`, active from the first start |
+| Point-in-time stock universe (`config/universe/rules.yaml`), first week of each month 06:00 UTC and on the first start | Airflow DAG `auspex_universe_build`, active from the first start. The first run downloads SEC's bulk archives (a few GB, deleted afterwards) and every member's price history, so it takes a while; later runs only add the new month. |
 | Source ingestion | Airflow DAGs `auspex_<source>`, paused until step 5 |
 
 `up --wait` fails if a ticker has no price data at all after `price-bootstrap` (`docker logs auspex-price-bootstrap` names it). Yahoo rate limits are the usual cause; run the same `up` again later. A ticker added to `WATCHED_TICKERS` is filled on the next `up`.

@@ -19,11 +19,11 @@ Docker Compose stack for the full Auspex infrastructure.
 | `auspex-kafka-init` | `apache/kafka:4.3.0` | — | One-shot init: creates every topic in `topics.yaml` (`--if-not-exists`) |
 | `auspex-minio-init` | built from `services/backtesting` | — | One-shot init: creates the `auspex-raw` and `auspex-prices` buckets |
 | `auspex-price-bootstrap` | built from `services/backtesting` | — | One-shot init: fills missing price snapshots (watchlist, `XBI`, `EURUSD=X`) from `PRICE_HISTORY_START` and appends bars since the last run; fails `up --wait` if a ticker has no data at all |
-| `auspex-price-service` | built from `services/backtesting` | 8001 | Price refresh HTTP API (`POST /prices/refresh`) that the `auspex_price_refresh` DAG calls |
+| `auspex-price-service` | built from `services/backtesting` | 8001 | HTTP API the price DAGs call: `POST /prices/refresh` (`auspex_price_refresh`) and `POST /universe/build` (`auspex_universe_build`, which also needs the `SEC_*` variables and mounts `config/universe/`) |
 | `auspex-elasticsearch-setup` | `curlimages/curl:8.15.0` | — | One-shot init: applies the `auspex-logs-ilm` retention policy (delete after 180 days) and attaches it to existing log indices |
 | `auspex-ingestion-scraper` | built from `services/ingestion-scraper` | 8000 | Scraper HTTP API (profile `app`) |
 | `auspex-core-hub` | built from `services/core-hub` | 8080 | Signal processor (profile `app`) |
-| `auspex-airflow` | `apache/airflow:3.3.1` | 8082 | DAG scheduler: ingestion DAGs (paused at creation) and `auspex_price_refresh` (active, Mon–Fri 22:30 UTC) |
+| `auspex-airflow` | `apache/airflow:3.3.1` | 8082 | DAG scheduler: ingestion DAGs (paused at creation) `auspex_price_refresh` (active, Mon–Fri 22:30 UTC) and `auspex_universe_build` (active, days 1–7 of each month 06:00 UTC) |
 
 All ports bound to `127.0.0.1` — local only, intentional. Services in the `app` profile (`ingestion-scraper`, `core-hub`) only start with `--profile app`.
 

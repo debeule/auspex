@@ -1,9 +1,9 @@
 # Point-in-Time Stock Universe
 
-**Status:** blocked
-**Blocked by:**
-1. Backtest look-ahead fix (in progress, first wave) — backtest events must be built from corroboration records as of `corroborated_at` and windows must use the NYSE calendar before a wider universe is fed through the runner.
-2. ~~User decision on the scope choices~~ — decided 2026-10-07 (`DECISIONS.md` CHOICE "point-in-time universe scope"); see **Scope** below.
+**Status:** ready
+**Blocked by:** nothing. Both earlier blockers are resolved: the backtest look-ahead fix is done (`specs/done/backtest-look-ahead-fix.md`), and the scope was decided 2026-10-07 (`DECISIONS.md` CHOICE "point-in-time universe scope"); see **Scope** below.
+
+**Progress (2026-10-08):** split as the Notes suggest. Part 1, the monthly list (items 1–3 and 5), is built in `auspex_backtesting.universe` and runs on the stack through the `auspex_universe_build` DAG; 15 of the required tests below pass, plus edge-case tests in `test_universe.py` and `test_universe_build.py`. Part 2, the backtest integration (item 4) and the incomplete-history handling in reports, is next: `test_tradable_universe_validates_delisted_ticker_over_its_membership_span_only`, `test_window_running_past_delisting_ends_at_last_close_with_exit_reason`, `test_window_running_out_of_data_without_a_delisting_raises`, `test_backtest_drops_and_counts_events_on_companies_outside_the_universe`, `test_event_whose_window_is_not_fully_priced_is_excluded_and_counted_by_exit_reason`, `test_event_on_partial_coverage_member_with_fully_priced_window_is_kept`, `test_delisting_bound_applies_minus_thirty_percent_to_delisted_and_zero_to_acquired`, `test_excluded_share_above_ten_percent_marks_survivorship_gap_material`. Snapshots are never overwritten, so a month built live does not know a later exit; part 2 reads exits from the latest listing history, not from the month's file. How listing spans, tickers and market cap are derived is recorded in `DECISIONS.md` (2026-10-08).
 
 **Branch:** `feature/point-in-time-universe`
 

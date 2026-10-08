@@ -1,0 +1,17 @@
+# Point-in-time universe rules (specs/point-in-time-universe.md, scope decided 2026-10-07).
+# Snapshots are stored under this version. Any edit after the first build needs a new version:
+# the build refuses a changed file under a version it has already built.
+version: 1
+# Pharmaceutical preparations, biological products, commercial physical and biological research.
+sic_codes: ["2834", "2836", "8731"]
+# Exchange names as SEC's submissions data spells them; "NYSE MKT" is NYSE American's former name.
+exchanges: [NYSE, Nasdaq, NYSE American, NYSE MKT]
+min_market_cap_usd: 50000000         # USD at the rebalance session
+min_median_dollar_volume_usd: 500000 # USD, median close x volume
+liquidity_sessions: 20
+rebalance: monthly
+# Starts two months after PRICE_HISTORY_START so the first rebalance has 20 sessions of prices
+# behind it. end: null runs to the current month.
+window:
+  start: 2023-03-01
+  end: null

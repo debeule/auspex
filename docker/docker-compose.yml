@@ -142,7 +142,14 @@ services:
     depends_on:
       minio-init:
         condition: service_completed_successfully
-    environment: *price-env
+    environment:
+      <<: *price-env
+      SEC_USER_AGENT: ${SEC_USER_AGENT}
+      SEC_SUBMISSIONS_BULK_URL: ${SEC_SUBMISSIONS_BULK_URL}
+      SEC_COMPANYFACTS_BULK_URL: ${SEC_COMPANYFACTS_BULK_URL}
+      UNIVERSE_RULES_PATH: /app/universe/rules.yaml
+    volumes:
+      - ../config/universe:/app/universe:ro
     ports:
       - "127.0.0.1:8001:8001"
     restart: unless-stopped
