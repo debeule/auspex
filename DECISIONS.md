@@ -715,3 +715,33 @@ Create a free account at quay.io if you don't have one. No organisation-specific
 6. A backtest without a universe keeps the earlier `None` behaviour.
 
 `survivorship_gap = material` is set on each `MetricsReport` above 10% excluded; writing those numbers into this file stays a step for whoever runs the evaluation, as the spec says, before a result is used for a promotion decision.
+## 2026-10-08 — Control-surface scoping — CHOICE — Grafana for technical health, dashboard for using the application
+**What:** The user decided the split after the 2026-10-08 frontend audit. Grafana covers whether the stack is healthy: services up, errors, CPU, memory and disk for the Docker VM and the Mac. The Next.js dashboard is the application's interface: browse signals, manage tracked companies and terms, monitor and steer the pipeline, trace conclusions back to documents, and later see research results.
+**Action:** Specs `infrastructure-observability`, `dashboard-foundation`, `managed-ingestion-config`, `ingestion-config-ui`, `signal-browse-views`, `pipeline-control-view`, `lineage-trace-view` and `research-results-view` (draft, waits on the strategy direction).
+
+## 2026-10-08 — Control-surface scoping — CHOICE — the watchlist is the single source for tracked tickers and terms
+**What:** Tickers lived in `.env` `WATCHED_TICKERS`, terms in `sources.yaml` `prefilter_vocabulary`, and the Postgres watchlist fed nothing. The user approved making the watchlist, managed in the dashboard and stored by core-hub, the single source, with full history.
+**Choices made in the spec:**
+1. Config versions are append-only rows holding the full effective config and its hash; each change carries a reason.
+2. The scraper fetches its config from core-hub over HTTP at the start of each run (Invariant 1: it may not read Postgres); with no config it fails the run without returning a cursor.
+3. `prefilter_version` becomes `{algorithm_version}+{vocabulary_hash}`. The model gate compares only the algorithm part. A vocabulary is activated only if every golden document labelled `prefilter_should_pass` passes it (requirements §6.6), so editing terms doesn't require re-gating the model.
+4. The backtest universe stays rules-based and pre-registered; live ingestion scope and the backtest universe are separate.
+**Action:** `specs/managed-ingestion-config.md`, `specs/ingestion-config-ui.md`.
+
+## 2026-10-08 — Control-surface scoping — CHOICE — research config is read-only in the dashboard
+**What:** Hypotheses, `protocol.yaml`, strategies, the model registry and gate, universe rules, rate limits and the XBI/EURUSD tickers are shown with their version, hash and status but never edited from the UI. They change only through a dated re-registration in the repo, so pre-registration stays meaningful.
+**Action:** `specs/ingestion-config-ui.md` (`/config/research`, no write route).
+
+## 2026-10-08 — Control-surface scoping — CHOICE — dashboard runs in the stack behind its own server layer
+**What:** The browser calls only the dashboard's origin. Next.js route handlers forward to core-hub, the scraper, price-service and Airflow, hold the Airflow credentials and a core-hub write token, and normalise errors and paging. They hold no business logic and touch no datastore. Single-user login from `.env`. core-hub CORS is removed and its non-GET endpoints require the token.
+**Action:** `specs/dashboard-foundation.md`.
+
+## 2026-10-08 — Control-surface scoping — FLAG — defects found by the frontend audit
+**What:**
+1. `Neo4jWriteService` writes mechanism links as `VIA`; requirements §9 and `CorroborationScanner` use `USES_MECHANISM`, so mechanism corroboration never fires.
+2. No code sets `Company.ticker`, so `GET /api/v1/signals/{ticker}` and the watchlist signal counts match nothing.
+3. `auspex_ingest/api.py` `_build_connector` branches on `source_type` (Invariant 4) and builds only biorxiv and clinicaltrials; the other `/ingest` calls fail.
+4. The dashboard's watchlist writes fail in the browser: core-hub CORS allows GET only.
+5. Grafana alert rules have no contact point, so alerts reach no one.
+6. `specs/company-program-corroboration.md` planned `V4__corroboration_kind.sql`, but `V4` is taken; changed to the next free version.
+**Action:** 1–3 in `specs/graph-and-connector-wiring-fixes.md`; 4 in `specs/dashboard-foundation.md`; 5 in `specs/infrastructure-observability.md`; 6 fixed in the spec.

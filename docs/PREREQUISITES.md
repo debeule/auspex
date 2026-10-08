@@ -26,6 +26,16 @@ Everything here needs a person before the blocked step can proceed. [`SETUP.md`]
 
 ---
 
+## Control surface — set when the specs are implemented
+
+| Item | Blocks | Notes |
+|---|---|---|
+| Alert destination | Infrastructure observability | Where Grafana alerts go: an email address (with SMTP settings) or a webhook URL, in `.env` (`ALERT_CONTACT_TYPE` and its settings). Without it, alerts reach no one. |
+| Mac host metrics | Infrastructure observability | `brew install node_exporter && brew services start node_exporter`, once. Without it the Infrastructure dashboard shows the Docker VM only, not the Mac's own memory and disk. |
+| Dashboard login | Dashboard foundation | Choose a password; the setup step prints its hash for `DASHBOARD_PASSWORD_HASH` in `.env`, alongside `DASHBOARD_USERNAME` and a random `DASHBOARD_SESSION_SECRET`. |
+
+---
+
 ## Infrastructure (Linux hosts only)
 
 | Setting | How to apply | Notes |

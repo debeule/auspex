@@ -58,6 +58,15 @@ Each line links to a self-contained spec in `specs/`. Open the spec and read it 
 | [Short interest snapshots](specs/short-interest-snapshots.md) | `blocked` | Blocked by company-level event extraction; FINRA short interest as MinIO Parquet, known at publication date |
 | [Catalyst calendar](specs/catalyst-calendar.md) | `blocked` | Blocked by company-level event extraction; PDUFA dates from filings, as-of calendar endpoint |
 | [FDA advisory committee connector](specs/fda-advisory-committee-connector.md) | `blocked` | Blocked by company-level event extraction + catalyst calendar; Federal Register meeting notices |
+| [Graph and connector wiring fixes](specs/graph-and-connector-wiring-fixes.md) | `ready` | Mechanism links written as VIA (never corroborate); Company.ticker never set; scraper API builds only 2 of 6 connectors (Invariant 4); 16 tests |
+| [Infrastructure observability](specs/infrastructure-observability.md) | `ready` | Exporters for every service, Mac host + Docker VM metrics, Airflow statsd, Infrastructure dashboard, alert contact point, memory limits; 14 tests + live smoke |
+| [Dashboard foundation](specs/dashboard-foundation.md) | `ready` | Dashboard in the stack: BFF route handlers, single-user login, core-hub write token, container, CI, lint, `next` upgrade, error states; 27 tests |
+| [Managed ingestion config](specs/managed-ingestion-config.md) | `blocked` | Blocked by graph-and-connector wiring fixes + dashboard foundation; watchlist as single source for tickers and terms, append-only versions, vocabulary hash in prefilter_version, golden-set check; 25 tests |
+| [Ingestion config UI](specs/ingestion-config-ui.md) | `blocked` | Blocked by managed ingestion config + dashboard foundation; companies, sources, history pages; research config read-only; 15 tests |
+| [Signal browse views](specs/signal-browse-views.md) | `blocked` | Blocked by wiring fixes + dashboard foundation; paged signal, corroboration, company and entity APIs and views; 21 tests |
+| [Pipeline control view](specs/pipeline-control-view.md) | `blocked` | Blocked by dashboard foundation + wiring fixes; Airflow runs, trigger, pause, cursors, run counts, re-extract DAG, dead letters; 20 tests |
+| [Lineage trace view](specs/lineage-trace-view.md) | `blocked` | Blocked by signal browse views + wiring fixes; corroboration evidence, reproducible score, lineage endpoints, /trace; 20 tests |
+| [Research results view](specs/research-results-view.md) | `draft` | Blocked by the strategy direction decision (PR #19) and the result-producing specs; strategy-agnostic read API, decision references, results views |
 
 ---
 
@@ -106,3 +115,4 @@ Each line links to a self-contained spec in `specs/`. Open the spec and read it 
 | 2026-10-07 | Company-level extraction | Done — 30 new Python tests, 1 new Java unit, 2 new IT; 282 Python unit + 42 Java unit green; gate re-run at v1.1 pending | No |
 | 2026-10-08 | Point-in-time universe, part 1 | Monthly list done — 15 of 23 required tests plus 34 edge-case tests, mutation-checked; 178 backtesting unit green; part 2 (backtest integration) next | No |
 | 2026-10-08 | Point-in-time universe, part 2 | Backtest integration done — 23 of 23 required tests, 200 backtesting unit green, mutation-checked; spec waits on the first stack build | Yes (stack run) |
+| 2026-10-08 | Control-surface scoping | Scoping session: 9 specs from the frontend audit (3 ready, 5 blocked, 1 draft); decisions approved by the user | No |
