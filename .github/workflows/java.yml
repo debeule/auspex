@@ -17,7 +17,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       TESTCONTAINERS_RYUK_DISABLED: "true"
-      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+      DOCKERHUB_USERNAME: ${{ vars.DOCKERHUB_USERNAME || secrets.DOCKERHUB_USERNAME }}
 
     steps:
       - uses: actions/checkout@v4
@@ -30,7 +30,7 @@ jobs:
           sudo systemctl restart docker
           docker info --format '{{.RegistryConfig.Mirrors}}'
 
-      # Authenticated pulls get a higher Docker Hub limit; skipped until the repository secrets exist.
+      # Authenticated pulls get a higher Docker Hub limit; skipped until the DOCKERHUB_USERNAME variable and DOCKERHUB_TOKEN secret exist.
       - name: Log in to Docker Hub
         if: env.DOCKERHUB_USERNAME != ''
         uses: docker/login-action@v3
