@@ -7,11 +7,12 @@ import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
 /**
- * Creates the uniqueness constraints that the MERGE-based graph writes rely on. Safe to run on
- * every startup; records a (:GraphSchema {version}) node so the applied schema is traceable.
+ * Creates the uniqueness constraints that the MERGE-based graph writes rely on and repairs
+ * relationships written under a superseded type. Safe to run on every startup; records a
+ * (:GraphSchema {version}) node so the applied schema is traceable.
  */
 @Component
-class Neo4jSchemaInitializer {
+public class Neo4jSchemaInitializer {
 
     private static final int SCHEMA_VERSION = 1;
 
@@ -22,7 +23,7 @@ class Neo4jSchemaInitializer {
     }
 
     @EventListener(ApplicationReadyEvent.class)
-    void initSchema() {
+    public void initSchema() {
         try (Session session = driver.session()) {
             session.run("CREATE CONSTRAINT signal_event_id IF NOT EXISTS " +
                     "FOR (s:Signal) REQUIRE s.event_id IS UNIQUE");
@@ -38,6 +39,13 @@ class Neo4jSchemaInitializer {
                     "FOR (s:Signal) ON (s.source_type)");
             session.run("CREATE INDEX company_ticker IF NOT EXISTS " +
                     "FOR (c:Company) ON (c.ticker)");
+            // VIA is not a graph-model relationship type: mechanism links under it are invisible
+            // to the corroboration scanner, so they are moved to USES_MECHANISM.
+            session.run("""
+                    MATCH (s:Signal)-[via:VIA]->(m:Mechanism)
+                    MERGE (s)-[:USES_MECHANISM]->(m)
+                    DELETE via
+                    """);
             session.run("""
                     MERGE (gs:GraphSchema {version: $version})
                     ON CREATE SET gs.created_at = datetime()

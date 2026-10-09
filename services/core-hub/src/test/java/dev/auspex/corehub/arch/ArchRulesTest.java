@@ -1,5 +1,6 @@
 package dev.auspex.corehub.arch;
 
+import com.tngtech.archunit.core.domain.JavaClass;
 import com.tngtech.archunit.core.domain.JavaClasses;
 import com.tngtech.archunit.core.domain.JavaMethod;
 import com.tngtech.archunit.core.importer.ClassFileImporter;
@@ -10,8 +11,16 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.methods;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class ArchRulesTest {
 
@@ -101,5 +110,29 @@ class ArchRulesTest {
                 .should().dependOnClassesThat()
                 .resideInAnyPackage("org.springframework.jdbc..", "org.neo4j.driver..")
                 .check(importedClasses);
+    }
+
+    /**
+     * Relationship types are taken from the Cypher text blocks in each persistence class's constant
+     * pool, so a writer cannot drift from the graph model in requirements §9.
+     */
+    @Test
+    void noRelationshipTypeOtherThanThoseInTheGraphModelIsWritten() throws Exception {
+        Pattern relationship = Pattern.compile("\\[\\s*\\w*\\s*:\\s*([A-Z_]+(?:\\s*\\|\\s*[A-Z_]+)*)");
+        Set<String> written = new TreeSet<>();
+        for (JavaClass javaClass : importedClasses) {
+            if (!javaClass.getPackageName().startsWith("dev.auspex.corehub.persistence")) continue;
+            String constants;
+            try (InputStream in = javaClass.getSource().orElseThrow().getUri().toURL().openStream()) {
+                constants = new String(in.readAllBytes(), StandardCharsets.ISO_8859_1);
+            }
+            Matcher m = relationship.matcher(constants);
+            while (m.find()) {
+                for (String type : m.group(1).split("\\|")) written.add(type.trim());
+            }
+        }
+
+        assertThat(written).isNotEmpty();
+        assertThat(written).isSubsetOf("TARGETS", "USES_MECHANISM", "MENTIONS");
     }
 }

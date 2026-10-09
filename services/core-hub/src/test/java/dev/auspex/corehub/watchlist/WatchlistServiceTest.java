@@ -11,6 +11,7 @@ import org.neo4j.driver.Result;
 import org.neo4j.driver.Session;
 import org.neo4j.driver.Value;
 import org.springframework.dao.DuplicateKeyException;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.util.List;
@@ -58,6 +59,7 @@ class WatchlistServiceTest {
 
     private WatchlistService service() {
         return new WatchlistService(neo4jDriver, jdbcTemplate, secTickerCache, signalQueryService, objectMapper,
+                mock(ApplicationEventPublisher.class),
                 "http://localhost:" + wm.getPort());
     }
 

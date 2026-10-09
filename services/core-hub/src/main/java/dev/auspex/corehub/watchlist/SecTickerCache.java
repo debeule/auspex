@@ -9,16 +9,17 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
 
+/** SEC filer tickers and their registered titles, loaded once from `company_tickers.json`. */
 @Component
 public class SecTickerCache {
 
     private static final Logger log = LoggerFactory.getLogger(SecTickerCache.class);
 
-    private final Map<String, String> cache = new ConcurrentHashMap<>();
+    private volatile Map<String, String> tickerToTitle = Map.of();
     private final String tickersUrl;
     private final ObjectMapper objectMapper;
 
@@ -38,21 +39,35 @@ public class SecTickerCache {
                     .build();
             String json = client.get().uri(tickersUrl).retrieve().body(String.class);
             JsonNode root = objectMapper.readTree(json);
+            Map<String, String> loaded = new HashMap<>();
             root.fields().forEachRemaining(e -> {
                 JsonNode company = e.getValue();
                 String ticker = company.path("ticker").asText("").toUpperCase();
                 String name = company.path("title").asText("");
                 if (!ticker.isEmpty() && !name.isEmpty()) {
-                    cache.put(ticker, name);
+                    loaded.put(ticker, name);
                 }
             });
-            log.info("SEC ticker cache loaded: {} entries", cache.size());
+            replaceEntries(loaded);
+            log.info("SEC ticker cache loaded: {} entries", loaded.size());
         } catch (Exception ex) {
             log.warn("SEC ticker cache unavailable; company name resolution disabled until restart: {}", ex.getMessage());
         }
     }
 
     public Optional<String> getName(String ticker) {
-        return Optional.ofNullable(cache.get(ticker.toUpperCase()));
+        return Optional.ofNullable(tickerToTitle.get(ticker.toUpperCase()));
+    }
+
+    /**
+     * Ticker to SEC title. The same instance is returned until the entries are replaced, so a
+     * caller may cache anything derived from it by identity.
+     */
+    public Map<String, String> entries() {
+        return tickerToTitle;
+    }
+
+    public void replaceEntries(Map<String, String> tickerToTitle) {
+        this.tickerToTitle = Map.copyOf(tickerToTitle);
     }
 }

@@ -1,7 +1,7 @@
 # Pipeline Control View
 
 **Status:** blocked
-**Blocked by:** `specs/dashboard-foundation.md` (BFF, login, API client) and `specs/graph-and-connector-wiring-fixes.md` (every source reachable through the scraper API).
+**Blocked by:** `specs/dashboard-foundation.md` (BFF, login, API client) and `specs/done/graph-and-connector-wiring-fixes.md` (every source reachable through the scraper API).
 **Branch:** `feature/pipeline-control-view`
 
 ---

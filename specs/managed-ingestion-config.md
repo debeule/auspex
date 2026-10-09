@@ -1,7 +1,7 @@
 # Managed Ingestion Config
 
 **Status:** blocked
-**Blocked by:** `specs/graph-and-connector-wiring-fixes.md` (connector registry; publish threshold and rate limits read from the source entry) and `specs/dashboard-foundation.md` (core-hub write token).
+**Blocked by:** `specs/done/graph-and-connector-wiring-fixes.md` (connector registry; publish threshold and rate limits read from the source entry) and `specs/dashboard-foundation.md` (core-hub write token).
 **Branch:** `feature/managed-ingestion-config`
 
 ---

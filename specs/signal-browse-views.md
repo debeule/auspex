@@ -1,7 +1,7 @@
 # Signal Browse Views
 
 **Status:** blocked
-**Blocked by:** `specs/graph-and-connector-wiring-fixes.md` (mechanism links and `Company.ticker`, without which these views show missing data) and `specs/dashboard-foundation.md` (BFF, login, API client).
+**Blocked by:** `specs/done/graph-and-connector-wiring-fixes.md` (mechanism links and `Company.ticker`, without which these views show missing data) and `specs/dashboard-foundation.md` (BFF, login, API client).
 **Branch:** `feature/signal-browse-views`
 
 ---

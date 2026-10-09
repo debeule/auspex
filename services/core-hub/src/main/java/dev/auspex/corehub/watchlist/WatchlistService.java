@@ -8,6 +8,7 @@ import org.neo4j.driver.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -33,6 +34,7 @@ public class WatchlistService {
     private final SignalQueryService signalQueryService;
     private final RestClient ctRestClient;
     private final ObjectMapper objectMapper;
+    private final ApplicationEventPublisher events;
 
     WatchlistService(
             Driver neo4jDriver,
@@ -40,9 +42,11 @@ public class WatchlistService {
             SecTickerCache secTickerCache,
             SignalQueryService signalQueryService,
             ObjectMapper objectMapper,
+            ApplicationEventPublisher events,
             @Value("${auspex.clinicaltrials.base-url:https://clinicaltrials.gov}") String ctBaseUrl
     ) {
         this.neo4jDriver = neo4jDriver;
+        this.events = events;
         this.jdbcTemplate = jdbcTemplate;
         this.secTickerCache = secTickerCache;
         this.signalQueryService = signalQueryService;
@@ -99,6 +103,7 @@ public class WatchlistService {
                         "INSERT INTO watchlist_gene_target (watchlist_id, gene_target, source) VALUES (?, ?, ?)",
                         id, normalized, gt.source());
             }
+            events.publishEvent(new WatchlistTickerAdded(ticker));
             return new WatchlistEntry(
                     id, ticker, companyName,
                     ((java.sql.Timestamp) row.get("added_at")).toInstant(),

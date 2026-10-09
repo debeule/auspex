@@ -1,6 +1,6 @@
 # Graph and Connector Wiring Fixes
 
-**Status:** ready
+**Status:** done
 **Branch:** `feature/graph-and-connector-wiring-fixes`
 
 ---

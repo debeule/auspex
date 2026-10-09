@@ -19,9 +19,11 @@ import java.util.Map;
 public class Neo4jWriteService implements SignalGraphPort {
 
     private final Driver driver;
+    private final CompanyTickerService companyTickers;
 
-    public Neo4jWriteService(Driver driver) {
+    public Neo4jWriteService(Driver driver, CompanyTickerService companyTickers) {
         this.driver = driver;
+        this.companyTickers = companyTickers;
     }
 
     public void upsert(ResearchSignalEvent event) {
@@ -101,17 +103,22 @@ public class Neo4jWriteService implements SignalGraphPort {
         tx.run("""
                 MATCH (s:Signal {event_id: $event_id})
                 MERGE (m:Mechanism {name: $name})
-                MERGE (s)-[:VIA]->(m)
+                MERGE (s)-[:USES_MECHANISM]->(m)
                 """,
                 Map.of("event_id", eventId, "name", mechanismName));
     }
 
+    /** `ticker` is set only when resolved; an unresolved merge keeps any ticker already on the node. */
     private void mergeCompanyRelationship(TransactionContext tx, String eventId, String companyName) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("event_id", eventId);
+        params.put("name", companyName);
+        params.put("ticker", companyTickers.uniqueTicker(companyName).orElse(null));
         tx.run("""
                 MATCH (s:Signal {event_id: $event_id})
                 MERGE (c:Company {name: $name})
+                SET c.ticker = coalesce($ticker, c.ticker)
                 MERGE (s)-[:MENTIONS]->(c)
-                """,
-                Map.of("event_id", eventId, "name", companyName));
+                """, params);
     }
 }

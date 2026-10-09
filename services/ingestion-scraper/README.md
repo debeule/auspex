@@ -25,18 +25,18 @@ Pulls documents from 5 public biotech sources, archives raw content to MinIO (un
 | PubMed | `PubmedConnector` | `pubmed` | Active |
 | ClinicalTrials.gov | `ClinicalTrialConnector` | `clinicaltrials` | Active — `raw_content` includes the lead sponsor |
 | SEC EDGAR | `SecEdgarConnector` | `edgar` | Active — 8-Ks with items 2.02, 7.01 or 8.01; Exhibit 99.1 press release plus cover text, found via the filing's `-index.htm`; `published_date` is the acceptance time |
-| openFDA approvals | `FdaApprovalConnector` | `fda` | Active |
+| openFDA approvals | `FdaApprovalConnector` | `fda_approval` | Active |
 | EPO OPS patents | `EpoOpsConnector` | `epo_ops` | Blocked — needs EPO OPS credentials |
 
 ---
 
 ## Adding a connector
 
-1. Implement `SourceConnector` in `src/auspex_ingest/connectors/` (inherit `base.py`, implement `fetch_since(cursor) -> Iterator[RawDocument]`)
-2. Add an entry to `config/sources.yaml`
-3. Register in `dags/auspex_dags.py` `_build_connector()`
+1. Implement `SourceConnector` in a new module in `src/auspex_ingest/connectors/` (inherit `base.py`, implement `fetch_since(cursor) -> Iterator[RawDocument]`).
+2. In the same module, register a builder: `@REGISTRY.register("<source_type>", rate_limit_host="<api host>")` on a function taking a `BuildContext` (shared rate-limited client, the `sources.yaml` entry, the environment for credentials) and returning the connector.
+3. Add an entry to `config/sources.yaml`.
 
-No changes to `IngestionPipeline` or any shared code.
+`default_registry()` imports every module in `connectors/`, so the scraper API and `scripts/run_pipeline.py` pick the connector up with no change to shared code. A `source_type` with no registered builder fails with `UnknownSourceTypeError` listing the registered ones.
 
 ---
 
@@ -46,11 +46,12 @@ No changes to `IngestionPipeline` or any shared code.
 |---|---|---|
 | `source_type` | `str` | Unique connector identifier (e.g. `biorxiv`, `epo_ops`). |
 | `schedule` | `str` | Airflow 3 schedule expression (e.g. `@daily`, `0 6 * * 1`). Not `schedule_interval`. |
-| `rate_limit_rps` | `float` | Maximum requests per second the connector may issue. |
+| `rate_limit_rps` | `float` | Maximum requests per second to the connector's registered `rate_limit_host` (subdomains share the bucket). |
 | `initial_lookback` | `int` | Days of history to fetch on first run (no cursor Variable yet). |
 | `max_documents_per_run` | `int` | Hard cap on documents fetched per DAG run. |
 | `prefilter_vocabulary` | `list[str]` | Terms the pre-filter checks before spending LLM calls. |
 | `source_config` | `dict` | Connector-specific configuration (base URLs, filters, etc.). |
+| `min_confidence_to_publish` | `float` | Optional, default `0.0` (off). Events scoring below it are counted in `below_threshold` instead of published (requirements §11). |
 
 Unknown fields are rejected at parse time (`extra = "forbid"`).
 

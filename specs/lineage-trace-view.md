@@ -1,7 +1,7 @@
 # Lineage Trace View
 
 **Status:** blocked
-**Blocked by:** `specs/signal-browse-views.md` (signal, corroboration and company views the trace links into) and `specs/graph-and-connector-wiring-fixes.md`.
+**Blocked by:** `specs/signal-browse-views.md` (signal, corroboration and company views the trace links into) and `specs/done/graph-and-connector-wiring-fixes.md`.
 **Branch:** `feature/lineage-trace-view`
 
 ---

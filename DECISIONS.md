@@ -1007,3 +1007,10 @@ No backtest has joined any corpus to returns: `config/hypotheses/trials/` does n
 8. **Test count:** the spec expected 33; the file has 37 because the hash-check parametrisation now also covers h9–h12.
 **Why it matters:** Each is a registered rule a later backtest is held to.
 **Action:** none unless the user wants one changed (a dated re-registration).
+## 2026-10-09 — Graph and connector wiring fixes — CHOICE — publish threshold default is 0.0, not the API's 0.5
+**What:** The spec moves the scraper API's hardcoded `min_confidence_to_publish=0.5` into the `sources.yaml` entry "with the current values as defaults". Requirements §11 says the threshold is per source with default 0.0 (off) until calibration justifies raising it, so a 0.5 default would keep dropping signals invisibly. `SourceEntry.min_confidence_to_publish` defaults to 0.0 and no `sources.yaml` entry sets it, so the API now publishes events it used to drop below 0.5; `below_threshold` stays in `RunResult`. Rate limits keep their values: each entry's `rate_limit_rps` already matched the hardcoded table and now applies to its connector's registered host.
+**Action:** set `min_confidence_to_publish` on an entry to restore a threshold for that source.
+
+## 2026-10-09 — Graph and connector wiring fixes — CHOICE — ticker resolution details
+**What:** (1) A normalized name that maps to more than one SEC ticker gets no ticker, including one filer listing several share classes under one title: the spec's single-match rule is applied to tickers, not titles. (2) The watchlist back-fill uses the SEC title of the added ticker, not the request's `company_name`, and sets the ticker only on `Company` nodes that have none, since the user picked that ticker explicitly. (3) A back-fill failure is logged, not returned: the watchlist row is already stored. (4) `Company` still merges on the extracted `name` as written today; the normalizer is used only for the SEC match. (5) The ArchUnit rule sits in the existing `arch/ArchRulesTest`, not a new `architecture/` package.
+**Action:** none; managed aliases (`specs/managed-ingestion-config.md`) cover names the SEC title does not match.
