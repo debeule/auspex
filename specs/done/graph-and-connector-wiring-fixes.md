@@ -17,7 +17,7 @@ What exists: `SecTickerCache` in core-hub (`watchlist/`) loads SEC `company_tick
 
 ## What this builds
 
-- Mechanism links are written as `USES_MECHANISM`, and a startup step in `Neo4jSchemaInitializer` rewrites any existing `VIA` relationship to `USES_MECHANISM` idempotently, so a stack with data already ingested is repaired without a wipe.
+- Mechanism links are written as `USES_MECHANISM`. No graph data exists yet, so there is nothing stored under `VIA` to migrate.
 - `Company.ticker` is set when it is known: when a `Company` is merged, core-hub looks the normalized name up in `SecTickerCache` and sets `ticker` only on a single unambiguous match. Adding a ticker to the watchlist also back-fills `ticker` on the existing `Company` node whose normalized name matches the SEC title.
 - A connector registry in `auspex_ingest`: each `SourceConnector` registers a builder under its `source_type`; `api.py` and `scripts/run_pipeline.py` both build connectors through it. The publish threshold and rate limits come from the `sources.yaml` entry (with the current values as defaults), not from code.
 
@@ -29,9 +29,9 @@ What exists: `SecTickerCache` in core-hub (`watchlist/`) loads SEC `company_tick
 
 ## Constraints
 
-- Invariant 2: only core-hub writes Neo4j; the relationship rewrite runs in core-hub at startup.
+- Invariant 2: only core-hub writes Neo4j.
 - Invariant 4: no `if source_type ==` anywhere in shared code, Python or Java. The registry is the only place a `source_type` string maps to a class.
-- Invariant 12: the rewrite and the ticker lookups use bind parameters.
+- Invariant 12: the ticker lookups use bind parameters.
 - §9: `Company` keeps merging on normalized `name`; `ticker` is never a MERGE key. A null or ambiguous ticker leaves the property unset, never set to null on an existing value.
 - Name normalization for the SEC match: lower-case, strip punctuation and corporate suffixes (`inc`, `corp`, `corporation`, `co`, `ltd`, `plc`, `nv`, `sa`, `ag`, `holdings`), collapse whitespace. The same function is used on both sides.
 
@@ -40,8 +40,6 @@ What exists: `SecTickerCache` in core-hub (`watchlist/`) loads SEC `company_tick
 core-hub, `src/integrationTest/java/.../persistence/MechanismRelationshipIT.java`:
 - `mechanismLinkIsWrittenAsUsesMechanism`
 - `twoSourcesSharingOnlyAMechanismProduceACorroboration`
-- `startupRewritesExistingViaRelationshipsToUsesMechanism`
-- `relationshipRewriteIsIdempotentAcrossRestarts`
 
 core-hub, `src/integrationTest/java/.../persistence/CompanyTickerIT.java`:
 - `companyMatchingOneSecTitleGetsItsTicker`
@@ -71,9 +69,9 @@ cd services/core-hub && ./gradlew test integrationTest --rerun-tasks
 cd services/ingestion-scraper && uv run pytest tests/unit -q --strict-markers && uv run ruff check . && uv run mypy src
 ```
 
-Expected: all green; the 16 new tests above are in the reports (11 Java, 5 Python, parametrized cases counted once).
+Expected: all green; the 14 new tests above are in the reports (9 Java, 5 Python, parametrized cases counted once).
 
-Then on the stack: `MATCH ()-[r:VIA]->() RETURN count(r)` returns 0, and `POST /ingest/pubmed` returns a `RunResult` instead of a 500.
+Then on the stack: `POST /ingest/pubmed` returns a `RunResult` instead of a 500.
 
 ## Notes
 

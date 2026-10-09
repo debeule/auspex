@@ -36,7 +36,7 @@ Write order is **Neo4j → Postgres → acknowledge** (ack-mode RECORD). Never c
 | `(:GeneTarget)` | `name` |
 | `(:Mechanism)` | `name` |
 
-Relationships (requirements §9): `(:Signal)-[:TARGETS]->(:GeneTarget)`, `(:Signal)-[:USES_MECHANISM]->(:Mechanism)`, `(:Signal)-[:MENTIONS]->(:Company)`. An ArchUnit rule fails the build if `persistence` writes any other type. On startup `Neo4jSchemaInitializer` moves any mechanism link stored as `VIA` to `USES_MECHANISM`.
+Relationships (requirements §9): `(:Signal)-[:TARGETS]->(:GeneTarget)`, `(:Signal)-[:USES_MECHANISM]->(:Mechanism)`, `(:Signal)-[:MENTIONS]->(:Company)`. An ArchUnit rule fails the build if `persistence` writes any other type.
 
 **Company tickers.** `CompanyTickerService` matches a company's normalized name (`CompanyNameNormalizer`: lower-case, punctuation removed, trailing `inc`/`corp`/`corporation`/`co`/`ltd`/`plc`/`nv`/`sa`/`ag`/`holdings` stripped) against the normalized SEC filer titles in `SecTickerCache`. `ticker` is set only when exactly one SEC ticker matches; an unmatched or ambiguous merge never clears an existing ticker. Adding a ticker to the watchlist sets it on tickerless `Company` nodes whose normalized name matches that ticker's SEC title.
 
