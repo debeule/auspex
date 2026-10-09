@@ -29,9 +29,10 @@ jobs:
           sudo systemctl restart docker
           docker info --format '{{.RegistryConfig.Mirrors}}'
 
-      # Authenticated pulls get a higher Docker Hub limit; skipped until the DOCKERHUB_USERNAME variable and DOCKERHUB_TOKEN secret exist.
+      # Authenticated pulls get a higher Docker Hub limit; skipped until the DOCKERHUB_USERNAME variable and DOCKERHUB_TOKEN secret exist, and a Docker Hub outage must not fail the job.
       - name: Log in to Docker Hub
         if: env.DOCKERHUB_USERNAME != ''
+        continue-on-error: true
         uses: docker/login-action@v3
         with:
           username: ${{ env.DOCKERHUB_USERNAME }}
