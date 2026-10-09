@@ -46,6 +46,11 @@ Each line links to a self-contained spec in `specs/`. Open the spec and read it 
 | [Java package reorganization](specs/done/java-package-reorganization.md) | `done` | 22 unit + 55 integration tests; signal, persistence, corroboration, audit, query packages |
 | [Java service decomposition](specs/done/java-service-decomposition.md) | `done` | 8 unit tests; CorroborationScanner extracted, SignalIngestionService + ports, 85 total tests green |
 | [Dashboard](specs/done/dashboard.md) | `done` | 5 component tests; Next.js 15 App Router, Vitest + RTL, NEXT_PUBLIC_API_URL |
+| [Ingestion run reliability](specs/ingestion-run-reliability.md) | `blocked` | Blocked by graph-and-connector-wiring-fixes merge; safe cursor on failed documents, staggered schedules + single-slot pool, extraction cap, per-source lock, retries, §6.5 rate limits, SEC pacing under 10 req/s; 20 tests |
+| [Dead-letter recovery](specs/dead-letter-recovery.md) | `blocked` | Blocked by dashboard-foundation merge (write token); listeners pause while a store is down, longer transient back-off, DLT replay endpoint, corroboration watermark after acknowledged sends; 12 tests |
+| [Container limits and log rotation](specs/container-limits-and-log-rotation.md) | `blocked` | Blocked by infrastructure-observability + dashboard-foundation merges; rotating log driver on every service, 30-day log indices, Airflow 1 API worker, Neo4j heap/page cache, memory budget incl. dashboard; 10 tests |
+| [Pipeline alerting gaps](specs/pipeline-alerting-gaps.md) | `blocked` | Blocked by infrastructure-observability merge; Source Silence at 30 h, §12 core-hub health reporter, 8 new rules, daily health summary DAG; 19 tests |
+| [Soak test run](specs/soak-test-run.md) | `blocked` | Mac only; blocked by first-run model gate + the four specs above; 21 days, Mac prep, day-1 measurement, daily checks, induced faults, 13 pass criteria |
 | [Watchlist & alerts](specs/hold/watchlist-alerts.md) | `hold` | Come off hold when the backtest shows a real repeatable signal worth acting on |
 | [Neo4j indexing at scale](specs/neo4j-indexing.md) | `blocked` | Blocked by historical backfill; thresholds are placeholders — treat as blocked-and-draft until after backfill |
 | [Kafka Streams correlation](specs/kafka-streams-correlation.md) | `draft` | Conditional — only if scheduled query proves inadequate |

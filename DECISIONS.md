@@ -867,3 +867,16 @@ Where they disagree: report 1 stays in biotech with a holdings composite; report
 **Options considered:** bind-mounting only MinIO's data directory to the host (covers prices, universe and the raw archive, but not the signal stores, and is slower through Docker Desktop's file sharing); no backup.
 **Boundary:** the backup service only reads (Invariants 1 and 2 hold). Writing back is a separate `restore` one-shot under its own compose profile, for disaster recovery with core-hub stopped, and it refuses non-empty targets. Neo4j is exported over bolt rather than with `neo4j-admin database dump`, because Community edition can only dump offline.
 **Action:** `specs/stack-backup.md`.
+## 2026-10-09 — Soak-test readiness — CHOICE — cursor after a run with failed documents
+**What:** `docs/requirements.md` §5 says the DAG writes `max_published_date_processed` on success and leaves the cursor untouched on failure. A run that completes but fails some documents was treated as a success, and the cursor moved past the failures, so they were never fetched again. From `specs/ingestion-run-reliability.md` on, the pipeline reports a safe cursor: the earliest failed document's `published_date` when any failed, else the latest processed date. The DAG writes it and then fails the task so the run shows red and retries. The pipeline stays stateless; a request that errors still leaves the Variable untouched.
+**Why:** an unattended run must not lose documents to a model-server outage or a sleeping Mac. Processed markers stop the rerun from re-extracting the documents that succeeded.
+**Action:** `specs/ingestion-run-reliability.md`.
+
+## 2026-10-09 — Soak-test readiness — CHOICE — transient Kafka failures pause instead of retrying longer
+**What:** §3 rule 10 fixes three deliveries (1 + 2 retries) for a transient failure and forbids blocking a partition. A Postgres or Neo4j restart outlasts two 1-second retries and dead-letters everything consumed meanwhile. Instead of more retries, core-hub pauses both listeners while either store is unreachable and resumes when both are back; the back-off between the three deliveries grows to 5 s and 30 s. Dead letters get a replay endpoint so nobody runs a Kafka command.
+**Options considered:** unlimited retries for connection errors (breaks §3 rule 10 and blocks the partition); keeping the 1-second retries (an outage fills the DLT).
+**Action:** `specs/dead-letter-recovery.md`.
+
+## 2026-10-09 — Soak-test readiness — CHOICE — SEC request budget across containers
+**What:** SEC allows 10 req/s per IP across all its hosts (§6.5: configure 5). EDGAR ingestion (scraper, 4 req/s) and the universe build's filing-index lookups (price-service, 8 req/s) pace separately and can run together after the Mac wakes. The universe lookups drop to 5 req/s, so the two stay at 9; EDGAR stops a run on a 403 instead of retrying into the block. The ownership panels' own client (5 req/s) is not scheduled; when it is, its schedule must not overlap EDGAR ingestion.
+**Action:** `specs/ingestion-run-reliability.md`.
