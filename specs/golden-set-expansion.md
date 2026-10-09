@@ -65,7 +65,7 @@ Calibration in `tests/unit/test_confidence_calibration.py`:
 - `test_threshold_is_lowest_bin_edge_from_which_all_higher_bins_meet_target_precision` — a non-monotonic middle bin below 0.85 raises the threshold above it
 - `test_threshold_is_zero_when_every_bin_meets_target_precision`
 - `test_source_with_fewer_than_thirty_extracted_signals_is_uncalibrated`
-- `test_every_live_source_has_a_current_calibration_matching_its_publish_threshold` — reads `sources.yaml`, `calibration.json` and `registry.yaml`: every non-fixture source has an entry for the active model and `prompt_version`, and its `min_confidence_to_publish` equals the recorded threshold. Fails today by design; it passes only once the calibration run is committed, so 0.0 cannot reach paper trading by default.
+- `test_every_live_source_has_a_current_calibration_matching_its_publish_threshold` — reads `sources.yaml`, `calibration.json` and `registry.yaml`: every non-fixture source has an entry for the active model and `prompt_version`, and its `min_confidence_to_publish` equals the recorded threshold. Write it red, then commit it together with `calibration.json` and the `sources.yaml` thresholds from the calibration run, never before: the unit suite stays green on every commit, and from then on a model or prompt change without a new calibration turns it red. No skip marker.
 
 ## Definition of done
 
@@ -74,7 +74,7 @@ cd services/ingestion-scraper && uv run pytest tests/unit/test_golden_set.py -q
 cd services/ingestion-scraper && uv run pytest tests/unit/test_confidence_calibration.py -q
 ```
 
-Expected: 4 passed, then 5 passed (the last calibration test only after the calibration run below is committed).
+Expected: 4 passed, then 5 passed (the fifth calibration test lands with the calibration run below).
 
 Then:
 - `score_extraction.py --model <local_model_key>` completes at ≥0.85 precision; gate record committed to `config/models/scores/`.
