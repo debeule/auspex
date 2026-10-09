@@ -4,34 +4,40 @@
   "private": true,
   "type": "module",
   "engines": {
-    "node": "22.x"
+    "node": "22.23.3"
   },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
-    "test": "vitest"
+    "lint": "eslint .",
+    "test": "vitest",
+    "test:ci": "vitest run --exclude '**/bundle-secrets.test.ts'",
+    "test:bundle": "vitest run src/__tests__/bundle-secrets.test.ts",
+    "hash-password": "node scripts/hash-password.mjs"
   },
   "dependencies": {
-    "next": "15.3.4",
-    "react": "19.1.0",
-    "react-dom": "19.1.0"
+    "bcryptjs": "3.0.3",
+    "next": "16.4.0",
+    "react": "19.3.0",
+    "react-dom": "19.3.0"
   },
   "devDependencies": {
+    "@tailwindcss/postcss": "4.3.3",
     "@testing-library/jest-dom": "6.6.3",
-    "@testing-library/react": "16.3.0",
-    "@testing-library/user-event": "14.5.2",
-    "@types/node": "22.15.30",
-    "@types/react": "19.1.6",
-    "@types/react-dom": "19.1.5",
-    "@vitejs/plugin-react": "4.5.2",
-    "@vitest/coverage-v8": "3.2.4",
-    "autoprefixer": "10.4.21",
+    "@testing-library/react": "16.3.3",
+    "@testing-library/user-event": "14.6.7",
+    "@types/node": "22.20.5",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "@vitejs/plugin-react": "6.1.2",
+    "eslint": "9.39.1",
+    "eslint-config-next": "16.4.0",
     "jsdom": "26.1.0",
-    "postcss": "8.5.4",
-    "tailwindcss": "3.4.17",
+    "postcss": "8.5.29",
+    "tailwindcss": "4.3.3",
     "typescript": "5.8.3",
-    "vitest": "3.2.4"
+    "vite": "8.3.4",
+    "vitest": "5.0.3"
   }
 }

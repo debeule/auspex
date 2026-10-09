@@ -56,6 +56,10 @@ Scorer: `score = 0.7 × diversity_factor + 0.3 × recency_factor`, clamped [0, 1
 
 ## REST API
 
+Every request under `/api` that is not a GET or HEAD needs `Authorization: Bearer ${CORE_HUB_WRITE_TOKEN}`; without it, or with no token configured, the answer is 401. Only the dashboard's server sends the token. There are no CORS mappings: browsers reach core-hub through the dashboard, never directly.
+
+`GET /api/v1/watchlist/{ticker}/summary` — the watchlist entry's gene-target stats, the signals that mention the company (newest first), the corroborations on its tracked targets, and totals.
+
 `GET /api/v1/signals/{ticker}` — returns direct signals + corroborated signals for the ticker.
 
 - Ticker must be in the configured allowlist.
@@ -108,3 +112,4 @@ Containers are **static singletons** — one JVM start per suite run. Truncate b
 - Parameterized queries only — ArchUnit enforces this at build time
 - `confidence_score` is `BigDecimal` in DTOs, `NUMERIC(4,3)` in Postgres, `double` in Neo4j via an explicit converter
 - Java 25 records, no Lombok
+- Writes under `/api` require the bearer write token (`WriteTokenInterceptor`); no CORS

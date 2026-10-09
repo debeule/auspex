@@ -1,6 +1,6 @@
 # Dashboard Foundation
 
-**Status:** ready
+**Status:** done
 **Branch:** `feature/dashboard-foundation`
 
 ---

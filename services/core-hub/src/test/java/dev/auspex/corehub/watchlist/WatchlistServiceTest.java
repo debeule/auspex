@@ -1,6 +1,7 @@
 package dev.auspex.corehub.watchlist;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import dev.auspex.corehub.query.SignalQueryService;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -42,6 +43,7 @@ class WatchlistServiceTest {
     private Driver neo4jDriver;
     private Session neo4jSession;
     private JdbcTemplate jdbcTemplate;
+    private SignalQueryService signalQueryService;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @BeforeEach
@@ -50,11 +52,12 @@ class WatchlistServiceTest {
         neo4jDriver = mock(Driver.class);
         neo4jSession = mock(Session.class);
         jdbcTemplate = mock(JdbcTemplate.class);
+        signalQueryService = mock(SignalQueryService.class);
         when(neo4jDriver.session()).thenReturn(neo4jSession);
     }
 
     private WatchlistService service() {
-        return new WatchlistService(neo4jDriver, jdbcTemplate, secTickerCache, objectMapper,
+        return new WatchlistService(neo4jDriver, jdbcTemplate, secTickerCache, signalQueryService, objectMapper,
                 "http://localhost:" + wm.getPort());
     }
 

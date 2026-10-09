@@ -2,6 +2,7 @@ package dev.auspex.corehub.watchlist;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import dev.auspex.corehub.query.SignalQueryService;
 import org.neo4j.driver.Driver;
 import org.neo4j.driver.Session;
 import org.slf4j.Logger;
@@ -29,6 +30,7 @@ public class WatchlistService {
     private final Driver neo4jDriver;
     private final JdbcTemplate jdbcTemplate;
     private final SecTickerCache secTickerCache;
+    private final SignalQueryService signalQueryService;
     private final RestClient ctRestClient;
     private final ObjectMapper objectMapper;
 
@@ -36,12 +38,14 @@ public class WatchlistService {
             Driver neo4jDriver,
             JdbcTemplate jdbcTemplate,
             SecTickerCache secTickerCache,
+            SignalQueryService signalQueryService,
             ObjectMapper objectMapper,
             @Value("${auspex.clinicaltrials.base-url:https://clinicaltrials.gov}") String ctBaseUrl
     ) {
         this.neo4jDriver = neo4jDriver;
         this.jdbcTemplate = jdbcTemplate;
         this.secTickerCache = secTickerCache;
+        this.signalQueryService = signalQueryService;
         this.objectMapper = objectMapper;
         this.ctRestClient = RestClient.builder()
                 .baseUrl(ctBaseUrl)
@@ -154,7 +158,7 @@ public class WatchlistService {
         return new WatchlistSummary(
                 upper, companyName,
                 geneTargetStats,
-                List.of(),
+                signalQueryService.directSignals(upper),
                 corroborations,
                 new WatchlistSummary.Stats(totalDirect, corroborations.size(), mostActive, lastSignalAt)
         );

@@ -12,3 +12,5 @@ corroboration:
 auspex:
   sec:
     tickers-url: http://127.0.0.1:1/company_tickers.json
+  api:
+    write-token: integration-test-write-token

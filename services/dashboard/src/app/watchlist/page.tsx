@@ -1,9 +1,10 @@
 import WatchlistPage from '@/components/watchlist/WatchlistPage';
+import PageShell from '@/components/ui/PageShell';
 
 export default function Page() {
   return (
-    <main className="p-8">
+    <PageShell title="Watchlist">
       <WatchlistPage />
-    </main>
+    </PageShell>
   );
 }

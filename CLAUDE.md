@@ -89,6 +89,8 @@ This is not hypothetical: v1 of this plan contained a test (`test_dag_task_only_
 | Java: forked-TZ execution | `cd services/core-hub && ./gradlew timezoneCheck` |
 | Java: force re-run (defeat up-to-date) | `cd services/core-hub && ./gradlew test --rerun-tasks` |
 | Backtesting: unit tests | `cd services/backtesting && uv run pytest tests/unit -q` |
+| Dashboard: lint, types, tests | `cd services/dashboard && npm ci && npm run lint && npx tsc --noEmit && npm run test:ci` |
+| Dashboard: build + bundle secret check | `cd services/dashboard && npm run build && npm run test:bundle` |
 | Smoke test | `./verify_pipeline.sh` |
 | Regenerate contract fixture | `cd services/ingestion-scraper && uv run pytest tests/unit/test_contract_fixture.py` |
 
@@ -213,6 +215,8 @@ services/core-hub/src/integrationTest/java/**/<Subject>IT.java    # container-ba
 - **The scraper runs as one gunicorn process (threads, not workers).** `prometheus_client` keeps metrics per process; with several workers each scrape hits a different worker and counters jump. Multiprocess mode is the alternative if more processes are ever needed.
 - **`make_metrics()` is cached per registry.** The API builds a pipeline per request; registering collectors twice on one registry raises `DuplicateTimeseries`.
 - **LocalStack calendar tags (`2026.x`) need a licence token** and exit with code 55 without one. Integration tests pin `localstack/localstack:4.9.2`, pulled as `mirror.gcr.io/localstack/localstack:4.9.2`.
+- **bcrypt hashes contain `$`.** In `.env`, `DASHBOARD_PASSWORD_HASH` must be single-quoted or compose reads `$2b`, `$12` as variables and passes a mangled hash; the hash script prints the quoted line. Next's own `.env.local` loading expands `$` too, so there each one is written `\$`.
+- **Next 16 renamed middleware to `proxy`.** `src/proxy.ts` exporting `proxy` runs on the Node runtime and reads `process.env` per request; a `middleware.ts` is deprecated. `next lint` is gone: lint runs `eslint .` with the flat config.
 - **Local model backend — Docker/Metal:** Docker Desktop on macOS cannot use Metal. Run the model server (Ollama) on the host; the scraper reaches it via `host.docker.internal` in `EXTRACTION_BASE_URL`. See `docker/README.md` for the memory budget table.
 - **Local model backend — context length:** Ollama's OpenAI-compatible `/v1` endpoint ignores per-request `num_ctx`. The server default is 4096 tokens and longer prompts are silently truncated, so the registry's `num_ctx` only holds if Ollama runs with `OLLAMA_CONTEXT_LENGTH` ≥ that value. See `docs/local-model-runbook.md`.
 - **Local model backend — tag re-pointing:** `ollama pull llama3.1:8b-instruct-q8_0` downloads whatever HEAD is at that tag at pull time. The registry pins the exact digest (`llama3.1:8b-instruct-q8_0@sha256:...`); `LLMExtractorFactory` compares the registered digest against `ollama show` output at startup and fails before any extraction runs if they differ.

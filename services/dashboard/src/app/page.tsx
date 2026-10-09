@@ -1,10 +1,10 @@
 import SignalsDashboard from '@/components/SignalsDashboard';
+import PageShell from '@/components/ui/PageShell';
 
 export default function Home() {
   return (
-    <main className="p-8">
-      <h1 className="text-2xl font-bold mb-6">Auspex Signal Dashboard</h1>
+    <PageShell title="Signals">
       <SignalsDashboard />
-    </main>
+    </PageShell>
   );
 }

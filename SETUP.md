@@ -41,13 +41,16 @@ Fill in what only you have:
 | `SEC_USER_AGENT` | `Name email@example.com`; SEC returns 403 without it. |
 | `NCBI_API_KEY`, `OPENFDA_API_KEY`, `EPO_OPS_KEY`, `EPO_OPS_SECRET` | From each provider's developer portal (EPO: `developers.epo.org`). |
 | `OPENAI_API_KEY` | Only for the API fallback model. |
+| `DASHBOARD_USERNAME` | The dashboard's one login. |
+| `DASHBOARD_PASSWORD_HASH` | Print it with `docker compose --profile app -f docker/docker-compose.yml --env-file .env run --rm --no-deps dashboard node scripts/hash-password.mjs` (it asks for the password without echoing it) and paste the printed line as is: the single quotes keep compose from reading the `$` signs in the hash. |
+| `DASHBOARD_SESSION_SECRET`, `CORE_HUB_WRITE_TOKEN` | Any strong values, e.g. `openssl rand -hex 32`. Changing the session secret signs everyone out; changing the write token needs both `core-hub` and `dashboard` restarted. |
 
 ## 2. Host settings (once)
 
 - **macOS:** Docker Desktop → Settings → Resources → Memory: **8 GB**, so a local model fits next to the stack on 24 GB.
 - **Linux:** `sudo sysctl -w vm.max_map_count=262144` and persist it in `/etc/sysctl.d/99-elasticsearch.conf`; Elasticsearch will not start without it.
 
-Then run the `up` command above. Airflow is at `http://localhost:8082`; its `admin` password is in `docker exec auspex-airflow cat /opt/airflow/simple_auth_manager_passwords.json.generated`.
+Then run the `up` command above. The dashboard is at `http://localhost:3001` (`DASHBOARD_PORT`). Airflow is at `http://localhost:8082`; its `admin` password is in `docker exec auspex-airflow cat /opt/airflow/simple_auth_manager_passwords.json.generated`.
 
 ## 3. Install the local model (once, on the host)
 

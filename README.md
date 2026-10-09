@@ -6,7 +6,7 @@ Local biotech signal research pipeline. Convergence of evidence across sources i
 
 ## Architecture
 
-Five public sources feed into `ingestion-scraper` (Python), which archives raw documents to MinIO and publishes extracted signals to Kafka. `core-hub` (Java/Spring) is the sole database writer: it consumes from Kafka, writes to Postgres (audit trail, signal state, corroborations) and Neo4j (signal graph), runs windowed corroboration, and exposes a REST API.
+Five public sources feed into `ingestion-scraper` (Python), which archives raw documents to MinIO and publishes extracted signals to Kafka. `core-hub` (Java/Spring) is the sole database writer: it consumes from Kafka, writes to Postgres (audit trail, signal state, corroborations) and Neo4j (signal graph), runs windowed corroboration, and exposes a REST API. The `dashboard` (Next.js) is the application's interface: the browser talks only to the dashboard's own server, which checks the single-user session and forwards to core-hub, the scraper and price-service. core-hub accepts writes only with the dashboard's bearer token and serves no CORS headers.
 
 **Hard boundary:** `ingestion-scraper` writes only to MinIO and Kafka — never the database. `core-hub` is the only process that touches Postgres or Neo4j.
 
@@ -18,6 +18,7 @@ Five public sources feed into `ingestion-scraper` (Python), which archives raw d
 |---|---|---|
 | [`ingestion-scraper`](services/ingestion-scraper/README.md) | Python 3.14, uv, Airflow-scheduled | Fetch → archive → pre-filter → LLM extract → publish. Stateless — no DB access. 5 connectors. |
 | [`core-hub`](services/core-hub/README.md) | Java 25, Spring Boot 4.1 | Kafka consumer, sole DB writer, corroboration engine, confidence scoring, REST API. |
+| [`dashboard`](services/dashboard/README.md) | Node 22, Next.js 16 | Control and research UI behind a single-user login; its route handlers forward to the backend services. Holds no data. |
 
 ---
 
@@ -54,6 +55,8 @@ curl http://localhost:8080/api/v1/signals/BEAM
 | Java: container tests | `cd services/core-hub && ./gradlew integrationTest` |
 | Java: everything | `cd services/core-hub && ./gradlew check` |
 | Backtesting: unit tests | `cd services/backtesting && uv run pytest tests/unit -q` |
+| Dashboard: lint, types, tests | `cd services/dashboard && npm ci && npm run lint && npx tsc --noEmit && npm run test:ci` |
+| Dashboard: build + bundle secret check | `cd services/dashboard && npm run build && npm run test:bundle` |
 | Smoke test | `./verify_pipeline.sh` |
 
 ---

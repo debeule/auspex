@@ -30,7 +30,7 @@ public class SignalQueryService {
     }
 
     public TickerSignalsResponse query(String ticker) {
-        List<DirectSignalDto> directSignals = queryDirectSignals(ticker);
+        List<DirectSignalDto> directSignals = directSignals(ticker);
         if (directSignals.isEmpty()) {
             return new TickerSignalsResponse(ticker, List.of(), List.of());
         }
@@ -39,7 +39,8 @@ public class SignalQueryService {
         return new TickerSignalsResponse(ticker, directSignals, corroboratedSignals);
     }
 
-    private List<DirectSignalDto> queryDirectSignals(String ticker) {
+    /** Signals that mention the company, newest first. */
+    public List<DirectSignalDto> directSignals(String ticker) {
         try (Session session = neo4jDriver.session()) {
             return session.run("""
                             MATCH (s:Signal)-[:MENTIONS]->(c:Company {ticker: $ticker})
@@ -49,6 +50,7 @@ public class SignalQueryService {
                                    s.summary                       AS summary,
                                    s.confidence_score              AS confidenceScore,
                                    s.published_date.epochSeconds   AS publishedAtEpoch
+                            ORDER BY publishedAtEpoch DESC, eventId
                             """,
                             Map.of("ticker", ticker))
                     .list(r -> new DirectSignalDto(

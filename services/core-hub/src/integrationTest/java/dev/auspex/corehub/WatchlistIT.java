@@ -4,6 +4,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.neo4j.driver.Session;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -23,6 +25,9 @@ class WatchlistIT extends AbstractIT {
 
     @Autowired
     WebApplicationContext webApplicationContext;
+
+    @Value("${auspex.api.write-token}")
+    String writeToken;
 
     MockMvc mockMvc;
 
@@ -44,6 +49,7 @@ class WatchlistIT extends AbstractIT {
                 """;
 
         mockMvc.perform(post("/api/v1/watchlist")
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + writeToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(addBody))
                 .andExpect(status().isCreated())
@@ -57,7 +63,7 @@ class WatchlistIT extends AbstractIT {
         assertThat(watchlistCount).isEqualTo(1);
         assertThat(geneTargetCount).isEqualTo(1);
 
-        mockMvc.perform(delete("/api/v1/watchlist/SRPT"))
+        mockMvc.perform(delete("/api/v1/watchlist/SRPT").header(HttpHeaders.AUTHORIZATION, "Bearer " + writeToken))
                 .andExpect(status().isNoContent());
 
         Integer afterDelete = jdbcTemplate.queryForObject(
@@ -113,6 +119,7 @@ class WatchlistIT extends AbstractIT {
                 """;
 
         mockMvc.perform(post("/api/v1/watchlist")
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + writeToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(body))
                 .andExpect(status().isBadRequest())

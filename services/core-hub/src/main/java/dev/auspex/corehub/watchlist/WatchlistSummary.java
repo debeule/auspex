@@ -1,5 +1,7 @@
 package dev.auspex.corehub.watchlist;
 
+import dev.auspex.corehub.rest.dto.DirectSignalDto;
+
 import java.time.Instant;
 import java.util.List;
 
@@ -7,7 +9,7 @@ public record WatchlistSummary(
         String ticker,
         String companyName,
         List<WatchlistGeneTargetStat> geneTargets,
-        List<Object> directSignals,
+        List<DirectSignalDto> directSignals,
         List<CorroborationRef> corroborations,
         Stats stats
 ) {

@@ -7,7 +7,7 @@ Verified current as of **2026-08-15**. Anything marked *resolve at install* must
 |---|---|---|
 | Python | **3.14.2** | Confirmed 2026-08-15. Airflow 3.2+ supports 3.10–3.14. |
 | Java | **25.0.1 (Temurin LTS)** | Confirmed 2026-08-15. Spring Boot 4.1 supports Java 17–26; Neo4j supports Java 25 from 2025.10. |
-| Node | **22.x LTS** | Resolved 2026-09-19. Node 22 is the active LTS line. Dashboard service only (`services/dashboard/`). Pin exact version in `.nvmrc` and `engines` field of `package.json`. |
+| Node | **22.23.3** | Resolved 2026-10-09 (latest 22.x LTS patch). Dashboard service only (`services/dashboard/`): `.nvmrc`, `package.json` `engines` and the image `node:22.23.3-alpine3.24`. |
 
 ## Infrastructure images (pin by digest where possible)
 | Component | Pin | Notes |
@@ -100,3 +100,19 @@ These were verified against **older** versions than we are now pinning. Confirm 
 | `CREATE CONSTRAINT ... IF NOT EXISTS FOR (n:L) REQUIRE ...` | Neo4j 5 | Neo4j schema setup (we are on Neo4j 2026.05) |
 | Spring Data Neo4j `BigDecimal` conversion behaviour | general SDN behaviour | graph writes (sidestepped by an explicit `double` converter) |
 | Kafka Streams internal topics are created via AdminClient regardless of `auto.create.topics.enable` | general Kafka behaviour | Kafka Streams correlation spec, if ever built |
+
+## Dashboard dependencies (`services/dashboard/`)
+Managed with **npm**; `package-lock.json` is committed and authoritative. Exact versions in `package.json`. Resolved 2026-10-09 from npm; `npm audit --omit=dev --audit-level=high` reports 0 (see `DECISIONS.md` for the dev-only residual).
+
+| Package | Pinned version |
+|---|---|
+| next | 16.4.0 |
+| react / react-dom | 19.3.0 |
+| bcryptjs | 3.0.3 |
+| typescript | 5.8.3 |
+| eslint / eslint-config-next | 9.39.1 / 16.4.0 |
+| tailwindcss / @tailwindcss/postcss | 4.3.3 |
+| vitest | 5.0.3 |
+| vite / @vitejs/plugin-react | 8.3.4 / 6.1.2 |
+| @testing-library/react | 16.3.3 |
+| jsdom | 26.1.0 |

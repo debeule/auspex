@@ -321,6 +321,7 @@ services:
       NEO4J_PASSWORD: ${NEO4J_PASSWORD}
       KAFKA_BOOTSTRAP_SERVERS: kafka:9094
       LOGGING_STRUCTURED_FORMAT_CONSOLE: ecs
+      CORE_HUB_WRITE_TOKEN: ${CORE_HUB_WRITE_TOKEN}
     ports:
       - "127.0.0.1:8080:8080"
     healthcheck:
@@ -329,6 +330,38 @@ services:
       timeout: 5s
       retries: 10
       start_period: 45s
+    labels:
+      co.elastic.logs/enabled: "true"
+
+  dashboard:
+    build:
+      context: ../services/dashboard
+      dockerfile: Dockerfile
+    image: auspex-dashboard
+    container_name: auspex-dashboard
+    profiles: ["app"]
+    restart: unless-stopped
+    depends_on:
+      core-hub:
+        condition: service_healthy
+    environment:
+      CORE_HUB_URL: ${CORE_HUB_URL}
+      SCRAPER_URL: ${SCRAPER_API_URL}
+      PRICE_SERVICE_URL: ${PRICE_API_URL}
+      CORE_HUB_WRITE_TOKEN: ${CORE_HUB_WRITE_TOKEN}
+      DASHBOARD_USERNAME: ${DASHBOARD_USERNAME}
+      DASHBOARD_PASSWORD_HASH: ${DASHBOARD_PASSWORD_HASH}
+      DASHBOARD_SESSION_SECRET: ${DASHBOARD_SESSION_SECRET}
+      DASHBOARD_SESSION_IDLE_MINUTES: ${DASHBOARD_SESSION_IDLE_MINUTES}
+    # Grafana holds 3000 on the host.
+    ports:
+      - "127.0.0.1:${DASHBOARD_PORT:-3001}:3000"
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/api/health').then(r => process.exit(r.ok ? 0 : 1), () => process.exit(1))"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
     labels:
       co.elastic.logs/enabled: "true"
 

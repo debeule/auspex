@@ -49,3 +49,8 @@ management:
   metrics:
     tags:
       service: core-hub
+
+auspex:
+  api:
+    # Bearer token required on every non-GET request under /api.
+    write-token: ${CORE_HUB_WRITE_TOKEN:}

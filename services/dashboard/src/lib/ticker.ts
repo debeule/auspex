@@ -8,6 +8,9 @@ export function formatConfidence(score: number): string {
   return `${(score * 100).toFixed(1)}%`;
 }
 
-export function formatDate(iso: string): string {
-  return iso.slice(0, 10);
+/** An API timestamp as `YYYY-MM-DD HH:MM UTC`, whatever the viewer's time zone. */
+export function formatUtc(iso: string): string {
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return iso;
+  return `${date.toISOString().slice(0, 16).replace('T', ' ')} UTC`;
 }

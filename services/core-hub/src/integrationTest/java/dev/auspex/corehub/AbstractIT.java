@@ -34,7 +34,7 @@ import java.util.concurrent.ExecutionException;
         }
 )
 @Import(TestContainersConfig.class)
-abstract class AbstractIT {
+public abstract class AbstractIT {
 
     @Autowired
     protected JdbcTemplate jdbcTemplate;
@@ -55,7 +55,7 @@ abstract class AbstractIT {
     protected TestCorroboratedListener testCorroboratedListener;
 
     @BeforeEach
-    void cleanState() throws Exception {
+    protected void cleanState() throws Exception {
         jdbcTemplate.execute(
                 "TRUNCATE raw_fetch_audit, signal_current, signal_extraction_history, source_observation, corroboration, corroboration_state RESTART IDENTITY CASCADE");
         try (Session session = neo4jDriver.session()) {
