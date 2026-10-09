@@ -106,6 +106,6 @@ Then:
 
 Budget estimate: ~26,000 LLM calls at `gpt-4o-mini-2024-07-18` pricing ≈ $65 (API). For a local model the estimate is documents × mean latency from the latency record `evaluate_model.py` writes on the stack machine (24 GB M4 Pro); the dry run prints it. Run under `caffeinate -i` and rely on checkpoints for restarts. Set `BACKFILL_TIME_CEILING_HOURS` to the dry-run estimate plus about a third before starting. `.env.example` must document both ceiling variables.
 
-Structured sources (`specs/structured-source-extraction.md`: Form 4, offerings) make no LLM call and are stamped `extraction_model = "structured:<mapper>"`. The single-lineage check below applies to LLM-extracted rows; structured rows are checked separately for one mapper version per source.
+Structured sources (`specs/hold/structured-source-extraction.md`, on hold since 2026-10-07: Form 4, offerings) make no LLM call and are stamped `extraction_model = "structured:<mapper>"`. The single-lineage check below applies to LLM-extracted rows; structured rows are checked separately for one mapper version per source.
 
 The single-lineage requirement means: before backtesting, verify `SELECT DISTINCT extraction_model FROM signal_extraction_history WHERE published_date >= backfill_start` returns exactly one model identifier. If it returns more than one, re-extract the minority under the backfill model before computing Phase 4 metrics.

@@ -11,7 +11,7 @@
 
 ## Context
 
-Short interest is free, company-level and orthogonal to document signals (2026-10-07 edge feasibility audit, row 9, marked inferred). It is also an input the `portfolio-and-risk` spec lists as a deferred "short interest data auto-feed" for its short guard.
+Short interest is free, company-level and orthogonal to document signals (2026-10-07 edge feasibility audit, row 9, marked inferred). It is one of the three components of the holdings composite (H9, `specs/holdings-composite-score.md`), whose pre-registered component choice depends on how far back the history goes, so the first available settlement date must be reported. It is also an input the `portfolio-and-risk` spec lists as a deferred "short interest data auto-feed" for its short guard.
 
 Unlike the other row-9 sources, short interest is a time series per ticker, published twice a month, not a document. It belongs with price data, not in the document pipeline: `services/backtesting` already snapshots OHLCV to MinIO bucket `auspex-prices` once and reads snapshots thereafter (requirements §8). This spec follows that pattern instead of adding a `SourceConnector`, which deviates from the audit's "new connectors and `sources.yaml` entries" for this one source; the reason is recorded in `DECISIONS.md` 2026-10-07.
 
@@ -53,6 +53,7 @@ In `services/backtesting/tests/unit/test_short_interest.py`:
 - `test_short_interest_pct_of_shares_is_null_when_shares_outstanding_unknown`
 - `test_fetcher_stores_publication_date_from_the_finra_calendar_not_settlement_date`
 - `test_period_already_stored_is_not_refetched`
+- `test_coverage_report_states_first_available_settlement_date`
 
 ## Definition of done
 
@@ -60,6 +61,6 @@ In `services/backtesting/tests/unit/test_short_interest.py`:
 cd services/backtesting && uv run pytest tests/unit/test_short_interest.py -q --strict-markers
 ```
 
-Expected: 8 passed.
+Expected: 9 passed.
 
-Then: one live fetch for the watchlist tickers over the backfill window; history depth and any gaps recorded in `DECISIONS.md`. `services/backtesting` README updated; `CLAUDE.md` naming table describes `auspex-prices` as market and reference data snapshots if the point-in-time universe has not already changed it.
+Then: one live fetch for the universe tickers (watchlist if the universe has not landed) from the earliest available period; history depth, the first available settlement date, and any gaps recorded in `DECISIONS.md`. `services/backtesting` README updated; `CLAUDE.md` naming table describes `auspex-prices` as market and reference data snapshots if the point-in-time universe has not already changed it.

@@ -686,6 +686,66 @@ Create a free account at quay.io if you don't have one. No organisation-specific
 **What:** Production refuses a model without a passing gate record at the active prompt version, and the default is now `v1.1`. No `v1.1` record exists.
 **Action:** On the backfill machine, run `score_extraction.py --model <chosen tag>` (the scripts default to `v1.1`) after `evaluate_model.py`, as in `docs/local-model-runbook.md`. The golden set has no labels for the new fields yet, so the gate still measures `is_signal` precision only; the new fields are reported once documents carry their labels (`tests/golden/FORMAT.txt`).
 
+
+## 2026-10-07 — Edge research scoping — CHOICE — edge research synthesis: the alpha path becomes slow monthly scores
+**What:** Three independent research reports (`/mnt/project-files/research/edge-result-{1,2,3}.md`) were weighed against each other and the repo. Where they agree:
+- No fast biotech event trade survives a ~1.8–2.0% Belgian round trip entered at T+1 (reports 1 and 3; trial and FDA news is priced within one or two sessions).
+- What survives is slow and cross-sectional, rebalanced monthly or slower, on structured data with no LLM in the signal (report 1: specialist 13F ownership, insider buying, low short interest; report 3: year-on-year 10-K/10-Q text change).
+- Trade structure: long stock only, a basket of 15+ names at roughly equal risk, no hold through known catalysts, no shorts, no options (report 2; reports 1 and 3 do not need either).
+- Negative events are worth using only as a veto on longs, not as shorts (reports 1 and 2).
+- Gene-target corroboration (H1–H8 as designed) cannot reach the promotion t on 50–150 events (report 1), and was already suspended by pre-registration.
+Where they disagree: report 1 stays in biotech with a holdings composite; report 3 pivots the alpha target to filing-text change across US small and mid caps and keeps biotech as a research tool. Both are honest about weak evidence: report 1's rests on one practitioner backtest (Verdad 2026, PDF not read); report 3's has null large-cap replications after 2009 and most original alpha on the short side.
+**Why it matters:** both directions need the same base (point-in-time universe with delisted names, a monthly portfolio engine, realistic costs, pre-registration) and neither needs the LLM backfill on its critical path.
+**Action:** new specs `slow-signal-preregistration`, `cross-sectional-portfolio-backtest`, `sec-ownership-datasets`, `holdings-composite-score`, `filing-text-change-score`. Changed: `forward-paper-trading` (portfolio mode, tracking check), `point-in-time-universe` (one rules file per universe), `short-interest-snapshots` (report first available date). On hold: `insider-buying-connector`, `equity-offering-connector`, `structured-source-extraction`. Deprioritised: `company-program-corroboration`. Unchanged and still valid: PR #13, #14, #15 (extended, not changed), #16, #18, `catalyst-calendar`, `fda-advisory-committee-connector`, `historical-backfill` (feeds the H3 diagnostic and the negative-event veto; off the critical path).
+
+## 2026-10-07 — Edge research scoping — BLOCKED — biotech holdings composite, filing-text change, or both
+**What:** The one conflict between the research reports. Options:
+- A) Biotech only: H9 holdings composite plus the negative-event veto. No filing-text work.
+- B) Pivot: H10 filing-text change on a broad US small and mid-cap universe first; biotech composite later or never.
+- C) Both on the shared base: H9 and H10 on the biotech universe, then H10 on the broad universe as a second universe file (recommended).
+**Why C:** the shared base is most of the work; once it exists, the second score is one spec (`filing-text-change-score`, no new service, no LLM). Two independent, pre-registered tests on disjoint data roughly double the chance that something real is found, without spending one family's trial budget on the other. Running H10 on biotech first is cheap (a few thousand filings a year) and its broad-universe run is the riskiest part (free delisted prices for thousands of small caps may trip the survivorship kill criterion before the signal is tested).
+**Action:** asked the user. `sec-ownership-datasets`, `holdings-composite-score` and `filing-text-change-score` stay blocked on the answer; record it here as a CHOICE.
+
+## 2026-10-07 — Edge research scoping — FLAG — 20-day volatility in docs/strategy-research.md is about three times too low
+**What:** The MDE rows use a 20-day σ of about 7% for stocks described as 80% annualised volatility. 80% × √(20/252) ≈ 22.5%. Minimum detectable effects in those rows are therefore about three times too optimistic (report 1). The forward check's "60 independent events, clustered t > 2" needs a mean net abnormal return of about 5.8% per event at 22.5%.
+**Why it matters:** no event hypothesis in the registry expects 5.8% net per event, so the event branch of the forward check is very unlikely to pass for any of them. It is not wrong; it is strict.
+**Action:** `specs/slow-signal-preregistration.md` corrects the MDE rows (no threshold changes). The event forward check stays as the user accepted it.
+
+## 2026-10-07 — Edge research scoping — FLAG — paper trading cannot prove a monthly portfolio's edge in 12 months
+**What:** The user's framing (2026-10-07): paper trading comes first and tells us what capital is justified. That holds, with one correction for slow strategies: 12 monthly returns cannot reach t > 2 unless the annualised Sharpe is above 2. For portfolio hypotheses the statistical case has to come from the long backtest and its sealed holdout (about 13 years of 13F data for H9, about 11 for H10), and paper trading shows that the live system reproduces the backtest at each capital tier (fills, costs, data timeliness).
+**Options considered:** A) keep the event forward check for portfolios (unreachable); B) a portfolio branch: 12 months, no ledger gaps, paper-versus-replay tracking within ±2% a year, paper net excess not below the in-sample mean minus two standard errors (proposed); C) no forward check for portfolios (drops the only unseen data).
+**Action:** B written into `specs/slow-signal-preregistration.md` and `specs/forward-paper-trading.md`. The ±2% tolerance is a proposal; the user owns it. A change to the locked protocol, so it is registered as `protocol.yaml` version 2 before any new data is joined to returns.
+
+## 2026-10-07 — Edge research scoping — CHOICE — ownership and insider data are snapshots, not connectors
+**What:** 13F holdings, insider transactions and short interest are time-series panels joined to a monthly score. They are built in `services/backtesting` from SEC and FINRA bulk data and stored in MinIO `auspex-prices`, like prices, instead of flowing through the scraper, Kafka, core-hub and Neo4j as documents. The same goes for the 10-K/10-Q Item 1A panel.
+**Why it matters:** the document pipeline exists to extract events with an LLM; these sources have nothing to extract, and bulk data sets avoid tens of thousands of per-filing requests under the SEC's 10 req/s limit. Invariants 1 and 2 are untouched (the scraper is not involved; nothing writes Postgres or Neo4j).
+**Options considered:** A) `SourceConnector`s on the structured-mapper path (second-wave specs); B) snapshot panels in `services/backtesting` (chosen).
+**Action:** `specs/sec-ownership-datasets.md`, `specs/filing-text-change-score.md`; Form 4, offering and structured-extraction specs moved to `specs/hold/` with reasons.
+
+## 2026-10-07 — Edge research scoping — FLAG — a hand-made specialist fund list is look-ahead
+**What:** Report 1 proposes "a fixed, dated list of healthcare-dedicated 13F filers". A list written today selects funds known now to be successful biotech investors.
+**Action:** `specs/sec-ownership-datasets.md` classifies specialists by rule from the 13F data as of each quarter (at least half of reported value in healthcare SIC codes, at least $100M reported), thresholds in `.env` and recorded in H9.
+
+## 2026-10-07 — Edge research scoping — CHOICE — deferred items
+**What:** Not specified now, with the reason:
+- Quiet ClinicalTrials.gov changes (report 1's H11): needs registry version history whose availability is unverified; no published evidence. Revisit after the veto runs on the backfill.
+- Options, shorts and a traded XBI hedge (report 2): disabled by protocol ceiling; XBI beta is measured in every portfolio report. US-domiciled XBI cannot be bought by EU retail accounts without a KID; the hedge would be a short leg.
+- IBKR live-trading mechanics (report 2: limit orders, intent ids as order references, morning reconciliation, weekly re-authentication, extra kill switches): belong in a live-trading spec written after a forward check passes. `docs/PREREQUISITES.md` already gates live trading on paper results.
+- Belgian 33% speculation-risk ruling request (report 2): a user action before live trading at scale, not code.
+**Action:** none until the conditions above are met.
+
+## 2026-10-08 — Edge research scoping — CHOICE — quarterly banded rotation; catalysts as a guard, not a trigger
+**What:** The user pushed back on "hold one month, swap to the new top 15" and asked whether trading around known events would be better. Two follow-up reports (`/mnt/project-files/research/edge-result-4.md`, `belgian-costs.md`) found:
+- None of H9, H10 or gene-target convergence pays smoothly through the calendar. Each pays when later news arrives (readouts, financings, earnings) over 3 to 18 months. A hard monthly top-15 cut turns over about 40% a month and costs about 6% a year. Hold bands (enter at rank 15, exit below rank 30) cost about 2.5% a year.
+- Catalyst-timed entries do not beat that. The median 30-day pre-PDUFA or readout run-up is about zero (pdufa.bio, raw, not peer-reviewed). Holding through a binary has an expected value near zero with a fat left tail. Catalyst cycling costs 10 to 12.5% a year and shortens holds into the range where the 33% speculation rate is a risk.
+- The round trip is about 1.25% (1.1 to 1.4%) for liquid small and mid caps, not about 2%. 0.70% of it is TOB, which cannot be avoided. Micro-caps cost 2 to 4%. FX is about 0 with a USD-held IBKR account. No structure lowers per-trade cost: a BV pays the same TOB and 25% on each winning sale, CFDs are banned for Belgian retail, and options cost more in spread. Stay a private person at all three capital tiers.
+**Action:** H9 now scores monthly but trades quarterly, at least 10 days after each 13F deadline. It uses hold bands 15/30, a $500M / $2M liquidity floor (with a `no_floor` variant), days to cover instead of short interest over float, insider `P` buys excluding offering participation, and a `skip_entry` catalyst guard. Declared trial cells cover cadence, guard mode and floor (32), with `holdings_panel` budget 36. Inside biotech, H10 becomes an exclusion filter on H9 (the alpha sits with the changers; the no-change long leg reverts to zero). Broad-market H10 stays a separate standalone test. The portfolio forward check adds per-trade slippage, average holding period and a data-gap definition. The cost model defaults change to `FX_FEE_RATE` 0 and `MIN_HALF_SPREAD_BPS` 10. Specs updated: `slow-signal-preregistration`, `cross-sectional-portfolio-backtest`, `holdings-composite-score`, `sec-ownership-datasets`, `forward-paper-trading`.
+
+## 2026-10-08 — Edge research scoping — CHOICE — two non-LLM panels before the LLM backfill
+**What:** The guard and the diagnostics need point-in-time catalyst dates and registry edit history. The LLM-based `catalyst-calendar` needs the schema change and the backfill first. `specs/catalyst-date-panel.md` builds PDUFA dates (8-K press-release phrase rules) and AdCom dates (Federal Register) without an LLM. `specs/clinicaltrials-version-diffs.md` builds registry edit history (ClinicalTrials.gov record history or AACT monthly archives) for H11, now registered as a diagnostic in both directions. This supersedes the "quiet ClinicalTrials.gov changes" line in the 2026-10-07 deferred-items entry. H12 (pre-catalyst run-up) is registered as a diagnostic to settle whether catalyst-timed entries are worth testing at all.
+**Why it matters:** the LLM backfill now waits until these diagnostics show that catalyst windows or registry edits carry return. `catalyst-calendar` and `fda-advisory-committee-connector` remain the live, LLM-based path and keep their place.
+**Action:** both specs written and blocked on the point-in-time universe. The user's direction decision is still open.
+
 ## 2026-10-08 — Point-in-time universe — CHOICE — how the monthly list is derived from free SEC data
 
 **What:** `specs/point-in-time-universe.md` leaves the mechanics of deriving listing history, tickers and market cap from SEC's bulk data open. Choices made for the monthly list (`auspex_backtesting.universe`):
@@ -770,3 +830,21 @@ Create a free account at quay.io if you don't have one. No organisation-specific
 4. **Share counts** come from `dei:EntityCommonStockSharesOutstanding`, which small filers report from mid-2011, so 2014 is covered. A missing count still keeps the company.
 **Risk, unchanged in kind:** free price sources keep few names delisted before 2019. Those members stay in the snapshots with `price_coverage = none`, their events are excluded and counted, and the protocol's `survivorship` kill criterion reads the excluded share. The first build records coverage split into 2014–2018 and 2019 onward (`specs/first-run-on-stack-machine.md` step 3).
 **Action:** `rules.yaml`, `universe/sec_index.py`, `UniverseBuildJob(backfill_start=, price_history_start=)`, `.env.example` and compose (`SEC_ARCHIVES_URL`, `BACKFILL_SCOPE_START`); `specs/point-in-time-universe.md` and `specs/first-run-on-stack-machine.md` (the separate 2014 build step is gone).
+
+## 2026-10-08 — Edge research scoping — CHOICE — direction: both
+**What:** The user answered the 2026-10-07 BLOCKED entry "biotech holdings composite, filing-text change, or both" with the default: both, on a shared base. H9 (holdings composite) runs in the biotech universe with H10 (Item 1A change) as its exclusion filter; H10 also runs as a standalone promotable test on broad US small and mid caps ($500M–$10B), on its own universe file `us_small_mid`.
+**Why it matters:** `specs/slow-signal-preregistration.md` registers both; `specs/filing-text-change-score.md` adds the second universe file.
+**Action:** direction blockers removed from slow-signal-preregistration, sec-ownership-datasets and filing-text-change-score.
+
+## 2026-10-08 — Edge research scoping — CHOICE — portfolio paper-trading pass rule
+**What:** The user accepted the forward check for portfolio strategies as an implementation check, not new statistical evidence: 12 months with no data gaps (as defined in `specs/forward-paper-trading.md`), paper returns within ±2%/yr of a backtest replay over the same months, paper excess at least the in-sample mean minus 2 SE, with slippage and average holding period reported. The statistical case comes from the backtest and the one-time holdout read. Live capital waits on this check per tier.
+**Action:** as written in `specs/forward-paper-trading.md` and protocol v2 in `specs/slow-signal-preregistration.md`.
+
+## 2026-10-08 — Edge research scoping — CHOICE — build order
+**What:** The user accepted the default order: pre-registration, then the structured SEC base (ownership panels, then holdings score and the portfolio backtest), then the two non-LLM panels (`catalyst-date-panel`, `clinicaltrials-version-diffs`), and the LLM historical backfill after those.
+**Action:** pre-registration, SEC ownership datasets and catalyst date panel set `ready` in TODO.md in that order.
+
+## 2026-10-08 — Edge research scoping — FLAG — universe window
+**What:** The merged universe (`config/universe/rules.yaml`) starts at 2023-03, sized for the event backfill. The slow-signal study registers in-sample 2014–2021 and holdout 2022–2025, so it needs the universe to cover 2014 onward, with price history from 2013 (`PRICE_HISTORY_START`, set on develop by the first-run spec). Free delisted price coverage over that span is the main survivorship risk (protocol `survivorship` kill criterion).
+**Resolution (user, 2026-10-09):** one universe, not a second rules version. The existing universe is extended to start in 2014 (thread "Build point-in-time stock universe"); the event backfill reads the same universe from its own start date.
+**Action:** blocker 4 of `specs/cross-sectional-portfolio-backtest.md` depends on that extended universe: needed before any H9 or H10 run, not before the code.
