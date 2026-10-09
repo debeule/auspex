@@ -52,6 +52,7 @@ Fill in what only you have:
 
 - **macOS:** Docker Desktop → Settings → Resources → Memory: **8 GB**, so a local model fits next to the stack on 24 GB.
 - **macOS:** `brew install node_exporter && brew services start node_exporter`. Prometheus reads the Mac's own CPU, memory and disk from it at `host.docker.internal:9100`; inside Docker only the VM is visible, not Ollama's memory or the Mac's disk. Optional: without it the Mac panels on the Auspex Infrastructure dashboard stay empty and one info alert fires.
+- **Docker Hub (optional):** `docker login` with a free Docker Hub account. The first `up` pulls about ten images, and Docker Hub limits anonymous pulls per IP.
 - **Linux:** `sudo sysctl -w vm.max_map_count=262144` and persist it in `/etc/sysctl.d/99-elasticsearch.conf`; Elasticsearch will not start without it.
 
 Then run the `up` command above. The dashboard is at `http://localhost:3001` (`DASHBOARD_PORT`). Airflow is at `http://localhost:8082`; its `admin` password is in `docker exec auspex-airflow cat /opt/airflow/simple_auth_manager_passwords.json.generated`.

@@ -27,8 +27,8 @@ from auspex_ingest.storage.minio_client import MinioArchive
 
 os.environ.setdefault("TESTCONTAINERS_RYUK_DISABLED", "true")
 
-_LOCALSTACK_IMAGE = "mirror.gcr.io/localstack/localstack:4.9.2"
-_KAFKA_IMAGE = "mirror.gcr.io/confluentinc/cp-kafka:7.6.0"
+_LOCALSTACK_IMAGE = "localstack/localstack:4.9.2"
+_KAFKA_IMAGE = "confluentinc/cp-kafka:7.6.0"
 _BUCKET = "auspex-test-api"
 _RAW_TOPIC = "auspex.raw.ingested"
 _SIG_TOPIC = "auspex.signals.extracted"

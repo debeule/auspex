@@ -965,3 +965,12 @@ Where they disagree: report 1 stays in biotech with a holdings composite; report
 **What:** Nothing has run in production, so every artifact with a second version collapses to one: the extraction prompt is `v1` (the company-level text, formerly `v1.1`; `v1.0` and the old `v1` deleted); the hand-written gpt-4o-mini gate record and `config/prefilter/v1.yaml` are deleted; the event schema is `1.0` with the company-level fields required in Java (only `primary_company` nullable); `LLMExtractor` and `dag_factory.py` are deleted, with the cursor tests moved to the real HTTP DAG; `docs/plan.md` is deleted; strategy parameter files and the H8 `negative_asymmetry` strategy are deleted, so hypothesis files are the only parameter source; the watchlist-alerts hold spec reads the V3 tables; compose reads every `.env.example` variable as a bare `${VAR}`, matching the monitoring variables. Flyway `V4__company_level_fields.sql` keeps its frozen header saying "schema 1.1"; it predates this reset and is checksummed.
 **Action:** `specs/done/single-source-cleanup.md`.
 
+
+## 2026-10-09 — Dashboard — CHOICE — Node 24 LTS, actions on Node 24
+**What:** The dashboard moves from Node 22.23.3 to 24.21.0 (`.nvmrc`, `engines`, `@types/node` 24.19.0, image `node:24.21.0-alpine3.24`). Node 24 has been the Active LTS line since October 2025 and is supported to April 2028; Node 22 is in maintenance to April 2027. The 2026-09-19 entry's "Node 24 is not yet LTS" no longer holds. Every GitHub Action moves to its current major, all on the Node 24 runtime (GitHub deprecated Node 20 for actions): checkout v7, setup-node v7, setup-python v7, setup-java v6, cache v6, upload-artifact v7, setup-uv v7, login-action v4.
+**Options considered:** stay on 22 (maintenance only); Node 26 (not LTS until late October 2026).
+**Action:** `services/dashboard/`, `.github/workflows/`, VERSIONS.md, README.md.
+
+## 2026-10-09 — CI — CHOICE — one prefix for every test image
+**What:** Test images are named as on Docker Hub and both container-test jobs set `TESTCONTAINERS_HUB_IMAGE_NAME_PREFIX=mirror.gcr.io/`, replacing the per-test `mirror.gcr.io/...` and `docker.elastic.co/...` names. Python's Testcontainers prepends the prefix to every image name, so the Elasticsearch test uses the Docker Hub official `elasticsearch:8.17.3` (same version as compose, which keeps `docker.elastic.co`). The Python job also disables Ryuk, whose own image would otherwise get the prefix.
+**Action:** `.github/workflows/python.yml`, the integration tests, CLAUDE.md known traps, VERSIONS.md.

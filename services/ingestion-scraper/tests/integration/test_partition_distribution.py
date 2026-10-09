@@ -10,7 +10,7 @@ from testcontainers.community.kafka import KafkaContainer
 
 os.environ.setdefault("TESTCONTAINERS_RYUK_DISABLED", "true")
 
-_KAFKA_IMAGE = "mirror.gcr.io/confluentinc/cp-kafka:7.6.0"
+_KAFKA_IMAGE = "confluentinc/cp-kafka:7.6.0"
 _TOPIC = "auspex.signals.extracted"
 _NUM_PARTITIONS = 6
 _MESSAGE_COUNT = 120

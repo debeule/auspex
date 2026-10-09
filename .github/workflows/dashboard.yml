@@ -37,10 +37,10 @@ jobs:
       DASHBOARD_SESSION_SECRET: ci-session-secret-sentinel
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Set up Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version-file: services/dashboard/.nvmrc
           cache: npm
@@ -74,7 +74,7 @@ jobs:
       DOCKERHUB_USERNAME: ${{ vars.DOCKERHUB_USERNAME || secrets.DOCKERHUB_USERNAME }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       # Docker Hub rate-limits anonymous pulls per runner IP; the mirror serves cached official images and falls back to Docker Hub.
       - name: Pull base images through a registry mirror
@@ -89,7 +89,7 @@ jobs:
       - name: Log in to Docker Hub
         if: env.DOCKERHUB_USERNAME != ''
         continue-on-error: true
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           username: ${{ env.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}

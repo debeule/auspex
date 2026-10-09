@@ -18,7 +18,7 @@ Five public sources feed into `ingestion-scraper` (Python), which archives raw d
 |---|---|---|
 | [`ingestion-scraper`](services/ingestion-scraper/README.md) | Python 3.14, uv, Airflow-scheduled | Fetch → archive → pre-filter → LLM extract → publish. Stateless — no DB access. 5 connectors. |
 | [`core-hub`](services/core-hub/README.md) | Java 25, Spring Boot 4.1 | Kafka consumer, sole DB writer, corroboration engine, confidence scoring, REST API. |
-| [`dashboard`](services/dashboard/README.md) | Node 22, Next.js 16 | Control and research UI behind a single-user login; its route handlers forward to the backend services. Holds no data. |
+| [`dashboard`](services/dashboard/README.md) | Node 24, Next.js 16 | Control and research UI behind a single-user login; its route handlers forward to the backend services. Holds no data. |
 
 ---
 

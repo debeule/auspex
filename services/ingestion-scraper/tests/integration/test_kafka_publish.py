@@ -20,7 +20,7 @@ from auspex_ingest.storage.minio_client import minio_key
 
 os.environ.setdefault("TESTCONTAINERS_RYUK_DISABLED", "true")
 
-_KAFKA_IMAGE = "mirror.gcr.io/confluentinc/cp-kafka:7.6.0"
+_KAFKA_IMAGE = "confluentinc/cp-kafka:7.6.0"
 _UTC = UTC
 _T0 = datetime(2024, 6, 15, 12, 0, 0, tzinfo=_UTC)
 _SCHEMA = "1.0"

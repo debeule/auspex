@@ -1,17 +1,17 @@
 # Node version matches .nvmrc and VERSIONS.md.
-FROM node:22.23.3-alpine3.24 AS deps
+FROM node:24.21.0-alpine3.24 AS deps
 WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci
 
-FROM node:22.23.3-alpine3.24 AS build
+FROM node:24.21.0-alpine3.24 AS build
 WORKDIR /app
 ENV NEXT_TELEMETRY_DISABLED=1
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 RUN npm run build
 
-FROM node:22.23.3-alpine3.24 AS runtime
+FROM node:24.21.0-alpine3.24 AS runtime
 WORKDIR /app
 ENV NODE_ENV=production \
     NEXT_TELEMETRY_DISABLED=1 \

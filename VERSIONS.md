@@ -7,7 +7,7 @@ Verified current as of **2026-08-15**. Anything marked *resolve at install* must
 |---|---|---|
 | Python | **3.14.2** | Confirmed 2026-08-15. Airflow 3.2+ supports 3.10–3.14. |
 | Java | **25.0.1 (Temurin LTS)** | Confirmed 2026-08-15. Spring Boot 4.1 supports Java 17–26; Neo4j supports Java 25 from 2025.10. |
-| Node | **22.23.3** | Resolved 2026-10-09 (latest 22.x LTS patch). Dashboard service only (`services/dashboard/`): `.nvmrc`, `package.json` `engines` and the image `node:22.23.3-alpine3.24`. |
+| Node | **24.21.0** | Resolved 2026-10-09 (latest 24.x patch; 24 is the Active LTS line, supported to 2028-04). Dashboard service only (`services/dashboard/`): `.nvmrc`, `package.json` `engines`, `@types/node` 24.x and the image `node:24.21.0-alpine3.24`. |
 
 ## Infrastructure images (pin by digest where possible)
 | Component | Pin | Notes |
@@ -16,7 +16,7 @@ Verified current as of **2026-08-15**. Anything marked *resolve at install* must
 | PostgreSQL | `postgres:18.6` | 18 is current; **19 is in beta — do not use.** |
 | Neo4j | `neo4j:2026.05-community` | Neo4j moved to calendar versioning; the 5.x line ended at 5.26 LTS. **See open question 4.** |
 | MinIO | `quay.io/minio/minio:RELEASE.2025-09-07T16-13-09Z` | Compose stack only. quay.io requires auth — not usable in CI without secrets. |
-| LocalStack (testcontainers) | `localstack/localstack:4.9.2` | Integration tests only, pulled through `mirror.gcr.io` (Docker Hub rate limits in CI). Replaces minio/minio (removed from Docker Hub; quay.io requires auth). **Do not move to calendar-versioned tags (`2026.x`)** — from 2026.03 the image exits with code 55 unless `LOCALSTACK_AUTH_TOKEN` is set. 4.9.2 is the last tag verified to start without a licence (2026-10-07). |
+| LocalStack (testcontainers) | `localstack/localstack:4.9.2` | Integration tests only; CI pulls it through `mirror.gcr.io` (`TESTCONTAINERS_HUB_IMAGE_NAME_PREFIX`). Replaces minio/minio (removed from Docker Hub; quay.io requires auth). **Do not move to calendar-versioned tags (`2026.x`)** — from 2026.03 the image exits with code 55 unless `LOCALSTACK_AUTH_TOKEN` is set. 4.9.2 is the last tag verified to start without a licence (2026-10-07). |
 | Airflow | `apache/airflow:3.3.1` | Orchestration (ingestion, price refresh, universe build DAGs). Python 3.14 compatible. |
 | Ollama (host, not a container) | *resolve at install* | Local extraction model server. Record `ollama --version` here when installed (`docs/local-model-runbook.md`). Model weights are pinned by digest in `config/models/registry.yaml`, not here. |
 
