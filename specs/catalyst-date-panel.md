@@ -1,7 +1,8 @@
 # Catalyst Date Panel
 
-**Status:** ready
-**Blocked by:** none. `specs/point-in-time-universe.md` is done in code (PR #21, #22) and supplies the CIKs, names and ticker history that catalysts are matched to; the stack backfill needs its first build. EDGAR press-release content (PR #16, merged) supplies the Exhibit 99.1 selection rules this spec reuses for its own fetches.
+**Status:** blocked
+**Blocked by:** the first panel build on the stack machine (Definition of done, second block; `specs/first-run-on-stack-machine.md` step 3a). All code and all 10 required tests are in (`auspex_backtesting.catalysts`, `scripts/build_catalyst_panel.py`); neither SEC nor the Federal Register is reachable from cloud sessions (`DECISIONS.md` 2026-10-09 PENDING).
+**Was blocked by:** none. `specs/point-in-time-universe.md` is done in code (PR #21, #22) and supplies the CIKs, names and ticker history that catalysts are matched to; the stack backfill needs its first build. EDGAR press-release content (PR #16, merged) supplies the Exhibit 99.1 selection rules this spec reuses for its own fetches.
 
 **Branch:** `feature/catalyst-date-panel`
 

@@ -10,6 +10,14 @@ from flask import Flask, jsonify, request
 from flask.typing import ResponseReturnValue
 from minio import Minio
 
+from auspex_backtesting.catalysts import (
+    AdvisoryCommitteeNotices,
+    CatalystPanel,
+    DocumentCache,
+    HttpSource,
+    PressReleaseCatalystExtractor,
+)
+from auspex_backtesting.catalysts.job import CatalystPanelBuild, universe_members
 from auspex_backtesting.prices.price_refresher import (
     PriceDataUnavailableError,
     PriceRefresher,
@@ -25,6 +33,7 @@ from auspex_backtesting.universe.job import (
     UniverseBuildJob,
     UniverseConfigError,
 )
+from auspex_backtesting.universe.rules import load_rules
 from auspex_backtesting.universe.sec_index import InstanceDocuments
 from auspex_backtesting.universe.store import RulesVersionError, UniverseStore
 
@@ -94,6 +103,34 @@ def universe_job_from_env() -> UniverseBuildJob:
         SnapshotPrices(refresher_from_env(), PriceSnapshotStore(client), SplitStore(client)),
         backfill_start=date.fromisoformat(os.environ["BACKFILL_SCOPE_START"]),
         price_history_start=date.fromisoformat(os.environ["PRICE_HISTORY_START"]),
+    )
+
+
+# SEC allows 10 requests per second across its hosts; the panel build stays at half that.
+_SEC_INTERVAL_S = 0.2
+_FEDERAL_REGISTER_INTERVAL_S = 1.0
+
+
+def catalyst_build_from_env() -> CatalystPanelBuild:
+    client = _minio_from_env()
+    cache = DocumentCache(client)
+    user_agent = os.environ["SEC_USER_AGENT"]
+    rules_version = load_rules(Path(os.environ["UNIVERSE_RULES_PATH"])).version
+    store = UniverseStore(client)
+    return CatalystPanelBuild(
+        CatalystPanel(client),
+        PressReleaseCatalystExtractor(
+            os.environ["SEC_FULL_INDEX_URL"],
+            os.environ["SEC_ARCHIVES_URL"],
+            HttpSource(user_agent, _SEC_INTERVAL_S),
+            cache,
+        ),
+        AdvisoryCommitteeNotices(
+            os.environ["FEDERAL_REGISTER_API_URL"],
+            HttpSource(user_agent, _FEDERAL_REGISTER_INTERVAL_S),
+            cache,
+        ),
+        lambda: universe_members(store, rules_version),
     )
 
 

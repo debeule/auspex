@@ -135,6 +135,30 @@ Then, per the point-in-time universe spec's definition of done:
 - Move `specs/point-in-time-universe.md` to `specs/done/`, set its status to `done`, update its `TODO.md` row and link.
 - Commit: `point-in-time universe first build: coverage, backfill scope, spec done`.
 
+### 3a. Catalyst date panel (after step 3)
+
+Precondition: step 3 passed (the panel matches catalysts to the universe's companies) and `services/backtesting/src/auspex_backtesting/catalysts/` exists on `develop`; otherwise record "not run" with the reason and skip. This is the first live read of EDGAR's quarterly index and the Federal Register API (`DECISIONS.md` 2026-10-09 PENDING "sources unreachable from the cloud session"). It reads one index per quarter from 2014, then a filing index for every universe 8-K and an exhibit for those with Item 7.01 or 8.01, at 5 requests per second, so expect many hours. Every document read is kept in MinIO: a run SEC stops (exit 1, `"complete": false`) continues where it left off when run again. Do not run it alongside step 5.
+
+```bash
+for k in SEC_FULL_INDEX_URL FEDERAL_REGISTER_API_URL; do printf '%s %s\n' "$k" "$(grep -c "^$k=.\+" .env)"; done
+# A key printing 0: copy its line from .env.example into .env (neither is a secret).
+cd services/backtesting
+UNIVERSE_RULES_PATH=../../config/universe/rules.yaml caffeinate -i uv run --env-file ../../.env \
+  python scripts/build_catalyst_panel.py --since 2014-01-01 > /tmp/catalyst-summary.json
+jq '{complete, added, edgar, federal_register, coverage}' /tmp/catalyst-summary.json
+uv run pytest tests/unit/test_catalyst_panel.py -q --strict-markers
+cd ../..
+```
+
+Then draw 30 random PDUFA and matched AdCom rows (`CatalystPanel(minio).rows()`, fixed seed, seed recorded) and check each by hand against its `evidence` and `document_url`: the date and precision match what the document says, and the CIK is the company the document is about.
+
+**Check:**
+- `complete` is `true` (run again until it is); `edgar.filings` and `edgar.exhibits_read` are non-zero, and `edgar.without_items` is a small share of `edgar.filings` (a share near all of them means the filing index's `Items` block is not where the parser looks: FLAG and stop this step); `federal_register.matched` is non-zero.
+- `test_catalyst_panel.py`: 10 passed.
+- Hand-check precision (correct rows / 30) is at least 0.9. Below that, record a FLAG with the wrong rows and what the rule did; tightening the phrase rules is code, so it goes to a cloud session (once, per the spec), and this step is rerun after it merges. If the second build is still below 0.9, record the precision; the guard then runs with it stated.
+
+Record in `DECISIONS.md`: a VERIFIED entry closing the 2026-10-09 PENDING, with the URLs that worked, the counters, the coverage (catalysts per year, the share of members with any catalyst, unmatched AdCom notices, PDUFA hits by precision) and the hand-check precision with the seed. Then move `specs/catalyst-date-panel.md` to `specs/done/`, set its status to `done`, update its `TODO.md` row and link, and commit: `catalyst date panel first build: coverage, hand check, spec done`.
+
 ### 4. Install Ollama and pull the candidates
 
 Can start while step 3 runs: pulls are network-bound. Do not run step 5 until step 3 has finished.
@@ -276,6 +300,7 @@ Checks run on the Mac, each falsifiable and each tied to a step above:
 - `check_universe_build_succeeds_against_the_configured_sec_bulk_urls` — step 3
 - `check_universe_summary_covers_every_month_from_window_start` — step 3 (`already_stored` = month count)
 - `check_backfill_scope_exported_and_non_empty` — step 3
+- `check_catalyst_panel_build_complete_with_hand_checked_precision` — step 3a
 - `check_phi3_tag_is_the_128k_context_build` — step 4
 - `check_each_candidate_has_a_gate_record_at_prompt_v1_1` — step 5
 - `check_candidate_fits_without_swap_growth_over_1gb` — step 5
@@ -293,12 +318,13 @@ cd services/ingestion-scraper && uv run pytest tests/unit/test_local_model_integ
 cd services/backtesting && uv run pytest tests/unit/test_universe.py -q --strict-markers && cd ../..
 test -s config/universe/backfill_scope.yaml && echo scope-ok
 test -f specs/done/point-in-time-universe.md && echo universe-spec-done
+test -f specs/done/catalyst-date-panel.md && echo catalyst-spec-done
 ls config/models/scores/ config/models/latency/ | grep -c -E 'llama3.1|phi3'     # 6: three gate records, three latency records
 grep -c -E 'Local model — (CHOICE|FLAG)' DECISIONS.md                              # at least 1
 grep -E '^\| Ollama' VERSIONS.md | grep -v 'resolve at install' && echo ollama-pinned
 ```
 
-Expected: 13 passed; 52 passed; `scope-ok`; `universe-spec-done`; `6`; a count of 1 or more; `ollama-pinned`. The PR into `develop` is open with CI green.
+Expected: 13 passed; 52 passed; `scope-ok`; `universe-spec-done`; `catalyst-spec-done` (or step 3a recorded as not run or flagged); `6`; a count of 1 or more; `ollama-pinned`. The PR into `develop` is open with CI green.
 
 ## Notes
 
