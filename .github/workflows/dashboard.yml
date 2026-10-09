@@ -29,8 +29,8 @@ jobs:
     env:
       NEXT_TELEMETRY_DISABLED: "1"
       CORE_HUB_URL: http://core-hub-ci-sentinel:8080
-      SCRAPER_URL: http://scraper-ci-sentinel:8000
-      PRICE_SERVICE_URL: http://price-service-ci-sentinel:8001
+      SCRAPER_API_URL: http://scraper-ci-sentinel:8000
+      PRICE_API_URL: http://price-service-ci-sentinel:8001
       CORE_HUB_WRITE_TOKEN: ci-write-token-sentinel
       DASHBOARD_USERNAME: ci-user-sentinel
       DASHBOARD_PASSWORD_HASH: $2b$04$cisentinelhashcisentinelhashcisentinelhashcisentine
@@ -84,8 +84,8 @@ jobs:
           hash=${hash%\'}
           docker run -d --name dashboard -p 127.0.0.1:3001:3000 \
             -e CORE_HUB_URL=http://127.0.0.1:9 \
-            -e SCRAPER_URL=http://127.0.0.1:9 \
-            -e PRICE_SERVICE_URL=http://127.0.0.1:9 \
+            -e SCRAPER_API_URL=http://127.0.0.1:9 \
+            -e PRICE_API_URL=http://127.0.0.1:9 \
             -e CORE_HUB_WRITE_TOKEN=ci-token \
             -e DASHBOARD_USERNAME=ci-user \
             -e "DASHBOARD_PASSWORD_HASH=$hash" \

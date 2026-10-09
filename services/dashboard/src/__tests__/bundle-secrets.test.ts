@@ -14,8 +14,8 @@ const SERVER_ONLY_ENV = [
   'DASHBOARD_SESSION_SECRET',
   'CORE_HUB_WRITE_TOKEN',
   'CORE_HUB_URL',
-  'SCRAPER_URL',
-  'PRICE_SERVICE_URL',
+  'SCRAPER_API_URL',
+  'PRICE_API_URL',
 ];
 
 function files(dir: string): string[] {

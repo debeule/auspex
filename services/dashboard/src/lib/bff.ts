@@ -11,8 +11,8 @@ interface Upstream {
 
 const UPSTREAMS: Record<string, Upstream> = {
   'core-hub': { urlEnv: 'CORE_HUB_URL', basePath: '/api', writeTokenEnv: 'CORE_HUB_WRITE_TOKEN' },
-  scraper: { urlEnv: 'SCRAPER_URL', basePath: '' },
-  prices: { urlEnv: 'PRICE_SERVICE_URL', basePath: '' },
+  scraper: { urlEnv: 'SCRAPER_API_URL', basePath: '' },
+  prices: { urlEnv: 'PRICE_API_URL', basePath: '' },
 };
 
 const READ_METHODS = new Set(['GET', 'HEAD']);

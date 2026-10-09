@@ -11,7 +11,7 @@ _COMPOSE = _REPO_ROOT / "docker" / "docker-compose.yml"
 _ENV_EXAMPLE = _REPO_ROOT / ".env.example"
 
 _ENV_REFERENCE = re.compile(r"^\$\{([A-Z][A-Z0-9_]*)\}$")
-_BACKEND_URLS = ("CORE_HUB_URL", "SCRAPER_URL", "PRICE_SERVICE_URL")
+_BACKEND_URLS = ("CORE_HUB_URL", "SCRAPER_API_URL", "PRICE_API_URL")
 _SECRETS = (
     "DASHBOARD_USERNAME",
     "DASHBOARD_PASSWORD_HASH",
@@ -57,6 +57,8 @@ def test_dashboard_service_gets_backend_urls_and_secrets_from_env_only() -> None
         match = _ENV_REFERENCE.match(str(value))
         assert match, f"{name} must be a bare ${{VAR}} reference, got {value!r}"
         assert match.group(1) in documented, f"{match.group(1)} is not documented in .env.example"
+    for name in _BACKEND_URLS:
+        assert environment[name] == f"${{{name}}}", f"{name} must keep its .env name inside the container"
     for name in _SECRETS:
         source = _ENV_REFERENCE.match(environment[name]).group(1)  # type: ignore[union-attr]
         assert documented[source] == "", f"{source} must be empty in .env.example"

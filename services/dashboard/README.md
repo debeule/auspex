@@ -11,7 +11,7 @@ The browser calls only the dashboard's own origin. Route handlers under `src/app
 | `/api/health` | Liveness for the container healthcheck. No session needed. |
 | `/api/auth/login`, `/api/auth/logout` | Single-user sign-in: checks `DASHBOARD_USERNAME` and the bcrypt `DASHBOARD_PASSWORD_HASH`, sets or clears the signed `auspex_session` cookie (`HttpOnly`, `SameSite=Strict`). |
 | `/api/core-hub/<path>` | Forwards to `${CORE_HUB_URL}/api/<path>`; adds `Authorization: Bearer ${CORE_HUB_WRITE_TOKEN}` on every non-GET request. |
-| `/api/scraper/<path>`, `/api/prices/<path>` | Forward to `${SCRAPER_URL}` and `${PRICE_SERVICE_URL}`. |
+| `/api/scraper/<path>`, `/api/prices/<path>` | Forward to `${SCRAPER_API_URL}` and `${PRICE_API_URL}`. |
 
 Every error comes back as `{error: {code, message, upstream_status}}`; a JSON array comes back as `{items, next_cursor}`. An unreachable or failing upstream is a 502. `src/proxy.ts` (Next 16's name for middleware) admits only signed-in requests: pages redirect to `/login`, API routes answer 401. Each request re-issues the cookie, so the session ends after `DASHBOARD_SESSION_IDLE_MINUTES` without activity.
 
@@ -21,7 +21,7 @@ Components call the backend only through `src/lib/api.ts`. Backend URLs and secr
 
 | Variable | Purpose |
 |---|---|
-| `CORE_HUB_URL`, `SCRAPER_URL`, `PRICE_SERVICE_URL` | Backend base URLs. Compose passes `CORE_HUB_URL`, `SCRAPER_API_URL` and `PRICE_API_URL` from `.env`. |
+| `CORE_HUB_URL`, `SCRAPER_API_URL`, `PRICE_API_URL` | Backend base URLs, under the same names as in the root `.env`. |
 | `CORE_HUB_WRITE_TOKEN` | Bearer token core-hub requires on writes. |
 | `DASHBOARD_USERNAME`, `DASHBOARD_PASSWORD_HASH` | The one login. Generate the hash as `SETUP.md` shows. |
 | `DASHBOARD_SESSION_SECRET` | HMAC key for the session cookie. |
