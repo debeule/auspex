@@ -16,6 +16,7 @@ services:
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: "false"
       KAFKA_LOG_DIRS: /var/lib/kafka/data
+      KAFKA_HEAP_OPTS: ${KAFKA_HEAP_OPTS:--Xmx384m -Xms384m}
     ports:
       - "127.0.0.1:9092:9092"
     volumes:
@@ -27,6 +28,9 @@ services:
       timeout: 10s
       retries: 15
       start_period: 30s
+    mem_limit: ${KAFKA_MEM_LIMIT:-640m}
+    labels:
+      co.elastic.logs/enabled: "true"
 
   kafka-init:
     image: apache/kafka:4.3.0
@@ -39,6 +43,9 @@ services:
       - ./topics.yaml:/config/topics.yaml:ro
     entrypoint: ["/create-topics.sh"]
     restart: "no"
+    mem_limit: ${KAFKA_INIT_MEM_LIMIT:-384m}
+    labels:
+      co.elastic.logs/enabled: "true"
 
   postgres:
     image: postgres:18.6
@@ -62,6 +69,9 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
+    mem_limit: ${POSTGRES_MEM_LIMIT:-384m}
+    labels:
+      co.elastic.logs/enabled: "true"
 
   neo4j:
     image: neo4j:2026.05-community
@@ -81,6 +91,9 @@ services:
       timeout: 10s
       retries: 15
       start_period: 30s
+    mem_limit: ${NEO4J_MEM_LIMIT:-576m}
+    labels:
+      co.elastic.logs/enabled: "true"
 
   minio:
     image: quay.io/minio/minio:RELEASE.2025-09-07T16-13-09Z
@@ -89,6 +102,8 @@ services:
     environment:
       MINIO_ROOT_USER: ${MINIO_ACCESS_KEY}
       MINIO_ROOT_PASSWORD: ${MINIO_SECRET_KEY}
+      # Unauthenticated metrics; the port is reachable only from the compose network and localhost.
+      MINIO_PROMETHEUS_AUTH_TYPE: public
     ports:
       - "127.0.0.1:9000:9000"
       - "127.0.0.1:9001:9001"
@@ -101,6 +116,9 @@ services:
       timeout: 5s
       retries: 5
       start_period: 10s
+    mem_limit: ${MINIO_MEM_LIMIT:-320m}
+    labels:
+      co.elastic.logs/enabled: "true"
 
   minio-init:
     build: &backtesting-build
@@ -120,6 +138,9 @@ services:
       MINIO_BUCKET: ${MINIO_BUCKET}
     command: ["uv", "run", "--no-project", "python", "-m", "auspex_backtesting.stack_bootstrap", "buckets"]
     restart: "no"
+    mem_limit: ${MINIO_INIT_MEM_LIMIT:-256m}
+    labels:
+      co.elastic.logs/enabled: "true"
 
   price-bootstrap:
     build: *backtesting-build
@@ -134,6 +155,9 @@ services:
       PRICE_HISTORY_START: ${PRICE_HISTORY_START:-2013-01-01}
     command: ["uv", "run", "--no-project", "python", "-m", "auspex_backtesting.stack_bootstrap", "prices"]
     restart: "no"
+    mem_limit: ${PRICE_BOOTSTRAP_MEM_LIMIT:-1024m}
+    labels:
+      co.elastic.logs/enabled: "true"
 
   price-service:
     build: *backtesting-build
@@ -163,6 +187,7 @@ services:
       start_period: 15s
     labels:
       co.elastic.logs/enabled: "true"
+    mem_limit: ${PRICE_SERVICE_MEM_LIMIT:-1280m}
 
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:${ELASTIC_VERSION}
@@ -182,6 +207,9 @@ services:
       timeout: 10s
       retries: 15
       start_period: 30s
+    mem_limit: ${ELASTICSEARCH_MEM_LIMIT:-896m}
+    labels:
+      co.elastic.logs/enabled: "true"
 
   filebeat:
     image: docker.elastic.co/beats/filebeat:${ELASTIC_VERSION}
@@ -196,6 +224,9 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:ro
     command: filebeat -e --strict.perms=false
     restart: unless-stopped
+    mem_limit: ${FILEBEAT_MEM_LIMIT:-160m}
+    labels:
+      co.elastic.logs/enabled: "true"
 
   elasticsearch-setup:
     image: curlimages/curl:8.15.0
@@ -207,10 +238,21 @@ services:
       - ./elasticsearch:/setup:ro
     command: /setup/setup.sh
     restart: "no"
+    mem_limit: ${ELASTICSEARCH_SETUP_MEM_LIMIT:-32m}
+    labels:
+      co.elastic.logs/enabled: "true"
 
   prometheus:
     image: prom/prometheus:${PROMETHEUS_VERSION}
     container_name: auspex-prometheus
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.path=/prometheus
+      - --storage.tsdb.retention.time=${PROMETHEUS_RETENTION_TIME:-30d}
+      - --storage.tsdb.retention.size=${PROMETHEUS_RETENTION_SIZE:-4GB}
+    extra_hosts:
+      # The Mac's node_exporter (job mac-host); Docker Desktop provides the name, Linux needs this.
+      - "host.docker.internal:host-gateway"
     volumes:
       - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - prometheus_data:/prometheus
@@ -222,6 +264,9 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    mem_limit: ${PROMETHEUS_MEM_LIMIT:-384m}
+    labels:
+      co.elastic.logs/enabled: "true"
 
   grafana:
     image: grafana/grafana-oss:${GRAFANA_VERSION}
@@ -235,6 +280,21 @@ services:
       GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD}
       GF_USERS_ALLOW_SIGN_UP: "false"
       GF_ANALYTICS_REPORTING_ENABLED: "false"
+      GF_SMTP_ENABLED: "true"
+      GF_SMTP_HOST: ${SMTP_HOST:-}
+      GF_SMTP_USER: ${SMTP_USER:-}
+      GF_SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+      GF_SMTP_FROM_ADDRESS: ${SMTP_FROM_ADDRESS:-}
+      # Read by alerting/contactpoints.yaml.
+      ALERT_CONTACT_TYPE: ${ALERT_CONTACT_TYPE}
+      ALERT_EMAIL_ADDRESSES: ${ALERT_EMAIL_ADDRESSES}
+      ALERT_WEBHOOK_URL: ${ALERT_WEBHOOK_URL}
+      # Read by alerting/infrastructure.yaml.
+      ALERT_DOCKER_DISK_FREE_MIN_PCT: ${ALERT_DOCKER_DISK_FREE_MIN_PCT:-15}
+      ALERT_MAC_DISK_FREE_MIN_PCT: ${ALERT_MAC_DISK_FREE_MIN_PCT:-10}
+      ALERT_VM_MEMORY_MAX_PCT: ${ALERT_VM_MEMORY_MAX_PCT:-90}
+      ALERT_CONTAINER_RESTARTS_MAX_PER_HOUR: ${ALERT_CONTAINER_RESTARTS_MAX_PER_HOUR:-3}
+      ALERT_PRICE_REFRESH_MAX_MISSED_SESSIONS: ${ALERT_PRICE_REFRESH_MAX_MISSED_SESSIONS:-2}
     volumes:
       - ./grafana/provisioning:/etc/grafana/provisioning:ro
       - grafana_data:/var/lib/grafana
@@ -247,6 +307,9 @@ services:
       timeout: 5s
       retries: 10
       start_period: 30s
+    mem_limit: ${GRAFANA_MEM_LIMIT:-256m}
+    labels:
+      co.elastic.logs/enabled: "true"
 
   ingestion-scraper:
     build:
@@ -296,6 +359,7 @@ services:
       start_period: 15s
     labels:
       co.elastic.logs/enabled: "true"
+    mem_limit: ${INGESTION_SCRAPER_MEM_LIMIT:-384m}
 
   core-hub:
     build:
@@ -322,6 +386,8 @@ services:
       KAFKA_BOOTSTRAP_SERVERS: kafka:9094
       LOGGING_STRUCTURED_FORMAT_CONSOLE: ecs
       CORE_HUB_WRITE_TOKEN: ${CORE_HUB_WRITE_TOKEN}
+      # The JVM's default heap is a quarter of the container limit, too little for this service.
+      JAVA_TOOL_OPTIONS: ${CORE_HUB_JAVA_TOOL_OPTIONS:--XX:MaxRAMPercentage=60}
     ports:
       - "127.0.0.1:8080:8080"
     healthcheck:
@@ -332,6 +398,7 @@ services:
       start_period: 45s
     labels:
       co.elastic.logs/enabled: "true"
+    mem_limit: ${CORE_HUB_MEM_LIMIT:-768m}
 
   dashboard:
     build:
@@ -387,6 +454,10 @@ services:
       AUSPEX_SOURCES_YAML: /opt/airflow/config/sources.yaml
       SCRAPER_API_URL: ${SCRAPER_API_URL:-http://ingestion-scraper:8000}
       PRICE_API_URL: ${PRICE_API_URL:-http://price-service:8001}
+      AIRFLOW__METRICS__STATSD_ON: "true"
+      AIRFLOW__METRICS__STATSD_HOST: statsd-exporter
+      AIRFLOW__METRICS__STATSD_PORT: "9125"
+      AIRFLOW__METRICS__STATSD_PREFIX: airflow
     volumes:
       - ../services/ingestion-scraper/dags:/opt/airflow/dags/ingestion:ro
       - ../services/backtesting/dags:/opt/airflow/dags/prices:ro
@@ -402,6 +473,160 @@ services:
       timeout: 10s
       retries: 10
       start_period: 60s
+    mem_limit: ${AIRFLOW_MEM_LIMIT:-1152m}
+
+  # Exporters. None publishes a port: Prometheus reaches them on the compose network.
+
+  node-exporter:
+    image: prom/node-exporter:v1.12.1
+    container_name: auspex-node-exporter
+    # Reads the Docker VM (on macOS, Docker Desktop's Linux VM) through PID 1's root, so no host
+    # path is bind-mounted; Docker Desktop refuses mounts outside its shared folders.
+    pid: host
+    user: root
+    cap_add:
+      - SYS_PTRACE
+    command:
+      - --path.rootfs=/proc/1/root
+      - --collector.filesystem.mount-points-exclude=^/(dev|proc|sys|run|var/lib/docker/.+|var/lib/kubelet/.+)($$|/)
+      - --collector.textfile.directory=/textfile
+    volumes:
+      - volume_usage_textfile:/textfile:ro
+    restart: unless-stopped
+    mem_limit: ${NODE_EXPORTER_MEM_LIMIT:-48m}
+    labels:
+      co.elastic.logs/enabled: "true"
+
+  volume-usage:
+    image: busybox:1.37.0
+    container_name: auspex-volume-usage
+    command: ["sh", "/collect.sh"]
+    environment:
+      INTERVAL_SECONDS: ${VOLUME_USAGE_INTERVAL_SECONDS:-900}
+    volumes:
+      - ./volume-usage/collect.sh:/collect.sh:ro
+      - volume_usage_textfile:/textfile
+      - kafka_data:/volumes/kafka_data:ro
+      - postgres_data:/volumes/postgres_data:ro
+      - neo4j_data:/volumes/neo4j_data:ro
+      - minio_data:/volumes/minio_data:ro
+      - airflow_logs:/volumes/airflow_logs:ro
+      - elasticsearch_data:/volumes/elasticsearch_data:ro
+      - prometheus_data:/volumes/prometheus_data:ro
+      - grafana_data:/volumes/grafana_data:ro
+    restart: unless-stopped
+    mem_limit: ${VOLUME_USAGE_MEM_LIMIT:-32m}
+    labels:
+      co.elastic.logs/enabled: "true"
+
+  cadvisor:
+    image: ghcr.io/google/cadvisor:0.57.0
+    container_name: auspex-cadvisor
+    # Host cgroups and the Docker socket give per-container CPU, memory and start times.
+    privileged: true
+    cgroup: host
+    devices:
+      - /dev/kmsg
+    command:
+      - --docker_only=true
+      - --housekeeping_interval=30s
+      - --store_container_labels=false
+      - --whitelisted_container_labels=com.docker.compose.service
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /var/lib/docker:/var/lib/docker:ro
+    restart: unless-stopped
+    mem_limit: ${CADVISOR_MEM_LIMIT:-160m}
+    labels:
+      co.elastic.logs/enabled: "true"
+
+  postgres-monitor-role:
+    image: postgres:18.6
+    container_name: auspex-postgres-monitor-role
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      PGHOST: postgres
+      PGDATABASE: ${POSTGRES_DB}
+      PGUSER: ${POSTGRES_USER}
+      PGPASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_MONITOR_USER: ${POSTGRES_MONITOR_USER:-auspex_monitor}
+      POSTGRES_MONITOR_PASSWORD: ${POSTGRES_MONITOR_PASSWORD}
+    volumes:
+      - ./postgres-monitor/create-role.sh:/create-role.sh:ro
+    entrypoint: ["sh", "/create-role.sh"]
+    restart: "no"
+    mem_limit: ${POSTGRES_MONITOR_ROLE_MEM_LIMIT:-64m}
+    labels:
+      co.elastic.logs/enabled: "true"
+
+  postgres-exporter:
+    image: prometheuscommunity/postgres-exporter:v0.20.1
+    container_name: auspex-postgres-exporter
+    depends_on:
+      postgres-monitor-role:
+        condition: service_completed_successfully
+    environment:
+      DATA_SOURCE_URI: postgres:5432/${POSTGRES_DB}?sslmode=disable
+      DATA_SOURCE_USER: ${POSTGRES_MONITOR_USER:-auspex_monitor}
+      DATA_SOURCE_PASS: ${POSTGRES_MONITOR_PASSWORD}
+    restart: unless-stopped
+    mem_limit: ${POSTGRES_EXPORTER_MEM_LIMIT:-48m}
+    labels:
+      co.elastic.logs/enabled: "true"
+
+  kafka-exporter:
+    image: danielqsj/kafka-exporter:v1.10.0
+    container_name: auspex-kafka-exporter
+    depends_on:
+      kafka:
+        condition: service_healthy
+    command: ["--kafka.server=kafka:9094"]
+    restart: unless-stopped
+    mem_limit: ${KAFKA_EXPORTER_MEM_LIMIT:-48m}
+    labels:
+      co.elastic.logs/enabled: "true"
+
+  elasticsearch-exporter:
+    image: prometheuscommunity/elasticsearch-exporter:v1.11.0
+    container_name: auspex-elasticsearch-exporter
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+    # Security is off on this single-node cluster, so there is no role to create.
+    command: ["--es.uri=http://elasticsearch:9200"]
+    restart: unless-stopped
+    mem_limit: ${ELASTICSEARCH_EXPORTER_MEM_LIMIT:-48m}
+    labels:
+      co.elastic.logs/enabled: "true"
+
+  blackbox-exporter:
+    image: prom/blackbox-exporter:v0.28.0
+    container_name: auspex-blackbox-exporter
+    command: ["--config.file=/etc/blackbox/blackbox.yml"]
+    extra_hosts:
+      # Ollama runs on the host, outside Docker.
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - ./blackbox-exporter/blackbox.yml:/etc/blackbox/blackbox.yml:ro
+    restart: unless-stopped
+    mem_limit: ${BLACKBOX_EXPORTER_MEM_LIMIT:-48m}
+    labels:
+      co.elastic.logs/enabled: "true"
+
+  statsd-exporter:
+    image: prom/statsd-exporter:v0.31.0
+    container_name: auspex-statsd-exporter
+    command:
+      - --statsd.listen-udp=:9125
+      - --statsd.mapping-config=/etc/statsd/mapping.yml
+    volumes:
+      - ./statsd-exporter/mapping.yml:/etc/statsd/mapping.yml:ro
+    restart: unless-stopped
+    mem_limit: ${STATSD_EXPORTER_MEM_LIMIT:-48m}
+    labels:
+      co.elastic.logs/enabled: "true"
 
 volumes:
   kafka_data:
@@ -412,3 +637,4 @@ volumes:
   elasticsearch_data:
   prometheus_data:
   grafana_data:
+  volume_usage_textfile:

@@ -33,7 +33,7 @@ What exists:
 - Editing schedules (they stay in `sources.yaml`, read at DAG parse).
 - Replaying dead letters back onto their topics. A later spec, once the view shows how often it is needed.
 - Backfill orchestration (`specs/historical-backfill.md`).
-- Infrastructure health (`specs/infrastructure-observability.md`).
+- Infrastructure health (`specs/done/infrastructure-observability.md`).
 
 ## Constraints
 

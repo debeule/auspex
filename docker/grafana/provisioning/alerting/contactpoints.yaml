@@ -1,0 +1,12 @@
+apiVersion: 1
+# One contact point for every alert. Type and address come from .env (ALERT_CONTACT_TYPE, then
+# ALERT_EMAIL_ADDRESSES for email or ALERT_WEBHOOK_URL for webhook); the type ignores the other.
+contactPoints:
+  - orgId: 1
+    name: auspex-default
+    receivers:
+      - uid: auspex-default
+        type: ${ALERT_CONTACT_TYPE}
+        settings:
+          addresses: ${ALERT_EMAIL_ADDRESSES}
+          url: ${ALERT_WEBHOOK_URL}

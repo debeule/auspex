@@ -6,9 +6,10 @@ from dataclasses import asdict
 from datetime import date
 from pathlib import Path
 
-from flask import Flask, jsonify, request
+from flask import Flask, Response, jsonify, request
 from flask.typing import ResponseReturnValue
 from minio import Minio
+from prometheus_client import CollectorRegistry, generate_latest
 
 from auspex_backtesting.catalysts import (
     AdvisoryCommitteeNotices,
@@ -18,6 +19,7 @@ from auspex_backtesting.catalysts import (
     PressReleaseCatalystExtractor,
 )
 from auspex_backtesting.catalysts.job import CatalystPanelBuild, universe_members
+from auspex_backtesting.price_metrics import PriceRefreshMetrics
 from auspex_backtesting.prices.price_refresher import (
     PriceDataUnavailableError,
     PriceRefresher,
@@ -42,7 +44,10 @@ def create_app(
     refresher: PriceRefresher | None = None,
     tickers: list[str] | None = None,
     universe_job: Callable[[], UniverseBuildJob] | None = None,
+    metrics: PriceRefreshMetrics | None = None,
 ) -> Flask:
+    if metrics is None:
+        metrics = PriceRefreshMetrics(CollectorRegistry())
     if refresher is None:
         refresher = refresher_from_env()
     if tickers is None:
@@ -65,6 +70,7 @@ def create_app(
                 results.append(refresher.refresh(ticker))
             except (PriceDataUnavailableError, SnapshotDiscontinuityError) as exc:
                 failed[ticker] = str(exc)
+        metrics.record_run(refreshed=len(results), failed=len(failed))
         payload = {"results": [asdict(r) for r in results], "failed": failed}
         return jsonify(payload), 502 if failed else 200
 
@@ -79,6 +85,10 @@ def create_app(
             # SEC or MinIO unreachable; the next scheduled run retries.
             return jsonify(error=str(exc)), 502
         return jsonify(summary.as_dict()), 200
+
+    @app.get("/metrics")
+    def prometheus_metrics() -> ResponseReturnValue:
+        return Response(generate_latest(metrics.registry), mimetype="text/plain; version=0.0.4")
 
     return app
 

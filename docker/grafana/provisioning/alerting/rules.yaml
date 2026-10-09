@@ -113,36 +113,41 @@ groups:
         title: Scrape Target Down
         condition: C
         noDataState: OK
-        execErrState: Alerting
+        execErrState: Error
         for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "{{ $$labels.job }} ({{ $$labels.instance }}) has been unscrapeable for 5 minutes"
         data:
+          # Probe jobs report through probe_success ("Probe Target Down"); the Mac's exporter is
+          # optional and has its own info alert.
           - refId: A
             datasourceUid: prometheus
             relativeTimeRange:
-              from: 300
+              from: 600
               to: 0
             model:
-              expr: count(up{job=~"core-hub|ingestion-scraper"} == 0)
+              expr: up{job!~"mac-host|blackbox-.+"} == bool 0
+              instant: true
               refId: A
+          - refId: B
+            datasourceUid: __expr__
+            model:
+              type: reduce
+              expression: A
+              reducer: last
+              refId: B
           - refId: C
             datasourceUid: __expr__
-            relativeTimeRange:
-              from: 300
-              to: 0
             model:
+              type: threshold
+              expression: B
               conditions:
                 - evaluator:
-                    params: [0]
                     type: gt
-                  operator:
-                    type: and
-                  query:
-                    params: [A]
-                  reducer:
-                    type: last
-                  type: query
+                    params: [0]
               refId: C
-              type: classic_conditions
 
       - uid: auspex-llm-extraction-errors
         title: LLM Extraction Errors

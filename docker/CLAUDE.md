@@ -26,8 +26,18 @@ not `.DLT`. Verify partition parity whenever adding a topic pair.
 
 ## Environment
 
-All credentials from root `.env`. No defaults in docker-compose.yml. Ports are bound to
-`127.0.0.1` — local only, intentional.
+All credentials from root `.env`, with no defaults in docker-compose.yml. Non-secret sizing,
+retention and alert thresholds have `${VAR:-default}` defaults that must equal `.env.example`
+(`test_stack_observability_config.py` checks), so an older `.env` keeps working. Ports are bound to
+`127.0.0.1` — local only, intentional; exporters publish none.
+
+## Monitoring
+
+Every service needs a `mem_limit` from `.env`, the `co.elastic.logs/enabled` label, and, if it has a
+healthcheck, a Prometheus scrape job or blackbox probe. The long-running limits must fit 7.5 GB.
+Grafana expands `$VAR` in `grafana/provisioning/alerting/*.yaml`: write a literal `$` (as in
+`{{ $$labels.instance }}`) as `$$`, or it silently becomes empty. Alert PromQL is tested with
+promtool in `tests/unit/test_stack_alert_expressions.py`; add a case for every new rule.
 
 ## Service health
 

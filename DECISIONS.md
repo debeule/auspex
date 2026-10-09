@@ -918,3 +918,36 @@ Where they disagree: report 1 stays in biotech with a holdings composite; report
 ## 2026-10-09 — Catalyst date panel — FLAG — not kept current by the stack
 **What:** the spec asks for a backfill script only, and the panel serves backtests. Paper trading's catalyst guard (`specs/forward-paper-trading.md`) will need it refreshed; per root `CLAUDE.md`, data that must stay current belongs in an Airflow DAG calling a service endpoint, not in a script run by hand.
 **Action:** none now. When forward paper trading needs the guard, add `POST /catalysts/build` on the price service and a DAG calling it, as the universe build does.
+## 2026-10-09 — Infrastructure observability — CHOICE — monitoring role from a one-shot, not an init script
+**What:** postgres-exporter logs in as `auspex_monitor` (`pg_monitor`, no superuser). The spec asked for the role in the existing init scripts, but `postgres-init/` runs only on an empty volume, so a stack that has already run would never get it. `postgres-monitor-role` (one-shot, `docker/postgres-monitor/create-role.sh`) creates the role if missing and resets its password from `POSTGRES_MONITOR_PASSWORD` on every `up`. Elasticsearch has security off, so its exporter needs no role.
+**Action:** `docker-compose.yml`, `SETUP.md` step 1.
+
+## 2026-10-09 — Infrastructure observability — CHOICE — compose defaults for sizes and thresholds
+**What:** `docker/CLAUDE.md` said "no defaults in docker-compose.yml". Memory limits, Prometheus retention, alert thresholds and the volume scan interval now have `${VAR:-default}` defaults, and a test requires each default to equal `.env.example`. Credentials, the alert contact type and its addresses still have none.
+**Why:** an `.env` written before these variables existed (the Mac's) would otherwise start containers with empty limits. Secrets must still fail loudly.
+**Action:** `docker/CLAUDE.md` and `docker/README.md` updated.
+
+## 2026-10-09 — Infrastructure observability — CHOICE — memory limits sized to 7.5 GB, first estimates
+**What:** Every service has `mem_limit` from `.env`. Long-running services sum to 7,680 MB, Docker Desktop's 8 GB less 512 MB for the VM; one-shots are not counted. Kafka's heap is set to 384 MB (`KAFKA_HEAP_OPTS`, image default 1 GB) and core-hub's JVM may use 60% of its limit (`CORE_HUB_JAVA_TOOL_OPTIONS`; the JVM default of 25% leaves about 190 MB of heap). Largest: price-service 1,280 MB (the universe build reads SEC's bulk archives file by file), Airflow 1,152 MB (standalone runs four processes).
+**Risk:** these are estimates; nothing has run under them. A service at its limit is OOM-killed, restarts, and raises "Container Restarting".
+**Action:** checked on the Mac by the PENDING entry below; adjust the `*_MEM_LIMIT` variable from the "Container memory" panel.
+
+## 2026-10-09 — Infrastructure observability — CHOICE — VM and volume metrics without host bind mounts
+**What:** Docker Desktop refuses bind mounts outside its shared folders, so node-exporter reads the VM through `pid: host` and `--path.rootfs=/proc/1/root` (`SYS_PTRACE`), and cAdvisor uses `privileged` with `cgroup: host`, the Docker socket and `/var/lib/docker` (paths Filebeat already mounts). cAdvisor cannot size volumes there, so `volume-usage` (busybox, `docker/volume-usage/collect.sh`) runs `du` on each named volume every 15 minutes and node-exporter's textfile collector exports `auspex_volume_bytes`. "Docker disk" is the fullest ext4/xfs/btrfs filesystem in the VM.
+**Risk:** none of this has run on Docker Desktop. If a mount or `/proc/1/root` is refused, the container fails at `up` and names it.
+**Action:** the PENDING entry below.
+
+## 2026-10-09 — Infrastructure observability — CHOICE — alert definitions the spec left open
+**What:**
+1. "Ollama down while an extraction DAG is running": Ollama's probe fails for 5 minutes and either an `auspex_*` task other than price refresh or universe build has started without finishing (Airflow statsd `ti.start` / `ti.finish`), or the scraper made extraction calls in the last 15 minutes (catches a manual `/ingest` call).
+2. "Price refresh not successful for 2 NYSE sessions": the price service exports `auspex_price_refresh_sessions_since_success`, the NYSE sessions strictly between the last refresh in which every ticker refreshed (or the service's start) and today, UTC. One permanently failing ticker keeps it firing, on purpose.
+3. "Airflow DAG run failed" also fires on a DAG's first failure, which `increase()` alone misses because statsd-exporter creates the series at 1.
+4. "Scrape Target Down" now covers every scrape job except `mac-host` and the probe jobs; probes have "Probe Target Down"; Ollama only its own rule.
+**Action:** `docker/grafana/provisioning/alerting/`; each rule has firing and quiet cases in `test_stack_alert_expressions.py`, which found that the first draft of rule 1 could never fire (`and` kept the left side's value 0).
+
+## 2026-10-09 — Infrastructure observability — VERIFIED — Grafana expands environment variables in alert provisioning
+**What:** Grafana's `pkg/services/provisioning/values` runs every provisioned rule's model, labels, annotations and contact point settings through `os.ExpandEnv` after splitting on `$$`. That is how `${ALERT_*}` thresholds and the contact point come from `.env`, and why `{{ $labels.x }}` must be written `{{ $$labels.x }}`. Added to the root `CLAUDE.md` traps; a test checks every `$` reference in the alerting files names a variable Grafana receives.
+
+## 2026-10-09 — Infrastructure observability — PENDING — checks on the stack machine
+**What:** The cloud session has no Docker. Still to run on the Mac (step 8 of `specs/first-run-on-stack-machine.md`): `brew install node_exporter && brew services start node_exporter`; `up --wait` with every new container healthy or running; `sh docker/grafana/test_provisioning.sh` all PASS; the Mac panels and "Docker disk free" show plausible values (the Docker disk is about Docker Desktop's disk image size); stop `auspex-postgres` and confirm "Scrape Target Down" / "Probe Target Down" reach the configured contact point within 10 minutes; peak memory per container from "Container memory" after the universe build, for resizing limits.
+**Action:** record VERIFIED or FLAG here.

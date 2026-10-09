@@ -63,6 +63,17 @@ Stored in the `auspex-prices` bucket:
 
 Requests to SEC are paced at 5 per second with `SEC_USER_AGENT`, Federal Register at 1 per second. A 403 or 429 ends the run without retrying, since retrying extends an SEC block; running again continues from the stored documents. Coverage is partial by nature: not every company names its PDUFA date in an 8-K, and the build's coverage report counts members with no catalyst data.
 
+## Price service metrics
+
+`GET /metrics` on the price service (port 8001, scraped by Prometheus as job `price-service`):
+
+| Metric | Meaning |
+|---|---|
+| `auspex_price_refresh_runs_total{outcome}` | `/prices/refresh` calls; `failed` when any ticker failed |
+| `auspex_price_tickers_refreshed_total` / `auspex_price_tickers_failed_total` | tickers per outcome |
+| `auspex_price_refresh_last_success_timestamp_seconds` | last refresh in which every ticker refreshed; absent until the first one |
+| `auspex_price_refresh_sessions_since_success` | NYSE sessions strictly between that success (or the service's start) and today, UTC; Grafana's **Price Refresh Stale** fires at 2 |
+
 ## Scripts
 
 | Script | Purpose |

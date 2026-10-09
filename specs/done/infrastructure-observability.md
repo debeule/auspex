@@ -1,6 +1,6 @@
 # Infrastructure Observability
 
-**Status:** ready
+**Status:** done
 **Branch:** `feature/infrastructure-observability`
 
 ---
@@ -80,9 +80,14 @@ docker compose --profile app -f docker/docker-compose.yml --env-file .env up -d 
 sh docker/grafana/test_provisioning.sh
 ```
 
-Expected: 12 passed, 2 passed, all services healthy, smoke script prints all PASS.
+Expected: 12 passed, 2 passed, all services healthy, smoke script prints all PASS. (The build added tests beyond these; the files report 20 and 6.)
 
-Then: stopping the Postgres container fires the target-down alert to the configured contact point within 10 minutes (checked once by hand, result noted in `DECISIONS.md`).
+The last three commands and the alert check run on the stack machine, in step 8 of `specs/first-run-on-stack-machine.md`: install `node_exporter` on the Mac (`SETUP.md` step 2), bring the stack up, run the smoke script, then stop the Postgres container and confirm the target-down alert reaches the configured contact point within 10 minutes. Record the result as a VERIFIED or FLAG entry in `DECISIONS.md`, closing the 2026-10-09 PENDING.
+
+## Built
+
+- Required tests: all 14, plus `test_alert_expressions_reference_only_env_vars_grafana_receives`, `test_exporter_credentials_are_a_monitoring_role_not_the_app_owner`, `test_minio_metrics_are_public_on_the_internal_network_only`, `test_new_exporters_publish_no_host_ports`, two `volume-usage` tests, `tests/unit/test_stack_alert_expressions.py` (every new alert's PromQL run through `promtool test rules`, firing and quiet cases; CI installs promtool) and four more price metrics tests (NYSE session counting, holidays, service start, one registry per app).
+- Deviations, each in `DECISIONS.md` 2026-10-09: the monitoring role comes from a one-shot (`postgres-monitor-role`), not `postgres-init/`, so existing volumes get it; volume sizes come from a `du` sidecar (`volume-usage`) through node-exporter's textfile collector; node-exporter reads the VM through PID 1 instead of bind-mounting `/`; non-secret sizes and thresholds have compose defaults equal to `.env.example`.
 
 ## Notes
 

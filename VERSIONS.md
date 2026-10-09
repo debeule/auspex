@@ -62,6 +62,14 @@ Managed with **uv**; `uv.lock` is committed and is the source of truth. Versions
 | Prometheus | **v3.14.0** | Resolved 2026-09-18 from `prom/prometheus:latest`. |
 | Grafana | **13.0.2** | Resolved 2026-09-18 from `grafana/grafana-oss:latest`. |
 | curl (elasticsearch-setup init container) | **8.15.0** | Resolved 2026-10-07; replaces a floating `latest` tag. |
+| node-exporter | **v1.12.1** (`prom/node-exporter`) | Resolved 2026-10-09 from Docker Hub. Docker VM metrics and the volume-size textfile. The Mac's own `node_exporter` is a Homebrew install (`SETUP.md`), not pinned here. |
+| cAdvisor | **0.57.0** (`ghcr.io/google/cadvisor`) | Resolved 2026-10-09 from ghcr.io; arm64 build included. Docker Hub's `gcr.io` mirror stops at v0.55. |
+| postgres-exporter | **v0.20.1** (`prometheuscommunity/postgres-exporter`) | Resolved 2026-10-09. |
+| kafka-exporter | **v1.10.0** (`danielqsj/kafka-exporter`) | Resolved 2026-10-09. |
+| elasticsearch-exporter | **v1.11.0** (`prometheuscommunity/elasticsearch-exporter`) | Resolved 2026-10-09. |
+| blackbox-exporter | **v0.28.0** (`prom/blackbox-exporter`) | Resolved 2026-10-09. v0.29.0 was two days old and is skipped until it has settled. |
+| statsd-exporter | **v0.31.0** (`prom/statsd-exporter`) | Resolved 2026-10-09. Converts Airflow's statsd metrics. |
+| busybox (volume-usage) | **1.37.0** | Resolved 2026-10-09. Runs `docker/volume-usage/collect.sh`. |
 | uv (Docker build stage) | **0.12.17** | Resolved 2026-09-18 from `ghcr.io/astral-sh/uv:latest`. Scraper Dockerfile only — does not affect host `uv`. |
 | eclipse-temurin JRE | **25.0.4** (tag `25-jre-alpine`) | Resolved 2026-09-18. Runtime image for core-hub container. |
 
@@ -87,6 +95,7 @@ Managed with **uv**; `uv.lock` is committed. Resolved 2026-09-18 from PyPI.
 | pandas-market-calendars | 5.4.0 (resolved 2026-10-07; 5.5.0 skipped, released 2026-10-05) |
 | pyyaml | 6.0.3 (same as ingestion-scraper; `load_hypothesis` and the pre-registration tests read hypothesis YAML) |
 | minio | 7.2.20 (shared with ingestion-scraper) |
+| prometheus-client | 0.26.0 (shared with ingestion-scraper) |
 | flask | 3.1.3 (same as ingestion-scraper; price refresh API) |
 | gunicorn | 26.2.0 (same as ingestion-scraper) |
 

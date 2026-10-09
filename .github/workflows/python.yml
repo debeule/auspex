@@ -65,6 +65,15 @@ jobs:
         working-directory: services/ingestion-scraper
         run: uv run mypy src
 
+      # Runs the Grafana alert expressions against synthetic series (test_stack_alert_expressions.py).
+      - name: Install promtool
+        env:
+          PROMETHEUS_VERSION: 3.14.0
+        run: |
+          curl -sSfL "https://github.com/prometheus/prometheus/releases/download/v${PROMETHEUS_VERSION}/prometheus-${PROMETHEUS_VERSION}.linux-amd64.tar.gz" \
+            | tar xz -C "$RUNNER_TEMP"
+          echo "PROMTOOL=$RUNNER_TEMP/prometheus-${PROMETHEUS_VERSION}.linux-amd64/promtool" >> "$GITHUB_ENV"
+
       - name: Run tests
         working-directory: services/ingestion-scraper
         run: uv run pytest -q --ignore=tests/integration/test_infra_containers.py

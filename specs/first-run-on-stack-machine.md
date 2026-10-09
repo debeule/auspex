@@ -68,12 +68,12 @@ git checkout -b feature/first-run-on-stack-machine
 git config user.name; git config user.email                # the user's identity, not a bot
 docker info --format '{{.MemTotal}}'                       # about 8 GB (8.0e9 to 8.6e9 bytes)
 command -v uv jq curl
-test -f .env && for k in POSTGRES_PASSWORD AIRFLOW_DB_PASSWORD NEO4J_PASSWORD MINIO_ACCESS_KEY MINIO_SECRET_KEY GRAFANA_ADMIN_PASSWORD AIRFLOW_SECRET_KEY SEC_USER_AGENT NCBI_API_KEY OPENFDA_API_KEY EPO_OPS_KEY EPO_OPS_SECRET PRICE_HISTORY_START SEC_SUBMISSIONS_BULK_URL SEC_COMPANYFACTS_BULK_URL SEC_ARCHIVES_URL BACKFILL_SCOPE_START; do printf '%s %s\n' "$k" "$(grep -c "^$k=.\+" .env)"; done
+test -f .env && for k in POSTGRES_PASSWORD AIRFLOW_DB_PASSWORD NEO4J_PASSWORD MINIO_ACCESS_KEY MINIO_SECRET_KEY GRAFANA_ADMIN_PASSWORD AIRFLOW_SECRET_KEY SEC_USER_AGENT NCBI_API_KEY OPENFDA_API_KEY EPO_OPS_KEY EPO_OPS_SECRET PRICE_HISTORY_START SEC_SUBMISSIONS_BULK_URL SEC_COMPANYFACTS_BULK_URL SEC_ARCHIVES_URL BACKFILL_SCOPE_START POSTGRES_MONITOR_PASSWORD ALERT_CONTACT_TYPE; do printf '%s %s\n' "$k" "$(grep -c "^$k=.\+" .env)"; done
 grep '^PRICE_HISTORY_START=' .env
 docker volume ls --format '{{.Name}}' | grep '^auspex_' || echo "no auspex volumes"
 ```
 
-**Check:** Darwin with 24 GB; the branch is created from an up-to-date `develop`; git identity is the user's; Docker memory about 8 GB (if not, ask the user to set Docker Desktop → Resources → Memory to 8 GB, the one manual setting); every key prints `1`; `PRICE_HISTORY_START=2013-01-01`. If `.env` still says `2023-01-01`, change only that line to `2013-01-01` (it is not a secret). If `.env` is missing, stop and point the user at `SETUP.md` step 1: the secrets are theirs to fill.
+**Check:** Darwin with 24 GB; the branch is created from an up-to-date `develop`; git identity is the user's; Docker memory about 8 GB (if not, ask the user to set Docker Desktop → Resources → Memory to 8 GB, the one manual setting); every key prints `1`, and `grep -c '^ALERT_EMAIL_ADDRESSES=.\+' .env` and `grep -c '^SMTP_HOST=.\+' .env` print `1` when `ALERT_CONTACT_TYPE=email` (`ALERT_WEBHOOK_URL` when it is `webhook`); Grafana does not start without them, so a missing one is the user's to fill (`SETUP.md` step 1); `PRICE_HISTORY_START=2013-01-01`. If `.env` still says `2023-01-01`, change only that line to `2013-01-01` (it is not a secret). If `.env` is missing, stop and point the user at `SETUP.md` step 1: the secrets are theirs to fill.
 
 If auspex volumes already exist, the stack has run before. Run step 2's price check right after `up`; if `XBI` starts after 2013-01-31 the old snapshots were fetched from 2023 and will never reach back. Rebuilding them changes stored history (`DECISIONS.md` 2026-10-07 "Startup data"), so ask the user before deleting anything; only the objects in `auspex-prices` need to go, and only if no backtest has been run on them.
 

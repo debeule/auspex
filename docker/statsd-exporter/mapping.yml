@@ -1,0 +1,36 @@
+# Airflow's statsd names carry the DAG and task in the metric name; these turn them into labels.
+# Timers arrive in milliseconds and are exported in seconds.
+mappings:
+  - match: "airflow.dagrun.duration.success.*"
+    match_metric_type: observer
+    name: "airflow_dagrun_duration_seconds"
+    labels:
+      dag_id: "$1"
+      state: "success"
+  - match: "airflow.dagrun.duration.failed.*"
+    match_metric_type: observer
+    name: "airflow_dagrun_duration_seconds"
+    labels:
+      dag_id: "$1"
+      state: "failed"
+  - match: "airflow.ti.start.*.*"
+    match_metric_type: counter
+    name: "airflow_task_start_total"
+    labels:
+      dag_id: "$1"
+      task_id: "$2"
+  - match: "airflow.ti.finish.*.*.*"
+    match_metric_type: counter
+    name: "airflow_task_finish_total"
+    labels:
+      dag_id: "$1"
+      task_id: "$2"
+      state: "$3"
+  - match: "airflow.ti_failures"
+    match_metric_type: counter
+    name: "airflow_task_failures_total"
+  # Everything else Airflow emits (pool, executor, scheduler internals) is dropped.
+  - match: "."
+    match_type: regex
+    action: drop
+    name: "dropped"

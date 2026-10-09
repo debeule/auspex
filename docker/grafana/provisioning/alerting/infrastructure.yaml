@@ -1,0 +1,351 @@
+# Grafana expands $VAR and ${VAR} in this file from its environment (the ALERT_* thresholds in
+# docker-compose.yml); a literal $, as in {{ $$labels.x }}, is written $$.
+apiVersion: 1
+groups:
+- orgId: 1
+  name: auspex-infrastructure
+  folder: Auspex
+  interval: 1m
+  rules:
+  - uid: auspex-probe-target-down
+    title: Probe Target Down
+    condition: C
+    noDataState: OK
+    execErrState: Error
+    for: 5m
+    labels:
+      severity: critical
+    annotations:
+      summary: '{{ $$labels.instance }} has failed its health probe for 5 minutes'
+    data:
+    - refId: A
+      datasourceUid: prometheus
+      relativeTimeRange:
+        from: 600
+        to: 0
+      model:
+        expr: probe_success{job!="blackbox-ollama"} == bool 0
+        instant: true
+        refId: A
+    - refId: B
+      datasourceUid: __expr__
+      model:
+        type: reduce
+        expression: A
+        reducer: last
+        refId: B
+    - refId: C
+      datasourceUid: __expr__
+      model:
+        type: threshold
+        expression: B
+        conditions:
+        - evaluator:
+            type: gt
+            params:
+            - 0
+        refId: C
+  - uid: auspex-mac-host-exporter-down
+    title: Mac Host Exporter Down
+    condition: C
+    noDataState: OK
+    execErrState: Error
+    for: 15m
+    labels:
+      severity: info
+    annotations:
+      summary: node_exporter on the Mac is not reachable; Mac CPU, memory and disk are not monitored
+    data:
+    - refId: A
+      datasourceUid: prometheus
+      relativeTimeRange:
+        from: 600
+        to: 0
+      model:
+        expr: up{job="mac-host"} == bool 0
+        instant: true
+        refId: A
+    - refId: B
+      datasourceUid: __expr__
+      model:
+        type: reduce
+        expression: A
+        reducer: last
+        refId: B
+    - refId: C
+      datasourceUid: __expr__
+      model:
+        type: threshold
+        expression: B
+        conditions:
+        - evaluator:
+            type: gt
+            params:
+            - 0
+        refId: C
+  - uid: auspex-docker-disk-low
+    title: Docker Disk Low
+    condition: C
+    noDataState: OK
+    execErrState: Error
+    for: 5m
+    labels:
+      severity: critical
+    annotations:
+      summary: The Docker VM disk holding the volumes is below ${ALERT_DOCKER_DISK_FREE_MIN_PCT}% free
+    data:
+    - refId: A
+      datasourceUid: prometheus
+      relativeTimeRange:
+        from: 600
+        to: 0
+      model:
+        expr: 100 * min(node_filesystem_avail_bytes{job="node-exporter", fstype=~"ext4|xfs|btrfs"} / node_filesystem_size_bytes{job="node-exporter", fstype=~"ext4|xfs|btrfs"}) < bool ${ALERT_DOCKER_DISK_FREE_MIN_PCT}
+        instant: true
+        refId: A
+    - refId: B
+      datasourceUid: __expr__
+      model:
+        type: reduce
+        expression: A
+        reducer: last
+        refId: B
+    - refId: C
+      datasourceUid: __expr__
+      model:
+        type: threshold
+        expression: B
+        conditions:
+        - evaluator:
+            type: gt
+            params:
+            - 0
+        refId: C
+  - uid: auspex-mac-disk-low
+    title: Mac Disk Low
+    condition: C
+    noDataState: OK
+    execErrState: Error
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: The Mac disk is below ${ALERT_MAC_DISK_FREE_MIN_PCT}% free
+    data:
+    - refId: A
+      datasourceUid: prometheus
+      relativeTimeRange:
+        from: 600
+        to: 0
+      model:
+        expr: 100 * min(node_filesystem_avail_bytes{job="mac-host", mountpoint="/"} / node_filesystem_size_bytes{job="mac-host", mountpoint="/"}) < bool ${ALERT_MAC_DISK_FREE_MIN_PCT}
+        instant: true
+        refId: A
+    - refId: B
+      datasourceUid: __expr__
+      model:
+        type: reduce
+        expression: A
+        reducer: last
+        refId: B
+    - refId: C
+      datasourceUid: __expr__
+      model:
+        type: threshold
+        expression: B
+        conditions:
+        - evaluator:
+            type: gt
+            params:
+            - 0
+        refId: C
+  - uid: auspex-vm-memory-high
+    title: VM Memory High
+    condition: C
+    noDataState: OK
+    execErrState: Error
+    for: 10m
+    labels:
+      severity: warning
+    annotations:
+      summary: Docker VM memory above ${ALERT_VM_MEMORY_MAX_PCT}% for 10 minutes
+    data:
+    - refId: A
+      datasourceUid: prometheus
+      relativeTimeRange:
+        from: 600
+        to: 0
+      model:
+        expr: 100 * (1 - node_memory_MemAvailable_bytes{job="node-exporter"} / node_memory_MemTotal_bytes{job="node-exporter"}) > bool ${ALERT_VM_MEMORY_MAX_PCT}
+        instant: true
+        refId: A
+    - refId: B
+      datasourceUid: __expr__
+      model:
+        type: reduce
+        expression: A
+        reducer: last
+        refId: B
+    - refId: C
+      datasourceUid: __expr__
+      model:
+        type: threshold
+        expression: B
+        conditions:
+        - evaluator:
+            type: gt
+            params:
+            - 0
+        refId: C
+  - uid: auspex-container-restarting
+    title: Container Restarting
+    condition: C
+    noDataState: OK
+    execErrState: Error
+    for: 0s
+    labels:
+      severity: warning
+    annotations:
+      summary: '{{ $$labels.name }} restarted more than ${ALERT_CONTAINER_RESTARTS_MAX_PER_HOUR} times in an hour'
+    data:
+    - refId: A
+      datasourceUid: prometheus
+      relativeTimeRange:
+        from: 3600
+        to: 0
+      model:
+        expr: max by (name) (changes(container_start_time_seconds{name=~"auspex-.+"}[1h])) > bool ${ALERT_CONTAINER_RESTARTS_MAX_PER_HOUR}
+        instant: true
+        refId: A
+    - refId: B
+      datasourceUid: __expr__
+      model:
+        type: reduce
+        expression: A
+        reducer: last
+        refId: B
+    - refId: C
+      datasourceUid: __expr__
+      model:
+        type: threshold
+        expression: B
+        conditions:
+        - evaluator:
+            type: gt
+            params:
+            - 0
+        refId: C
+  - uid: auspex-airflow-dag-run-failed
+    title: Airflow DAG Run Failed
+    condition: C
+    noDataState: OK
+    execErrState: Error
+    for: 0s
+    labels:
+      severity: warning
+    annotations:
+      summary: DAG {{ $$labels.dag_id }} had a failed run in the last hour
+    data:
+    - refId: A
+      datasourceUid: prometheus
+      relativeTimeRange:
+        from: 3600
+        to: 0
+      model:
+        expr: (sum by (dag_id) (increase(airflow_dagrun_duration_seconds_count{state="failed"}[1h])) > 0) or sum by (dag_id) (airflow_dagrun_duration_seconds_count{state="failed"} unless airflow_dagrun_duration_seconds_count{state="failed"} offset 1h)
+        instant: true
+        refId: A
+    - refId: B
+      datasourceUid: __expr__
+      model:
+        type: reduce
+        expression: A
+        reducer: last
+        refId: B
+    - refId: C
+      datasourceUid: __expr__
+      model:
+        type: threshold
+        expression: B
+        conditions:
+        - evaluator:
+            type: gt
+            params:
+            - 0
+        refId: C
+  - uid: auspex-price-refresh-stale
+    title: Price Refresh Stale
+    condition: C
+    noDataState: OK
+    execErrState: Error
+    for: 0s
+    labels:
+      severity: warning
+    annotations:
+      summary: Price snapshots have not refreshed for ${ALERT_PRICE_REFRESH_MAX_MISSED_SESSIONS} or more NYSE sessions
+    data:
+    - refId: A
+      datasourceUid: prometheus
+      relativeTimeRange:
+        from: 600
+        to: 0
+      model:
+        expr: max(auspex_price_refresh_sessions_since_success) >= bool ${ALERT_PRICE_REFRESH_MAX_MISSED_SESSIONS}
+        instant: true
+        refId: A
+    - refId: B
+      datasourceUid: __expr__
+      model:
+        type: reduce
+        expression: A
+        reducer: last
+        refId: B
+    - refId: C
+      datasourceUid: __expr__
+      model:
+        type: threshold
+        expression: B
+        conditions:
+        - evaluator:
+            type: gt
+            params:
+            - 0
+        refId: C
+  - uid: auspex-ollama-down-during-extraction
+    title: Ollama Down During Extraction
+    condition: C
+    noDataState: OK
+    execErrState: Error
+    for: 5m
+    labels:
+      severity: critical
+    annotations:
+      summary: Ollama is unreachable while extraction is running
+    data:
+    - refId: A
+      datasourceUid: prometheus
+      relativeTimeRange:
+        from: 900
+        to: 0
+      model:
+        expr: (min(probe_success{job="blackbox-ollama"}) == bool 0) and on () ((sum(airflow_task_start_total{dag_id=~"auspex_.+", dag_id!~"auspex_(price_refresh|universe_build)"}) - (sum(airflow_task_finish_total{dag_id=~"auspex_.+", dag_id!~"auspex_(price_refresh|universe_build)"}) or vector(0)) > 0) or on () (sum(increase(auspex_llm_extraction_calls_total[15m])) > 0))
+        instant: true
+        refId: A
+    - refId: B
+      datasourceUid: __expr__
+      model:
+        type: reduce
+        expression: A
+        reducer: last
+        refId: B
+    - refId: C
+      datasourceUid: __expr__
+      model:
+        type: threshold
+        expression: B
+        conditions:
+        - evaluator:
+            type: gt
+            params:
+            - 0
+        refId: C

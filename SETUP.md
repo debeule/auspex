@@ -18,6 +18,7 @@ docker compose --profile app -f docker/docker-compose.yml --env-file .env up -d 
 | Postgres databases and roles | `postgres-init/` | volume already initialised |
 | Postgres schema | Flyway on `core-hub` start | migrations applied |
 | Log retention, Grafana dashboards and alerts | `elasticsearch-setup`, Grafana provisioning | already applied |
+| Read-only Postgres role for monitoring | `postgres-monitor-role` one-shot | role exists; its password is reset to `.env`'s |
 
 | On a schedule | How |
 |---|---|
@@ -44,10 +45,13 @@ Fill in what only you have:
 | `DASHBOARD_USERNAME` | The dashboard's one login. |
 | `DASHBOARD_PASSWORD_HASH` | Print it with `docker compose --profile app -f docker/docker-compose.yml --env-file .env run --rm --no-deps dashboard node scripts/hash-password.mjs` (it asks for the password without echoing it) and paste the printed line as is: the single quotes keep compose from reading the `$` signs in the hash. |
 | `DASHBOARD_SESSION_SECRET`, `CORE_HUB_WRITE_TOKEN` | Any strong values, e.g. `openssl rand -hex 32`. Changing the session secret signs everyone out; changing the write token needs both `core-hub` and `dashboard` restarted. |
+| `POSTGRES_MONITOR_PASSWORD` | Any strong value; the read-only role Prometheus's Postgres exporter uses. Created or updated on every `up`. |
+| `ALERT_CONTACT_TYPE`, `ALERT_EMAIL_ADDRESSES`, `SMTP_HOST`, `SMTP_USER`, `SMTP_PASSWORD`, `SMTP_FROM_ADDRESS` | Where Grafana sends alerts. `email` (the default) needs the address list and an SMTP account, e.g. `smtp.gmail.com:587` with an app password. For a webhook instead, set `ALERT_CONTACT_TYPE=webhook` and `ALERT_WEBHOOK_URL`. Grafana does not start without one of the two. |
 
 ## 2. Host settings (once)
 
 - **macOS:** Docker Desktop → Settings → Resources → Memory: **8 GB**, so a local model fits next to the stack on 24 GB.
+- **macOS:** `brew install node_exporter && brew services start node_exporter`. Prometheus reads the Mac's own CPU, memory and disk from it at `host.docker.internal:9100`; inside Docker only the VM is visible, not Ollama's memory or the Mac's disk. Optional: without it the Mac panels on the Auspex Infrastructure dashboard stay empty and one info alert fires.
 - **Linux:** `sudo sysctl -w vm.max_map_count=262144` and persist it in `/etc/sysctl.d/99-elasticsearch.conf`; Elasticsearch will not start without it.
 
 Then run the `up` command above. The dashboard is at `http://localhost:3001` (`DASHBOARD_PORT`). Airflow is at `http://localhost:8082`; its `admin` password is in `docker exec auspex-airflow cat /opt/airflow/simple_auth_manager_passwords.json.generated`.

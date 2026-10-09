@@ -16,6 +16,8 @@ _CREDENTIAL_VARS = {
     "NEO4J_PASSWORD",
     "MINIO_ACCESS_KEY",
     "MINIO_SECRET_KEY",
+    "POSTGRES_MONITOR_PASSWORD",
+    "SMTP_PASSWORD",
 }
 
 # A dotted topic name under the pre-rename prefix, e.g. `<prefix>.raw.ingested`. Built from parts so
