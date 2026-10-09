@@ -10,6 +10,7 @@ import httpx
 from ..models import RawDocument
 from .base import SourceConnector
 from .rate_limited_client import RateLimitedClient
+from .registry import REGISTRY, BuildContext
 
 _EUTILS_BASE = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils"
 _RETMAX = 200
@@ -180,3 +181,12 @@ class PubmedConnector(SourceConnector):
         if last_resp is not None:
             last_resp.raise_for_status()
         raise RuntimeError(f"No retries configured for {url}")
+
+
+@REGISTRY.register("pubmed", rate_limit_host="eutils.ncbi.nlm.nih.gov")
+def _build(ctx: BuildContext) -> PubmedConnector:
+    return PubmedConnector(
+        client=ctx.client,
+        search_term=ctx.entry.source_config.get("search_term", "gene therapy"),
+        api_key=ctx.env.get("NCBI_API_KEY") or None,
+    )

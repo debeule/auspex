@@ -18,6 +18,7 @@ import httpx
 from ..models import RawDocument
 from .base import SourceConnector
 from .rate_limited_client import RateLimitedClient
+from .registry import REGISTRY, BuildContext
 
 _DEFAULT_BASE_URL = "https://ops.epo.org/3.2/rest-services"
 _DEFAULT_TOKEN_URL = "https://ops.epo.org/3.2/auth/accesstoken"
@@ -313,3 +314,12 @@ def _text(el: ElementTree.Element, tag: str) -> str | None:
 
 def _parse_date(date_str: str) -> datetime:
     return datetime.strptime(date_str, "%Y%m%d").replace(tzinfo=UTC)
+
+
+@REGISTRY.register("epo_ops", rate_limit_host="ops.epo.org")
+def _build(ctx: BuildContext) -> EpoOpsConnector:
+    return EpoOpsConnector(
+        client=ctx.client,
+        key=ctx.env.get("EPO_OPS_KEY", ""),
+        secret=ctx.env.get("EPO_OPS_SECRET", ""),
+    )

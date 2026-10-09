@@ -229,7 +229,7 @@ def test_failed_documents_counter_increments_on_processing_error():
 def test_env_pipeline_factory_wires_the_metrics_registry(monkeypatch):
     import confluent_kafka
 
-    from auspex_ingest.api import _make_env_pipeline_factory
+    from auspex_ingest.pipeline_factory import make_env_pipeline_factory
 
     monkeypatch.setenv("MINIO_ENDPOINT", "minio.invalid:9000")
     monkeypatch.setenv("MINIO_ACCESS_KEY", "k")
@@ -244,7 +244,7 @@ def test_env_pipeline_factory_wires_the_metrics_registry(monkeypatch):
 
     registry = _make_registry()
     sources = _make_sources("biorxiv")
-    factory = _make_env_pipeline_factory(
+    factory = make_env_pipeline_factory(
         {e.source_type: e for e in sources.sources}, registry
     )
     factory("biorxiv")

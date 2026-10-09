@@ -26,6 +26,7 @@ import httpx
 from ..models import RawDocument
 from .base import SourceConnector
 from .rate_limited_client import RateLimitedClient
+from .registry import REGISTRY, BuildContext, ConnectorConfigurationError
 
 _USER_AGENT: str = os.environ.get("SEC_USER_AGENT", "")
 
@@ -354,3 +355,11 @@ class SecEdgarConnector(SourceConnector):
         if last_resp is not None:
             last_resp.raise_for_status()
         raise RuntimeError(f"Exhausted retries for {_EFTS_URL}")
+
+
+@REGISTRY.register("edgar", rate_limit_host="sec.gov")
+def _build(ctx: BuildContext) -> SecEdgarConnector:
+    user_agent = ctx.env.get("SEC_USER_AGENT", "")
+    if not user_agent:
+        raise ConnectorConfigurationError("SEC_USER_AGENT is required for the edgar connector")
+    return SecEdgarConnector(client=ctx.client, user_agent=user_agent)

@@ -9,6 +9,7 @@ import httpx
 from ..models import RawDocument
 from .base import SourceConnector
 from .rate_limited_client import RateLimitedClient
+from .registry import REGISTRY, BuildContext
 
 _BASE_URL = "https://clinicaltrials.gov/api/v2/studies"
 _PAGE_SIZE = 1000
@@ -125,3 +126,8 @@ class ClinicalTrialConnector(SourceConnector):
         if last_resp is not None:
             last_resp.raise_for_status()
         raise RuntimeError(f"No retries configured for {self._base_url}")
+
+
+@REGISTRY.register("clinicaltrials", rate_limit_host="clinicaltrials.gov")
+def _build(ctx: BuildContext) -> ClinicalTrialConnector:
+    return ClinicalTrialConnector(client=ctx.client)

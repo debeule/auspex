@@ -9,6 +9,7 @@ from prometheus_client import REGISTRY, CollectorRegistry, generate_latest
 
 from .logging_config import configure_logging
 from .pipeline import RunResult
+from .pipeline_factory import make_env_pipeline_factory
 from .reextract import ReextractionRunner
 from .sources import SourceEntry, SourcesConfig
 
@@ -27,7 +28,7 @@ def create_app(
 
     _sources = sources_config or _load_sources_config()
     _sources_by_type: dict[str, SourceEntry] = {e.source_type: e for e in _sources.sources}
-    _pipeline_for = pipeline_for_source or _make_env_pipeline_factory(_sources_by_type, _registry)
+    _pipeline_for = pipeline_for_source or make_env_pipeline_factory(_sources_by_type, _registry)
     _runner: ReextractionRunner | None = reextract_runner
     _now = now or (lambda: datetime.now(UTC))
 
@@ -136,81 +137,3 @@ def _make_env_reextract_runner() -> ReextractionRunner:
 
     return ReextractionRunner(archive=archive, extractor=extractor, producer=producer)
 
-
-def _make_env_pipeline_factory(
-    sources_by_type: dict[str, SourceEntry],
-    metrics_registry: CollectorRegistry,
-) -> Callable[[str], Any]:
-    import os
-    from datetime import UTC, datetime
-
-    from confluent_kafka import Producer as ConfluentProducer
-    from minio import Minio
-
-    from .connectors import RateLimitedClient
-    from .connectors.biorxiv import BiorxivConnector
-    from .connectors.clinicaltrials import ClinicalTrialConnector
-    from .extraction_backend import BackendLLMExtractor, build_extractor_from_env
-    from .messaging import KafkaProducerClient
-    from .normalizer import IdentityNormalizer
-    from .pipeline import IngestionPipeline
-    from .prefilter import Prefilter
-    from .storage.minio_client import MinioArchive
-
-    rate_limits: dict[str, float] = {
-        "api.biorxiv.org": 3.0,
-        "clinicaltrials.gov": 5.0,
-        "eutils.ncbi.nlm.nih.gov": 3.0,
-        "sec.gov": 4.0,
-        "ops.epo.org": 2.0,
-    }
-    http_client = RateLimitedClient(rate_limits)
-
-    minio_client = Minio(
-        os.environ["MINIO_ENDPOINT"],
-        access_key=os.environ["MINIO_ACCESS_KEY"],
-        secret_key=os.environ["MINIO_SECRET_KEY"],
-        secure=False,
-    )
-    archive = MinioArchive(client=minio_client, bucket=os.environ["MINIO_BUCKET"])
-
-    # Built on first use so a missing gate record surfaces as a 500 naming the model,
-    # not as a scraper container that cannot start.
-    extractor_cache: list[BackendLLMExtractor] = []
-
-    def _extractor() -> BackendLLMExtractor:
-        if not extractor_cache:
-            extractor_cache.append(build_extractor_from_env())
-        return extractor_cache[0]
-
-    kafka_producer = KafkaProducerClient(
-        ConfluentProducer({"bootstrap.servers": os.environ["KAFKA_BOOTSTRAP_SERVERS"]}),
-        raw_topic=os.environ.get("KAFKA_RAW_TOPIC", "auspex.raw.ingested"),
-        signals_topic=os.environ.get("KAFKA_SIGNALS_TOPIC", "auspex.signals.extracted"),
-    )
-
-    def _build_connector(source_type: str, entry: SourceEntry) -> Any:
-        if source_type == "biorxiv":
-            return BiorxivConnector(client=http_client)
-        if source_type == "clinicaltrials":
-            return ClinicalTrialConnector(client=http_client)
-        raise ValueError(f"No connector registered for source_type={source_type!r}")
-
-    def factory(source_type: str) -> IngestionPipeline:
-        entry = sources_by_type[source_type]
-        connector = _build_connector(source_type, entry)
-        extractor = _extractor()
-        return IngestionPipeline(
-            connector=connector,
-            archive=archive,
-            extractor=extractor,
-            producer=kafka_producer,
-            prefilter=Prefilter.from_vocab(set(entry.prefilter_vocabulary)),
-            normalizer=IdentityNormalizer(),
-            now=lambda: datetime.now(UTC),
-            min_confidence_to_publish=0.5,
-            metrics_registry=metrics_registry,
-            extraction_identity=f"{extractor.model_id}|{extractor.prompt_version}",
-        )
-
-    return factory

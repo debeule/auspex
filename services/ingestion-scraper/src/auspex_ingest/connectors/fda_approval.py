@@ -9,6 +9,7 @@ import httpx
 from ..models import RawDocument
 from .base import SourceConnector
 from .rate_limited_client import RateLimitedClient
+from .registry import REGISTRY, BuildContext
 
 _BASE_URL = "https://api.fda.gov/drug/drugsfda.json"
 _PAGE_SIZE = 100
@@ -132,3 +133,8 @@ class FdaApprovalConnector(SourceConnector):
             return {}
         last_resp.raise_for_status()
         return cast(dict[str, Any], last_resp.json())
+
+
+@REGISTRY.register("fda_approval", rate_limit_host="api.fda.gov")
+def _build(ctx: BuildContext) -> FdaApprovalConnector:
+    return FdaApprovalConnector(client=ctx.client)

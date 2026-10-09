@@ -9,6 +9,7 @@ import httpx
 from ..models import RawDocument
 from .base import SourceConnector
 from .rate_limited_client import RateLimitedClient
+from .registry import REGISTRY, BuildContext
 
 _PAGE_SIZE = 100
 _DEFAULT_BACKOFF = 30.0
@@ -94,3 +95,8 @@ class BiorxivConnector(SourceConnector):
             content_sha256=sha,
             retrieved_at=retrieved_at,
         )
+
+
+@REGISTRY.register("biorxiv", rate_limit_host="api.biorxiv.org")
+def _build(ctx: BuildContext) -> BiorxivConnector:
+    return BiorxivConnector(client=ctx.client)

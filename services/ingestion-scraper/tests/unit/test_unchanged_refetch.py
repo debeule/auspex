@@ -179,8 +179,8 @@ def test_live_api_pipelines_skip_unchanged_refetches_for_their_model(monkeypatch
     import confluent_kafka
     from prometheus_client import CollectorRegistry
 
-    import auspex_ingest.pipeline as pipeline_module
-    from auspex_ingest.api import _make_env_pipeline_factory
+    import auspex_ingest.pipeline_factory as pipeline_factory_module
+    from auspex_ingest.pipeline_factory import make_env_pipeline_factory
     from auspex_ingest.sources import SourceEntry
 
     for name, value in {
@@ -194,12 +194,12 @@ def test_live_api_pipelines_skip_unchanged_refetches_for_their_model(monkeypatch
         "auspex_ingest.extraction_backend.build_extractor_from_env", lambda **_: extractor
     )
     built = MagicMock()
-    monkeypatch.setattr(pipeline_module, "IngestionPipeline", built)
+    monkeypatch.setattr(pipeline_factory_module, "IngestionPipeline", built)
 
     entry = SourceEntry(
         source_type="biorxiv", schedule="@daily", rate_limit_rps=3.0, initial_lookback=7,
         max_documents_per_run=100, prefilter_vocabulary=["gene therapy"], source_config={},
     )
-    _make_env_pipeline_factory({"biorxiv": entry}, CollectorRegistry())("biorxiv")
+    make_env_pipeline_factory({"biorxiv": entry}, CollectorRegistry())("biorxiv")
 
     assert built.call_args.kwargs["extraction_identity"] == "llama3.1:8b|v1"

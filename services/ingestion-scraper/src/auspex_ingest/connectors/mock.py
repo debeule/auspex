@@ -4,6 +4,7 @@ from datetime import UTC, datetime
 
 from ..models import RawDocument
 from .base import SourceConnector
+from .registry import REGISTRY, BuildContext
 
 _UTC = UTC
 _MOCK_CONTENT = [
@@ -34,3 +35,8 @@ class MockConnector(SourceConnector):
                 content_sha256=sha,
                 retrieved_at=cursor,
             )
+
+
+@REGISTRY.register("mock", live=False)
+def _build(ctx: BuildContext) -> MockConnector:
+    return MockConnector()
