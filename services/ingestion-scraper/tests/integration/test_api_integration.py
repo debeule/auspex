@@ -28,6 +28,7 @@ from auspex_ingest.storage.minio_client import MinioArchive
 os.environ.setdefault("TESTCONTAINERS_RYUK_DISABLED", "true")
 
 _LOCALSTACK_IMAGE = "localstack/localstack:4.9.2"
+_KAFKA_IMAGE = "mirror.gcr.io/confluentinc/cp-kafka:7.6.0"
 _BUCKET = "auspex-test-api"
 _RAW_TOPIC = "auspex.raw.ingested"
 _SIG_TOPIC = "auspex.signals.extracted"
@@ -92,7 +93,7 @@ def test_ingest_round_trip_publishes_signal_to_kafka():
         .with_env("SERVICES", "s3")
     )
 
-    with minio_container as minio_ctr, KafkaContainer().with_kraft() as kafka:
+    with minio_container as minio_ctr, KafkaContainer(_KAFKA_IMAGE).with_kraft() as kafka:
         for _ in range(30):
             try:
                 minio_port = minio_ctr.get_exposed_port(4566)

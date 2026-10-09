@@ -10,6 +10,7 @@ from testcontainers.community.kafka import KafkaContainer
 
 os.environ.setdefault("TESTCONTAINERS_RYUK_DISABLED", "true")
 
+_KAFKA_IMAGE = "mirror.gcr.io/confluentinc/cp-kafka:7.6.0"
 _TOPIC = "auspex.signals.extracted"
 _NUM_PARTITIONS = 6
 _MESSAGE_COUNT = 120
@@ -18,7 +19,7 @@ _MAX_SKEW_RATIO = 2.0
 
 @pytest.mark.integration
 def test_key_distribution_across_partitions() -> None:
-    with KafkaContainer().with_kraft() as kafka:
+    with KafkaContainer(_KAFKA_IMAGE).with_kraft() as kafka:
         bootstrap = kafka.get_bootstrap_server()
 
         admin = AdminClient({"bootstrap.servers": bootstrap})

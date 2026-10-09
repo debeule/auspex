@@ -12,7 +12,7 @@ def test_filebeat_delivers_log_line_to_elasticsearch():
     # Filebeat ships container stdout as ECS JSON; here we index a document directly
     # in the same ECS shape to verify Elasticsearch accepts the format and the required
     # ECS fields are queryable. Filebeat config is validated via docker-compose smoke test.
-    container = ElasticSearchContainer("elasticsearch:8.17.3", port=9200)
+    container = ElasticSearchContainer("docker.elastic.co/elasticsearch/elasticsearch:8.17.3", port=9200)
     container.with_env("ES_JAVA_OPTS", "-Xms256m -Xmx256m")
     container.with_env("discovery.type", "single-node")
     container.with_env("xpack.security.enabled", "false")
