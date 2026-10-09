@@ -37,7 +37,7 @@ Docker Compose stack for the full Auspex infrastructure.
 
 All ports bound to `127.0.0.1` — local only, intentional; the exporters publish none. Services in the `app` profile (`ingestion-scraper`, `core-hub`) only start with `--profile app`.
 
-Every service has a `mem_limit` from `.env` (`*_MEM_LIMIT`, defaults in `.env.example` and repeated in the compose file so an older `.env` still starts). The long-running services' limits add up to at most 7.5 GB, inside Docker Desktop's 8 GB VM with 512 MB left for the VM; `test_stack_observability_config.py` enforces both. A container that reaches its limit is OOM-killed and restarted, which raises **Container Restarting**; raise its variable in `.env` and look at **Container memory** on the infrastructure dashboard.
+Every service has a `mem_limit` from `.env` (`*_MEM_LIMIT`, values in `.env.example` only). The long-running services' limits add up to at most 7.5 GB, inside Docker Desktop's 8 GB VM with 512 MB left for the VM; `test_stack_observability_config.py` enforces both. A container that reaches its limit is OOM-killed and restarted, which raises **Container Restarting**; raise its variable in `.env` and look at **Container memory** on the infrastructure dashboard.
 
 ---
 
@@ -133,7 +133,7 @@ All credentials come from root `.env`. Copy from `.env.example` and fill in:
 - `POSTGRES_MONITOR_PASSWORD` — the exporter's read-only Postgres role
 - `ALERT_CONTACT_TYPE` and its settings (`ALERT_EMAIL_ADDRESSES` + `SMTP_*`, or `ALERT_WEBHOOK_URL`) — where alerts go; Grafana does not start without them
 
-Credentials have no defaults in `docker-compose.yml`. Sizes, retention and alert thresholds do, equal to `.env.example`, so an `.env` written before they existed still starts the stack.
+The monitoring variables (sizes, retention, alert thresholds) have no defaults in `docker-compose.yml`: their values live only in `.env.example`, so an `.env` copied before they existed needs them added.
 
 ---
 

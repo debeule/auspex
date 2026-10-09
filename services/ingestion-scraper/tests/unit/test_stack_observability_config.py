@@ -23,7 +23,8 @@ ALERTING = DOCKER / "grafana" / "provisioning" / "alerting"
 _DOCKER_DESKTOP_MIB = 8 * 1024
 _VM_RESERVE_MIB = 512
 
-_PLACEHOLDER = re.compile(r"^\$\{(?P<var>[A-Z0-9_]+)(?::-(?P<default>[^}]*))?\}$")
+# A bare `${VAR}`: the value lives only in `.env.example`, never as a second copy in compose.
+_PLACEHOLDER = re.compile(r"^\$\{(?P<var>[A-Z0-9_]+)\}$")
 # What Grafana's provisioning passes to os.ExpandEnv after splitting on the `$$` escape.
 _ENV_REF = re.compile(r"\$\{?(?P<var>[A-Za-z_][A-Za-z0-9_]*)\}?")
 _EXACT_TAG = re.compile(r"\d+\.\d+|\d{4}-\d{2}-\d{2}")
@@ -156,10 +157,8 @@ def test_every_compose_service_has_a_memory_limit_from_env() -> None:
         assert limit is not None, f"{name} has no mem_limit"
         m = _PLACEHOLDER.match(str(limit))
         assert m, f"{name}: mem_limit {limit!r} is not an .env placeholder"
-        var, default = m.group("var"), m.group("default")
-        assert var in env, f"{name}: {var} not documented in .env.example"
-        # The compose default keeps an older .env working; it must say what .env.example says.
-        assert default == env[var], f"{name}: default {default!r} != .env.example {env[var]!r}"
+        var = m.group("var")
+        assert env.get(var), f"{name}: {var} not set in .env.example"
         if _long_running(svc):
             long_running_mib += _mib(env[var])
 
@@ -276,7 +275,7 @@ def test_alert_rules_exist_for_target_down_disk_memory_restarts_dag_failure_and_
     for title, var in thresholds.items():
         assert f"${{{var}}}" in _rule_exprs(rules[title]), f"{title} threshold not from {var}"
         assert env[var].isdigit(), f"{var} must be a number in .env.example"
-        assert grafana_env[var] == f"${{{var}:-{env[var]}}}", f"grafana does not receive {var}"
+        assert grafana_env[var] == f"${{{var}}}", f"grafana does not receive {var}"
     assert (env["ALERT_DOCKER_DISK_FREE_MIN_PCT"], env["ALERT_MAC_DISK_FREE_MIN_PCT"]) == ("15", "10")
     assert (env["ALERT_VM_MEMORY_MAX_PCT"], env["ALERT_CONTAINER_RESTARTS_MAX_PER_HOUR"]) == ("90", "3")
     assert env["ALERT_PRICE_REFRESH_MAX_MISSED_SESSIONS"] == "2"
@@ -358,7 +357,7 @@ def test_every_service_is_labelled_for_log_shipping() -> None:
 
 def test_exporter_credentials_are_a_monitoring_role_not_the_app_owner() -> None:
     exporter = _services()["postgres-exporter"]["environment"]
-    assert exporter["DATA_SOURCE_USER"] == "${POSTGRES_MONITOR_USER:-auspex_monitor}"
+    assert exporter["DATA_SOURCE_USER"] == "${POSTGRES_MONITOR_USER}"
     assert exporter["DATA_SOURCE_PASS"] == "${POSTGRES_MONITOR_PASSWORD}"
     role_init = _services()["postgres-monitor-role"]
     assert role_init["restart"] == "no"

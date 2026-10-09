@@ -16,7 +16,7 @@ services:
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: "false"
       KAFKA_LOG_DIRS: /var/lib/kafka/data
-      KAFKA_HEAP_OPTS: ${KAFKA_HEAP_OPTS:--Xmx384m -Xms384m}
+      KAFKA_HEAP_OPTS: ${KAFKA_HEAP_OPTS}
     ports:
       - "127.0.0.1:9092:9092"
     volumes:
@@ -28,7 +28,7 @@ services:
       timeout: 10s
       retries: 15
       start_period: 30s
-    mem_limit: ${KAFKA_MEM_LIMIT:-640m}
+    mem_limit: ${KAFKA_MEM_LIMIT}
     labels:
       co.elastic.logs/enabled: "true"
 
@@ -43,7 +43,7 @@ services:
       - ./topics.yaml:/config/topics.yaml:ro
     entrypoint: ["/create-topics.sh"]
     restart: "no"
-    mem_limit: ${KAFKA_INIT_MEM_LIMIT:-384m}
+    mem_limit: ${KAFKA_INIT_MEM_LIMIT}
     labels:
       co.elastic.logs/enabled: "true"
 
@@ -69,7 +69,7 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
-    mem_limit: ${POSTGRES_MEM_LIMIT:-384m}
+    mem_limit: ${POSTGRES_MEM_LIMIT}
     labels:
       co.elastic.logs/enabled: "true"
 
@@ -91,7 +91,7 @@ services:
       timeout: 10s
       retries: 15
       start_period: 30s
-    mem_limit: ${NEO4J_MEM_LIMIT:-576m}
+    mem_limit: ${NEO4J_MEM_LIMIT}
     labels:
       co.elastic.logs/enabled: "true"
 
@@ -116,7 +116,7 @@ services:
       timeout: 5s
       retries: 5
       start_period: 10s
-    mem_limit: ${MINIO_MEM_LIMIT:-320m}
+    mem_limit: ${MINIO_MEM_LIMIT}
     labels:
       co.elastic.logs/enabled: "true"
 
@@ -138,7 +138,7 @@ services:
       MINIO_BUCKET: ${MINIO_BUCKET}
     command: ["uv", "run", "--no-project", "python", "-m", "auspex_backtesting.stack_bootstrap", "buckets"]
     restart: "no"
-    mem_limit: ${MINIO_INIT_MEM_LIMIT:-256m}
+    mem_limit: ${MINIO_INIT_MEM_LIMIT}
     labels:
       co.elastic.logs/enabled: "true"
 
@@ -155,7 +155,7 @@ services:
       PRICE_HISTORY_START: ${PRICE_HISTORY_START:-2013-01-01}
     command: ["uv", "run", "--no-project", "python", "-m", "auspex_backtesting.stack_bootstrap", "prices"]
     restart: "no"
-    mem_limit: ${PRICE_BOOTSTRAP_MEM_LIMIT:-1024m}
+    mem_limit: ${PRICE_BOOTSTRAP_MEM_LIMIT}
     labels:
       co.elastic.logs/enabled: "true"
 
@@ -187,7 +187,7 @@ services:
       start_period: 15s
     labels:
       co.elastic.logs/enabled: "true"
-    mem_limit: ${PRICE_SERVICE_MEM_LIMIT:-1280m}
+    mem_limit: ${PRICE_SERVICE_MEM_LIMIT}
 
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:${ELASTIC_VERSION}
@@ -207,7 +207,7 @@ services:
       timeout: 10s
       retries: 15
       start_period: 30s
-    mem_limit: ${ELASTICSEARCH_MEM_LIMIT:-896m}
+    mem_limit: ${ELASTICSEARCH_MEM_LIMIT}
     labels:
       co.elastic.logs/enabled: "true"
 
@@ -224,7 +224,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:ro
     command: filebeat -e --strict.perms=false
     restart: unless-stopped
-    mem_limit: ${FILEBEAT_MEM_LIMIT:-160m}
+    mem_limit: ${FILEBEAT_MEM_LIMIT}
     labels:
       co.elastic.logs/enabled: "true"
 
@@ -238,7 +238,7 @@ services:
       - ./elasticsearch:/setup:ro
     command: /setup/setup.sh
     restart: "no"
-    mem_limit: ${ELASTICSEARCH_SETUP_MEM_LIMIT:-32m}
+    mem_limit: ${ELASTICSEARCH_SETUP_MEM_LIMIT}
     labels:
       co.elastic.logs/enabled: "true"
 
@@ -248,8 +248,8 @@ services:
     command:
       - --config.file=/etc/prometheus/prometheus.yml
       - --storage.tsdb.path=/prometheus
-      - --storage.tsdb.retention.time=${PROMETHEUS_RETENTION_TIME:-30d}
-      - --storage.tsdb.retention.size=${PROMETHEUS_RETENTION_SIZE:-4GB}
+      - --storage.tsdb.retention.time=${PROMETHEUS_RETENTION_TIME}
+      - --storage.tsdb.retention.size=${PROMETHEUS_RETENTION_SIZE}
     extra_hosts:
       # The Mac's node_exporter (job mac-host); Docker Desktop provides the name, Linux needs this.
       - "host.docker.internal:host-gateway"
@@ -264,7 +264,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-    mem_limit: ${PROMETHEUS_MEM_LIMIT:-384m}
+    mem_limit: ${PROMETHEUS_MEM_LIMIT}
     labels:
       co.elastic.logs/enabled: "true"
 
@@ -281,20 +281,20 @@ services:
       GF_USERS_ALLOW_SIGN_UP: "false"
       GF_ANALYTICS_REPORTING_ENABLED: "false"
       GF_SMTP_ENABLED: "true"
-      GF_SMTP_HOST: ${SMTP_HOST:-}
-      GF_SMTP_USER: ${SMTP_USER:-}
-      GF_SMTP_PASSWORD: ${SMTP_PASSWORD:-}
-      GF_SMTP_FROM_ADDRESS: ${SMTP_FROM_ADDRESS:-}
+      GF_SMTP_HOST: ${SMTP_HOST}
+      GF_SMTP_USER: ${SMTP_USER}
+      GF_SMTP_PASSWORD: ${SMTP_PASSWORD}
+      GF_SMTP_FROM_ADDRESS: ${SMTP_FROM_ADDRESS}
       # Read by alerting/contactpoints.yaml.
       ALERT_CONTACT_TYPE: ${ALERT_CONTACT_TYPE}
       ALERT_EMAIL_ADDRESSES: ${ALERT_EMAIL_ADDRESSES}
       ALERT_WEBHOOK_URL: ${ALERT_WEBHOOK_URL}
       # Read by alerting/infrastructure.yaml.
-      ALERT_DOCKER_DISK_FREE_MIN_PCT: ${ALERT_DOCKER_DISK_FREE_MIN_PCT:-15}
-      ALERT_MAC_DISK_FREE_MIN_PCT: ${ALERT_MAC_DISK_FREE_MIN_PCT:-10}
-      ALERT_VM_MEMORY_MAX_PCT: ${ALERT_VM_MEMORY_MAX_PCT:-90}
-      ALERT_CONTAINER_RESTARTS_MAX_PER_HOUR: ${ALERT_CONTAINER_RESTARTS_MAX_PER_HOUR:-3}
-      ALERT_PRICE_REFRESH_MAX_MISSED_SESSIONS: ${ALERT_PRICE_REFRESH_MAX_MISSED_SESSIONS:-2}
+      ALERT_DOCKER_DISK_FREE_MIN_PCT: ${ALERT_DOCKER_DISK_FREE_MIN_PCT}
+      ALERT_MAC_DISK_FREE_MIN_PCT: ${ALERT_MAC_DISK_FREE_MIN_PCT}
+      ALERT_VM_MEMORY_MAX_PCT: ${ALERT_VM_MEMORY_MAX_PCT}
+      ALERT_CONTAINER_RESTARTS_MAX_PER_HOUR: ${ALERT_CONTAINER_RESTARTS_MAX_PER_HOUR}
+      ALERT_PRICE_REFRESH_MAX_MISSED_SESSIONS: ${ALERT_PRICE_REFRESH_MAX_MISSED_SESSIONS}
     volumes:
       - ./grafana/provisioning:/etc/grafana/provisioning:ro
       - grafana_data:/var/lib/grafana
@@ -307,7 +307,7 @@ services:
       timeout: 5s
       retries: 10
       start_period: 30s
-    mem_limit: ${GRAFANA_MEM_LIMIT:-256m}
+    mem_limit: ${GRAFANA_MEM_LIMIT}
     labels:
       co.elastic.logs/enabled: "true"
 
@@ -359,7 +359,7 @@ services:
       start_period: 15s
     labels:
       co.elastic.logs/enabled: "true"
-    mem_limit: ${INGESTION_SCRAPER_MEM_LIMIT:-384m}
+    mem_limit: ${INGESTION_SCRAPER_MEM_LIMIT}
 
   core-hub:
     build:
@@ -387,7 +387,7 @@ services:
       LOGGING_STRUCTURED_FORMAT_CONSOLE: ecs
       CORE_HUB_WRITE_TOKEN: ${CORE_HUB_WRITE_TOKEN}
       # The JVM's default heap is a quarter of the container limit, too little for this service.
-      JAVA_TOOL_OPTIONS: ${CORE_HUB_JAVA_TOOL_OPTIONS:--XX:MaxRAMPercentage=60}
+      JAVA_TOOL_OPTIONS: ${CORE_HUB_JAVA_TOOL_OPTIONS}
     ports:
       - "127.0.0.1:8080:8080"
     healthcheck:
@@ -398,7 +398,7 @@ services:
       start_period: 45s
     labels:
       co.elastic.logs/enabled: "true"
-    mem_limit: ${CORE_HUB_MEM_LIMIT:-768m}
+    mem_limit: ${CORE_HUB_MEM_LIMIT}
 
   dashboard:
     build:
@@ -473,7 +473,7 @@ services:
       timeout: 10s
       retries: 10
       start_period: 60s
-    mem_limit: ${AIRFLOW_MEM_LIMIT:-1152m}
+    mem_limit: ${AIRFLOW_MEM_LIMIT}
 
   # Exporters. None publishes a port: Prometheus reaches them on the compose network.
 
@@ -493,7 +493,7 @@ services:
     volumes:
       - volume_usage_textfile:/textfile:ro
     restart: unless-stopped
-    mem_limit: ${NODE_EXPORTER_MEM_LIMIT:-48m}
+    mem_limit: ${NODE_EXPORTER_MEM_LIMIT}
     labels:
       co.elastic.logs/enabled: "true"
 
@@ -502,7 +502,7 @@ services:
     container_name: auspex-volume-usage
     command: ["sh", "/collect.sh"]
     environment:
-      INTERVAL_SECONDS: ${VOLUME_USAGE_INTERVAL_SECONDS:-900}
+      INTERVAL_SECONDS: ${VOLUME_USAGE_INTERVAL_SECONDS}
     volumes:
       - ./volume-usage/collect.sh:/collect.sh:ro
       - volume_usage_textfile:/textfile
@@ -515,7 +515,7 @@ services:
       - prometheus_data:/volumes/prometheus_data:ro
       - grafana_data:/volumes/grafana_data:ro
     restart: unless-stopped
-    mem_limit: ${VOLUME_USAGE_MEM_LIMIT:-32m}
+    mem_limit: ${VOLUME_USAGE_MEM_LIMIT}
     labels:
       co.elastic.logs/enabled: "true"
 
@@ -536,7 +536,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - /var/lib/docker:/var/lib/docker:ro
     restart: unless-stopped
-    mem_limit: ${CADVISOR_MEM_LIMIT:-160m}
+    mem_limit: ${CADVISOR_MEM_LIMIT}
     labels:
       co.elastic.logs/enabled: "true"
 
@@ -551,13 +551,13 @@ services:
       PGDATABASE: ${POSTGRES_DB}
       PGUSER: ${POSTGRES_USER}
       PGPASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_MONITOR_USER: ${POSTGRES_MONITOR_USER:-auspex_monitor}
+      POSTGRES_MONITOR_USER: ${POSTGRES_MONITOR_USER}
       POSTGRES_MONITOR_PASSWORD: ${POSTGRES_MONITOR_PASSWORD}
     volumes:
       - ./postgres-monitor/create-role.sh:/create-role.sh:ro
     entrypoint: ["sh", "/create-role.sh"]
     restart: "no"
-    mem_limit: ${POSTGRES_MONITOR_ROLE_MEM_LIMIT:-64m}
+    mem_limit: ${POSTGRES_MONITOR_ROLE_MEM_LIMIT}
     labels:
       co.elastic.logs/enabled: "true"
 
@@ -569,10 +569,10 @@ services:
         condition: service_completed_successfully
     environment:
       DATA_SOURCE_URI: postgres:5432/${POSTGRES_DB}?sslmode=disable
-      DATA_SOURCE_USER: ${POSTGRES_MONITOR_USER:-auspex_monitor}
+      DATA_SOURCE_USER: ${POSTGRES_MONITOR_USER}
       DATA_SOURCE_PASS: ${POSTGRES_MONITOR_PASSWORD}
     restart: unless-stopped
-    mem_limit: ${POSTGRES_EXPORTER_MEM_LIMIT:-48m}
+    mem_limit: ${POSTGRES_EXPORTER_MEM_LIMIT}
     labels:
       co.elastic.logs/enabled: "true"
 
@@ -584,7 +584,7 @@ services:
         condition: service_healthy
     command: ["--kafka.server=kafka:9094"]
     restart: unless-stopped
-    mem_limit: ${KAFKA_EXPORTER_MEM_LIMIT:-48m}
+    mem_limit: ${KAFKA_EXPORTER_MEM_LIMIT}
     labels:
       co.elastic.logs/enabled: "true"
 
@@ -597,7 +597,7 @@ services:
     # Security is off on this single-node cluster, so there is no role to create.
     command: ["--es.uri=http://elasticsearch:9200"]
     restart: unless-stopped
-    mem_limit: ${ELASTICSEARCH_EXPORTER_MEM_LIMIT:-48m}
+    mem_limit: ${ELASTICSEARCH_EXPORTER_MEM_LIMIT}
     labels:
       co.elastic.logs/enabled: "true"
 
@@ -611,7 +611,7 @@ services:
     volumes:
       - ./blackbox-exporter/blackbox.yml:/etc/blackbox/blackbox.yml:ro
     restart: unless-stopped
-    mem_limit: ${BLACKBOX_EXPORTER_MEM_LIMIT:-48m}
+    mem_limit: ${BLACKBOX_EXPORTER_MEM_LIMIT}
     labels:
       co.elastic.logs/enabled: "true"
 
@@ -624,7 +624,7 @@ services:
     volumes:
       - ./statsd-exporter/mapping.yml:/etc/statsd/mapping.yml:ro
     restart: unless-stopped
-    mem_limit: ${STATSD_EXPORTER_MEM_LIMIT:-48m}
+    mem_limit: ${STATSD_EXPORTER_MEM_LIMIT}
     labels:
       co.elastic.logs/enabled: "true"
 

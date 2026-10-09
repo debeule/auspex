@@ -87,7 +87,7 @@ The last three commands and the alert check run on the stack machine, in step 8 
 ## Built
 
 - Required tests: all 14, plus `test_alert_expressions_reference_only_env_vars_grafana_receives`, `test_exporter_credentials_are_a_monitoring_role_not_the_app_owner`, `test_minio_metrics_are_public_on_the_internal_network_only`, `test_new_exporters_publish_no_host_ports`, two `volume-usage` tests, `tests/unit/test_stack_alert_expressions.py` (every new alert's PromQL run through `promtool test rules`, firing and quiet cases; CI installs promtool) and four more price metrics tests (NYSE session counting, holidays, service start, one registry per app).
-- Deviations, each in `DECISIONS.md` 2026-10-09: the monitoring role comes from a one-shot (`postgres-monitor-role`), not `postgres-init/`, so existing volumes get it; volume sizes come from a `du` sidecar (`volume-usage`) through node-exporter's textfile collector; node-exporter reads the VM through PID 1 instead of bind-mounting `/`; non-secret sizes and thresholds have compose defaults equal to `.env.example`.
+- Deviations, each in `DECISIONS.md` 2026-10-09: the monitoring role comes from a one-shot (`postgres-monitor-role`), not `postgres-init/`, so existing volumes get it; volume sizes come from a `du` sidecar (`volume-usage`) through node-exporter's textfile collector; node-exporter reads the VM through PID 1 instead of bind-mounting `/`. Every new value lives only in `.env.example` (compose uses bare `${VAR}`).
 
 ## Notes
 

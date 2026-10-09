@@ -26,9 +26,8 @@ not `.DLT`. Verify partition parity whenever adding a topic pair.
 
 ## Environment
 
-All credentials from root `.env`, with no defaults in docker-compose.yml. Non-secret sizing,
-retention and alert thresholds have `${VAR:-default}` defaults that must equal `.env.example`
-(`test_stack_observability_config.py` checks), so an older `.env` keeps working. Ports are bound to
+All values from root `.env`; new variables use a bare `${VAR}` in docker-compose.yml, with the
+value written once, in `.env.example`. Ports are bound to
 `127.0.0.1` — local only, intentional; exporters publish none.
 
 ## Monitoring
