@@ -19,6 +19,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # Docker Hub rate-limits anonymous pulls per runner IP; the mirror serves cached official images and falls back to Docker Hub.
+      - name: Pull test container images through a registry mirror
+        run: |
+          config=$(sudo cat /etc/docker/daemon.json 2>/dev/null || echo '{}')
+          echo "$config" | jq '. + {"registry-mirrors": ["https://mirror.gcr.io"]}' | sudo tee /etc/docker/daemon.json
+          sudo systemctl restart docker
+          docker info --format '{{.RegistryConfig.Mirrors}}'
+
       - name: Set up Python 3.14
         uses: actions/setup-python@v5
         with:
