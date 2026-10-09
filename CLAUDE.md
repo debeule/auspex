@@ -14,7 +14,7 @@ Those two are imported, so they are already in context — do not re-read them f
 - `docs/plan.md` — reference only; contains original phase definitions for Phases 0–6.
 - `SETUP.md` — the only manual steps (secrets, host installs, sign-offs), in order. Everything else loads on `docker compose up` or refreshes on an Airflow schedule. A new manual step goes there, and only if it cannot be automated.
 
-**The first `ready` spec in TODO.md is the work.** Update it as items complete, not at the end of the session.
+**The spec you were assigned is the work; with no assignment, the first `ready` spec in TODO.md.** Update it as items complete, not at the end of the session.
 
 ## Naming (fixed — do not vary)
 Project **Auspex**. Named for the Roman official who read scattered signs for meaning, which is the job: no single source is evidence, convergence is.
@@ -37,12 +37,12 @@ Project **Auspex**. Named for the Roman official who read scattered signs for me
 See README.md for system overview and architecture.
 
 ## Session start (every time, no exceptions)
-1. Read `TODO.md` — find the first `ready` spec. That is the work.
+1. Read `TODO.md` — the spec you were assigned, or else the first `ready` spec, is the work.
 2. Open that spec file in `specs/` and read it in full. It is self-contained.
 3. If no spec is `ready`, pick a `draft` spec to scope — see `specs/README.md` for the format. Scoping means filling in required tests and definition of done, not implementation.
 4. Confirm the spec's required tests are consistent with `docs/requirements.md` before writing them (see "The rule that matters most" below).
 5. Work only the current spec. Do not start another.
-6. When done: mark the spec `done`, move it to `specs/done/`, update its row in `TODO.md` (link points to `specs/done/<name>.md`), commit.
+6. When done: mark the spec `done`, move it to `specs/done/`, update its row in `TODO.md` (link points to `specs/done/<name>.md`), commit, and open a PR (see "Ready to merge").
 
 ## No legacy system
 Phases 0–3 are complete. There is no legacy system predating this project — no prior schema to migrate from, no behaviour to preserve from a prior release. The only Flyway "migrations" are the scripts that create the schema on an empty database — Flyway's word, not a change of direction.
@@ -92,7 +92,7 @@ This is not hypothetical: v1 of this plan contained a test (`test_dag_task_only_
 | Smoke test | `./verify_pipeline.sh` |
 | Regenerate contract fixture | `cd services/ingestion-scraper && uv run pytest tests/unit/test_contract_fixture.py` |
 
-**A test run that executes zero tests is a failure, not a pass.** Gradle's `test` task with no test classes succeeds; so does pytest with a wrong path. Always check the reported test count. Set `failOnNoDiscoveredTests = true` on every `Test` task (confirm it exists on the pinned Gradle version at Step 0.0) and use `--strict-markers` in pytest.
+**A test run that executes zero tests is a failure, not a pass.** Gradle's `test` task with no test classes succeeds; so does pytest with a wrong path. Always check the reported test count. Set `failOnNoDiscoveredTests = true` on every `Test` task and use `--strict-markers` in pytest.
 
 **Gradle caches task outcomes.** A second `./gradlew test` with no source changes reports `UP-TO-DATE` and runs nothing — which looks exactly like a pass. When you need to *prove* a test ran (verifying a red, or confirming a fix), use `--rerun-tasks`, or read the count out of `build/reports/tests/`.
 
@@ -102,7 +102,7 @@ This is not hypothetical: v1 of this plan contained a test (`test_dag_task_only_
 3. Verify each fails for the RIGHT reason:
      Python: ImportError / AttributeError / AssertionError — NOT collection or syntax errors
      Java:   compile error on a missing class is acceptable; assertion failure preferred
-   Paste the failure output into TODO.md under the spec.
+   Paste the failure output into the PR description.
 4. Implement the minimum to pass.    5. Re-run the spec's tests.
 6. Run the unit suite (fast).        7. Update docs (see below).   8. Commit.
 9. At spec completion only: run the full container suite.
@@ -164,23 +164,36 @@ services/core-hub/src/integrationTest/java/**/<Subject>IT.java    # container-ba
 - Fast-forward merge only: `git merge --ff-only feature/<name>`.
 - Never merge with `--no-ff` unless explicitly agreed — it creates unnecessary merge commits.
 
-**End-of-spec flow (run in order when a spec is done):**
-```bash
-git push -u origin feature/<name>
-git checkout feature/<name> && git rebase develop
-git checkout develop && git merge --ff-only feature/<name>
-git push -u origin develop
-git checkout main && git merge --ff-only develop
-git push origin main
-git checkout develop          # reset for the next spec
-```
+**End-of-spec flow:**
+1. `git push -u origin feature/<name>` and open a PR into `develop`. Never push to `develop` or `main` directly.
+2. Get CI green and meet "Ready to merge" below.
+3. Merge only when the owner says so. Rebase onto `develop`, then merge **locally** and push:
+   ```bash
+   git fetch origin develop && git rebase origin/develop && git push --force-with-lease
+   git checkout develop && git pull --ff-only && git merge --ff-only feature/<name> && git push origin develop
+   ```
+   Not GitHub's merge button: it records the owner's GitHub account as committer, not their git identity.
+4. `main` changes only through a `release/<version>` branch, when the owner asks for a release.
+
+**Ready to merge.** CI green is necessary, not sufficient. Before asking to merge:
+- Every behaviour the change adds or alters has a test. Read the diff behaviour by behaviour and add the missing tests first.
+- Mutation check: break each behaviour on purpose (flip a condition, drop a field, skip a write), confirm a test goes red, revert. Do this locally. Never push mutant code as its own branch; if a break can only be shown in CI, push it as a commit on the PR branch and revert it in the next commit.
+- For a spec PR, every requirement in the spec maps to a named test.
+- The PR description lists what was mutation-checked and anything only CI could run.
+
+**Shared log files.** `DECISIONS.md` and `TODO.md` use git's `union` merge driver (`.gitattributes`), so two branches appending entries both survive a rebase. After a rebase, check the result reads in order and has no duplicated lines.
 
 **Other rules:**
 - Commit only when the spec's tests pass. A bad change is then one `git revert` away.
 - Never commit `.env`, `target/`, `.venv/`, `__pycache__/`, or Docker volumes.
-- **Claude never appears as author, committer or co-author.** Commits carry the git identity of the person driving the work, as author and committer: their own configured `user.name` / `user.email`, never Claude or a tool's default identity. If an automated session has no human identity configured, use the identity of the person who requested the work, or ask. No `Co-Authored-By`, `Claude-Session` or other Claude trailers.
+- **Claude never appears as author, committer or co-author.** Commits carry the git identity of the person driving the work, as author and committer: their own configured `user.name` / `user.email`, never Claude or a tool's default identity. If an automated session has no human identity configured, use the identity of the person who requested the work, or ask. No `Co-Authored-By`, `Claude-Session` or other Claude trailers. The `Commit identity` CI check (`.github/scripts/check_commit_identity.sh`) fails a PR that has any.
 - **No Claude footers on GitHub.** Leave "🤖 Generated with Claude Code", claude.ai session links and "Generated by Claude Code" out of PR bodies and comments, and check the PR body after creating it in case a tool appended one. Keep GitHub comments rare.
 - **Commit message style:** subject line only, lowercase, `subject: detail1, detail2`. Examples: `real connector wiring: sources.yaml, run_pipeline.py, CT API fix` · `deduplication & amendment precedence` · `confidence scoring for corroboration strength`. No body, no description.
+
+## Where work can run
+- **Cloud sessions** (Claude on the web or in a project) have no Docker and cannot reach `sec.gov` or Yahoo. Container-backed tests (`tests/integration`, `./gradlew integrationTest`) are proven in CI, not locally; say so in the PR. They also cannot delete branches on GitHub, so do not push branches you will want gone.
+- **The stack machine** (the owner's Mac) runs the stack, Ollama and anything needing the GPU or live SEC data. Work that can only run there goes into a spec the owner runs with Claude Code on that machine (see `specs/first-run-on-stack-machine.md`), never into a script for the owner to run by hand.
+- **No hand-run setup or data scripts.** Startup data belongs in a one-shot compose service that is a no-op when the data exists; data that must stay current belongs in an Airflow DAG calling a service HTTP API. A step that truly cannot be automated (a secret, a host install, a sign-off) goes in `SETUP.md`.
 
 ## Known traps (verified — do not rediscover these)
 - **`ErrorHandlingDeserializer` is mandatory.** Without it a malformed payload fails inside the poll loop before any error handler runs, and the container retries the same offset forever. Two required tests depend on this.
@@ -201,7 +214,7 @@ git checkout develop          # reset for the next spec
 - **LocalStack calendar tags (`2026.x`) need a licence token** and exit with code 55 without one. Integration tests pin `localstack/localstack:4.9.2`.
 - **Local model backend — Docker/Metal:** Docker Desktop on macOS cannot use Metal. Run the model server (Ollama) on the host; the scraper reaches it via `host.docker.internal` in `EXTRACTION_BASE_URL`. See `docker/README.md` for the memory budget table.
 - **Local model backend — context length:** Ollama's OpenAI-compatible `/v1` endpoint ignores per-request `num_ctx`. The server default is 4096 tokens and longer prompts are silently truncated, so the registry's `num_ctx` only holds if Ollama runs with `OLLAMA_CONTEXT_LENGTH` ≥ that value. See `docs/local-model-runbook.md`.
-- **Local model backend — tag re-pointing:** `ollama pull gemma3:27b` downloads whatever HEAD is at that tag at pull time. The registry pins the exact digest (`gemma3:27b@sha256:...`); `LLMExtractorFactory` compares the registered digest against `ollama show` output at startup and fails before any extraction runs if they differ.
+- **Local model backend — tag re-pointing:** `ollama pull llama3.1:8b-instruct-q8_0` downloads whatever HEAD is at that tag at pull time. The registry pins the exact digest (`llama3.1:8b-instruct-q8_0@sha256:...`); `LLMExtractorFactory` compares the registered digest against `ollama show` output at startup and fails before any extraction runs if they differ.
 
 ## File map
 | File | Purpose |
@@ -212,7 +225,7 @@ git checkout develop          # reset for the next spec
 | `specs/done/` | Completed specs — moved here when status is set to `done`. |
 | `specs/README.md` | Spec format requirements — what a spec must contain before status is `ready`. |
 | `VERSIONS.md` | Pinned versions — single source of truth. |
-| `DECISIONS.md` | Append-only log of flags, blocks, and choices made. |
+| `DECISIONS.md` | Append-only log of flags, blocks, and choices made. Entry heading: `## YYYY-MM-DD — <topic> — TYPE — <title>`. |
 | `docs/requirements.md` | What the system must satisfy. Cited by specs when verifying tests. |
 | `docs/PREREQUISITES.md` | Outstanding credentials and user decisions. |
 | `docs/local-model-runbook.md` | Install Ollama, register and gate a local extraction model, switch the pipeline to it. |

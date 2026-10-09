@@ -18,7 +18,7 @@ The generated file is `services/core-hub/src/test/resources/contract/signal_even
 |---|---|---|---|
 | `auspex.raw.ingested` | 6 | ingestion-scraper | core-hub |
 | `auspex.signals.extracted` | 6 | ingestion-scraper | core-hub |
-| `auspex.signals.corroborated` | 6 | core-hub | (downstream — Phase 6) |
+| `auspex.signals.corroborated` | 6 | core-hub | (no consumer yet) |
 | `*.dlt` | 6 (must match source) | Spring Kafka DLT | (monitoring) |
 
 Topic provisioning is in `docker/topics.yaml`. DLT partition count must match the source topic — Spring's `DeadLetterPublishingRecoverer` publishes to the same partition number; a mismatch fails silently.

@@ -38,7 +38,7 @@ Root package `dev.auspex.corehub`. Topics `auspex.*`. Application database `ausp
 ## Testing
 - `src/test/java/**/*Test.java` = unit, **no Spring context**. `src/integrationTest/java/**/*IT.java` = container-backed. Different source sets, different tasks.
 - Containers are **static singletons started once per JVM** — not `@Testcontainers` per class. One Spring context, no `@DirtiesContext`, truncate between tests rather than restarting containers. Target: the container suite under 3 minutes.
-- `CorroborationServiceContractTest` is **abstract**. Steps 2.8 and 6.4 re-run it unmodified. Do not inline its cases.
+- `CorroborationServiceContractTest` is **abstract**. Every `CorroborationService` implementation extends it unmodified. Do not inline its cases.
 - Use `awaitility` for async assertions, never `Thread.sleep`.
 
 ## Traps

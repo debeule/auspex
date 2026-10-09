@@ -104,7 +104,7 @@ Then:
 
 ## Notes
 
-Budget estimate: ~26,000 LLM calls at `gpt-4o-mini-2024-07-18` pricing ≈ $65 (API). For a local model at mean latency from `evaluate_model.py`, e.g. ~5 s/document at Ollama on 36 GB: 26,000 × 5 s ≈ 36 hours. Run under `caffeinate -i` and rely on checkpoints for restarts. Set `BACKFILL_TIME_CEILING_HOURS=48` (36-hour estimate plus ~33% for latency variance and rate-limit backoff) before starting. `.env.example` must document both ceiling variables.
+Budget estimate: ~26,000 LLM calls at `gpt-4o-mini-2024-07-18` pricing ≈ $65 (API). For a local model the estimate is documents × mean latency from the latency record `evaluate_model.py` writes on the stack machine (24 GB M4 Pro); the dry run prints it. Run under `caffeinate -i` and rely on checkpoints for restarts. Set `BACKFILL_TIME_CEILING_HOURS` to the dry-run estimate plus about a third before starting. `.env.example` must document both ceiling variables.
 
 Structured sources (`specs/structured-source-extraction.md`: Form 4, offerings) make no LLM call and are stamped `extraction_model = "structured:<mapper>"`. The single-lineage check below applies to LLM-extracted rows; structured rows are checked separately for one mapper version per source.
 

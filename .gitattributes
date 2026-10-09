@@ -1,0 +1,3 @@
+# Append-only logs: keep both sides of concurrent appends during rebase and local merges.
+DECISIONS.md merge=union
+TODO.md merge=union

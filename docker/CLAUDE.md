@@ -16,13 +16,13 @@ The `kafka-init` one-shot (`kafka-init/create-topics.sh`) creates topics from `t
 `minio-init` creates the buckets and `price-bootstrap` fills missing price snapshots. All three are
 no-ops when the data exists. If topic counts are wrong: `down -v` then `up` again.
 
-Startup data belongs in a one-shot compose service that is a no-op when the data exists; data that
-must stay current belongs in an Airflow DAG calling a service HTTP API. Never a script to run by hand.
+Startup data belongs in a one-shot compose service; data that must stay current belongs in an
+Airflow DAG. Never a script to run by hand (root `CLAUDE.md`, "Where work can run").
 
 **DLT topic partition count must match the source topic.** Spring's `DeadLetterPublishingRecoverer`
-uses partition `-1` (producer chooses from available partitions) — if counts differ, DLT publishing
-fails silently. We use lowercase `.dlt` suffix, not `.DLT`. Verify partition parity whenever adding
-a topic pair.
+defaults to the source record's partition number, which fails when the DLT has fewer partitions; our
+resolver returns `-1` (producer chooses), and we keep counts equal anyway. We use lowercase `.dlt`,
+not `.DLT`. Verify partition parity whenever adding a topic pair.
 
 ## Environment
 

@@ -1,6 +1,6 @@
 # Pinned Versions
 
-Verified current as of **2026-08-15**. Anything marked *resolve at 0.0* must be pinned to an exact version during Step 0.0 and written back into this file. **No floating tags, no `latest`, no `>=`.**
+Verified current as of **2026-08-15**. Anything marked *resolve at install* must be pinned to an exact version when first installed and written back into this file. **No floating tags, no `latest`, no `>=`.**
 
 ## Runtimes
 | Component | Pin | Notes |
@@ -17,7 +17,7 @@ Verified current as of **2026-08-15**. Anything marked *resolve at 0.0* must be 
 | Neo4j | `neo4j:2026.05-community` | Neo4j moved to calendar versioning; the 5.x line ended at 5.26 LTS. **See open question 4.** |
 | MinIO | `quay.io/minio/minio:RELEASE.2025-09-07T16-13-09Z` | Compose stack only. quay.io requires auth — not usable in CI without secrets. |
 | LocalStack (testcontainers) | `localstack/localstack:4.9.2` | Integration tests only. Replaces minio/minio (removed from Docker Hub; quay.io requires auth). **Do not move to calendar-versioned tags (`2026.x`)** — from 2026.03 the image exits with code 55 unless `LOCALSTACK_AUTH_TOKEN` is set. 4.9.2 is the last tag verified to start without a licence (2026-10-07). |
-| Airflow | `apache/airflow:3.3.1` | Phase 2 only. Python 3.14 compatible. |
+| Airflow | `apache/airflow:3.3.1` | Orchestration (ingestion, price refresh, universe build DAGs). Python 3.14 compatible. |
 | Ollama (host, not a container) | *resolve at install* | Local extraction model server. Record `ollama --version` here when installed (`docs/local-model-runbook.md`). Model weights are pinned by digest in `config/models/registry.yaml`, not here. |
 
 ## Java dependencies
@@ -91,13 +91,12 @@ Managed with **uv**; `uv.lock` is committed. Resolved 2026-09-18 from PyPI.
 | gunicorn | 26.2.0 (same as ingestion-scraper) |
 
 ## Version-sensitive claims that need re-verification
-These were verified against **older** versions than we are now pinning. Confirm each at the step that depends on it and record the outcome in `DECISIONS.md`.
+These were verified against **older** versions than we are now pinning. Confirm each when the code that depends on it is touched and record the outcome in `DECISIONS.md`.
 
 | Claim | Verified against | Confirm at |
 |---|---|---|
-| `DeadLetterPublishingRecoverer` defaults to `.DLT` + same partition; `-1` means "producer chooses" | Spring Kafka 2.x/3.x | Step 1.3 (we are on Spring Kafka 4.1) |
-| `@DecimalMin`/`@DecimalMax` are unsupported on `double` | Bean Validation spec + Hibernate Validator | Step 1.3 (sidestepped by `BigDecimal`) |
-| `CREATE CONSTRAINT ... IF NOT EXISTS FOR (n:L) REQUIRE ...` | Neo4j 5 | Step 1.3 (we are on Neo4j 2026.05) |
-| Spring Data Neo4j `BigDecimal` conversion behaviour | general SDN behaviour | Step 1.3 (sidestepped by an explicit `double` converter) |
-| Kafka Streams internal topics are created via AdminClient regardless of `auto.create.topics.enable` | general Kafka behaviour | Step 6.4, if ever reached |
-| `failOnNoDiscoveredTests` exists on the `Test` task | recent Gradle | Step 0.0 — if absent on 9.7.0, assert test counts from `build/reports/tests/` instead and record the fallback in `DECISIONS.md` |
+| `DeadLetterPublishingRecoverer` defaults to `.DLT` + same partition; `-1` means "producer chooses" | Spring Kafka 2.x/3.x | core-hub DLT resolver (we are on Spring Kafka 4.1) |
+| `@DecimalMin`/`@DecimalMax` are unsupported on `double` | Bean Validation spec + Hibernate Validator | signal DTO validation (sidestepped by `BigDecimal`) |
+| `CREATE CONSTRAINT ... IF NOT EXISTS FOR (n:L) REQUIRE ...` | Neo4j 5 | Neo4j schema setup (we are on Neo4j 2026.05) |
+| Spring Data Neo4j `BigDecimal` conversion behaviour | general SDN behaviour | graph writes (sidestepped by an explicit `double` converter) |
+| Kafka Streams internal topics are created via AdminClient regardless of `auto.create.topics.enable` | general Kafka behaviour | Kafka Streams correlation spec, if ever built |

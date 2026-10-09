@@ -1,3 +1,4 @@
+import re
 from pathlib import Path
 
 # tests/unit/ -> tests/ -> ingestion-scraper/ -> services/ -> auspex/
@@ -16,6 +17,15 @@ _CREDENTIAL_VARS = {
     "MINIO_ACCESS_KEY",
     "MINIO_SECRET_KEY",
 }
+
+# A dotted topic name under the pre-rename prefix, e.g. `<prefix>.raw.ingested`. Built from parts so
+# this file does not match itself; prose such as "...biotech." is not a topic name.
+_LEGACY_TOPIC = re.compile(r"\b" + "biotech" + r"\.[a-z_]+\.[a-z_]+")
+
+
+def _legacy_topic_names(content: str) -> list[str]:
+    return _LEGACY_TOPIC.findall(content)
+
 
 # Vars that are legitimately absent from .env.example because they are constructed
 # dynamically in code (e.g. topic names derived from COMPOSE_PROJECT_NAME).
@@ -68,9 +78,17 @@ def test_env_example_covers_all_referenced_vars():
     assert not missing, f"Missing from .env.example: {sorted(missing)}"
 
 
+def test_legacy_topic_name_is_detected():
+    assert _legacy_topic_names("TOPIC = 'biotech" + ".signals.extracted'") == [
+        "biotech" + ".signals.extracted"
+    ]
+
+
+def test_sentence_ending_in_biotech_is_not_a_legacy_topic():
+    assert _legacy_topic_names("# assumed to carry over to biotech" + ".\n") == []
+
+
 def test_no_legacy_topic_prefix_remains():
-    # Split so the test file itself does not contain the literal string it searches for.
-    legacy = "biotech" + "."
     code_suffixes = {
         ".py", ".java", ".yml", ".yaml", ".toml",
         ".properties", ".sh", ".kts", ".json",
@@ -86,7 +104,7 @@ def test_no_legacy_topic_prefix_remains():
             continue
         try:
             content = path.read_text(encoding="utf-8", errors="ignore")
-            if legacy in content:
+            if _legacy_topic_names(content):
                 violations.append(str(path.relative_to(REPO_ROOT)))
         except OSError:
             pass

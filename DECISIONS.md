@@ -7,7 +7,7 @@ Claude writes here when it: hits an invariant conflict, finds a plan/requirement
 Format:
 
 ```
-## YYYY-MM-DD — Step X.Y — [BLOCKED | FLAG | CHOICE | VERIFIED]
+## YYYY-MM-DD — <topic> — [BLOCKED | FLAG | CHOICE | VERIFIED | PENDING] — <short title>
 **What:** one or two sentences.
 **Why it matters:** the concrete consequence.
 **Options considered:** A / B / C.
@@ -755,3 +755,9 @@ Create a free account at quay.io if you don't have one. No organisation-specific
 **What:** Three candidates are gated at prompt `v1.1` on the Mac: `llama3.1:8b-instruct-q8_0`, `phi3:14b-medium-128k-instruct-q4_K_M` (added to `local_candidates.yaml`), `llama3.1:8b-instruct-q4_K_M`. Eligible means `is_signal` precision ≥ 0.85 and the run grew swap by less than 1 GB with the stack up. The 8B Q8 is chosen if eligible; Phi-3 replaces it only with an F1 at least 0.05 higher; the 8B Q4 is chosen only if the Q8 fails on memory alone; if none is eligible there is no CHOICE and the next step is the user's.
 **Why:** the golden set has 46 prefiltered documents and one document moves precision by 2–3 points, so a smaller gap cannot be told from noise, and the 8B is about 1.4x faster. The golden set carries no `v1.1` labels yet; the gate production enforces (`is_signal` precision) is fully measurable without them, and the new fields are labelled under `specs/golden-set-expansion.md`, not here.
 **Action:** step 5 of `specs/first-run-on-stack-machine.md`.
+
+## 2026-10-09 — Guideline setup — CHOICE — merge flow, merge bar and shared-log conflicts written into the repo
+**What:** Root `CLAUDE.md` now matches how the owner merges: PR into `develop`, merge only on the owner's word with a local `--ff-only` merge, `main` only through a release. The merge bar (every behaviour tested, mutation-checked, spec requirements mapped to tests) and the limits of cloud sessions are written down. `DECISIONS.md` and `TODO.md` use git's `union` merge driver, and the TODO.md session log is dropped because PRs and `git log` carry the same record. A CI check rejects commits attributed to Claude.
+**Why it matters:** The old end-of-spec flow pushed straight to `develop` and `main`, which a session on the stack machine would have followed. Every spec PR appended to the end of both log files, so nearly every rebase hit a conflict.
+**Options considered:** One file per decision entry (removes conflicts fully, but changes every link to this log) / union merge driver (keeps the file; GitHub's merge button ignores it, but merges here are local).
+**Action:** Union merge driver. Audit and owner approval: thread "Guideline setup audit", 2026-10-09.

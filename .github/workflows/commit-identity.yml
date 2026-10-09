@@ -1,0 +1,21 @@
+name: Commit identity
+
+on:
+  pull_request:
+    branches:
+      - main
+      - develop
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: No commit attributed to Claude
+        run: >
+          bash .github/scripts/check_commit_identity.sh
+          "${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }}"
