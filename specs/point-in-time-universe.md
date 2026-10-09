@@ -3,7 +3,7 @@
 **Status:** blocked
 **Blocked by:** the first universe build on the stack machine (Definition of done, second block). All code and all 23 required tests are in; what remains is recording the measured member counts and price coverage in `DECISIONS.md` and committing `config/universe/backfill_scope.yaml`, which needs SEC and Yahoo access from the stack (`DECISIONS.md` 2026-10-08 PENDING).
 
-**Progress (2026-10-08):** built in two parts as the Notes suggest. Part 1, the monthly list (items 1–3 and 5), is `auspex_backtesting.universe`, run on the stack by the `auspex_universe_build` DAG. Part 2, the backtest integration (item 4) and the incomplete-history handling, is `BacktestRunner.run(..., universe=UniverseMembership)`, `TradableUniverse.validate(..., spans=)` and `metrics.survivorship`. A snapshot is never rewritten, so a month built live cannot know a later exit; each build also stores `listings.parquet`, the latest view of every listing span, and backtests read exits and coverage from it. How listing spans, tickers, market cap and unpriced windows are decided is recorded in `DECISIONS.md` (2026-10-08).
+**Progress (2026-10-08):** built in two parts as the Notes suggest. Part 1, the monthly list (items 1–3 and 5), is `auspex_backtesting.universe`, run on the stack by the `auspex_universe_build` DAG. Part 2, the backtest integration (item 4) and the incomplete-history handling, is `BacktestRunner.run(..., universe=UniverseMembership)`, `TradableUniverse.validate(..., spans=)` and `metrics.survivorship`. **Window (2026-10-09):** one universe from 2014-01, not a separate version per study: the slow-signal study (in-sample 2014–2021) and the event backfill read the same rules version 1. The backfill's companies are the members from `BACKFILL_SCOPE_START` (2024-01), so the wider window does not grow the LLM backfill. Tickers of names delisted before inline XBRL (2019) come from the XBRL instance document named in their filing index. A snapshot is never rewritten, so a month built live cannot know a later exit; each build also stores `listings.parquet`, the latest view of every listing span, and backtests read exits and coverage from it. How listing spans, tickers, market cap and unpriced windows are decided is recorded in `DECISIONS.md` (2026-10-08).
 
 **Branch:** `feature/point-in-time-universe`
 
@@ -28,7 +28,7 @@ SEC data available without a key (descriptive `User-Agent` required, 10 req/s ag
 
 ## What this builds
 
-1. **Universe rules file** `config/universe/rules.yaml` (versioned like a hypothesis: any edit after the first backtest bumps `version` and is a new trial): SIC codes, exchanges, market-cap floor, liquidity floor, rebalance frequency (monthly), and the window.
+1. **Universe rules file** `config/universe/rules.yaml` (versioned like a hypothesis: any edit after the first backtest bumps `version` and is a new trial): SIC codes, exchanges, market-cap floor, liquidity floor, rebalance frequency (monthly), and the window (from 2014-01, one version for every study).
 2. **`auspex_backtesting/universe/`**
    - `ListingHistory` — derives, per CIK, listing entry and exit dates from filings: entry at the first exchange registration (`8-A12B`) or IPO prospectus (`424B4`), exit at the delisting notice (`25-NSE`/`25`) or deregistration (`15-12B`, `15-12G`). Ticker history from the filing headers where present, else the current ticker stamped `ticker_source = 'current'`.
    - `MarketCapEstimator` — shares outstanding as last reported **on or before** the evaluation date (XBRL fact filed date, never period end) × that day's close.
@@ -39,7 +39,7 @@ SEC data available without a key (descriptive `User-Agent` required, 10 req/s ag
    - `TradableUniverse` accepts membership spans: a ticker is validated over `[entered_on, exited_on]`, not the full backtest range.
    - `_window_returns` stops silently truncating: a window that runs past a member's last price ends at the last close with `exit_reason` set from the universe row, and the result is counted separately in the report. A window that runs out of data for any other reason raises `PriceDataAbsentError`.
    - The backtest takes its tickers from the universe snapshot for the event's month, not from `WATCHED_TICKERS` or the watchlist. Events on companies outside the universe that month are dropped and counted.
-5. **Backfill scope file.** `scripts/build_universe.py --export-backfill-scope` writes the union of members over the backfill window (CIKs, tickers, names) to `config/universe/backfill_scope.yaml`, which the historical-backfill spec reads to scope company-level sources.
+5. **Backfill scope file.** `scripts/build_universe.py --export-backfill-scope` writes the union of members over the backfill window (from `BACKFILL_SCOPE_START` to the latest month; CIKs, tickers, names) to `config/universe/backfill_scope.yaml`, which the historical-backfill spec reads to scope company-level sources.
 
 ## Scope
 
@@ -115,10 +115,10 @@ In `services/backtesting/tests/unit/test_universe.py`:
 cd services/backtesting && uv run pytest tests/unit/test_universe.py -q --strict-markers
 ```
 
-Expected: 23 passed.
+Expected: 52 passed (the 23 required tests among them).
 
 Then:
-- `scripts/build_universe.py` run for the backfill window on the stack machine; member count per month, delisted count, and price coverage report recorded in `DECISIONS.md`.
+- The universe built from 2014-01 on the stack machine (`specs/first-run-on-stack-machine.md` step 3); member count per month, delisted count, and price coverage report recorded in `DECISIONS.md`.
 - `config/universe/backfill_scope.yaml` committed.
 - `CLAUDE.md` naming table: `auspex-prices` described as "market and reference data snapshots (OHLCV, universe)".
 - `services/backtesting` README and `docs/PREREQUISITES.md` updated with the measured delisted coverage.
@@ -127,4 +127,4 @@ Then:
 
 - Effort: the largest second-wave package (audit: L). If the session runs long, split `ListingHistory` + `UniverseBuilder` (items 1–2) from the backtest integration (item 4).
 - Effective sample: a wider universe adds events, but biotech names still co-move. Clustered standard errors (pre-registration work, first wave) remain necessary; this spec does not replace them.
-- Ticker history is the weakest link: SEC's current `tickers` field is empty for most delisted filers. Filing headers and the price vendor's delisted symbol list are the two fallbacks; unresolved members are listed in the coverage report, never silently dropped.
+- Ticker history is the weakest link: SEC's current `tickers` field is empty for most delisted filers. The fallbacks are the inline XBRL document name (2019 on) and, before that, the XBRL instance named in the filing index; unresolved members are listed in the coverage report, never silently dropped.

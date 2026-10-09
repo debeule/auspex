@@ -19,7 +19,13 @@ from auspex_backtesting.prices.price_refresher import (
 )
 from auspex_backtesting.prices.snapshot_store import PriceSnapshotStore
 from auspex_backtesting.prices.splits import SplitStore
-from auspex_backtesting.universe.job import SecBulkSource, SnapshotPrices, UniverseBuildJob
+from auspex_backtesting.universe.job import (
+    SecBulkSource,
+    SnapshotPrices,
+    UniverseBuildJob,
+    UniverseConfigError,
+)
+from auspex_backtesting.universe.sec_index import InstanceDocuments
 from auspex_backtesting.universe.store import RulesVersionError, UniverseStore
 
 
@@ -58,7 +64,7 @@ def create_app(
         job = (universe_job or universe_job_from_env)()
         try:
             summary = job.run()
-        except RulesVersionError as exc:
+        except (RulesVersionError, UniverseConfigError) as exc:
             return jsonify(error=str(exc)), 409
         except OSError as exc:
             # SEC or MinIO unreachable; the next scheduled run retries.
@@ -83,8 +89,11 @@ def universe_job_from_env() -> UniverseBuildJob:
             os.environ["SEC_SUBMISSIONS_BULK_URL"],
             os.environ["SEC_COMPANYFACTS_BULK_URL"],
             os.environ["SEC_USER_AGENT"],
+            InstanceDocuments(os.environ["SEC_ARCHIVES_URL"], os.environ["SEC_USER_AGENT"]),
         ),
         SnapshotPrices(refresher_from_env(), PriceSnapshotStore(client), SplitStore(client)),
+        backfill_start=date.fromisoformat(os.environ["BACKFILL_SCOPE_START"]),
+        price_history_start=date.fromisoformat(os.environ["PRICE_HISTORY_START"]),
     )
 
 

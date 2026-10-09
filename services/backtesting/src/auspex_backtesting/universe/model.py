@@ -10,12 +10,17 @@ PriceCoverage = Literal["complete", "partial", "none"]
 @dataclass(frozen=True)
 class Filing:
     """One EDGAR filing as listed in a filer's submissions history. `filed` is the UTC filing
-    date; `items` holds the 8-K item numbers."""
+    date; `items` holds the 8-K item numbers; `xbrl` marks a filing with XBRL financial data.
+    `instance_document` is the XBRL instance's file name, read from the filing index only for
+    companies whose ticker nothing else gives (`sec_index`)."""
 
     form: str
     filed: date
     items: tuple[str, ...] = ()
     primary_document: str = ""
+    accession: str = ""
+    xbrl: bool = False
+    instance_document: str = ""
 
 
 @dataclass(frozen=True)

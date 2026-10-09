@@ -31,9 +31,10 @@ _CHANGE_OF_CONTROL_ITEM = "5.01"
 _CHANGE_OF_CONTROL_BEFORE = timedelta(days=30)
 _CHANGE_OF_CONTROL_AFTER = timedelta(days=10)
 
-# Inline XBRL reports are named `<prefix>-<yyyymmdd>.htm`, and filers almost always use their
-# trading symbol as the prefix.
+# Inline XBRL reports (from 2019) are named `<prefix>-<yyyymmdd>.htm`, and earlier XBRL instance
+# documents `<prefix>-<yyyymmdd>.xml`; filers almost always use their trading symbol as the prefix.
 _TICKER_DOCUMENT = re.compile(r"^([a-z]{1,5})-\d{8}\.htm$")
+_TICKER_INSTANCE = re.compile(r"^([a-z]{1,5})-\d{8}\.xml$")
 _TICKER_DOCUMENT_FORMS = frozenset({"10-K", "10-Q", "20-F", "40-F", "10-KT", "10-QT"})
 
 
@@ -122,8 +123,29 @@ def _resolve_ticker(record: CompanyRecord) -> tuple[str | None, TickerSource]:
     named = [
         (f.filed, m.group(1))
         for f in record.filings
-        if f.form in _TICKER_DOCUMENT_FORMS and (m := _TICKER_DOCUMENT.match(f.primary_document))
+        if f.form in _TICKER_DOCUMENT_FORMS
+        and (
+            (m := _TICKER_DOCUMENT.match(f.primary_document))
+            or (m := _TICKER_INSTANCE.match(f.instance_document))
+        )
     ]
     if named:
         return max(named)[1].upper(), "filing"
     return None, "unresolved"
+
+
+def instance_lookup_filing(
+    record: CompanyRecord, allowed_exchanges: frozenset[str], since: date
+) -> Filing | None:
+    """The report whose filing index may name the XBRL instance, for a company that was listed
+    on or after `since` and whose ticker neither SEC nor an inline XBRL document name gives:
+    its latest XBRL periodic report. None when no lookup is needed or none can help."""
+    history = ListingHistory.from_record(record, allowed_exchanges)
+    if history.ticker is not None:
+        return None
+    if not any(s.exited_on is None or s.exited_on >= since for s in history.spans):
+        return None
+    reports = [
+        f for f in record.filings if f.form in _TICKER_DOCUMENT_FORMS and f.xbrl and f.accession
+    ]
+    return max(reports, key=lambda f: f.filed) if reports else None

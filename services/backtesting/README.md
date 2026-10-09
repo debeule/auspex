@@ -12,8 +12,11 @@ Price snapshots, the point-in-time stock universe, market simulation and the bac
 | Exchanges | NYSE, Nasdaq, NYSE American |
 | Market cap | ≥ $50M: last share count filed before the rebalance × the last close before it, restated through later splits |
 | Liquidity | median close × volume over the 20 sessions before the rebalance ≥ $500k |
+| Window | from 2014-01, monthly, to the current month |
 
-Inputs are SEC's nightly bulk archives (filer submissions and XBRL company facts, two downloads instead of per-company requests) and the price snapshots in `auspex-prices`, fetched from Yahoo, then Stooq. Listing spans come from exchange registrations, delisting notices and deregistrations; `DECISIONS.md` (2026-10-08, point-in-time universe) records how each edge case is decided.
+One universe serves every study: the slow-signal study reads it from 2014, the event backfill from `BACKFILL_SCOPE_START`. The build refuses a `PRICE_HISTORY_START` later than 45 days before the window (HTTP 409).
+
+Inputs are SEC's nightly bulk archives (filer submissions and XBRL company facts, two downloads instead of per-company requests) and the price snapshots in `auspex-prices`, fetched from Yahoo, then Stooq. Listing spans come from exchange registrations, delisting notices and deregistrations. A delisted company's ticker comes from its inline XBRL report name (2019 on) or, before that, from the XBRL instance named in its last report's filing index (one request per such company, paced under SEC's limit, `SEC_ARCHIVES_URL`); `DECISIONS.md` (2026-10-08, point-in-time universe) records how each edge case is decided.
 
 Stored in the `auspex-prices` bucket under `universe/{rules_version}/`:
 
@@ -23,7 +26,7 @@ Stored in the `auspex-prices` bucket under `universe/{rules_version}/`:
 | `rules.yaml` | on the version's first build; a different file under the same version is refused |
 | `coverage.json` | every build: members, how many have complete prices, and every member without, with the reason |
 | `listings.parquet` | every build: every listing span as now known, exits included; backtests read exits and coverage from it |
-| `backfill_scope.yaml` | every build: the union of members over the window, for the historical backfill |
+| `backfill_scope.yaml` | every build: the union of members from `BACKFILL_SCOPE_START` (default 2024-01) to the latest month, for the historical backfill |
 
 Each member row: `cik, ticker, ticker_source (current | filing | unresolved), name, sic, exchange, market_cap_usd, median_dollar_volume_20d, entered_on, exited_on, exit_reason (delisted | acquired | deregistered), price_coverage (complete | partial | none), coverage_note`.
 

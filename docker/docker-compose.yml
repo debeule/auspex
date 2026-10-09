@@ -147,6 +147,8 @@ services:
       SEC_USER_AGENT: ${SEC_USER_AGENT}
       SEC_SUBMISSIONS_BULK_URL: ${SEC_SUBMISSIONS_BULK_URL}
       SEC_COMPANYFACTS_BULK_URL: ${SEC_COMPANYFACTS_BULK_URL}
+      SEC_ARCHIVES_URL: ${SEC_ARCHIVES_URL}
+      BACKFILL_SCOPE_START: ${BACKFILL_SCOPE_START:-2024-01-01}
       UNIVERSE_RULES_PATH: /app/universe/rules.yaml
     volumes:
       - ../config/universe:/app/universe:ro

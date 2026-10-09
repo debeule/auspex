@@ -1,8 +1,9 @@
 import io
 import json
+import re
 import zipfile
 from collections.abc import Mapping, Sequence
-from datetime import date
+from datetime import date, timedelta
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
@@ -22,9 +23,10 @@ from auspex_backtesting.universe import CompanyRecord, Filing, ShareCount, Unive
 from auspex_backtesting.universe.job import (
     SnapshotPrices,
     UniverseBuildJob,
+    UniverseConfigError,
     months_due,
 )
-from auspex_backtesting.universe.rules import parse_rules
+from auspex_backtesting.universe.rules import UniverseRules, load_rules, parse_rules
 from auspex_backtesting.universe.sec_bulk import read_share_counts, read_submissions
 from auspex_backtesting.universe.store import RulesVersionError
 
@@ -201,9 +203,10 @@ class _Filings:
         self.loads = 0
 
     def load(
-        self, sic_codes: frozenset[str]
+        self, rules: UniverseRules, listed_since: date
     ) -> tuple[Sequence[CompanyRecord], Mapping[str, Sequence[ShareCount]]]:
         self.loads += 1
+        self.listed_since = listed_since
         alpha = CompanyRecord(
             "0000000001", "Alpha", "2836", ("Nasdaq",), ("ALPH",),
             (Filing("8-A12B", date(2019, 5, 1)),),
@@ -236,7 +239,13 @@ class _Prices:
         return pd.Series(dtype=float)
 
 
-def _job(tmp_path: Path, minio: _FakeMinio, filings: _Filings, today: date) -> UniverseBuildJob:
+def _job(
+    tmp_path: Path,
+    minio: _FakeMinio,
+    filings: _Filings,
+    today: date,
+    **options: date,
+) -> UniverseBuildJob:
     rules = tmp_path / "rules.yaml"
     if not rules.exists():
         rules.write_text(_RULES_YAML, encoding="utf-8")
@@ -246,6 +255,7 @@ def _job(tmp_path: Path, minio: _FakeMinio, filings: _Filings, today: date) -> U
         filings,
         _Prices(),
         today=lambda: today,
+        **options,
     )
 
 
@@ -416,3 +426,150 @@ class _ListingMinio(_FakeMinio):
                 obj.object_name = key
                 objects.append(obj)
         return objects
+
+
+# --- window back to 2014, backfill scope limited to the backfill's own window ------------------
+
+_REPO_ROOT = Path(__file__).resolve().parents[4]
+
+
+def test_submissions_archive_keeps_accession_numbers_and_xbrl_flags(tmp_path: Path) -> None:
+    recent = {
+        "accessionNumber": ["0001193125-14-012345", "0001193125-14-020000"],
+        "form": ["10-K", "8-K"],
+        "filingDate": ["2014-03-03", "2014-06-02"],
+        "items": ["", "8.01"],
+        "primaryDocument": ["d650123d10k.htm", "d700001d8k.htm"],
+        "isXBRL": [1, 0],
+    }
+    archive = _zip(tmp_path / "submissions.zip", {
+        "CIK0000000001.json": _submissions_file("2834", "Old X", recent),
+    })
+
+    (record,) = read_submissions(archive, {"2834"})
+
+    assert [(f.accession, f.xbrl) for f in record.filings] == [
+        ("0001193125-14-012345", True), ("0001193125-14-020000", False)
+    ]
+
+
+def test_backfill_scope_holds_only_members_from_the_backfill_start(tmp_path: Path) -> None:
+    minio = _FakeMinio()
+
+    _job(tmp_path, minio, _Filings(), date(2024, 3, 1), backfill_start=date(2024, 3, 1)).run()
+
+    scope = yaml.safe_load(minio.objects["universe/1/backfill_scope.yaml"])
+    # GONE left in February: a member of the universe, outside the event backfill.
+    assert [c["ticker"] for c in scope["companies"]] == ["ALPH"]
+    assert scope["window"] == {"start": "2024-03", "end": "2024-03"}
+    snapshots = [k for k in minio.objects if k.startswith("universe/1/2024-")]
+    assert len(snapshots) == 3
+
+
+def test_build_job_passes_the_price_lookback_start_to_the_filing_source(tmp_path: Path) -> None:
+    filings = _Filings()
+
+    _job(tmp_path, _FakeMinio(), filings, date(2024, 3, 1)).run()
+
+    assert filings.listed_since == date(2023, 11, 17)
+
+
+def test_build_job_refuses_a_window_that_starts_before_the_price_history(tmp_path: Path) -> None:
+    minio, filings = _FakeMinio(), _Filings()
+
+    job = _job(tmp_path, minio, filings, date(2024, 3, 1), price_history_start=date(2023, 12, 1))
+
+    with pytest.raises(UniverseConfigError, match="PRICE_HISTORY_START"):
+        job.run()
+    assert filings.loads == 0
+    assert not [k for k in minio.objects if k.startswith("universe/1/2024-")]
+    # 45 days before the window opens is enough.
+    _job(tmp_path, minio, filings, date(2024, 3, 1), price_history_start=date(2023, 11, 17)).run()
+    assert filings.loads == 1
+
+
+def test_universe_build_endpoint_refuses_inconsistent_configuration() -> None:
+    job = MagicMock()
+    job.run.side_effect = UniverseConfigError("PRICE_HISTORY_START 2023-12-01 is too late")
+
+    resp = _client(job).post("/universe/build")
+
+    assert resp.status_code == 409
+    assert "PRICE_HISTORY_START" in resp.get_json()["error"]
+
+
+def test_repository_universe_covers_the_slow_signal_study_from_2014() -> None:
+    rules = load_rules(_REPO_ROOT / "config" / "universe" / "rules.yaml")
+
+    assert rules.version == 1
+    assert rules.window_start == date(2014, 1, 1)
+    assert rules.window_end is None
+
+
+def test_default_price_history_reaches_before_the_universe_window() -> None:
+    rules = load_rules(_REPO_ROOT / "config" / "universe" / "rules.yaml")
+    env_example = (_REPO_ROOT / ".env.example").read_text(encoding="utf-8")
+    compose = (_REPO_ROOT / "docker" / "docker-compose.yml").read_text(encoding="utf-8")
+    (example,) = re.findall(r"^PRICE_HISTORY_START=(\S+)$", env_example, re.MULTILINE)
+    (default,) = re.findall(r"PRICE_HISTORY_START:-([0-9-]+)", compose)
+    (scope_start,) = re.findall(r"^BACKFILL_SCOPE_START=(\S+)$", env_example, re.MULTILINE)
+
+    for start in (example, default):
+        # Liquidity on the first rebalance reads 20 sessions back.
+        assert date.fromisoformat(start) <= rules.window_start - timedelta(days=45)
+    assert date.fromisoformat(scope_start) > rules.window_start
+
+
+def test_sec_bulk_source_resolves_tickers_for_companies_listed_since_the_lookback(
+    tmp_path: Path,
+) -> None:
+    from auspex_backtesting.universe.job import SecBulkSource
+
+    recent = {"form": ["8-A12B"], "filingDate": ["2010-05-01"], "items": [""],
+              "primaryDocument": ["a.htm"]}
+    archives = {
+        "submissions": _zip(tmp_path / "s.zip", {
+            "CIK0000000001.json": _submissions_file("2834", "Old X", recent)}),
+        "companyfacts": _zip(tmp_path / "f.zip", {}),
+    }
+
+    def download(url: str, dest: Path, user_agent: str) -> Path:
+        dest.write_bytes(archives[url].read_bytes())
+        return dest
+
+    resolved = CompanyRecord("0000000001", "Old X", "2834", (), (), ())
+    lookup = MagicMock()
+    lookup.attach.return_value = [resolved]
+    rules = parse_rules(_RULES_YAML)
+
+    with patch("auspex_backtesting.universe.sec_bulk.download", side_effect=download):
+        companies, _ = SecBulkSource("submissions", "companyfacts", "ua", lookup).load(
+            rules, date(2023, 11, 17)
+        )
+
+    (records, exchanges, since), _ = lookup.attach.call_args
+    assert [r.name for r in records] == ["Old X"]
+    assert exchanges == rules.exchanges
+    assert since == date(2023, 11, 17)
+    assert list(companies) == [resolved]
+
+
+def test_universe_job_from_env_reads_backfill_start_price_history_and_archives(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from auspex_backtesting.api import universe_job_from_env
+
+    for key, value in {
+        "MINIO_ENDPOINT": "minio:9000", "MINIO_ACCESS_KEY": "k", "MINIO_SECRET_KEY": "s",
+        "UNIVERSE_RULES_PATH": "/app/universe/rules.yaml", "SEC_USER_AGENT": "ua",
+        "SEC_SUBMISSIONS_BULK_URL": "s", "SEC_COMPANYFACTS_BULK_URL": "f",
+        "SEC_ARCHIVES_URL": "https://archives.example/data/", "BACKFILL_SCOPE_START": "2024-01-01",
+        "PRICE_HISTORY_START": "2013-01-01",
+    }.items():
+        monkeypatch.setenv(key, value)
+
+    job = universe_job_from_env()
+
+    assert job._backfill_start == date(2024, 1, 1)
+    assert job._price_history_start == date(2013, 1, 1)
+    assert job._filings._instance_documents._archives_url == "https://archives.example/data"  # type: ignore[attr-defined]

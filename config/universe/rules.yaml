@@ -10,8 +10,10 @@ min_market_cap_usd: 50000000         # USD at the rebalance session
 min_median_dollar_volume_usd: 500000 # USD, median close x volume
 liquidity_sessions: 20
 rebalance: monthly
-# PRICE_HISTORY_START must be at least two months earlier so the first rebalance has 20 sessions
-# of prices behind it. end: null runs to the current month.
+# From 2014 for the slow-signal study (in-sample 2014-2021, holdout 2022-2025); the event backfill
+# reads the same universe from its own start (BACKFILL_SCOPE_START). PRICE_HISTORY_START must be
+# at least 45 days earlier so the first rebalance has 20 sessions of prices behind it; the build
+# refuses it otherwise. end: null runs to the current month.
 window:
-  start: 2023-03-01
+  start: 2014-01-01
   end: null

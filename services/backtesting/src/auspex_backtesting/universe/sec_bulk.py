@@ -93,12 +93,18 @@ def _filings(columns: Mapping[str, Any]) -> list[Filing]:
     dates = columns.get("filingDate", [])
     items = columns.get("items", [""] * len(forms))
     documents = columns.get("primaryDocument", [""] * len(forms))
+    accessions = columns.get("accessionNumber", [""] * len(forms))
+    xbrl = columns.get("isXBRL", [0] * len(forms))
     return [
         Filing(
             form=str(form),
             filed=date.fromisoformat(filed),
             items=tuple(i.strip() for i in str(item or "").split(",") if i.strip()),
             primary_document=str(document or ""),
+            accession=str(accession or ""),
+            xbrl=bool(has_xbrl),
         )
-        for form, filed, item, document in zip(forms, dates, items, documents, strict=True)
+        for form, filed, item, document, accession, has_xbrl in zip(
+            forms, dates, items, documents, accessions, xbrl, strict=True
+        )
     ]

@@ -27,6 +27,7 @@ from auspex_backtesting.universe.builder import PriceSource, UniverseBuilder, re
 from auspex_backtesting.universe.model import CompanyRecord, ShareCount, UniverseSnapshot
 from auspex_backtesting.universe.report import backfill_scope, coverage_report
 from auspex_backtesting.universe.rules import UniverseRules
+from auspex_backtesting.universe.sec_index import InstanceDocuments
 from auspex_backtesting.universe.store import UniverseStore
 
 log = logging.getLogger("auspex_backtesting.universe")
@@ -36,10 +37,17 @@ log = logging.getLogger("auspex_backtesting.universe")
 _PRICE_LOOKBACK = timedelta(days=45)
 
 
+class UniverseConfigError(ValueError):
+    """The rules and the environment cannot produce a correct universe together."""
+
+
 class FilingSource(Protocol):
     def load(
-        self, sic_codes: frozenset[str]
-    ) -> tuple[Sequence[CompanyRecord], Mapping[str, Sequence[ShareCount]]]: ...
+        self, rules: UniverseRules, listed_since: date
+    ) -> tuple[Sequence[CompanyRecord], Mapping[str, Sequence[ShareCount]]]:
+        """Filers in the rules' SIC codes with their filing history and share counts; tickers
+        are resolved as far as possible for companies listed on or after `listed_since`."""
+        ...
 
 
 class PreparedPrices(PriceSource, Protocol):
@@ -47,20 +55,29 @@ class PreparedPrices(PriceSource, Protocol):
 
 
 class SecBulkSource:
-    def __init__(self, submissions_url: str, companyfacts_url: str, user_agent: str) -> None:
+    def __init__(
+        self,
+        submissions_url: str,
+        companyfacts_url: str,
+        user_agent: str,
+        instance_documents: InstanceDocuments,
+    ) -> None:
         self._submissions_url = submissions_url
         self._companyfacts_url = companyfacts_url
         self._user_agent = user_agent
+        self._instance_documents = instance_documents
 
     def load(
-        self, sic_codes: frozenset[str]
+        self, rules: UniverseRules, listed_since: date
     ) -> tuple[Sequence[CompanyRecord], Mapping[str, Sequence[ShareCount]]]:
+        sic_codes = rules.sic_codes
         with tempfile.TemporaryDirectory() as tmp:
             submissions = sec_bulk.download(
                 self._submissions_url, Path(tmp) / "submissions.zip", self._user_agent
             )
             companies = sec_bulk.read_submissions(submissions, sic_codes)
             submissions.unlink()
+            companies = self._instance_documents.attach(companies, rules.exchanges, listed_since)
             facts = sec_bulk.download(
                 self._companyfacts_url, Path(tmp) / "companyfacts.zip", self._user_agent
             )
@@ -134,16 +151,30 @@ class UniverseBuildJob:
         *,
         today: Callable[[], date] = _utc_today,
         calendar: MarketCalendar | None = None,
+        backfill_start: date | None = None,
+        price_history_start: date | None = None,
     ) -> None:
+        """`backfill_start` limits `backfill_scope.yaml` to members from that month on (the whole
+        window when None). `price_history_start` is the first day a new price snapshot covers;
+        a rules window that starts too soon after it is refused before anything is built."""
         self._store = store
         self._rules_path = rules_path
         self._filings = filings
         self._prices = prices
         self._today = today
         self._calendar = calendar or MarketCalendar()
+        self._backfill_start = backfill_start
+        self._price_history_start = price_history_start
 
     def run(self) -> BuildSummary:
         rules = self._store.lock_rules(self._rules_path)
+        listed_since = rules.window_start - _PRICE_LOOKBACK
+        if self._price_history_start is not None and self._price_history_start > listed_since:
+            raise UniverseConfigError(
+                f"PRICE_HISTORY_START {self._price_history_start} leaves no liquidity history for "
+                f"the universe window starting {rules.window_start}; it must be on or before "
+                f"{listed_since}"
+            )
         today = self._today()
         months = months_due(rules, today, self._calendar)
         missing = [m for m in months if not self._store.exists(rules.version, m)]
@@ -151,11 +182,11 @@ class UniverseBuildJob:
         built: list[dict[str, Any]] = []
         failures: dict[str, str] = {}
         if missing:
-            companies, shares = self._filings.load(rules.sic_codes)
+            companies, shares = self._filings.load(rules, listed_since)
             builder = UniverseBuilder(
                 rules, companies, shares, self._prices, as_of=today, calendar=self._calendar
             )
-            tickers = builder.tickers_listed_between(rules.window_start - _PRICE_LOOKBACK, today)
+            tickers = builder.tickers_listed_between(listed_since, today)
             failures = self._prices.prepare(tickers)
             log.info("prices for %d tickers, %d without data", len(tickers), len(failures))
             for month in missing:
@@ -172,7 +203,10 @@ class UniverseBuildJob:
             rules.version, "coverage.json", json.dumps(report, indent=2).encode(), "application/json"
         )
         if months:
-            scope = backfill_scope(snapshots, start=months[0], end=months[-1])
+            start = months[0]
+            if self._backfill_start is not None:
+                start = max(start, f"{self._backfill_start:%Y-%m}")
+            scope = backfill_scope(snapshots, start=start, end=months[-1])
             self._store.put_report(
                 rules.version,
                 "backfill_scope.yaml",

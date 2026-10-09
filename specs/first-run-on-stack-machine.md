@@ -15,7 +15,7 @@ Everything the cloud sessions could build and test is merged into `develop`. Wha
 | First point-in-time universe build; SEC bulk URL check; coverage numbers; `config/universe/backfill_scope.yaml` | `specs/point-in-time-universe.md` (blocked only on this), `DECISIONS.md` 2026-10-08 PENDING "SEC bulk URLs and first build on the stack" | `sec.gov` and Yahoo are unreachable from cloud sessions |
 | `XBI` and `EURUSD=X` snapshots in MinIO | `DECISIONS.md` 2026-10-07 PENDING (market simulation), superseded by `price-bootstrap` but never confirmed | same |
 | Local model gate at prompt `v1.1` | `DECISIONS.md` 2026-10-07 PENDING "gate record for prompt v1.1", `docs/local-model-runbook.md` | model weights and the GPU |
-| Price history reaching back to 2013 | `DECISIONS.md` 2026-10-08 FLAG "universe window" (on `feature/edge-research-scoping`, PR #19) and the CHOICE in this PR | snapshots only grow forward, so this must be set before the first `up` |
+| Price history reaching back to 2013 | `DECISIONS.md` 2026-10-08 FLAG "universe window" and CHOICE "price history from 2013" | snapshots only grow forward, so this must be set before the first `up` |
 | Historical backfill dry run | `specs/historical-backfill.md`, draft PR #8 | needs the stack, the gated model and its latency record |
 
 Machine facts: Docker Desktop is capped at **8 GB** (`SETUP.md` step 2), which leaves about 10–12 GB for the model. Ollama runs natively on the host because Docker on macOS has no Metal access; containers reach it at `host.docker.internal:11434`, host scripts at `localhost:11434`.
@@ -30,7 +30,7 @@ The automated bake-off sketched in the research report (compose profile, McNemar
 
 When done, on the Mac:
 1. The full stack runs healthy with price history from 2013-01-01.
-2. Universe rules version 1 is built for every month from 2023-03, its coverage is recorded, `backfill_scope.yaml` is committed, and `specs/point-in-time-universe.md` is `done`.
+2. The universe (rules version 1) is built for every month from 2014-01, its coverage is recorded, `backfill_scope.yaml` (members from `BACKFILL_SCOPE_START`, 2024-01) is committed, and `specs/point-in-time-universe.md` is `done`.
 3. A local model is chosen against a rule fixed in advance, with its registry entry (digest pinned), gate record and latency record committed, and a CHOICE entry in `DECISIONS.md`.
 4. The scraper extracts with that model end to end on one source.
 5. If PR #8 has merged by then: the backfill dry run has been run for all five sources and recorded. Lowest priority; the live backfill is **not** part of this spec.
@@ -40,7 +40,6 @@ Every result goes into one PR from `feature/first-run-on-stack-machine` into `de
 ## Out of scope
 
 - The live historical backfill (any `run_backfill.py` call without `--dry-run`). Hard human gate (`DECISIONS.md` 2026-09-20 BLOCKED), and per the 2026-10-08 build-order CHOICE the LLM backfill comes after the non-LLM data builds.
-- A universe build for the 2014 window. It needs a new rules version or universe file that is not on `develop` yet (blocker 4 of `cross-sectional-portfolio-backtest`, PR #19). Step 7 says when it may run.
 - Writing or changing code, prompts, golden-set labels or rules files. If a step fails because of a bug, record it in `DECISIONS.md` as a FLAG with the exact error and stop that step; fixes go through a cloud spec.
 - Editing `config/universe/rules.yaml` once version 1 has been built: the build pins the file's bytes and refuses a changed file under the same version (`RulesVersionError`), comments included.
 - The gpt-4o-mini fallback and any OpenAI spend.
@@ -69,7 +68,7 @@ git checkout -b feature/first-run-on-stack-machine
 git config user.name; git config user.email                # the user's identity, not a bot
 docker info --format '{{.MemTotal}}'                       # about 8 GB (8.0e9 to 8.6e9 bytes)
 command -v uv jq curl
-test -f .env && for k in POSTGRES_PASSWORD AIRFLOW_DB_PASSWORD NEO4J_PASSWORD MINIO_ACCESS_KEY MINIO_SECRET_KEY GRAFANA_ADMIN_PASSWORD AIRFLOW_SECRET_KEY SEC_USER_AGENT NCBI_API_KEY OPENFDA_API_KEY EPO_OPS_KEY EPO_OPS_SECRET PRICE_HISTORY_START SEC_SUBMISSIONS_BULK_URL SEC_COMPANYFACTS_BULK_URL; do printf '%s %s\n' "$k" "$(grep -c "^$k=.\+" .env)"; done
+test -f .env && for k in POSTGRES_PASSWORD AIRFLOW_DB_PASSWORD NEO4J_PASSWORD MINIO_ACCESS_KEY MINIO_SECRET_KEY GRAFANA_ADMIN_PASSWORD AIRFLOW_SECRET_KEY SEC_USER_AGENT NCBI_API_KEY OPENFDA_API_KEY EPO_OPS_KEY EPO_OPS_SECRET PRICE_HISTORY_START SEC_SUBMISSIONS_BULK_URL SEC_COMPANYFACTS_BULK_URL SEC_ARCHIVES_URL BACKFILL_SCOPE_START; do printf '%s %s\n' "$k" "$(grep -c "^$k=.\+" .env)"; done
 grep '^PRICE_HISTORY_START=' .env
 docker volume ls --format '{{.Name}}' | grep '^auspex_' || echo "no auspex volumes"
 ```
@@ -102,9 +101,9 @@ for t in ['XBI', 'EURUSD=X'] + os.environ['WATCHED_TICKERS'].split(','):
 
 Record in `DECISIONS.md`: a VERIFIED entry closing the 2026-10-07 market-simulation PENDING with the `XBI` and `EURUSD=X` row counts and date ranges.
 
-### 3. First universe build (rules version 1, window from 2023-03)
+### 3. First universe build (rules version 1, window from 2014-01)
 
-Precondition: step 2 passed. This run is also the first real check of the SEC bulk URLs. The first run downloads two archives of a few GB each and every member's price history from 2013, so expect hours; built months are kept if a run fails, and a retry builds only what is missing.
+Precondition: step 2 passed. There is one universe: it serves the slow-signal study from 2014 and the event backfill, which reads its members from `BACKFILL_SCOPE_START` (2024-01). This run is also the first real check of the SEC bulk URLs. The first run downloads two archives of a few GB each, reads a few hundred filing indexes (tickers of names delisted before 2019, paced under SEC's limit) and fetches price history from 2013 for every company listed since late 2013, so expect hours; built months are kept if a run fails, and a retry builds only what is missing.
 
 ```bash
 docker exec auspex-airflow airflow dags list-runs auspex_universe_build
@@ -125,13 +124,13 @@ cd services/backtesting && uv run pytest tests/unit/test_universe.py -q --strict
 ```
 
 **Check:**
-- The DAG run is `success`. A `failed` run whose log shows HTTP 502 naming a `sec.gov` URL means a bulk URL is wrong: find the current location on SEC's "Bulk data" page, put it in `.env` only (and in `.env.example`, which holds no secrets), restart the price service, trigger again, and record old and new URL in `DECISIONS.md`. A 403 means `SEC_USER_AGENT` is missing or rejected.
-- `rules_version` is `1`; `already_stored` equals the number of months from 2023-03 to the current month; `coverage` lists members, delisted count and members with partial or no price history.
-- `config/universe/backfill_scope.yaml` exists and is non-empty, with CIKs, tickers and names.
-- `test_universe.py`: 23 passed.
+- The DAG run is `success`. A `failed` run with HTTP 409 naming `PRICE_HISTORY_START` means `.env` sets it later than 2013-11-17; that cannot be fixed without deleting stored price history, so record a FLAG and stop this step. A `failed` run whose log shows HTTP 502 naming a `sec.gov` URL means a bulk URL is wrong: find the current location on SEC's "Bulk data" page, put it in `.env` only (and in `.env.example`, which holds no secrets), restart the price service, trigger again, and record old and new URL in `DECISIONS.md`. A 403 means `SEC_USER_AGENT` is missing or rejected. A price-service log line "SEC refused ... no further index lookups" means SEC rate-limited the filing index reads: the build still succeeds, with more unresolved tickers; record the count.
+- `rules_version` is `1`; `already_stored` equals the number of months from 2014-01 to the current month; `coverage` lists members, delisted count and members with partial or no price history.
+- `config/universe/backfill_scope.yaml` exists and is non-empty, with CIKs, tickers and names, and its `window.start` is `2024-01`.
+- `test_universe.py`: 52 passed.
 
 Then, per the point-in-time universe spec's definition of done:
-- `DECISIONS.md`: VERIFIED entry closing the 2026-10-08 PENDING, with the URLs that worked, members per month (min, median, max), delisted and acquired counts, price coverage (complete, partial, none) and the unresolved-ticker count.
+- `DECISIONS.md`: VERIFIED entry closing the 2026-10-08 PENDING, with the URLs that worked, members per month (min, median, max), delisted and acquired counts, price coverage (complete, partial, none) and the unresolved-ticker count, each also split into 2014–2018 and 2019 onward (free sources keep few delisted names from before 2019, and the protocol's `survivorship` kill criterion reads this).
 - `docs/PREREQUISITES.md` "Delisted ticker price data source" row and `services/backtesting/README.md`: the measured delisted coverage replaces "recorded after the first build".
 - Move `specs/point-in-time-universe.md` to `specs/done/`, set its status to `done`, update its `TODO.md` row and link.
 - Commit: `point-in-time universe first build: coverage, backfill scope, spec done`.
@@ -227,17 +226,7 @@ docker exec auspex-airflow airflow dags list | grep auspex_
 
 **Check (only if unpaused):** after the first scheduled run of each source DAG, list its runs; record which succeed and which fail, with the error, in `DECISIONS.md` (a source that the scraper API does not serve yet fails here; that is a known open bug, not something to fix in this spec).
 
-### 7. Universe for the 2014 window (ordering only)
-
-The slow-signal study (H9, H10) tests 2014 onward and needs a second universe built from 2014. That rules version does not exist on `develop` yet. Order:
-
-1. Price history from 2013 is set **before the first `up`** (step 1), because snapshots never grow backwards. That is the only part that cannot wait.
-2. Build version 1 first (step 3): it is the smaller run, it checks the SEC URLs, and it produces the event backfill scope.
-3. Build the 2014 universe only when `develop` carries its rules (a rules file whose `window.start` is in 2014, added by the spec that owns it). Then trigger `auspex_universe_build`, apply step 3's checks to that version, and record its coverage. If `develop` does not carry it when this spec runs, record "not run: no 2014 rules on develop" in the PR and skip.
-
-**Check:** `grep -l 'start: 2014' config/universe/*.yaml` either finds nothing (skip recorded) or the build for that file passes step 3's checks.
-
-### 8. Backfill dry run (lowest priority)
+### 7. Backfill dry run (lowest priority)
 
 Precondition: PR #8 merged into `develop` (`test -f services/ingestion-scraper/scripts/run_backfill.py` after pulling `develop`) and a CHOICE from step 5. If either is missing, record "not run" with the reason in the PR and skip. The dry run makes no LLM calls and writes no archive or Kafka messages.
 
@@ -254,7 +243,7 @@ Host scripts reach Ollama and core-hub on `localhost`: if `.env` holds the `host
 
 **Check:** each source prints documents, LLM calls after the prefilter, an estimated wall-clock from the latency record, the lineage overlap, and a run id; no LLM call is made (`ollama ps` shows no model loaded by it, the scraper log shows no extraction). Record all five in `DECISIONS.md` (the historical-backfill definition of done asks for exactly this) with the sum of estimated hours and a suggested `BACKFILL_TIME_CEILING_HOURS` (sum plus a third). Then stop: the live run waits for the user's sign-off.
 
-### 9. Stack checks other specs left for this machine
+### 8. Stack checks other specs left for this machine
 
 Specs built after this one was written may end their definition of done with a check "on the stack" (for example the wiring fixes' `POST /ingest/pubmed` and `VIA` count, or the infrastructure observability spec's `node_exporter` on the Mac). Precondition: the spec is in `specs/done/` on `develop`.
 
@@ -266,14 +255,14 @@ For each hit whose stack check has no VERIFIED entry in `DECISIONS.md` yet, run 
 
 **Check:** every hit is either recorded in `DECISIONS.md` by this run or listed in the PR as skipped with the reason.
 
-### 10. Deliver
+### 9. Deliver
 
 ```bash
 git status --short          # no .env, no /tmp files, no build output
 git push -u origin feature/first-run-on-stack-machine
 ```
 
-Open a PR into `develop` (`gh pr create --base develop` if `gh` is installed, otherwise give the user the compare link). The body lists each step as done, skipped (with the reason) or failed (with the DECISIONS entry). Move this spec to `specs/done/` in the same PR if steps 1–6 are done; steps 7–9 may be recorded as skipped.
+Open a PR into `develop` (`gh pr create --base develop` if `gh` is installed, otherwise give the user the compare link). The body lists each step as done, skipped (with the reason) or failed (with the DECISIONS entry). Move this spec to `specs/done/` in the same PR if steps 1–6 are done; steps 7–8 may be recorded as skipped.
 
 ## Required tests
 
@@ -292,12 +281,12 @@ Checks run on the Mac, each falsifiable and each tied to a step above:
 - `check_candidate_fits_without_swap_growth_over_1gb` — step 5
 - `check_choice_follows_the_pre_registered_decision_rule` — step 5 (DECISIONS entry names the rule line)
 - `check_scraper_extracts_one_source_with_the_chosen_model` — step 6
-- `check_backfill_dry_run_calls_no_llm` — step 8, when its precondition holds
-- `check_every_done_spec_stack_check_is_recorded_or_skipped` — step 9
+- `check_backfill_dry_run_calls_no_llm` — step 7, when its precondition holds
+- `check_every_done_spec_stack_check_is_recorded_or_skipped` — step 8
 
 ## Definition of done
 
-On the Mac, after step 10:
+On the Mac, after step 9:
 
 ```bash
 cd services/ingestion-scraper && uv run pytest tests/unit/test_local_model_integration.py -q --strict-markers && cd ../..
@@ -309,11 +298,11 @@ grep -c -E 'Local model — (CHOICE|FLAG)' DECISIONS.md                         
 grep -E '^\| Ollama' VERSIONS.md | grep -v 'resolve at install' && echo ollama-pinned
 ```
 
-Expected: 13 passed; 23 passed; `scope-ok`; `universe-spec-done`; `6`; a count of 1 or more; `ollama-pinned`. The PR into `develop` is open with CI green.
+Expected: 13 passed; 52 passed; `scope-ok`; `universe-spec-done`; `6`; a count of 1 or more; `ollama-pinned`. The PR into `develop` is open with CI green.
 
 ## Notes
 
-- Why price history from 2013 now: `PriceRefresher` fetches from `PRICE_HISTORY_START` only for a ticker with no snapshot and afterwards only appends. A first `up` at 2023 would leave every snapshot unable to serve the 2014–2021 in-sample period without deleting stored history. 2013-01-01 gives the 2014 window a year of lookback (trailing volatility, rolling beta) and changes nothing for version 1, which reads only bars before each rebalance. `DECISIONS.md` 2026-10-08 CHOICE.
-- Time budget, rough: first `up` with builds under an hour; universe build several hours (unmeasured); pulls ~22 GB; evaluation 1–2 hours for three candidates on 50 documents.
+- Why price history from 2013 now: `PriceRefresher` fetches from `PRICE_HISTORY_START` only for a ticker with no snapshot and afterwards only appends. A first `up` at 2023 would leave every snapshot unable to serve the universe from 2014 and the 2014–2021 in-sample period without deleting stored history. 2013-01-01 gives the 2014 window a year of lookback (trailing volatility, rolling beta); the universe build refuses a `PRICE_HISTORY_START` later than 45 days before its window. `DECISIONS.md` 2026-10-08 CHOICE.
+- Time budget, rough: first `up` with builds under an hour; universe build several hours from 2014 (unmeasured); pulls ~22 GB; evaluation 1–2 hours for three candidates on 50 documents.
 - The research report's speed-ups (prefix caching with `keep_alive: -1`, 2–4 parallel requests) matter for the backfill, not the gate. `OLLAMA_NUM_PARALLEL=1` stays for the gate so latency is comparable across candidates.
 - `check_leakage.py` and `compare_models.py` are optional and skipped: the leakage manifest is a 3-entry test fixture and the comparison needs an OpenAI key.
