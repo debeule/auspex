@@ -18,7 +18,7 @@ _UTC = UTC
 _T1 = datetime(2024, 6, 15, 10, 0, 0, tzinfo=_UTC)
 _T2 = datetime(2024, 6, 15, 10, 0, 1, tzinfo=_UTC)
 _BUCKET = "auspex-test"
-_LOCALSTACK_IMAGE = "localstack/localstack:4.9.2"
+_LOCALSTACK_IMAGE = "mirror.gcr.io/localstack/localstack:4.9.2"
 
 
 @pytest.fixture(scope="module")

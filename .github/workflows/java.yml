@@ -17,6 +17,8 @@ jobs:
     runs-on: ubuntu-latest
     env:
       TESTCONTAINERS_RYUK_DISABLED: "true"
+      # Testcontainers prepends this to every Docker Hub image name, so postgres and neo4j come from Google's Docker Hub cache.
+      TESTCONTAINERS_HUB_IMAGE_NAME_PREFIX: mirror.gcr.io/
       DOCKERHUB_USERNAME: ${{ vars.DOCKERHUB_USERNAME || secrets.DOCKERHUB_USERNAME }}
 
     steps:
