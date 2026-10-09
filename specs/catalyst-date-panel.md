@@ -2,7 +2,6 @@
 
 **Status:** blocked
 **Blocked by:** the first panel build on the stack machine (Definition of done, second block; `specs/first-run-on-stack-machine.md` step 3a). All code and all 10 required tests are in (`auspex_backtesting.catalysts`, `scripts/build_catalyst_panel.py`); neither SEC nor the Federal Register is reachable from cloud sessions (`DECISIONS.md` 2026-10-09 PENDING).
-**Was blocked by:** none. `specs/point-in-time-universe.md` is done in code (PR #21, #22) and supplies the CIKs, names and ticker history that catalysts are matched to; the stack backfill needs its first build. EDGAR press-release content (PR #16, merged) supplies the Exhibit 99.1 selection rules this spec reuses for its own fetches.
 
 **Branch:** `feature/catalyst-date-panel`
 
@@ -22,7 +21,7 @@ Neither source was reachable from the scoping sessions (proxy-blocked). Verify b
 
 In `services/backtesting/src/auspex_backtesting/catalysts/`:
 
-1. **`PressReleaseCatalystExtractor`** — for each universe CIK, fetches 8-K filings with Item 7.01 or 8.01 and an Exhibit 99.1 from the EDGAR quarterly form index, using the same exhibit selection rules as the scraper's EDGAR connector. It applies phrase rules for PDUFA dates (`PDUFA`, `target action date`, `goal date`), each with its date and a precision (`day`, `month`, `quarter`, `half`; "second half of 2027" never becomes a day). Each hit is stored with the sentence it came from. Known at the 8-K's acceptance time.
+1. **`PressReleaseCatalystExtractor`** — for each universe CIK, fetches 8-K filings with Item 7.01 or 8.01 and an Exhibit 99.1 from EDGAR's quarterly full index (`master.idx`), using the same exhibit selection rules as the scraper's EDGAR connector. It applies phrase rules for PDUFA dates (`PDUFA`, `target action date`, `goal date`), each with its date and a precision (`day`, `month`, `quarter`, `half`; "second half of 2027" never becomes a day). Each hit is stored with the sentence it came from. Known at the 8-K's acceptance time.
 2. **`AdvisoryCommitteeNotices`** — FDA meeting notices from the Federal Register API, with the meeting date and committee from the notice. The sponsor and product from the notice text are matched to universe names. Unmatched notices are kept and counted, never forced onto a company. Known at the publication date.
 3. **`CatalystPanel`** — Parquet in MinIO `auspex-prices/catalysts/{source}/{yyyy}q{q}.parquet`, append-only. A revision is a new row. `as_of(cik, date)` returns the effective upcoming catalysts: for each `(cik, catalyst_type, application or product)`, the latest row known on or before `date`. `binaries_between(cik, start, end, as_of)` serves `CatalystGuard`.
 4. **`scripts/build_catalyst_panel.py`** — backfills from 2014. It prints coverage: catalysts per year, the share of universe members with any catalyst, unmatched AdCom notices, and phrase-rule hits by precision.
