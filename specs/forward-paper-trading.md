@@ -8,7 +8,8 @@
 4. ~~Realistic trading costs~~ — done (`specs/done/realistic-cost-model.md`): per-ticker spread (`SpreadEstimator`), FX conversion fee, average-daily-volume cap and gap risk. The capital tiers below are only meaningful with size-dependent costs.
 5. Met: `specs/done/slow-signal-preregistration.md` — the portfolio branch of the forward check and the `evaluation: portfolio` hypotheses.
 6. For portfolio strategies only: `specs/cross-sectional-portfolio-backtest.md` (`ScoreSnapshot`, `PortfolioRule`, `EqualRiskSizer`, and the replay the tracking check compares against). Portfolio strategies do not need `StreamingRuntime`; event strategies do.
-7. Recommended, not a hard blocker: `specs/company-program-corroboration.md`. Paper trading can start on gene-target corroboration, but the audit expects company-program events to be the ones worth testing; starting earlier only buys calendar time.
+7. `specs/golden-set-expansion.md` — calibrated publish thresholds. The user decided on 2026-10-09 that the uncalibrated `min_confidence_to_publish` default of 0.0 must be corrected before launch, so no event strategy's ledger starts until every source it reads has a current calibration (`config/models/scores/calibration.json`, enforced by `test_every_live_source_has_a_current_calibration_matching_its_publish_threshold`). An `uncalibrated` source is excluded from paper inputs, logged, not silently used.
+8. Recommended, not a hard blocker: `specs/company-program-corroboration.md`. Paper trading can start on gene-target corroboration, but the audit expects company-program events to be the ones worth testing; starting earlier only buys calendar time.
 
 **Branch:** `feature/forward-paper-trading`
 
@@ -91,6 +92,7 @@ In `services/strategy/tests/unit/test_paper_ledger.py`:
 - `test_portfolio_verdict_uses_tracking_difference_not_event_count`
 - `test_report_gives_per_trade_slippage_against_cost_model_and_average_holding_period`
 - `test_inputs_missing_before_session_open_count_as_a_data_gap`
+- `test_event_strategy_ledger_refuses_to_start_on_a_source_without_current_calibration` — missing, stale (other model or `prompt_version`) or `uncalibrated` entry for a source the strategy reads → that strategy writes no rows and the refusal is logged; other strategies continue
 
 ## Definition of done
 
@@ -98,7 +100,7 @@ In `services/strategy/tests/unit/test_paper_ledger.py`:
 cd services/strategy && uv run pytest tests/unit/test_paper_ledger.py -q --strict-markers
 ```
 
-Expected: 25 passed.
+Expected: 26 passed.
 
 Then: the runtime container runs on the stack with at least one `paper` strategy; after 5 consecutive NYSE sessions the ledger has 5 heartbeat files with no gaps and `scripts/paper_report.py` prints a report; the start date recorded in `DECISIONS.md`. The audit's "30 days without gaps" criterion is checked in a later session and recorded there; it is not a merge condition.
 

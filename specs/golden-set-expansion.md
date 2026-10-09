@@ -21,6 +21,7 @@ An expanded golden set at `tests/fixtures/golden_set.jsonl` (extending the exist
 - At least 4 distinct gene targets represented (beyond DMD).
 - At least 3 distinct source types.
 - Hand-labelled `is_signal` (true/false) for every document. No unlabelled placeholders.
+- Enough documents per live source that the chosen model extracts at least 30 signals from each, so every source can be calibrated (see below).
 - Fields: `external_id`, `source_type`, `gene_target`, `is_signal`, `published_date`.
 
 After committing the expanded fixture:
@@ -29,9 +30,19 @@ After committing the expanded fixture:
 
 Both gate records must be present with `passed: true` before `historical-backfill` can start.
 
+### Confidence calibration and publish thresholds
+
+`min_confidence_to_publish` ships at 0.0 (off) because requirements §11.1 forbids a threshold the score's calibration has not measured. The user decided on 2026-10-09 that this must be corrected before launch, so this spec measures it:
+
+- `score_extraction.py --calibrate` scores the chosen local model's `confidence_score` against the hand labels: for each `source_type` in `sources.yaml` that is not a fixture source, it bins the extracted signals by confidence (5 equal-width bins on [0, 1]) and reports per-bin count and precision (share labelled `is_signal: true`).
+- The calibrated threshold for a source is the lowest bin edge from which every higher bin meets the 0.85 gate precision. If every bin meets it, the threshold is 0.0, now recorded on evidence instead of by default.
+- A source with fewer than 30 extracted signals in the set is reported `uncalibrated`, not given a threshold.
+- The result is written to `config/models/scores/calibration.json` (model key, `prompt_version`, `prefilter_version`, per source: bins, threshold or `uncalibrated`), and each calibrated threshold is set as `min_confidence_to_publish` on that source's `sources.yaml` entry in the same commit.
+- A model or `prompt_version` change makes the calibration stale, like a gate record.
+
 ## Out of scope
 
-Changes to `score_extraction.py`. Changes to the LLM extraction prompt (a prompt change requires a new `prompt_version` and invalidates all existing gate records). New fields on `ResearchSignalEvent`. This spec only extends the fixture and re-runs the existing scoring script.
+Changes to `score_extraction.py` other than the `--calibrate` mode above. Changes to the LLM extraction prompt (a prompt change requires a new `prompt_version` and invalidates all existing gate records). New fields on `ResearchSignalEvent`. This spec only extends the fixture and re-runs the existing scoring script.
 
 ## Constraints
 
@@ -48,19 +59,29 @@ Static validation of the expanded fixture in `tests/unit/test_golden_set.py`:
 - `test_golden_set_spans_required_source_types` — at least 3 distinct source types
 - `test_golden_set_labels_complete` — every document has a non-null `is_signal` field; no unlabelled entries
 
+Calibration in `tests/unit/test_confidence_calibration.py`:
+
+- `test_calibration_bins_confidence_against_hand_labels` — synthetic scored set; per-bin counts and precision match hand-computed values
+- `test_threshold_is_lowest_bin_edge_from_which_all_higher_bins_meet_target_precision` — a non-monotonic middle bin below 0.85 raises the threshold above it
+- `test_threshold_is_zero_when_every_bin_meets_target_precision`
+- `test_source_with_fewer_than_thirty_extracted_signals_is_uncalibrated`
+- `test_every_live_source_has_a_current_calibration_matching_its_publish_threshold` — reads `sources.yaml`, `calibration.json` and `registry.yaml`: every non-fixture source has an entry for the active model and `prompt_version`, and its `min_confidence_to_publish` equals the recorded threshold. Fails today by design; it passes only once the calibration run is committed, so 0.0 cannot reach paper trading by default.
+
 ## Definition of done
 
 ```bash
 cd services/ingestion-scraper && uv run pytest tests/unit/test_golden_set.py -q
+cd services/ingestion-scraper && uv run pytest tests/unit/test_confidence_calibration.py -q
 ```
 
-Expected: 4 passed.
+Expected: 4 passed, then 5 passed (the last calibration test only after the calibration run below is committed).
 
 Then:
 - `score_extraction.py --model <local_model_key>` completes at ≥0.85 precision; gate record committed to `config/models/scores/`.
 - `score_extraction.py --model gpt-4o-mini-2024-07-18` completes; gate record file updated.
 - Both gate record files committed.
 - Precision scores on the expanded set for both models recorded in `DECISIONS.md`.
+- `score_extraction.py --calibrate --model <local_model_key>` run on the expanded set; `calibration.json` and the resulting `sources.yaml` thresholds committed together; per-source thresholds and any `uncalibrated` source recorded in `DECISIONS.md`.
 
 ## Notes
 
