@@ -1,9 +1,7 @@
 # Short Interest Snapshots
 
-**Status:** blocked
-**Blocked by:**
-1. Company-level event extraction (in progress, first wave) — needed only so short-interest features join to the same company and ticker identifiers as events.
-2. Soft: `specs/point-in-time-universe.md` for the ticker list. Until it lands, the ticker list is the watchlist.
+**Status:** ready
+**Blocked by:** none. Company-level event extraction is done (`specs/done/company-level-extraction.md`). `specs/point-in-time-universe.md` is done in code (PR #21, #22) and supplies the ticker list; runs on the stack need its first build.
 
 **Branch:** `feature/short-interest-snapshots`
 
@@ -26,7 +24,7 @@ In `services/backtesting/src/auspex_backtesting/short_interest/`:
 - `ShortInterestStore` — Parquet in MinIO `auspex-prices/short_interest/{ticker}.parquet`, written once per period and appended for new periods; never rewritten.
 - `ShortInterestStore.as_of(ticker, date)` — the latest record whose `publication_date` is on or before `date`.
 - Derived features: short interest as % of shares outstanding (shares from the universe spec when present, else null), and change since the previous period.
-- `scripts/fetch_short_interest.py` CLI, plus registration in whatever scheduled data refresh the stack runs for prices.
+- `scripts/fetch_short_interest.py` CLI for the backfill. The scheduled refresh (endpoint and DAG) is `specs/slow-signal-data-refresh.md`; keep the fetch callable as one job so that spec can wrap it.
 
 ## Out of scope
 

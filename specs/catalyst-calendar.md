@@ -2,7 +2,7 @@
 
 **Status:** blocked
 **Blocked by:**
-1. Company-level event extraction (in progress, first wave) — event type and company and program identifiers on `ResearchSignalEvent`; this spec adds catalyst fields on top.
+1. Met: company-level event extraction (`specs/done/company-level-extraction.md`, schema 1.1) — event type and company and program identifiers on `ResearchSignalEvent`; this spec adds catalyst fields on top.
 2. ~~EDGAR press-release content~~ — done (`specs/done/edgar-press-release-content.md`). PDUFA dates are mostly disclosed in press releases filed as 8-K Exhibit 99.1, which the connector does not fetch yet.
 3. Backfill timing decision: this spec changes the extraction schema and prompt. If it lands after the historical backfill, the in-window 8-Ks must be re-extracted (reextraction CLI) to populate catalyst dates. Logged in `DECISIONS.md` 2026-10-07.
 

@@ -2,8 +2,8 @@
 
 **Status:** blocked
 **Blocked by:**
-1. `specs/strategy-framework.md` — `VirtualBook`, strategy registry, and version tracking must exist
-2. `specs/hypothesis-registry.md` — trial count (for deflated Sharpe) is read from `config/hypotheses/trials/`
+1. Met: `specs/done/strategy-framework.md` — `VirtualBook`, strategy registry, and version tracking must exist
+2. Met: `specs/done/hypothesis-registry.md` — trial count (for deflated Sharpe) is read from `config/hypotheses/trials/`
 3. `specs/evaluation-protocol.md` — `DeflatedSharpe.compute()` and `BootstrapCI` are imported from there
 
 **Branch:** `feature/strategy-metrics`

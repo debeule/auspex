@@ -3,7 +3,7 @@
 **Status:** hold
 **Hold reason (2026-10-07 edge research):** no biotech-specific study of offering returns was found, and trading them needs shorts, which the protocol disables. Comes off hold if offerings are pre-registered as a veto on long holdings. `DECISIONS.md` 2026-10-07 "ownership and insider data are snapshots, not connectors".
 **Blocked by:**
-1. Company-level event extraction (in progress, first wave) — event type and company identifier fields on `ResearchSignalEvent`.
+1. Met: company-level event extraction (`specs/done/company-level-extraction.md`, schema 1.1) — event type and company identifier fields on `ResearchSignalEvent`.
 2. `specs/hold/structured-source-extraction.md` — the deterministic mapper path and the issuer-scope pre-filter.
 3. Soft: `specs/point-in-time-universe.md` for the issuer list. Until it lands, the issuer scope is a configured CIK list.
 

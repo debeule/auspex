@@ -2,7 +2,7 @@
 
 **Status:** blocked
 **Blocked by:**
-1. Company-level event extraction (in progress, first wave) — company and program identifiers on `ResearchSignalEvent`.
+1. Met: company-level event extraction (`specs/done/company-level-extraction.md`, schema 1.1) — company and program identifiers on `ResearchSignalEvent`.
 2. `specs/catalyst-calendar.md` — the `catalysts` extraction fields and the core-hub calendar this connector's events land in.
 
 **Branch:** `feature/fda-advisory-committee-connector`

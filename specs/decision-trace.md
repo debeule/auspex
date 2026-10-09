@@ -2,7 +2,7 @@
 
 **Status:** blocked
 **Blocked by:**
-1. `specs/strategy-framework.md` — `TradeIntent`, `IntentRationale`, and `ApprovalDecision` must be defined
+1. Met: `specs/done/strategy-framework.md` — `TradeIntent`, `IntentRationale`, and `ApprovalDecision` must be defined
 2. `specs/strategy-runtime.md` — runtime populates the trace as events flow through the pipeline
 
 **Branch:** `feature/decision-trace`

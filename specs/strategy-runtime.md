@@ -1,9 +1,7 @@
 # Strategy Runtime
 
-**Status:** blocked
-**Blocked by:**
-1. `specs/strategy-framework.md` — `Strategy` ABC, `AsOfContext`, `TradeIntent`, `StrategyRegistry` must exist
-2. `specs/market-simulation.md` — `FillModel`, `CostModel`, `CurrencyConverter` needed for virtual book P&L
+**Status:** ready
+**Blocked by:** none. Both prerequisites are done: `specs/done/strategy-framework.md` (`Strategy` ABC, `AsOfContext`, `TradeIntent`, `StrategyRegistry`) and `specs/done/market-simulation.md` (`FillModel`, `CostModel`, `CurrencyConverter` for virtual book P&L).
 
 **Branch:** `feature/strategy-runtime`
 
@@ -60,6 +58,15 @@ Invariant 2 (core-hub sole writer to application DB) constrains where state is p
 
 The runtime is proposed to live in `services/strategy/` as a long-running Docker container with a Kafka consumer loop. It is NOT an Airflow DAG: Airflow owns ingestion cursors, but the strategy runtime reacts to Kafka events not a polling schedule. See DECISIONS.md 2026-09-20 for the trigger model flag.
 
+### Container
+
+The runtime ships as a container so forward paper trading (`specs/forward-paper-trading.md`, whose `DailyCloseOut` runs inside it) has somewhere to run:
+- `services/strategy/Dockerfile`, following the scraper's (`uv` build stage pinned in `VERSIONS.md`, non-root user).
+- Compose service `strategy-runtime` in the `app` profile, with `mem_limit` from `.env`, settings from `.env` (Invariant 6), and a healthcheck on `GET /health`.
+- `GET /health` returns `ok` with per-strategy failure counts and pause state. A Prometheus `/metrics` endpoint exposes the same counts, so the existing "Scrape Target Down" rule covers the container.
+- `docker/README.md` services table updated.
+- CI: `.github/workflows/python.yml` runs nothing in `services/strategy` today. Add its unit suite and the image build there.
+
 ### Same-event overlap detection note
 
 In paper/live mode, if multiple strategies subscribe to `CORROBORATION_NEW` and the same corroboration event fires on the same tick, `OverlapDetector` flags all affected intents. They are all passed through the risk pipeline, and the capital allocator (portfolio-and-risk) nets opposing intents before order submission.
@@ -88,6 +95,7 @@ In `tests/unit/test_strategy_runtime.py`:
 - `test_latency_trace_records_corroboration_to_intent_gap` — mock event with known `corroborated_at` and `first_detected_at`; `intent_time` captured; `LatencyTracer` entry contains all three timestamps and the computed gap
 - `test_virtual_book_pnl_matches_market_simulation` — synthetic position opened at price A, closed at price B, N shares; `VirtualBook.closed_trades()` net P&L equals `FillModel` + `CostModel` calculation for same inputs
 - `test_backtest_replay_is_deterministic` — replay same event sequence twice with identical strategy and context; intents are equal (fields, not `intent_id`s)
+- `test_health_reports_per_strategy_failure_counts_and_pause_state` — one strategy crashed once and one paused by `InputHealthMonitor`; `/health` and `/metrics` both report them
 
 ## Definition of done
 
@@ -95,6 +103,6 @@ In `tests/unit/test_strategy_runtime.py`:
 cd services/strategy && uv run pytest tests/unit/test_strategy_runtime.py -q
 ```
 
-Expected: 8 passed.
+Expected: 9 passed.
 
-Then: a `BacktestReplayRunner` run against 10 synthetic corroboration events with `StructuralConvergenceStrategy` (stub returning one LONG intent per event) produces a `BacktestResult` and a non-empty `VirtualBook` snapshot without error.
+Then: a `BacktestReplayRunner` run against 10 synthetic corroboration events with `StructuralConvergenceStrategy` (stub returning one LONG intent per event) produces a `BacktestResult` and a non-empty `VirtualBook` snapshot without error. The `strategy-runtime` image builds in CI. Starting it healthy on the stack is picked up by `specs/first-run-on-stack-machine.md` step 8.

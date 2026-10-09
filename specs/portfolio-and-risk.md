@@ -3,7 +3,7 @@
 **Status:** blocked
 **Blocked by:**
 1. `specs/strategy-runtime.md` — `TradeIntent` flow and `VirtualBook` must exist
-2. `specs/market-simulation.md` — `CostModel`, `CurrencyConverter`, `PositionSizer` required
+2. Met: `specs/done/market-simulation.md` — `CostModel`, `CurrencyConverter`, `PositionSizer` required
 
 **Branch:** `feature/portfolio-and-risk`
 
@@ -12,6 +12,8 @@
 ## Context
 
 The strategy runtime generates `TradeIntent`s from strategy decision functions. Before any intent becomes a real or virtual fill, it passes through the risk layer. This spec builds that layer: position sizing, exposure limits, short-specific guards, loss limits, and kill switches.
+
+**Which strategies this covers.** Sizing, exposure limits and the binary-event guard here are written for event strategies. Portfolio hypotheses (`evaluation: portfolio`, such as H9) are sized by `EqualRiskSizer` and guarded by `CatalystGuard` in `specs/cross-sectional-portfolio-backtest.md`, and forward paper trading reuses those. `KillSwitch` and the loss limits apply to every strategy. Before building, check `BinaryEventGuard`'s source: `config/catalysts/upcoming.yaml` is a hand-maintained file, which root `CLAUDE.md` ("Where work can run") rules out. The point-in-time catalyst date panel (`specs/catalyst-date-panel.md`) supplies PDUFA and AdCom dates. Readout dates have no automated source yet, so log the choice in `DECISIONS.md`.
 
 Every limit is a configurable parameter with a test that verifies it is read from `.env`, not hardcoded. No defaults in source code — startup fails with a descriptive message if a required limit is absent from `.env`. See `.env.example`.
 
