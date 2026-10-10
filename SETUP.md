@@ -34,20 +34,21 @@ docker compose --profile app -f docker/docker-compose.yml --env-file .env up -d 
 cp .env.example .env
 ```
 
-Fill in what only you have:
+Fill in what only you have, group by group as `.env.example` lists them, and check `PRICE_HISTORY_START` before the first `up`:
 
-| Variable | Notes |
-|---|---|
-| `POSTGRES_PASSWORD`, `AIRFLOW_DB_PASSWORD`, `NEO4J_PASSWORD`, `MINIO_ACCESS_KEY`, `MINIO_SECRET_KEY`, `GRAFANA_ADMIN_PASSWORD`, `AIRFLOW_SECRET_KEY`, `AIRFLOW_JWT_SECRET` | Any strong values, e.g. `openssl rand -hex 24`. To change one later, follow "Changing a password in place" in `docker/README.md`; `down -v` destroys all data. |
-| `AIRFLOW_FERNET_KEY` | `openssl rand -base64 32 \| tr '+/' '-_'`. Encrypts Airflow's stored Variables, including the ingestion cursors; keep it for the life of the stack. **If the stack already ran without it**, copy the key Airflow generated before you recreate the container: `docker exec auspex-airflow airflow config get-value core fernet_key`. |
-| `SEC_USER_AGENT` | `Name email@example.com`; SEC returns 403 without it. |
-| `NCBI_API_KEY`, `OPENFDA_API_KEY`, `EPO_OPS_KEY`, `EPO_OPS_SECRET` | From each provider's developer portal (EPO: `developers.epo.org`). |
-| `OPENAI_API_KEY` | Only for the API fallback model. |
-| `DASHBOARD_USERNAME` | The dashboard's one login. |
-| `DASHBOARD_PASSWORD_HASH` | Print it with `docker compose --profile app -f docker/docker-compose.yml --env-file .env run --rm --no-deps dashboard node scripts/hash-password.mjs` (it asks for the password without echoing it) and paste the printed line as is: the single quotes keep compose from reading the `$` signs in the hash. |
-| `DASHBOARD_SESSION_SECRET`, `CORE_HUB_WRITE_TOKEN` | Any strong values, e.g. `openssl rand -hex 32`. Changing the session secret signs everyone out; changing the write token needs both `core-hub` and `dashboard` restarted. |
-| `POSTGRES_MONITOR_PASSWORD` | Any strong value; the read-only role Prometheus's Postgres exporter uses. Created or updated on every `up`. |
-| `ALERT_CONTACT_TYPE`, `ALERT_EMAIL_ADDRESSES`, `SMTP_HOST`, `SMTP_USER`, `SMTP_PASSWORD`, `SMTP_FROM_ADDRESS` | Where Grafana sends alerts. `email` (the default) needs the address list and an SMTP account, e.g. `smtp.gmail.com:587` with an app password. For a webhook instead, set `ALERT_CONTACT_TYPE=webhook` and `ALERT_WEBHOOK_URL`. Grafana does not start without one of the two. |
+| Group | Variable | Notes |
+|---|---|---|
+| Postgres, Airflow, Neo4j, MinIO | `POSTGRES_PASSWORD`, `POSTGRES_MONITOR_PASSWORD`, `AIRFLOW_DB_PASSWORD`, `AIRFLOW_SECRET_KEY`, `AIRFLOW_JWT_SECRET`, `NEO4J_PASSWORD`, `MINIO_ACCESS_KEY`, `MINIO_SECRET_KEY` | Any strong values, e.g. `openssl rand -hex 24`. To change one later, follow "Changing a password in place" in `docker/README.md`; `down -v` destroys all data. `POSTGRES_MONITOR_PASSWORD` is reset to `.env`'s value on every `up`. |
+| Airflow | `AIRFLOW_FERNET_KEY` | `openssl rand -base64 32 \| tr '+/' '-_'`. Encrypts Airflow's stored Variables, including the ingestion cursors; keep it for the life of the stack. **If the stack already ran without it**, copy the key Airflow generated before you recreate the container: `docker exec auspex-airflow airflow config get-value core fernet_key`. |
+| Dashboard | `DASHBOARD_USERNAME` | The dashboard's one login. |
+| Dashboard | `DASHBOARD_PASSWORD_HASH` | Print it with `docker compose --profile app -f docker/docker-compose.yml --env-file .env run --rm --no-deps dashboard node scripts/hash-password.mjs` (it asks for the password without echoing it) and paste the printed line as is: the single quotes keep compose from reading the `$` signs in the hash. |
+| Dashboard | `DASHBOARD_SESSION_SECRET`, `CORE_HUB_WRITE_TOKEN` | Any strong values, e.g. `openssl rand -hex 32`. Changing the session secret signs everyone out; changing the write token needs both `core-hub` and `dashboard` restarted. |
+| Extraction model | `OPENAI_API_KEY` | Only for the API fallback model. |
+| Source credentials | `SEC_USER_AGENT` | `Name email@example.com`; SEC returns 403 without it. |
+| Source credentials | `NCBI_API_KEY`, `EPO_OPS_KEY`, `EPO_OPS_SECRET` | From each provider's developer portal (EPO: `developers.epo.org`). |
+| History windows | `PRICE_HISTORY_START` | First day of price history for a ticker with no snapshot yet. Existing snapshots only gain new bars and never reach further back, so set it before the first `up`. |
+| Monitoring and alerts | `GRAFANA_ADMIN_PASSWORD` | Any strong value, e.g. `openssl rand -hex 24`. |
+| Monitoring and alerts | `ALERT_CONTACT_TYPE`, `ALERT_EMAIL_ADDRESSES`, `SMTP_HOST`, `SMTP_USER`, `SMTP_PASSWORD`, `SMTP_FROM_ADDRESS` | Where Grafana sends alerts. `email` (the default) needs the address list and an SMTP account, e.g. `smtp.gmail.com:587` with an app password. For a webhook instead, set `ALERT_CONTACT_TYPE=webhook` and `ALERT_WEBHOOK_URL`. Grafana does not start without one of the two. |
 
 ## 2. Host settings (once)
 
