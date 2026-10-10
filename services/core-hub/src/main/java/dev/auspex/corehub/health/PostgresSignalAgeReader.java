@@ -12,7 +12,7 @@ import java.util.Map;
 public class PostgresSignalAgeReader implements SignalAgeReader {
 
     private static final String LATEST_BY_SOURCE =
-            "SELECT source_type, max(ingested_at) AS latest FROM signal_current GROUP BY source_type";
+            "SELECT source_type, max(last_updated_at) AS latest FROM signal_current GROUP BY source_type";
 
     private final JdbcTemplate jdbcTemplate;
 
