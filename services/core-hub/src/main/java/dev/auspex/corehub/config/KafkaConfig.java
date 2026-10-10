@@ -190,7 +190,7 @@ class KafkaConfig {
 
     @Bean
     KafkaTemplate<Object, Object> dltWireJsonKafkaTemplate(ObjectMapper objectMapper) {
-        JsonSerializer<Object> valueSerializer = new JsonSerializer<>(objectMapper);
+        JsonSerializer<Object> valueSerializer = new JsonSerializer<>();
         valueSerializer.setAddTypeInfo(false);
         ProducerFactory<Object, Object> factory = new DefaultKafkaProducerFactory<>(
                 Map.of(BOOTSTRAP_SERVERS_CONFIG, bootstrapServers,
