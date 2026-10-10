@@ -20,10 +20,15 @@ from auspex_backtesting.prices.price_refresher import (
     PriceRefresher,
     SnapshotDiscontinuityError,
 )
-from auspex_backtesting.prices.snapshot_store import PriceSnapshotStore
-from auspex_backtesting.prices.splits import SplitStore
+from auspex_backtesting.prices.snapshot_store import PriceSnapshotStore, adjusted_through
+from auspex_backtesting.prices.splits import SplitHistory, SplitStore
 from auspex_backtesting.universe import sec_bulk
-from auspex_backtesting.universe.builder import PriceSource, UniverseBuilder, rebalance_date
+from auspex_backtesting.universe.builder import (
+    MonthBlockedError,
+    PriceSource,
+    UniverseBuilder,
+    rebalance_date,
+)
 from auspex_backtesting.universe.model import CompanyRecord, ShareCount, UniverseSnapshot
 from auspex_backtesting.universe.report import backfill_scope, coverage_report
 from auspex_backtesting.universe.rules import UniverseRules
@@ -97,7 +102,8 @@ class SnapshotPrices:
         self._splits = splits
 
     def prepare(self, tickers: Sequence[str]) -> dict[str, str]:
-        """Refreshes each ticker's prices and split history; returns the failures by ticker."""
+        """Refreshes each ticker's prices, and its split history up to the date the price
+        snapshot's split adjustment was taken; returns the price failures by ticker."""
         failed: dict[str, str] = {}
         for ticker in tickers:
             try:
@@ -108,15 +114,18 @@ class SnapshotPrices:
             except SnapshotDiscontinuityError as exc:
                 # The stored bars stay usable up to where they end.
                 failed[ticker] = str(exc)
-            self._splits.ensure(ticker)
+            snapshot = self._snapshots.load(ticker)
+            basis = adjusted_through(snapshot) if snapshot is not None else None
+            if basis is not None:
+                self._splits.ensure(ticker, through=basis)
         return failed
 
     def bars(self, ticker: str) -> pd.DataFrame | None:
         return self._snapshots.load(ticker)
 
-    def splits(self, ticker: str) -> pd.Series:
+    def splits(self, ticker: str) -> SplitHistory:
         stored = self._splits.load(ticker)
-        return stored if stored is not None else pd.Series(dtype=float)
+        return stored or SplitHistory("unavailable", pd.Series(dtype=float), None)
 
 
 @dataclass(frozen=True)
@@ -126,6 +135,8 @@ class BuildSummary:
     already_stored: int
     price_failures: int
     coverage: dict[str, Any]
+    # Months left unbuilt for the next run, with the tickers whose split history is unknown.
+    split_unavailable: dict[str, tuple[str, ...]]
 
     def as_dict(self) -> dict[str, Any]:
         return {
@@ -133,6 +144,7 @@ class BuildSummary:
             "built": list(self.built),
             "already_stored": self.already_stored,
             "price_failures": self.price_failures,
+            "split_unavailable": {m: list(t) for m, t in self.split_unavailable.items()},
             "coverage": self.coverage,
         }
 
@@ -180,6 +192,7 @@ class UniverseBuildJob:
         missing = [m for m in months if not self._store.exists(rules.version, m)]
 
         built: list[dict[str, Any]] = []
+        blocked: dict[str, tuple[str, ...]] = {}
         failures: dict[str, str] = {}
         if missing:
             companies, shares = self._filings.load(rules, listed_since)
@@ -190,7 +203,12 @@ class UniverseBuildJob:
             failures = self._prices.prepare(tickers)
             log.info("prices for %d tickers, %d without data", len(tickers), len(failures))
             for month in missing:
-                snapshot = builder.build(month)
+                try:
+                    snapshot = builder.build(month)
+                except MonthBlockedError as exc:
+                    blocked[month] = exc.tickers
+                    log.warning("universe %s not built: %s", month, exc)
+                    continue
                 self._store.write(snapshot)
                 built.append(_month_summary(snapshot))
                 log.info("universe %s: %s", month, built[-1])
@@ -214,7 +232,7 @@ class UniverseBuildJob:
                 "application/yaml",
             )
         return BuildSummary(
-            rules.version, tuple(built), len(months) - len(missing), len(failures), report
+            rules.version, tuple(built), len(months) - len(missing), len(failures), report, blocked
         )
 
 

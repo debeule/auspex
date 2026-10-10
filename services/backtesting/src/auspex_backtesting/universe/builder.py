@@ -6,8 +6,14 @@ from typing import Protocol
 import pandas as pd
 
 from auspex_backtesting.market_sim.calendar import MarketCalendar
+from auspex_backtesting.prices.snapshot_store import adjusted_through
+from auspex_backtesting.prices.splits import SplitHistory
 from auspex_backtesting.universe.listing import ListingHistory
-from auspex_backtesting.universe.market_cap import market_cap_usd, median_dollar_volume
+from auspex_backtesting.universe.market_cap import (
+    SplitHistoryUnavailableError,
+    market_cap_usd,
+    median_dollar_volume,
+)
 from auspex_backtesting.universe.model import (
     CompanyRecord,
     ListingSpan,
@@ -29,12 +35,23 @@ _COVERAGE_TOLERANCE_SESSIONS = 5
 
 class PriceSource(Protocol):
     def bars(self, ticker: str) -> pd.DataFrame | None:
-        """Split-adjusted daily OHLCV with a UTC midnight index, or None."""
+        """Split-adjusted daily OHLCV with a UTC midnight index, or None. `attrs` carries the
+        snapshot's `ADJUSTED_THROUGH` date when it was recorded."""
         ...
 
-    def splits(self, ticker: str) -> pd.Series:
-        """New-shares-per-old-share ratios indexed by split date; empty when none are known."""
+    def splits(self, ticker: str) -> SplitHistory:
+        """The stored split history; `unavailable` when none is stored."""
         ...
+
+
+class MonthBlockedError(Exception):
+    """A month needs the market cap of tickers whose split history is unknown, so it cannot be
+    built correctly yet."""
+
+    def __init__(self, month: str, tickers: tuple[str, ...]) -> None:
+        super().__init__(f"{month}: split history unavailable for {', '.join(tickers)}")
+        self.month = month
+        self.tickers = tickers
 
 
 def rebalance_date(month: str, calendar: MarketCalendar | None = None) -> date:
@@ -47,6 +64,7 @@ class _Prices:
     bars: pd.DataFrame
     coverage: PriceCoverage
     note: str
+    adjusted_through: date | None = None
 
 
 class UniverseBuilder:
@@ -108,13 +126,22 @@ class UniverseBuilder:
         return rows
 
     def build(self, month: str) -> UniverseSnapshot:
+        """Raises `MonthBlockedError` when a market cap the month needs has no known split
+        history: a month is only ever built from known ones."""
         d = rebalance_date(month, self._calendar)
         self._check_month(month, d)
-        members = [
-            m
-            for company, history in self._companies
-            if (m := self._member(company, history, d)) is not None
-        ]
+        members: list[UniverseMember] = []
+        blocked: set[str] = set()
+        for company, history in self._companies:
+            try:
+                member = self._member(company, history, d)
+            except SplitHistoryUnavailableError:
+                blocked.add(history.ticker or company.cik)
+                continue
+            if member is not None:
+                members.append(member)
+        if blocked:
+            raise MonthBlockedError(month, tuple(sorted(blocked)))
         return UniverseSnapshot(self._rules.version, month, d, tuple(members))
 
     def _check_month(self, month: str, d: date) -> None:
@@ -141,9 +168,10 @@ class UniverseBuilder:
                 self._shares.get(company.cik, ()),
                 float(before["close"].iloc[-1]),
                 d,
-                self._prices.splits(history.ticker) if history.ticker else pd.Series(dtype=float),
+                self._prices.splits(history.ticker),
+                prices.adjusted_through,
             )
-            if not before.empty
+            if history.ticker is not None and not before.empty
             else None
         )
         liquidity = median_dollar_volume(recent)
@@ -205,10 +233,11 @@ class UniverseBuilder:
                 f"{history.ticker} trades until {max(dates)}, long after the exit on "
                 f"{span.exited_on}: the ticker was reused by another issuer",
             )
+        basis = adjusted_through(bars)
         bars = bars[dates >= span.entered_on]
         if bars.empty:
             return _Prices(empty, "none", f"no price history for {history.ticker} while listed")
-        return _Prices(bars, *self._coverage(bars, span))
+        return _Prices(bars, *self._coverage(bars, span), basis)
 
     def _coverage(self, bars: pd.DataFrame, span: ListingSpan) -> tuple[PriceCoverage, str]:
         expected_first = max(span.entered_on, self._rules.window_start)

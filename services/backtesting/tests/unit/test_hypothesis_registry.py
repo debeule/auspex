@@ -70,7 +70,7 @@ def test_backtest_refuses_unregistered_hypothesis_id(tmp_path: Path) -> None:
 
 
 def test_backtest_refuses_modified_hypothesis(tmp_path: Path) -> None:
-    config_dir, registry_path, trials_dir = _dirs(tmp_path)
+    config_dir, registry_path, _trials_dir = _dirs(tmp_path)
 
     register_hypothesis("h1", _H1_YAML, config_dir=config_dir, registry_path=registry_path)
     (config_dir / "h1.yaml").write_text(_H1_YAML_V2)

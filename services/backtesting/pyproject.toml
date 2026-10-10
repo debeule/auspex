@@ -49,3 +49,8 @@ line-length = 100
 python_version = "3.14"
 strict = true
 packages = ["auspex_backtesting"]
+
+[[tool.mypy.overrides]]
+# These ship neither type hints nor a py.typed marker; pandas-stubs is not a dependency.
+module = ["pandas.*", "pyarrow.*", "yfinance.*", "pandas_market_calendars.*", "pandas_datareader.*"]
+ignore_missing_imports = true

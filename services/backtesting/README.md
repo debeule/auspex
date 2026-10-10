@@ -10,7 +10,7 @@ Price snapshots, the point-in-time stock universe, SEC ownership panels, market 
 |---|---|
 | SIC codes | 2834, 2836, 8731 (SEC's current code) |
 | Exchanges | NYSE, Nasdaq, NYSE American |
-| Market cap | ≥ $50M: last share count filed before the rebalance × the last close before it, restated through later splits |
+| Market cap | ≥ $50M: last share count filed before the rebalance × the last close before it, restated through the splits after the count up to the price snapshot's `adjusted_through` date |
 | Liquidity | median close × volume over the 20 sessions before the rebalance ≥ $500k |
 | Window | from 2014-01, monthly, to the current month |
 
@@ -29,6 +29,8 @@ Stored in the `auspex-prices` bucket under `universe/{rules_version}/`:
 | `backfill_scope.yaml` | every build: the union of members from `BACKFILL_SCOPE_START` (default 2024-01) to the latest month, for the historical backfill |
 
 Each member row: `cik, ticker, ticker_source (current | filing | unresolved), name, sic, exchange, market_cap_usd, median_dollar_volume_20d, entered_on, exited_on, exit_reason (delisted | acquired | deregistered), price_coverage (complete | partial | none), coverage_note`.
+
+A month is only built from known split histories. Each ticker's history in `splits/{ticker}.parquet` is `available`, `confirmed_empty` (Yahoo answered with none) or `unavailable` (the request failed), and vouches for splits up to its `covered_through` date; a read beyond it fetches again. When a member's market cap needs a history that is unavailable or does not reach the price snapshot's `adjusted_through`, the month is not written: the build summary lists it under `split_unavailable` with the tickers, and the next build tries it again.
 
 The stack builds it by itself: the `auspex_universe_build` DAG calls `POST /universe/build` on the price service in the first week of every month and on the first start. Measured price coverage of delisted members is recorded in `DECISIONS.md` after the first build.
 
@@ -62,6 +64,10 @@ Stored in the `auspex-prices` bucket:
 `CatalystPanel(minio).as_of(cik, at)` gives the upcoming catalysts known at `at`: per catalyst (rows of a company sharing an application number or product name), the latest row disclosed by then. `binaries_between(cik, start, end, as_of)` gives those whose period overlaps a window, for the catalyst guard. Both take a timezone-aware time.
 
 Requests to SEC are paced at 5 per second with `SEC_USER_AGENT`, Federal Register at 1 per second. A 403 or 429 ends the run without retrying, since retrying extends an SEC block; running again continues from the stored documents. Coverage is partial by nature: not every company names its PDUFA date in an 8-K, and the build's coverage report counts members with no catalyst data.
+
+## Price snapshots
+
+`PriceRefresher` keeps one append-only OHLCV snapshot per ticker in `auspex-prices` (`{ticker}.parquet`), from Yahoo, then Stooq. Only completed bars are stored: a session's bar two hours after its NYSE close (early closes included), an `EURUSD=X` bar two hours after its UTC day ends. An unfinished bar is dropped and fetched again by the next refresh. A refresh appends only when the response repeats the last stored bar within 2%; a re-adjusted or missing overlap bar raises `SnapshotDiscontinuityError` and stores nothing, and the stored bars stay usable up to where they end. The snapshot's Parquet metadata records `adjusted_through`, the UTC date of its first download: its closes are on that day's share basis.
 
 ## Price service metrics
 

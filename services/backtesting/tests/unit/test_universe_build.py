@@ -3,7 +3,7 @@ import json
 import re
 import zipfile
 from collections.abc import Mapping, Sequence
-from datetime import date, timedelta
+from datetime import UTC, date, datetime, timedelta
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
@@ -16,9 +16,11 @@ from auspex_backtesting.api import create_app
 from auspex_backtesting.market_sim.calendar import MarketCalendar
 from auspex_backtesting.prices.price_refresher import (
     PriceDataUnavailableError,
+    PriceRefresher,
     SnapshotDiscontinuityError,
 )
-from auspex_backtesting.prices.splits import SplitStore
+from auspex_backtesting.prices.snapshot_store import ADJUSTED_THROUGH, PriceSnapshotStore
+from auspex_backtesting.prices.splits import SplitHistory, SplitStore
 from auspex_backtesting.universe import CompanyRecord, Filing, ShareCount, UniverseStore
 from auspex_backtesting.universe.job import (
     SnapshotPrices,
@@ -26,6 +28,7 @@ from auspex_backtesting.universe.job import (
     UniverseConfigError,
     months_due,
 )
+from auspex_backtesting.universe.market_cap import SplitHistoryUnavailableError, market_cap_usd
 from auspex_backtesting.universe.rules import UniverseRules, load_rules, parse_rules
 from auspex_backtesting.universe.sec_bulk import read_share_counts, read_submissions
 from auspex_backtesting.universe.store import RulesVersionError
@@ -142,35 +145,146 @@ def test_company_facts_archive_yields_cover_page_share_counts_with_filed_dates(
 # --- splits ------------------------------------------------------------------------------------
 
 
+_YF_TICKER = "auspex_backtesting.prices.splits.yf.Ticker"
+_DAY1 = date(2024, 6, 1)
+_DAY6 = date(2024, 6, 6)
+
+
+def _yf_splits(splits: dict[str, float]) -> MagicMock:
+    ticker = MagicMock()
+    ticker.splits = pd.Series(
+        list(splits.values()),
+        index=pd.DatetimeIndex(list(splits), tz="America/New_York"),
+        dtype=float,
+    )
+    return ticker
+
+
+def _split_store(minio: _FakeMinio, today: list[date]) -> SplitStore:
+    return SplitStore(minio, today=lambda: today[0])  # type: ignore[arg-type]
+
+
 def test_split_history_is_fetched_once_and_then_read_from_the_bucket() -> None:
     minio = _FakeMinio()
-    ticker = MagicMock()
-    ticker.splits = pd.Series([0.1], index=pd.DatetimeIndex(["2024-06-03"], tz="America/New_York"))
-    store = SplitStore(minio)  # type: ignore[arg-type]
+    store = _split_store(minio, [_DAY1])
 
-    with patch("auspex_backtesting.prices.splits.yf.Ticker", return_value=ticker) as yf_ticker:
-        first = store.ensure("ALPH")
-        second = store.ensure("ALPH")
+    with patch(_YF_TICKER, return_value=_yf_splits({"2024-05-03": 0.1})) as yf_ticker:
+        first = store.ensure("ALPH", through=_DAY1)
+        second = store.ensure("ALPH", through=_DAY1)
 
     assert yf_ticker.call_count == 1
     assert minio.puts == ["splits/ALPH.parquet"]
-    assert list(second) == [0.1]
-    assert second.index[0] == pd.Timestamp("2024-06-03 04:00", tz="UTC")
-    pd.testing.assert_series_equal(first, second, check_freq=False)
+    assert second.status == "available"
+    assert list(second.ratios) == [0.1]
+    assert second.ratios.index[0] == pd.Timestamp("2024-05-03 04:00", tz="UTC")
+    assert second.covered_through == _DAY1
+    pd.testing.assert_series_equal(first.ratios, second.ratios, check_freq=False)
 
 
-def test_failed_split_request_stores_nothing_so_it_is_retried() -> None:
+def test_split_lookup_failure_is_unavailable_and_not_stored() -> None:
     minio = _FakeMinio()
-    store = SplitStore(minio)  # type: ignore[arg-type]
+    store = _split_store(minio, [_DAY1])
 
-    with patch("auspex_backtesting.prices.splits.yf.Ticker", side_effect=RuntimeError("blocked")):
-        assert store.ensure("ALPH").empty
+    with patch(_YF_TICKER, side_effect=RuntimeError("blocked")):
+        history = store.ensure("ALPH", through=_DAY1)
 
+    assert history.status == "unavailable"
+    assert history.covered_through is None
     assert minio.puts == []
+    assert store.load("ALPH") is None
+
+
+def test_provider_answer_with_no_splits_is_confirmed_empty() -> None:
+    minio = _FakeMinio()
+    store = _split_store(minio, [_DAY1])
+
+    with patch(_YF_TICKER, return_value=_yf_splits({})):
+        history = store.ensure("ALPH", through=_DAY1)
+
+    assert history.status == "confirmed_empty"
+    assert history.ratios.empty
+    assert history.covered_through == _DAY1
+    stored = store.load("ALPH")
+    assert stored is not None
+    assert (stored.status, stored.covered_through) == ("confirmed_empty", _DAY1)
+
+
+def test_split_after_the_first_fetch_is_seen_by_a_later_read() -> None:
+    minio, today = _FakeMinio(), [_DAY1]
+    store = _split_store(minio, today)
+    with patch(_YF_TICKER, return_value=_yf_splits({})):
+        store.ensure("ALPH", through=_DAY1)
+
+    today[0] = _DAY6
+    with patch(_YF_TICKER, return_value=_yf_splits({"2024-06-05": 0.1})):
+        history = store.ensure("ALPH", through=_DAY6)
+
+    assert history.status == "available"
+    assert list(history.ratios) == [0.1]
+    assert history.covered_through == _DAY6
+    stored = store.load("ALPH")
+    assert stored is not None and stored.covered_through == _DAY6
+
+
+def test_refetch_failure_beyond_coverage_is_unavailable_not_the_stored_history() -> None:
+    minio, today = _FakeMinio(), [_DAY1]
+    store = _split_store(minio, today)
+    with patch(_YF_TICKER, return_value=_yf_splits({})):
+        store.ensure("ALPH", through=_DAY1)
+
+    today[0] = _DAY6
+    with patch(_YF_TICKER, side_effect=RuntimeError("blocked")):
+        history = store.ensure("ALPH", through=_DAY6)
+
+    assert history.status == "unavailable"
+    stored = store.load("ALPH")
+    assert stored is not None and stored.covered_through == _DAY1
+
+
+# --- market cap on the price snapshot's split basis --------------------------------------------
+
+
+def _history(splits: dict[str, float], covered_through: date) -> SplitHistory:
+    ratios = pd.Series(
+        list(splits.values()), index=pd.DatetimeIndex(list(splits), tz="UTC"), dtype=float
+    )
+    return SplitHistory("available" if splits else "confirmed_empty", ratios, covered_through)
+
+
+_COUNT = [ShareCount(10_000_000, date(2024, 5, 31), date(2024, 6, 1))]
+
+
+def test_reverse_split_restates_the_share_count_to_the_price_basis() -> None:
+    # 10M shares before a 1:10 reverse split; the close is on the post-split basis.
+    history = _history({"2024-06-05": 0.1}, covered_through=_DAY6)
+
+    cap = market_cap_usd(_COUNT, 50.0, date(2024, 6, 10), history, adjusted_through=_DAY6)
+
+    assert cap == pytest.approx(1_000_000 * 50.0)
+
+
+def test_market_cap_ignores_splits_after_the_price_basis_date() -> None:
+    # The snapshot was first downloaded on day 3; its closes do not reflect the day-5 split.
+    history = _history({"2024-06-05": 0.1}, covered_through=_DAY6)
+
+    cap = market_cap_usd(_COUNT, 5.0, date(2024, 6, 10), history, adjusted_through=date(2024, 6, 3))
+
+    assert cap == pytest.approx(10_000_000 * 5.0)
+
+
+def test_split_history_older_than_the_price_basis_is_unavailable_for_market_cap() -> None:
+    stale = _history({}, covered_through=_DAY1)
+    unknown = SplitHistory("unavailable", pd.Series(dtype=float), None)
+
+    for history in (stale, unknown):
+        with pytest.raises(SplitHistoryUnavailableError):
+            market_cap_usd(_COUNT, 5.0, date(2024, 6, 10), history, adjusted_through=date(2024, 6, 3))
+    with pytest.raises(SplitHistoryUnavailableError):
+        market_cap_usd(_COUNT, 5.0, date(2024, 6, 10), _history({}, _DAY6), adjusted_through=None)
 
 
 def test_preparing_prices_skips_splits_for_tickers_without_any_price_data() -> None:
-    refresher, splits = MagicMock(), MagicMock()
+    refresher, snapshots, splits = MagicMock(), MagicMock(), MagicMock()
 
     def refresh(ticker: str) -> None:
         if ticker == "GONE":
@@ -179,23 +293,32 @@ def test_preparing_prices_skips_splits_for_tickers_without_any_price_data() -> N
             raise SnapshotDiscontinuityError("RSPL: re-adjusted")
 
     refresher.refresh.side_effect = refresh
-    prices = SnapshotPrices(refresher, MagicMock(), splits)
+    snapshots.load.return_value = _bars("2024-01-02", "2024-01-05")
+    prices = SnapshotPrices(refresher, snapshots, splits)
 
     failed = prices.prepare(["ALPH", "GONE", "RSPL"])
 
     assert set(failed) == {"GONE", "RSPL"}
-    assert [c.args[0] for c in splits.ensure.call_args_list] == ["ALPH", "RSPL"]
+    # Splits are needed up to the date the snapshot's split adjustment was taken.
+    assert [(c.args[0], c.kwargs["through"]) for c in splits.ensure.call_args_list] == [
+        ("ALPH", _BASIS), ("RSPL", _BASIS)
+    ]
 
 
 # --- build job ---------------------------------------------------------------------------------
 
 
+_BASIS = date(2024, 3, 28)
+
+
 def _bars(start: str, end: str) -> pd.DataFrame:
     sessions = MarketCalendar().sessions_between(date.fromisoformat(start), date.fromisoformat(end))
     idx = pd.DatetimeIndex([pd.Timestamp(d) for d in sessions], tz="UTC", name="date")
-    return pd.DataFrame(
+    df = pd.DataFrame(
         {"open": 10.0, "high": 10.0, "low": 10.0, "close": 10.0, "volume": 100_000.0}, index=idx
     )
+    df.attrs[ADJUSTED_THROUGH] = _BASIS
+    return df
 
 
 class _Filings:
@@ -235,8 +358,8 @@ class _Prices:
     def bars(self, ticker: str) -> pd.DataFrame | None:
         return _bars("2023-11-01", "2024-03-28") if ticker == "ALPH" else None
 
-    def splits(self, ticker: str) -> pd.Series:
-        return pd.Series(dtype=float)
+    def splits(self, ticker: str) -> SplitHistory:
+        return SplitHistory("confirmed_empty", pd.Series(dtype=float), _BASIS)
 
 
 def _job(
@@ -244,6 +367,7 @@ def _job(
     minio: _FakeMinio,
     filings: _Filings,
     today: date,
+    prices: object | None = None,
     **options: date,
 ) -> UniverseBuildJob:
     rules = tmp_path / "rules.yaml"
@@ -253,7 +377,7 @@ def _job(
         UniverseStore(minio),  # type: ignore[arg-type]
         rules,
         filings,
-        _Prices(),
+        prices or _Prices(),  # type: ignore[arg-type]
         today=lambda: today,
         **options,
     )
@@ -315,6 +439,105 @@ def test_months_due_stop_at_the_last_rebalance_on_or_before_today() -> None:
 def test_rules_without_monthly_rebalance_are_refused() -> None:
     with pytest.raises(ValueError, match="weekly"):
         parse_rules(_RULES_YAML.replace("rebalance: monthly", "rebalance: weekly"))
+
+
+class _LateListing(_Filings):
+    """Alpha listed throughout; Late lists in February, so January does not need its cap."""
+
+    def load(
+        self, rules: UniverseRules, listed_since: date
+    ) -> tuple[Sequence[CompanyRecord], Mapping[str, Sequence[ShareCount]]]:
+        (alpha, _), shares = super().load(rules, listed_since)
+        late = CompanyRecord(
+            "0000000003", "Late", "2836", ("Nasdaq",), ("LATE",),
+            (Filing("8-A12B", date(2024, 1, 20)),),
+        )
+        return [alpha, late], {**shares, late.cik: shares[alpha.cik]}
+
+
+class _UnknownSplits(_Prices):
+    def bars(self, ticker: str) -> pd.DataFrame | None:
+        return _bars("2023-11-01", "2024-03-28")
+
+    def splits(self, ticker: str) -> SplitHistory:
+        if ticker == "LATE":
+            return SplitHistory("unavailable", pd.Series(dtype=float), None)
+        return super().splits(ticker)
+
+
+def test_month_needing_an_unavailable_split_history_is_not_written(tmp_path: Path) -> None:
+    minio = _FakeMinio()
+
+    summary = _job(tmp_path, minio, _LateListing(), date(2024, 3, 1), _UnknownSplits()).run()
+
+    assert [b["month"] for b in summary.built] == ["2024-01"]
+    assert summary.split_unavailable == {"2024-02": ("LATE",), "2024-03": ("LATE",)}
+    assert summary.as_dict()["split_unavailable"] == {"2024-02": ["LATE"], "2024-03": ["LATE"]}
+    assert sorted(k for k in minio.objects if k.startswith("universe/1/2024-")) == [
+        "universe/1/2024-01.parquet"
+    ]
+
+
+_PRICE_YAHOO = "auspex_backtesting.prices.price_refresher._from_yahoo"
+_PRICE_STOOQ = "auspex_backtesting.prices.price_refresher._from_stooq"
+
+
+def _yahoo_bars(ticker: str, start: date, end: date) -> pd.DataFrame:
+    if ticker != "ALPH":
+        return pd.DataFrame()
+    sessions = MarketCalendar().sessions_between(date(2023, 11, 1), date(2024, 3, 1))
+    return pd.DataFrame(
+        {"Open": 10.0, "High": 10.0, "Low": 10.0, "Close": 10.0, "Volume": 100_000.0},
+        index=pd.DatetimeIndex([pd.Timestamp(d) for d in sessions], name="Date"),
+    )
+
+
+def _run_with_real_prices(tmp_path: Path, minio: _FakeMinio, split_lookup: object) -> None:
+    tmp_path.mkdir(exist_ok=True)
+    today = date(2024, 3, 1)
+    prices = SnapshotPrices(
+        PriceRefresher(
+            minio,  # type: ignore[arg-type]
+            history_start=date(2023, 11, 1),
+            now=lambda: datetime(2024, 3, 1, 23, 30, tzinfo=UTC),
+        ),
+        PriceSnapshotStore(minio),  # type: ignore[arg-type]
+        SplitStore(minio, today=lambda: today),  # type: ignore[arg-type]
+    )
+    with (
+        patch(_PRICE_YAHOO, side_effect=_yahoo_bars),
+        patch(_PRICE_STOOQ, return_value=pd.DataFrame()),
+        patch(_YF_TICKER, side_effect=[split_lookup]),
+    ):
+        _job(tmp_path, minio, _ReverseSplitFilings(), today, prices).run()
+
+
+class _ReverseSplitFilings(_Filings):
+    def load(
+        self, rules: UniverseRules, listed_since: date
+    ) -> tuple[Sequence[CompanyRecord], Mapping[str, Sequence[ShareCount]]]:
+        companies, shares = super().load(rules, listed_since)
+        return companies, {
+            **shares, "0000000001": [ShareCount(100_000_000, date(2023, 11, 1), date(2023, 11, 10))]
+        }
+
+
+def test_month_built_after_split_recovery_equals_a_clean_build(tmp_path: Path) -> None:
+    # Alpha reverse-split 1:10 in December: 100M reported shares are 10M on the price basis.
+    reverse_split = _yf_splits({"2023-12-15": 0.1})
+    recovered, clean = _FakeMinio(), _FakeMinio()
+
+    _run_with_real_prices(tmp_path / "recovered", recovered, RuntimeError("blocked"))
+    assert not [k for k in recovered.objects if k.startswith("universe/1/2024-")]
+    _run_with_real_prices(tmp_path / "recovered", recovered, reverse_split)
+    _run_with_real_prices(tmp_path / "clean", clean, reverse_split)
+
+    for month in ("2024-01", "2024-02", "2024-03"):
+        stored = UniverseStore(recovered).read(1, month)  # type: ignore[arg-type]
+        assert stored == UniverseStore(clean).read(1, month)  # type: ignore[arg-type]
+        assert stored is not None
+        alpha = next(m for m in stored.members if m.ticker == "ALPH")
+        assert alpha.market_cap_usd == pytest.approx(10_000_000 * 10.0)
 
 
 # --- HTTP API ----------------------------------------------------------------------------------

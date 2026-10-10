@@ -18,6 +18,8 @@ from auspex_backtesting.market_sim import (
 )
 from auspex_backtesting.market_sim.calendar import MarketCalendar
 from auspex_backtesting.metrics.survivorship import survivorship_summary
+from auspex_backtesting.prices.snapshot_store import ADJUSTED_THROUGH
+from auspex_backtesting.prices.splits import SplitHistory
 from auspex_backtesting.universe import (
     CompanyRecord,
     Filing,
@@ -101,6 +103,10 @@ def _bars(start: str, end: str, close: float = 10.0, volume: float = 100_000.0) 
     )
 
 
+# Every fake snapshot was first downloaded on this day, with split histories fetched through it.
+_PRICE_BASIS = date(2024, 9, 30)
+
+
 class _Prices:
     def __init__(
         self,
@@ -111,10 +117,15 @@ class _Prices:
         self._splits = splits or {}
 
     def bars(self, ticker: str) -> pd.DataFrame | None:
-        return self._bars.get(ticker)
+        bars = self._bars.get(ticker)
+        if bars is not None:
+            bars = bars.copy()
+            bars.attrs[ADJUSTED_THROUGH] = _PRICE_BASIS
+        return bars
 
-    def splits(self, ticker: str) -> pd.Series:
-        return self._splits.get(ticker, pd.Series(dtype=float))
+    def splits(self, ticker: str) -> SplitHistory:
+        ratios = self._splits.get(ticker, pd.Series(dtype=float))
+        return SplitHistory("available" if len(ratios) else "confirmed_empty", ratios, _PRICE_BASIS)
 
 
 def _shares(filed: str, value: float, end: str | None = None) -> ShareCount:

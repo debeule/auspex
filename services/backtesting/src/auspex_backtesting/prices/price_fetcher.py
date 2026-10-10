@@ -52,15 +52,15 @@ def _from_yahoo(ticker: str, start: date, end: date) -> pd.DataFrame | None:
         if isinstance(df.columns, pd.MultiIndex):
             df.columns = df.columns.get_level_values(0)
         return df
-    except Exception:
+    except Exception:  # noqa: BLE001 - any failure falls back to Stooq
         return None
 
 
 def _from_stooq(ticker: str, start: date, end: date) -> pd.DataFrame | None:
     try:
-        import pandas_datareader.data as pdr  # noqa: PLC0415
+        import pandas_datareader.data as pdr
         return pdr.DataReader(ticker, "stooq", start=start, end=end)
-    except Exception:
+    except Exception:  # noqa: BLE001 - no data from Stooq either, whatever the cause
         return None
 
 

@@ -1,6 +1,6 @@
 # Price finality and split availability
 
-**Status:** ready
+**Status:** done
 **Branch:** `feature/price-finality-and-split-availability`
 
 ---
