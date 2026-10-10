@@ -1,7 +1,7 @@
 # Ingestion run reliability
 
 **Status:** blocked
-**Blocked by:** `specs/graph-and-connector-wiring-fixes.md` merged into `develop` (it rewrites the scraper API's pipeline wiring and `sources.py`, which this spec changes too)
+**Blocked by:** `specs/done/graph-and-connector-wiring-fixes.md` merged into `develop` (it rewrites the scraper API's pipeline wiring and `sources.py`, which this spec changes too)
 **Branch:** `feature/ingestion-run-reliability`
 
 ---
