@@ -23,7 +23,9 @@ No price snapshot, split history or universe month has been built yet (the first
 
 - **Only completed bars are stored.** `MarketCalendar` gains `session_close(d) -> datetime` (UTC, early closes included, from the pandas-market-calendars schedule). `PriceRefresher` takes a `now: Callable[[], datetime]` instead of `today`, and stores a bar only when it is complete: for a NYSE-listed ticker or ETF, its session closed at least `_SETTLE_DELAY` (2 hours) before `now`; for `EURUSD=X`, its UTC day ended at least `_SETTLE_DELAY` before `now`. Incomplete bars are dropped from the response before storing, on first download and on every refresh. A dropped bar is fetched again by the next refresh.
 - **No overlap, no append.** A refresh appends only when the provider's response includes the last stored bar and that bar passes `_check_continuity`. A response without it raises `SnapshotDiscontinuityError` naming the ticker and the missing date, and stores nothing; the stored bars stay usable up to where they end, as they do today for a failed continuity check.
-- **Split history has three states.** `SplitStore.ensure` returns a `SplitHistory(status, ratios)` with `status` one of `available` (one or more splits), `confirmed_empty` (the provider answered with none) or `unavailable` (the request failed; nothing stored, retried on the next call). `SplitStore.load` returns `available` or `confirmed_empty` for a stored file and `None` for none.
+- **Split history has three states and a coverage date.** `SplitStore.ensure(ticker, through: date)` returns a `SplitHistory(status, ratios, covered_through)` with `status` one of `available` (one or more splits), `confirmed_empty` (the provider answered with none) or `unavailable` (the request failed; nothing new stored, retried on the next call). `covered_through` is the UTC date of the successful fetch, stored in the split file's metadata: the history vouches for splits up to that date and says nothing about later ones.
+- **A read beyond coverage refreshes or fails.** When the stored history's `covered_through` is before `through`, `ensure` fetches again and stores the new history and date; if that fetch fails it returns `unavailable`, never the older history, so a stored "no splits" cannot hide a split that came after it. `SplitStore.load` returns the stored history with its `covered_through`, or `None`.
+- **Market caps stay on the price snapshot's basis.** Each price snapshot records `adjusted_through` in its metadata: the UTC date of the first download, the day the provider's split adjustment was taken. (A later split re-adjusts the provider's history, so the overlap check refuses to extend the snapshot; its bars stay on the old basis.) `market_cap_usd` restates a share count only by splits dated after the count's `end` and on or before the snapshot's `adjusted_through`, and needs a split history with `covered_through` on or after `adjusted_through`; otherwise the history counts as `unavailable` for that month.
 - **An unknown split history blocks the month, not the ticker's cap alone.** `PreparedPrices.splits` returns the `SplitHistory`, and `UniverseBuilder` treats an `unavailable` history for any ticker whose market cap the month needs as a build failure for that month: the month is not written, `BuildSummary` counts it under `split_unavailable` with the tickers named, and the next run builds it. A month is therefore only ever written from known split histories, and a failed-then-recovered lookup gives the same month as a clean run.
 
 ## Out of scope
@@ -56,6 +58,10 @@ Unit (`services/backtesting/tests/unit/`):
 `test_universe_build.py`
 - `test_split_lookup_failure_is_unavailable_and_not_stored` — `ensure` with the provider raising returns `unavailable`; no split file written
 - `test_provider_answer_with_no_splits_is_confirmed_empty`
+- `test_split_after_the_first_fetch_is_seen_by_a_later_read` — history fetched on day 1 with no splits; a 1:10 reverse split on day 5; `ensure(through=day 6)` refetches and returns `available` with the split and `covered_through` day 6
+- `test_refetch_failure_beyond_coverage_is_unavailable_not_the_stored_history` — stored `confirmed_empty` through day 1, refetch raises, `ensure(through=day 6)` is `unavailable`
+- `test_market_cap_ignores_splits_after_the_price_basis_date` — snapshot `adjusted_through` day 3, split on day 5: the cap uses no factor for it
+- `test_split_history_older_than_the_price_basis_is_unavailable_for_market_cap`
 - `test_month_needing_an_unavailable_split_history_is_not_written` — a member's history unavailable; the month is absent from the store and `BuildSummary.split_unavailable` names the ticker
 - `test_month_built_after_split_recovery_equals_a_clean_build` — first run with the lookup failing, second run with it succeeding: the stored month equals one built by a single clean run, including a 1:10 reverse split member's cap
 - `test_reverse_split_restates_the_share_count_to_the_price_basis` — control: shares 10M before a 1:10 reverse split, close on today's basis, cap uses 1M shares
@@ -67,7 +73,7 @@ cd services/backtesting && uv run pytest tests/unit -q
 cd services/backtesting && uv run ruff check . && uv run mypy src
 ```
 
-Expected: the 12 tests above pass with the rest of the unit suite; no failures.
+Expected: the 16 tests above pass with the rest of the unit suite; no failures.
 
 ## Notes
 

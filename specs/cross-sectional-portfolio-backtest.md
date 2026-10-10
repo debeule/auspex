@@ -7,6 +7,8 @@
 3. Soft: `specs/catalyst-date-panel.md` for the catalyst guard modes. The engine and the `none` guard work without it; guard tests use fixture dates.
 4. `specs/evaluation-protocol.md` — `DeflatedSharpe` and `TrialLedger` (`family_trial_count()`, trial logging), which the portfolio verdict (item 9) and the trial logging in item 8 use. That spec builds them without backfill data.
 5. Before any H9 or H10 run, not before the code: the first universe build on the stack. `config/universe/rules.yaml` already starts in 2014.
+6. Before any run is marked final, not before the code: `specs/research-input-archive.md`. A final run reads the holdout and produces the admissible result, so every universe, ownership and score snapshot it reads must carry an input manifest. A run over snapshots without one (including every build made before that spec is done, which is disposable) can be in-sample only.
+7. Before any H9 run: `specs/holdings-composite-score.md`, which waits for `specs/ownership-share-basis.md`.
 
 **Branch:** `feature/cross-sectional-portfolio-backtest`
 
@@ -43,7 +45,7 @@ In `services/backtesting/src/auspex_backtesting/portfolio/`:
    It reports names skipped or exited, and how many members had no catalyst data at all (a guard only works where dates exist).
 5. **`PortfolioBacktest.run(hypothesis, universe_version, tier_eur) → PortfolioResult`** — monthly loop: target weights → orders at the first session's open after the rebalance date (the same next-open rule as the event backtest) → fills and costs from `FillModel` and `CostModel` per trade, sized at the capital tier → daily marks → month-end. A member that exits mid-month is closed at its last close; if its `exit_reason` is `delisted` or `deregistered` and the price series ends before `exited_on`, the missing part is booked at −30% (the universe spec's bound) and the month is flagged. Positions below the commission-derived minimum ticket are skipped and counted.
 6. **`CostModel` commission schedules** — `IBKR_PRICING=fixed|tiered` (Tiered: $0.0035 a share, $0.35 minimum, plus pass-through fees), so the €10k tier is costed as a small account would actually be charged. TOB stays one rate for shares; ETF TOB classes are out of scope until an ETF is traded. Cost defaults follow the 2026-10-08 Belgian cost research: `FX_FEE_RATE` defaults to 0 for a USD-held account (conversions happen on deposit, not per trade), and `MIN_HALF_SPREAD_BPS` defaults to 10 for small-cap biotech instead of the large-cap 2. Both are `.env` values, changed in `.env.example` with a `DECISIONS.md` entry.
-7. **`PortfolioResult`** — monthly gross and net return, turnover, yearly cost drag (round-trip cost × round trips per year), average holding period per name (the Belgian speculation-tax risk metric), return inside catalyst windows (±5 sessions around a known binary) versus other days, cost by component, number of names, excess over XBI and over the universe equal-weight, rolling 12-month beta to XBI, worst single-name month contribution, the share of net P&L from the top 5% of name-months, delisting-bound months, and skipped tickets. Evaluated through `protocol.yaml` `portfolio_inference` (Newey-West t, deflated Sharpe with the family trial count) and `portfolio_kill_criteria`, in-sample and holdout reported separately; the holdout is read only when the run is marked final, and a second final read is refused.
+7. **`PortfolioResult`** — monthly gross and net return, turnover, yearly cost drag (round-trip cost × round trips per year), average holding period per name (the Belgian speculation-tax risk metric), return inside catalyst windows (±5 sessions around a known binary) versus other days, cost by component, number of names, excess over XBI and over the universe equal-weight, rolling 12-month beta to XBI, worst single-name month contribution, the share of net P&L from the top 5% of name-months, delisting-bound months, and skipped tickets. Evaluated through `protocol.yaml` `portfolio_inference` (Newey-West t, deflated Sharpe with the family trial count) and `portfolio_kill_criteria`, in-sample and holdout reported separately; the holdout is read only when the run is marked final, and a second final read is refused. Marking a run final is refused, before anything is read, when any snapshot it would read has no input manifest (`InputsNotPinnedError`).
 8. **`scripts/run_portfolio_backtest.py`** — runs a registered hypothesis at every tier in `PAPER_CAPITAL_TIERS_EUR` and writes the report; logs one trial per primary cell and variant to the family ledger.
 9. **`PortfolioVerdict`** — the pass/fail decision for an `evaluation: portfolio` hypothesis, from registered values only (`protocol.yaml` `portfolio_inference` and `portfolio_kill_criteria`, read after `verify_hypothesis("protocol")`; nothing from `.env`):
    - In-sample: the three in-sample kill criteria (`no_in_sample_spread`, `turnover_cost`, `survivorship`), each reported as fired or not with the values it compared. `survivorship` marks the result unusable for promotion; the others drop the hypothesis.
@@ -87,6 +89,7 @@ In `services/backtesting/tests/unit/test_portfolio_backtest.py`:
 - `test_result_reports_excess_over_xbi_and_universe_equal_weight`
 - `test_newey_west_t_uses_protocol_lag`
 - `test_holdout_cannot_be_read_twice`
+- `test_final_run_over_a_snapshot_without_an_input_manifest_is_refused` — `InputsNotPinnedError`, the holdout unread, nothing reserved in the ledger
 - `test_backtest_is_deterministic_for_identical_inputs`
 - `test_each_capital_tier_is_costed_separately`
 - `test_hold_band_keeps_a_name_until_it_falls_below_exit_rank`
@@ -118,7 +121,7 @@ In `services/backtesting/tests/unit/test_portfolio_verdict.py`:
 cd services/backtesting && uv run pytest tests/unit/test_portfolio_backtest.py tests/unit/test_portfolio_verdict.py -q --strict-markers && uv run pytest tests/unit -q
 ```
 
-Expected: 39 passed (30 engine, 9 verdict); full unit suite green with a non-zero count.
+Expected: 40 passed (31 engine, 9 verdict); full unit suite green with a non-zero count.
 
 Then: `services/backtesting/README.md` documents the portfolio engine and `ScoreSnapshot` contract; `.env.example` gains `IBKR_PRICING` and the new `FX_FEE_RATE` and `MIN_HALF_SPREAD_BPS` defaults.
 

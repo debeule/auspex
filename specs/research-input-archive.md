@@ -21,6 +21,8 @@ Found by the consolidated audit of 2026-10-10 (finding C8; the audit file is in 
 
 To be scoped. The direction from the audit: keep each downloaded source file content-addressed (SHA-256) in MinIO with its retrieval time and URL, and bind every derived snapshot (universe month, ownership panel, share-count reference) to a manifest of the input hashes and the code version that built it, so a rebuild with the network off gives the same bytes.
 
+**What it gates:** a result is admissible (a run marked final, a holdout read, a promotion) only when every snapshot it reads carries an input manifest. `cross-sectional-portfolio-backtest` refuses to mark a run final otherwise. Builds made before this spec is done, including the first universe build on the stack machine, are disposable: usable in-sample and for measuring the disk this spec needs, never for an admissible result, and rebuilt with manifests once it is done.
+
 ## Out of scope
 
 - Price snapshots (`specs/price-finality-and-split-availability.md`).

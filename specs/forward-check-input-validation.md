@@ -19,8 +19,8 @@ This is a helper defect: no forward check has run, and no verdict needs recomput
 
 ## What this builds
 
-- **Monthly returns keyed by month.** `PortfolioForwardRecord.paper_monthly_net_excess` and `replay_monthly_net_excess` become `Mapping[str, float]` keyed by `YYYY-MM`.
-- **Invalid input is its own verdict.** `ForwardCheckVerdict.status` gains `"invalid"`, decided before anything else. Its `reasons` name each problem: `non_finite_return` (with the months), `non_finite_in_sample`, `negative_standard_error`, `month_mismatch` (months in one ledger but not the other), `malformed_month` (a key that is not `YYYY-MM`), `months_not_consecutive` (a missing month inside the range). An invalid record is never `pass`, `fail` or `insufficient`; the economic comparison does not run.
+- **Monthly returns carry their month.** `PortfolioForwardRecord.paper_monthly_net_excess` and `replay_monthly_net_excess` become `Sequence[tuple[str, float]]`: one `(YYYY-MM, value)` pair per ledger row, exactly as the ledger produced them. The record is never built from a dict, so two rows for one month reach the check instead of one silently overwriting the other.
+- **Invalid input is its own verdict.** `ForwardCheckVerdict.status` gains `"invalid"`, decided before anything else. Its `reasons` name each problem: `non_finite_return` (with the months), `non_finite_in_sample`, `negative_standard_error`, `duplicate_month` (a month on two rows of one ledger, with the month), `month_mismatch` (months in one ledger but not the other), `malformed_month` (a key that is not `YYYY-MM`), `months_not_consecutive` (a missing month inside the range). An invalid record is never `pass`, `fail` or `insufficient`; the economic comparison does not run.
 - Valid finite records get the same `pass`, `fail` and `insufficient` outcomes as today.
 
 ## Out of scope
@@ -45,7 +45,8 @@ Unit (`services/backtesting/tests/unit/test_preregistered_protocol.py`):
 - `test_forward_check_with_shifted_months_is_invalid` — paper 2027-01..2027-12, replay 2027-02..2028-01: `month_mismatch`
 - `test_forward_check_with_a_missing_month_inside_the_range_is_invalid` — `months_not_consecutive`
 - `test_forward_check_with_a_malformed_month_key_is_invalid`
-- The existing forward-check tests keep their outcomes with month-keyed records (finite passing and failing controls).
+- `test_forward_check_with_a_month_on_two_ledger_rows_is_invalid` — two paper rows for 2027-03 with different values: `duplicate_month` naming 2027-03, not a pass on either value
+- The existing forward-check tests keep their outcomes with month-carrying records (finite passing and failing controls).
 
 ## Definition of done
 
@@ -55,8 +56,4 @@ cd services/backtesting && uv run pytest tests/unit -q
 cd services/backtesting && uv run ruff check . && uv run mypy src
 ```
 
-Expected: the 8 new tests pass alongside the existing ones; no failures.
-
-## Notes
-
-- A duplicate month cannot be represented in a mapping, which is why the keys replace the sequences rather than a separate list of months.
+Expected: the 9 new tests pass alongside the existing ones; no failures.

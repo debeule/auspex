@@ -37,7 +37,8 @@ All hypotheses are evaluated via this protocol. The protocol itself does not dec
 - Each line appended to `config/hypotheses/trials/<id>.jsonl` records the cells evaluated in that run: a list of `(holding_period_days, known_at_delay_days, variant)`.
 - `family_trial_count(trials_dir, hypotheses) → int` — the number of cells evaluated across every run of every hypothesis whose `role` is listed in `protocol.yaml` `trials.counts_roles` (`promotable`). Diagnostic and descriptive runs are logged but not counted. This is the `n_trials` passed to `DeflatedSharpe`.
 - `remaining_budget()` = the hypothesis family's `families.<family>.budget_cells` (64 for `event_backfill`) − that family's trial count. A run whose cells would exceed it raises `TrialBudgetExhaustedError` before any return is computed.
-- A run appends its cells to the ledger before it reads any return, so a run that fails or is interrupted afterwards still counts against the budget. The portfolio verdict uses the same rule.
+- `reserve(hypothesis_id, cells, run_id) → Reservation` checks the family budget and appends the run's line in one atomic step: it holds an exclusive lock (`fcntl.flock` on `config/hypotheses/trials/.lock`, blocking) across reading every family file, checking `remaining_budget()`, writing the line with a single `write` of the whole line plus newline, and `fsync`. Two runs racing for the last cells cannot both pass the check. A run reads no return until `reserve` has returned, so a run that fails or is interrupted afterwards still counts against the budget; there is no release. The portfolio verdict reserves through the same method.
+- **Recovery from a torn write.** Reading a ledger under the lock, a final line with no trailing newline is a write that never finished; its `reserve` never returned, so its run read no return. The reader truncates that line, logs it with the file name and byte count, and goes on. Any other line that does not parse raises `TrialLedgerCorruptError` and refuses every reservation until the file is fixed by hand (recorded in `DECISIONS.md`), because guessing its cells could undercount.
 
 **`KillCriteria`**
 - `evaluate(hypothesis_id, results) → list[KillVerdict]` — applies each `protocol.yaml` `kill_criteria` entry whose `applies_to` covers the hypothesis, on the in-sample segment only. A `KillVerdict` carries `criterion_id`, `fired: bool`, the inputs it compared, and the registered `action`.
@@ -103,6 +104,9 @@ In `tests/unit/test_evaluation_protocol.py`:
 - `test_family_trial_count_sums_cells_across_promotable_hypotheses` — `trials/h1.jsonl` with two runs of 8 cells and `trials/h4.jsonl` with one run of 4 cells, plus a diagnostic `trials/h3.jsonl` run → `family_trial_count == 20`
 - `test_run_refuses_when_family_trial_budget_would_be_exceeded` — ledger at 60 cells, budget 64, a run requesting 8 cells raises `TrialBudgetExhaustedError` and appends nothing
 - `test_run_logs_its_cells_before_reading_returns_and_counts_them_when_it_fails` — a return reader that raises after the budget check leaves the run's cells in the ledger, and `family_trial_count` includes them
+- `test_concurrent_runs_cannot_both_reserve_the_last_cells` — ledger at 56 cells, budget 64; two processes each reserve 8 cells at once: exactly one succeeds, the other raises `TrialBudgetExhaustedError`, and the ledger holds 64
+- `test_torn_final_ledger_line_is_dropped_and_counted_nowhere` — a final line without a newline is truncated on the next reservation, which then succeeds
+- `test_unparseable_complete_ledger_line_refuses_reservations` — `TrialLedgerCorruptError`
 - `test_run_refuses_cell_outside_registered_grid` — horizon 15 requested for a hypothesis declaring `[5, 10, 20, 30]` raises `UnregisteredCellError`
 - `test_run_refuses_suspended_hypothesis` — hypothesis with `status: suspended` raises `HypothesisSuspendedError`
 - `test_run_refuses_modified_protocol_file` — `protocol.yaml` edited after registration raises `HypothesisModifiedError`
@@ -125,7 +129,7 @@ In `tests/unit/test_evaluation_protocol.py`:
 cd services/backtesting && uv run pytest tests/unit/test_evaluation_protocol.py -q
 ```
 
-Expected: 23 passed.
+Expected: 26 passed.
 
 Then, once the historical backfill exists (a later session; not a merge condition): the first `EvaluationProtocol.run()` on real backfill data is H3 (its `run_order` is 1), recorded in DECISIONS.md with the pre and post CARs, n_events, n_independent_events, inference method and the `lagging_signal` verdict. Promotable hypotheses run only after H3 and only once re-registered with `status: pre-registered`; each such run is recorded with n_events, mean_abnormal_return, clustered t_stat, deflated_sharpe, n_trials, variant, known_at_delay_days, kill verdicts and holdout_sealed status.
 
