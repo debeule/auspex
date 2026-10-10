@@ -955,3 +955,8 @@ Where they disagree: report 1 stays in biotech with a holdings composite; report
 ## 2026-10-09 — Infrastructure observability — CHOICE — monitoring values only in .env.example
 **What:** Replaces the same day's "compose defaults for sizes and thresholds". The user approved resolving every finding of the duplicate-versions sweep (`/mnt/project-files/audit/single-source-audit.md`, finding 16): nothing is deployed yet, so the memory limits, heap options, retention, alert thresholds, SMTP settings, monitoring user and scan interval are plain `${VAR}` in compose with their values only in `.env.example`, and the test that kept two copies equal is gone. An `.env` copied before these variables existed must gain them: step 1 of `specs/first-run-on-stack-machine.md` now lists keys missing from `.env` and copies the non-secret ones over from `.env.example`.
 **Action:** `docker-compose.yml`, `docker/CLAUDE.md`, `docker/README.md`. Older defaults on develop (`PRICE_HISTORY_START` and others) are the sweep's cleanup, not this PR's.
+
+## 2026-10-10 — Infrastructure observability — CHOICE — dashboard memory limit and health probe
+**What:** The dashboard container (dashboard foundation) landed on develop alongside this work. It gets `DASHBOARD_MEM_LIMIT=256m` and a blackbox probe of `/api/health`. The 256 MB comes from price-service (1,280 → 1,024), the same two values `specs/container-limits-and-log-rotation.md` starts from, so the long-running total stays 7,680 MB.
+**Risk:** the monthly universe build is price-service's peak; at 1,024 MB it may be OOM-killed.
+**Action:** the stack-machine memory check in the PENDING entry above covers it.

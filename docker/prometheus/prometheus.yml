@@ -76,6 +76,7 @@ scrape_configs:
           - http://elasticsearch:9200/_cluster/health
           - http://prometheus:9090/-/healthy
           - http://grafana:3000/api/health
+          - http://dashboard:3000/api/health
     relabel_configs: &probe_relabel
       - source_labels: [__address__]
         target_label: __param_target

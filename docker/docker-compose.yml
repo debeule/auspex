@@ -429,6 +429,7 @@ services:
       timeout: 5s
       retries: 5
       start_period: 20s
+    mem_limit: ${DASHBOARD_MEM_LIMIT}
     labels:
       co.elastic.logs/enabled: "true"
 
