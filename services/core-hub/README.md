@@ -32,13 +32,12 @@ Write order is **Neo4j → Postgres → acknowledge** (ack-mode RECORD). Never c
 | `signal_extraction_history` | Full extraction history per event_id |
 | `source_observation` | One row per (event_id, source_type) |
 | `corroboration` | Active corroboration records |
-| `corroboration_watermark` | Scan progress for the scheduled corroboration job |
 
 **Neo4j nodes and relationships**
 
 | Node | Key property |
 |---|---|
-| `(:Signal)` | `event_id` |
+| `(:Signal)` | `event_id`; `corroboration_pending` and `write_token` set by every write |
 | `(:Company)` | `name` (merge key); `ticker` set when known |
 | `(:GeneTarget)` | `name` |
 | `(:Mechanism)` | `name` |
@@ -59,7 +58,7 @@ Scorer: `score = 0.7 × diversity_factor + 0.3 × recency_factor`, clamped [0, 1
 - `diversity_factor = min(1, (source_count − 1) / 4)`
 - `recency_factor` decays linearly to 0 at the 90-day boundary
 
-The scheduled scan reads signals ingested after the watermark in `corroboration_state` (full timestamp comparison) and publishes to `auspex.signals.corroborated` inside one Postgres transaction: the inserts and the new watermark commit only after every send is acknowledged, so a failed send leaves the batch for the next scan.
+Every graph write sets `corroboration_pending = true` and a fresh random `write_token` on its `Signal`, in the write's own transaction, so a signal becomes visible to the scan exactly when its write commits, however late. The scheduled scan reads up to `corroboration.scan-batch-size` (default 500) pending signals as triggers and publishes to `auspex.signals.corroborated` inside one Postgres transaction: the inserts commit only after every send is acknowledged. After that commit it clears the flag on the signals it read, but only where `write_token` is still the token it read, so a signal rewritten during the scan stays pending. A failed send, commit or clear leaves the signals pending, and the next scan's repeats are absorbed by `ON CONFLICT DO NOTHING`. `ingested_at` plays no part in the scan.
 
 `CorroborationService` is abstract — `CorroborationServiceContractTest` re-runs at steps 2.8 and 6.4 against new implementations without modification.
 

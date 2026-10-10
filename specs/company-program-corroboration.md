@@ -17,7 +17,7 @@ Corroboration today (`docs/requirements.md` §4, §9) links two signals when the
 
 What exists in `services/core-hub`:
 - `corroboration/CorroborationService` (interface) with one implementation, `ScheduledCorroborationService`, which delegates to `CorroborationScanner` and publishes `CorroboratedSignalEvent` to `auspex.signals.corroborated`.
-- `CorroborationScanner` — Cypher `MATCH (s)-[:TARGETS|USES_MECHANISM]->(e)`, a ±90-day window (`WINDOW_SECONDS`), a degree cap (`corroboration.degree-cap`, default 500), a watermark in `corroboration_state`, and the `corroboration` table keyed on `(entity_key, participants_hash)` with supersession (§4.1).
+- `CorroborationScanner` — Cypher `MATCH (s)-[:TARGETS|USES_MECHANISM]->(e)`, a ±90-day window (`WINDOW_SECONDS`), a degree cap (`corroboration.degree-cap`, default 500), a pending flag and write token on each `Signal` (set by every graph write, cleared after the scan's sends are acknowledged), and the `corroboration` table keyed on `(entity_key, participants_hash)` with supersession (§4.1).
 - `CorroborationScorer` — `0.7 × diversity + 0.3 × recency`, where recency is measured against `clock.instant()`. It is called at read time by `query/SignalQueryService`. Recomputing a historical corroboration's score therefore depends on the day the code runs (audit row 13).
 - `watchlist/SecTickerCache` — SEC `company_tickers.json` lookup (ticker ↔ CIK ↔ name).
 - `CorroborationServiceContractTest` (abstract, `src/integrationTest`) — any `CorroborationService` implementation must pass it unmodified.

@@ -9,11 +9,14 @@ import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * Writes Signal nodes and their entity relationships to Neo4j.
  * Uses MERGE on natural keys throughout — never CREATE — to stay idempotent.
  * confidence_score stored as double (Neo4j has no decimal type).
+ * Every write, new or repeated, leaves the signal pending for the corroboration scan under a
+ * fresh write token, in the same transaction as the rest of the write.
  */
 @Service
 public class Neo4jWriteService implements SignalGraphPort {
@@ -66,6 +69,7 @@ public class Neo4jWriteService implements SignalGraphPort {
         params.put("prompt_version",       e.promptVersion());
         params.put("prefilter_version",    e.prefilterVersion());
         params.put("extraction_model",     e.extractionModel());
+        params.put("write_token",          UUID.randomUUID().toString());
 
         tx.run("""
                 MERGE (s:Signal {event_id: $event_id})
@@ -86,7 +90,9 @@ public class Neo4jWriteService implements SignalGraphPort {
                     s.confidence_score     = $confidence_score,
                     s.prompt_version       = $prompt_version,
                     s.prefilter_version    = $prefilter_version,
-                    s.extraction_model     = $extraction_model
+                    s.extraction_model     = $extraction_model,
+                    s.corroboration_pending = true,
+                    s.write_token          = $write_token
                 """, params);
     }
 

@@ -8,7 +8,7 @@
 
 ## Context
 
-`ScheduledCorroborationService` in `core-hub` runs a watermark-driven Neo4j scan on a schedule. This spec replaces it with a Kafka Streams topology if and only if the scheduled approach proves measurably too slow or too expensive.
+`ScheduledCorroborationService` in `core-hub` runs a Neo4j scan over pending signals on a schedule. This spec replaces it with a Kafka Streams topology if and only if the scheduled approach proves measurably too slow or too expensive.
 
 **Precondition:** record a latency or cost measurement against the production-scale graph first. If it is acceptable, do not build this. The abstract `CorroborationServiceContractTest` must still pass unmodified against the new implementation.
 

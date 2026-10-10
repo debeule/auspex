@@ -57,7 +57,7 @@ public abstract class AbstractIT {
     @BeforeEach
     protected void cleanState() throws Exception {
         jdbcTemplate.execute(
-                "TRUNCATE raw_fetch_audit, signal_current, signal_extraction_history, source_observation, corroboration, corroboration_state RESTART IDENTITY CASCADE");
+                "TRUNCATE raw_fetch_audit, signal_current, signal_extraction_history, source_observation, corroboration RESTART IDENTITY CASCADE");
         try (Session session = neo4jDriver.session()) {
             session.run("MATCH (n) WHERE NOT n:GraphSchema DETACH DELETE n");
         }

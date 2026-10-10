@@ -115,7 +115,7 @@ The record is therefore **one row per entity per participant set, with explicit 
 
 ### 4.2 Scan strategy
 
-The job maintains a `corroboration_watermark` (last processed `ingested_at`). Each run selects signals written since the watermark, and for each, matches against existing signals on its entities within ±90 days of **its own** `published_date`. A wall-clock filter may be used to narrow the candidate scan and must be documented as an optimization, never as the semantic definition. Entities whose degree exceeds a configurable cap (default 500) are skipped — a generic mechanism attached to thousands of signals produces combinatorial noise.
+Every graph write marks its signal pending, with a fresh write token, in the write's own transaction. Each run selects a batch of pending signals, and for each, matches against existing signals on its entities within ±90 days of **its own** `published_date`. A wall-clock filter may be used to narrow the candidate scan and must be documented as an optimization, never as the semantic definition. Entities whose degree exceeds a configurable cap (default 500) are skipped — a generic mechanism attached to thousands of signals produces combinatorial noise. A run clears a signal's pending flag only after its sends are acknowledged and its inserts committed, and only if the signal still carries the token the run read. Neither `ingested_at` nor any other clock decides which signals a run sees: a write that commits late, a lagging partition and a DLT replay are all scanned once they commit.
 
 The `CorroborationService` interface stays because it is cheap; the Streams implementation is conditional Phase 6 work.
 

@@ -12,16 +12,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
 
-import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 /**
  * Runs the corroboration scan and publishes its events in one database transaction: the scan's
- * inserts and its watermark commit only after every send is acknowledged, so a failed send leaves
- * the batch to be found and published again by the next scan. Every failed run, scan or send,
- * increments {@code auspex.corroboration.scan.failures}.
+ * inserts commit only after every send is acknowledged, and the scanned signals are cleared only
+ * after that commit, so a failed send or commit leaves them pending for the next scan. Every failed
+ * run, scan, send or clear, increments {@code auspex.corroboration.scan.failures}.
  */
 @Service
 public class ScheduledCorroborationService implements CorroborationService {
@@ -55,14 +54,16 @@ public class ScheduledCorroborationService implements CorroborationService {
     @Override
     public void runCorroboration() {
         try {
-            transactionTemplate.executeWithoutResult(status -> {
-                List<CorroboratedSignalEvent> events = scanner.scan();
-                for (CorroboratedSignalEvent event : events) {
+            CorroborationScanner.ScanResult result = transactionTemplate.execute(status -> {
+                CorroborationScanner.ScanResult scan = scanner.scan();
+                for (CorroboratedSignalEvent event : scan.events()) {
                     send(event);
                     log.info("corroboration published entity_key={} participants={} sources={}",
                             event.entityKey(), event.participantEventIds().size(), event.distinctSourceCount());
                 }
+                return scan;
             });
+            scanner.clearPending(result.handled());
         } catch (RuntimeException e) {
             scanFailures.increment();
             throw e;

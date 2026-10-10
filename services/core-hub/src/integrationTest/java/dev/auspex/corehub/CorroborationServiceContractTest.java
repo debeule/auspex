@@ -34,7 +34,7 @@ abstract class CorroborationServiceContractTest extends AbstractIT {
 
     /**
      * Inserts a Signal node connected to GeneTarget entities via [:TARGETS].
-     * ingestedAt defaults to a fixed past time so the EPOCH watermark covers all test signals.
+     * Like every graph write, it leaves the signal pending for the next scan.
      */
     protected void insertSignalWithTargets(String eventId, String sourceType, String publishedDate,
                                            String... geneTargets) {
@@ -47,7 +47,8 @@ abstract class CorroborationServiceContractTest extends AbstractIT {
         try (Session session = neo4jDriver.session()) {
             session.run("""
                     CREATE (s:Signal {event_id: $eid, source_type: $st,
-                                      published_date: datetime($pd), ingested_at: datetime($ia)})
+                                      published_date: datetime($pd), ingested_at: datetime($ia),
+                                      corroboration_pending: true, write_token: randomUUID()})
                     WITH s
                     UNWIND $targets AS t
                     MERGE (g:GeneTarget {name: t})
@@ -63,7 +64,8 @@ abstract class CorroborationServiceContractTest extends AbstractIT {
         try (Session session = neo4jDriver.session()) {
             session.run("""
                     CREATE (s:Signal {event_id: $eid, source_type: $st,
-                                      published_date: datetime($pd), ingested_at: datetime($ia)})
+                                      published_date: datetime($pd), ingested_at: datetime($ia),
+                                      corroboration_pending: true, write_token: randomUUID()})
                     WITH s
                     UNWIND $mechs AS m
                     MERGE (n:Mechanism {name: m})
@@ -81,7 +83,8 @@ abstract class CorroborationServiceContractTest extends AbstractIT {
             session.run("""
                     CREATE (s:Signal {event_id: $eid, source_type: $st,
                                       published_date: datetime($pd),
-                                      ingested_at: datetime('2024-06-15T12:00:00Z')})
+                                      ingested_at: datetime('2024-06-15T12:00:00Z'),
+                                      corroboration_pending: true, write_token: randomUUID()})
                     WITH s
                     UNWIND $comps AS c
                     MERGE (co:Company {name: c})

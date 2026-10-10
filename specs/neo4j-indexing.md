@@ -38,7 +38,7 @@ Schema changes. New relationship types. Indexes on fields not queried by existin
 
 Integration tests against a populated Neo4j Testcontainer:
 
-- `test_corroboration_query_uses_index_on_signal_ingested_at` — seed at least 1,000 Signal nodes with varied `ingested_at` values; run `EXPLAIN` on the corroboration watermark query; assert the plan contains `NodeIndexSeek` on `ingested_at`. Determine the exact plan shape after running against the backfill-scale graph.
+- `test_corroboration_query_uses_index_on_signal_corroboration_pending` — seed at least 1,000 Signal nodes, few of them pending; run `EXPLAIN` on the scan's pending-signal read; assert the plan contains `NodeIndexSeek` on `corroboration_pending`. Determine the exact plan shape after running against the backfill-scale graph.
 - `test_ticker_query_uses_index_on_company_ticker` — seed at least 100 Company nodes; run `EXPLAIN` on the `MATCH (s:Signal)-[:MENTIONS]->(c:Company {ticker: $ticker})` query; assert the plan uses the ticker index, not a full label scan.
 - `test_p95_latency_within_threshold_at_representative_scale` — populate a Testcontainer with the backfill-scale node count; measure 100 executions of each hot-path query; assert p95 < 200ms. Threshold is tentative — revise after first measurement against real data.
 

@@ -7,8 +7,8 @@ import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
 /**
- * Creates the uniqueness constraints that the MERGE-based graph writes rely on. Safe to run on
- * every startup; records a (:GraphSchema {version}) node so the applied schema is traceable.
+ * Creates the uniqueness constraints that the MERGE-based graph writes rely on, and the indexes
+ * the corroboration scan reads by. Safe to run on every startup; records a (:GraphSchema {version}) node so the applied schema is traceable.
  */
 @Component
 class Neo4jSchemaInitializer {
@@ -36,6 +36,8 @@ class Neo4jSchemaInitializer {
                     "FOR (s:Signal) ON (s.published_date)");
             session.run("CREATE INDEX signal_source_type IF NOT EXISTS " +
                     "FOR (s:Signal) ON (s.source_type)");
+            session.run("CREATE INDEX signal_corroboration_pending IF NOT EXISTS " +
+                    "FOR (s:Signal) ON (s.corroboration_pending)");
             session.run("CREATE INDEX company_ticker IF NOT EXISTS " +
                     "FOR (c:Company) ON (c.ticker)");
             session.run("""

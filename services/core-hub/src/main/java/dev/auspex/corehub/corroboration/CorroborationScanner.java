@@ -13,7 +13,6 @@ import java.sql.Array;
 import java.sql.PreparedStatement;
 import java.sql.Timestamp;
 import java.time.Instant;
-import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HexFormat;
@@ -22,6 +21,12 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+/**
+ * Finds corroborations triggered by pending signals. Every graph write marks its signal pending
+ * with a fresh write token in the write's own transaction, so a signal becomes a trigger exactly
+ * when its write commits, however late. A scanned signal is cleared only by {@link #clearPending},
+ * and only if its token is still the one the scan read.
+ */
 @Service
 public class CorroborationScanner {
 
@@ -34,49 +39,75 @@ public class CorroborationScanner {
     private final Driver neo4jDriver;
     private final JdbcTemplate jdbcTemplate;
     private final EntityNormalizer entityNormalizer;
+    private final int scanBatchSize;
 
-    public CorroborationScanner(Driver neo4jDriver, JdbcTemplate jdbcTemplate, EntityNormalizer entityNormalizer) {
+    public CorroborationScanner(Driver neo4jDriver, JdbcTemplate jdbcTemplate, EntityNormalizer entityNormalizer,
+                                @Value("${corroboration.scan-batch-size}") int scanBatchSize) {
         this.neo4jDriver = neo4jDriver;
         this.jdbcTemplate = jdbcTemplate;
         this.entityNormalizer = entityNormalizer;
+        this.scanBatchSize = scanBatchSize;
     }
 
-    public List<CorroboratedSignalEvent> scan() {
-        Instant watermark = readWatermark();
-        List<EntityGroup> groups = findGroups(watermark);
-        if (groups.isEmpty()) {
-            return List.of();
+    /**
+     * Inserts the corroborations triggered by up to one batch of pending signals and returns the
+     * events to publish with the signals read. Nothing is cleared here.
+     */
+    public ScanResult scan() {
+        List<PendingSignal> pending = readPending();
+        if (pending.isEmpty()) {
+            return new ScanResult(List.of(), List.of());
         }
 
-        Instant maxIngestedAt = Instant.EPOCH;
         List<CorroboratedSignalEvent> toPublish = new ArrayList<>();
-
-        for (EntityGroup group : groups) {
+        for (EntityGroup group : findGroups(pending.stream().map(PendingSignal::eventId).toList())) {
             CorroboratedSignalEvent event = processGroup(group);
             if (event != null) {
                 toPublish.add(event);
             }
-            if (group.triggerIngestedAt().isAfter(maxIngestedAt)) {
-                maxIngestedAt = group.triggerIngestedAt();
-            }
         }
-
-        writeWatermark(maxIngestedAt);
-        return toPublish;
+        return new ScanResult(toPublish, pending);
     }
 
-    protected Instant readWatermark() {
-        List<Instant> rows = jdbcTemplate.query(
-                "SELECT watermark FROM corroboration_state",
-                (rs, n) -> rs.getTimestamp("watermark").toInstant());
-        return rows.isEmpty() ? Instant.EPOCH : rows.get(0);
+    /** Clears the pending flag on each signal whose write token is still the one the scan read. */
+    public void clearPending(List<PendingSignal> handled) {
+        if (handled.isEmpty()) {
+            return;
+        }
+        List<Map<String, Object>> signals = handled.stream()
+                .map(p -> Map.<String, Object>of("eventId", p.eventId().toString(), "writeToken", p.writeToken()))
+                .toList();
+        try (Session session = neo4jDriver.session()) {
+            session.run("""
+                    UNWIND $signals AS read
+                    MATCH (s:Signal {event_id: read.eventId})
+                    WHERE s.write_token = read.writeToken
+                    SET s.corroboration_pending = false
+                    """,
+                    Map.of("signals", signals)).consume();
+        }
     }
 
-    protected List<EntityGroup> findGroups(Instant watermark) {
+    protected List<PendingSignal> readPending() {
         try (Session session = neo4jDriver.session()) {
             return session.run("""
                     MATCH (s:Signal)
-                    WHERE s.ingested_at > $watermark
+                    WHERE s.corroboration_pending = true
+                    RETURN s.event_id AS eventId, s.write_token AS writeToken
+                    LIMIT $batchSize
+                    """,
+                    Map.of("batchSize", scanBatchSize))
+                    .list(record -> new PendingSignal(
+                            UUID.fromString(record.get("eventId").asString()),
+                            record.get("writeToken").asString()));
+        }
+    }
+
+    protected List<EntityGroup> findGroups(List<UUID> triggerIds) {
+        try (Session session = neo4jDriver.session()) {
+            return session.run("""
+                    UNWIND $triggerIds AS triggerId
+                    MATCH (s:Signal {event_id: triggerId})
                     MATCH (s)-[:TARGETS|USES_MECHANISM]->(e)
                     WITH s, e,
                          count { (:Signal)-[:TARGETS|USES_MECHANISM]->(e) } AS degree
@@ -89,7 +120,6 @@ public class CorroborationScanner {
                     RETURN s.event_id AS triggerEventId,
                            s.source_type AS triggerSourceType,
                            s.published_date.epochSeconds AS triggerPublishedDateEpoch,
-                           s.ingested_at AS triggerIngestedAt,
                            e.name AS entityName,
                            labels(e)[0] AS entityLabel,
                            collect(DISTINCT {
@@ -99,7 +129,7 @@ public class CorroborationScanner {
                            }) AS partners
                     """,
                     Map.of(
-                            "watermark", watermark.atZone(ZoneOffset.UTC),
+                            "triggerIds", triggerIds.stream().map(UUID::toString).toList(),
                             "degreeCap", degreeCap,
                             "windowSeconds", WINDOW_SECONDS
                     ))
@@ -107,7 +137,6 @@ public class CorroborationScanner {
                             UUID.fromString(record.get("triggerEventId").asString()),
                             record.get("triggerSourceType").asString(),
                             Instant.ofEpochSecond(record.get("triggerPublishedDateEpoch").asLong()),
-                            record.get("triggerIngestedAt").asZonedDateTime().toInstant(),
                             record.get("entityName").asString(),
                             record.get("entityLabel").asString(),
                             record.get("partners").asList(v -> {
@@ -120,14 +149,6 @@ public class CorroborationScanner {
                             })
                     ));
         }
-    }
-
-    protected void writeWatermark(Instant ts) {
-        jdbcTemplate.update("""
-                INSERT INTO corroboration_state (singleton, watermark) VALUES (true, ?)
-                ON CONFLICT (singleton) DO UPDATE SET watermark = EXCLUDED.watermark
-                """,
-                Timestamp.from(ts));
     }
 
     private CorroboratedSignalEvent processGroup(EntityGroup group) {
@@ -223,11 +244,15 @@ public class CorroborationScanner {
             UUID triggerEventId,
             String triggerSourceType,
             Instant triggerPublishedDate,
-            Instant triggerIngestedAt,
             String entityName,
             String entityLabel,
             List<Partner> partners
     ) {}
 
     record Partner(UUID eventId, String sourceType, Instant publishedDate) {}
+
+    /** A signal read by a scan, with the write token it carried when read. */
+    public record PendingSignal(UUID eventId, String writeToken) {}
+
+    public record ScanResult(List<CorroboratedSignalEvent> events, List<PendingSignal> handled) {}
 }

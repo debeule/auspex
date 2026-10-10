@@ -64,7 +64,7 @@ class ScheduledCorroborationServiceTest {
         KafkaTemplate<Object, Object> kafka = mock(KafkaTemplate.class);
         CorroboratedSignalEvent e1 = event("gene:GeneTarget");
         CorroboratedSignalEvent e2 = event("mech:Mechanism");
-        when(scanner.scan()).thenReturn(List.of(e1, e2));
+        when(scanner.scan()).thenReturn(new CorroborationScanner.ScanResult(List.of(e1, e2), List.of()));
         when(kafka.send(any(), any(), any())).thenReturn(CompletableFuture.completedFuture(null));
 
         ScheduledCorroborationService service =
@@ -80,7 +80,7 @@ class ScheduledCorroborationServiceTest {
     void test_run_corroboration_does_not_call_kafka_when_scanner_returns_empty() {
         CorroborationScanner scanner = mock(CorroborationScanner.class);
         KafkaTemplate<Object, Object> kafka = mock(KafkaTemplate.class);
-        when(scanner.scan()).thenReturn(List.of());
+        when(scanner.scan()).thenReturn(new CorroborationScanner.ScanResult(List.of(), List.of()));
 
         ScheduledCorroborationService service =
                 new ScheduledCorroborationService(scanner, kafka, new RecordingTransactionManager(), 1000L, new SimpleMeterRegistry());
@@ -91,10 +91,10 @@ class ScheduledCorroborationServiceTest {
 
     @SuppressWarnings("unchecked")
     @Test
-    void watermarkIsNotWrittenWhenACorroboratedSendFails() {
+    void scanIsRolledBackWhenACorroboratedSendFails() {
         CorroborationScanner scanner = mock(CorroborationScanner.class);
         KafkaTemplate<Object, Object> kafka = mock(KafkaTemplate.class);
-        when(scanner.scan()).thenReturn(List.of(event("gene:GeneTarget")));
+        when(scanner.scan()).thenReturn(new CorroborationScanner.ScanResult(List.of(event("gene:GeneTarget")), List.of()));
         when(kafka.send(any(), any(), any()))
                 .thenReturn(CompletableFuture.failedFuture(new IllegalStateException("broker unavailable")));
         RecordingTransactionManager transactions = new RecordingTransactionManager();
@@ -103,8 +103,7 @@ class ScheduledCorroborationServiceTest {
                 new ScheduledCorroborationService(scanner, kafka, transactions, 1000L, new SimpleMeterRegistry());
 
         assertThatThrownBy(service::runCorroboration).isInstanceOf(IllegalStateException.class);
-        // The scan's inserts and its watermark write share this transaction.
-        assertThat(transactions.rolledBack).isTrue();
+                assertThat(transactions.rolledBack).isTrue();
         assertThat(transactions.committed).isFalse();
     }
 
