@@ -1061,3 +1061,12 @@ The summary lists every source in `sources.yaml`. A source with a run in the las
 
 ## 2026-10-10 — Pipeline alerting gaps — CHOICE — Elasticsearch read-only indices from the exporter
 `Elasticsearch Unhealthy` reads `elasticsearch_indices_settings_stats_read_only_indices`, which elasticsearch-exporter exports only with `--es.indices_settings`; the flag is now set. Yellow is not an alert: a single-node cluster is yellow on any index with replicas. The metric name is checked on the stack in first-run step 8, with the other new rules.
+
+## 2026-10-10 — Pre-launch spec audit — CHOICE — portfolio verdict and the remaining blockers
+**What:** The follow-up to the 2026-10-09 audit entry, after PRs #26 and #28 merged:
+1. `cross-sectional-portfolio-backtest` gains `PortfolioVerdict` (item 9, 9 tests). It applies `protocol.yaml` `portfolio_kill_criteria`, computes the deflated Sharpe on monthly returns with the family trial count, and promotes on the primary cell only. The holdout is read once, after the in-sample verdict passes. Until now no spec decided whether H9 is promoted. The spec is now blocked by `evaluation-protocol`, because it reuses that spec's `DeflatedSharpe` and `TrialLedger` instead of building a second copy.
+2. `evaluation-protocol` is `ready`: its code prerequisites are done, and only its end-to-end run waits on the backfill, which is not a merge condition.
+3. `forward-paper-trading`: the look-ahead fix is marked met. Portfolio strategies are now also blocked by `slow-signal-data-refresh` (score snapshots and current inputs) and `catalyst-date-panel` (the guard's dates).
+4. `golden-set-expansion` is blocked by the Ollama gate step of `first-run-on-stack-machine`, not by `model-evaluation`, which is done.
+5. `live-trading` also requires a `promoted` portfolio verdict for a portfolio hypothesis.
+**Action:** this PR.

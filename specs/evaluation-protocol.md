@@ -1,10 +1,7 @@
 # Evaluation Protocol
 
-**Status:** blocked
-**Blocked by:**
-1. `specs/market-simulation.md` — `CostModel` and `CurrencyConverter` required for net-expectancy computation
-2. `specs/performance-metrics.md` (entity-only variant) — metrics output format must exist before the evaluation report can extend it
-3. `specs/historical-backfill.md` — the protocol can be implemented and unit-tested without backfill data, but a meaningful end-to-end run requires the backfill corpus
+**Status:** ready
+**Blocked by:** none for the code and its required tests. Both code prerequisites are done: `specs/done/market-simulation.md` (`CostModel`, `CurrencyConverter`) and `specs/done/performance-metrics.md` (entity-only variant). Only the end-to-end run under "Definition of done" waits on `specs/historical-backfill.md`; it is recorded later and is not a merge condition.
 
 **Branch:** `feature/evaluation-protocol`
 
@@ -65,6 +62,7 @@ All hypotheses are evaluated via this protocol. The protocol itself does not dec
 - Diagnostic and descriptive hypotheses are never promotable.
 
 **`DeflatedSharpe`**
+- Shared: the portfolio backtest (`specs/cross-sectional-portfolio-backtest.md`) imports `DeflatedSharpe` and `TrialLedger` for its own verdict on monthly returns. Keep both free of event-specific inputs.
 - `compute(sharpe_ratio: float, n_obs: int, n_trials: int, skewness: float = 0.0, kurtosis: float = 3.0) → float` — Bailey & López de Prado (2014) Eq. 2. `n_trials` is `TrialLedger.family_trial_count()`: every cell of every promotable hypothesis evaluated on this corpus, not the number of runs of one hypothesis. A higher trial count deflates the Sharpe further.
 
 **`KnownAtDelay`**
@@ -127,7 +125,7 @@ cd services/backtesting && uv run pytest tests/unit/test_evaluation_protocol.py 
 
 Expected: 22 passed.
 
-Then: the first `EvaluationProtocol.run()` on real backfill data is H3 (its `run_order` is 1), recorded in DECISIONS.md with the pre and post CARs, n_events, n_independent_events, inference method and the `lagging_signal` verdict. Promotable hypotheses run only after H3 and only once re-registered with `status: pre-registered`; each such run is recorded with n_events, mean_abnormal_return, clustered t_stat, deflated_sharpe, n_trials, variant, known_at_delay_days, kill verdicts and holdout_sealed status.
+Then, once the historical backfill exists (a later session; not a merge condition): the first `EvaluationProtocol.run()` on real backfill data is H3 (its `run_order` is 1), recorded in DECISIONS.md with the pre and post CARs, n_events, n_independent_events, inference method and the `lagging_signal` verdict. Promotable hypotheses run only after H3 and only once re-registered with `status: pre-registered`; each such run is recorded with n_events, mean_abnormal_return, clustered t_stat, deflated_sharpe, n_trials, variant, known_at_delay_days, kill verdicts and holdout_sealed status.
 
 ## Notes
 

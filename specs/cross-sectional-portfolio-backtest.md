@@ -1,11 +1,12 @@
 # Cross-Sectional Portfolio Backtest
 
-**Status:** ready
+**Status:** blocked
 **Blocked by:**
 1. Met in code: `specs/point-in-time-universe.md` (PR #21, #22) — monthly `UniverseSnapshot`s with `exited_on`, `exit_reason` and `price_coverage`. Runs on the stack need its first build.
 2. Met: `specs/done/slow-signal-preregistration.md` — `protocol.yaml` (`portfolio_inference`, `portfolio_kill_criteria`, families, equal-risk default). A portfolio run passes `EvaluationProtocol.admit()` before it reads returns; `quarterly_trade_date()` and `select_component_variant()` apply H9's registered rules.
 3. Soft: `specs/catalyst-date-panel.md` for the catalyst guard modes. The engine and the `none` guard work without it; guard tests use fixture dates.
-4. Before any H9 or H10 run, not before the code: the first universe build on the stack. `config/universe/rules.yaml` already starts in 2014.
+4. `specs/evaluation-protocol.md` — `DeflatedSharpe` and `TrialLedger` (`family_trial_count()`, trial logging), which the portfolio verdict (item 9) and the trial logging in item 8 use. That spec builds them without backfill data.
+5. Before any H9 or H10 run, not before the code: the first universe build on the stack. `config/universe/rules.yaml` already starts in 2014.
 
 **Branch:** `feature/cross-sectional-portfolio-backtest`
 
@@ -44,6 +45,12 @@ In `services/backtesting/src/auspex_backtesting/portfolio/`:
 6. **`CostModel` commission schedules** — `IBKR_PRICING=fixed|tiered` (Tiered: $0.0035 a share, $0.35 minimum, plus pass-through fees), so the €10k tier is costed as a small account would actually be charged. TOB stays one rate for shares; ETF TOB classes are out of scope until an ETF is traded. Cost defaults follow the 2026-10-08 Belgian cost research: `FX_FEE_RATE` defaults to 0 for a USD-held account (conversions happen on deposit, not per trade), and `MIN_HALF_SPREAD_BPS` defaults to 10 for small-cap biotech instead of the large-cap 2. Both are `.env` values, changed in `.env.example` with a `DECISIONS.md` entry.
 7. **`PortfolioResult`** — monthly gross and net return, turnover, yearly cost drag (round-trip cost × round trips per year), average holding period per name (the Belgian speculation-tax risk metric), return inside catalyst windows (±5 sessions around a known binary) versus other days, cost by component, number of names, excess over XBI and over the universe equal-weight, rolling 12-month beta to XBI, worst single-name month contribution, the share of net P&L from the top 5% of name-months, delisting-bound months, and skipped tickets. Evaluated through `protocol.yaml` `portfolio_inference` (Newey-West t, deflated Sharpe with the family trial count) and `portfolio_kill_criteria`, in-sample and holdout reported separately; the holdout is read only when the run is marked final, and a second final read is refused.
 8. **`scripts/run_portfolio_backtest.py`** — runs a registered hypothesis at every tier in `PAPER_CAPITAL_TIERS_EUR` and writes the report; logs one trial per primary cell and variant to the family ledger.
+9. **`PortfolioVerdict`** — the pass/fail decision for an `evaluation: portfolio` hypothesis, from registered values only (`protocol.yaml` `portfolio_inference` and `portfolio_kill_criteria`, read after `verify_hypothesis("protocol")`; nothing from `.env`):
+   - In-sample: the three in-sample kill criteria (`no_in_sample_spread`, `turnover_cost`, `survivorship`), each reported as fired or not with the values it compared. `survivorship` marks the result unusable for promotion; the others drop the hypothesis.
+   - Deflated Sharpe on monthly net excess returns over the declared benchmark (`DeflatedSharpe.compute()`, `n_trials` from `TrialLedger.family_trial_count()` for the hypothesis's family), plus the Newey-West t at the registered lag.
+   - Promotion on the primary cell only: deflated Sharpe at or above `deflated_sharpe_min` and no in-sample kill fired. Diagnostic and filter-only uses are never promotable (`check_promotable()`).
+   - The holdout stays sealed until the in-sample verdict passes; it is then read once, and `holdout_check` decides the final verdict: `promoted`, `killed` (naming the criterion), or `not_usable` (survivorship).
+   - The verdict is written beside the report. The session that runs it records it in `DECISIONS.md`. Live capital needs a `promoted` verdict here as well as a passing forward check (`specs/live-trading.md`).
 
 ## Out of scope
 
@@ -93,13 +100,24 @@ In `services/backtesting/tests/unit/test_portfolio_backtest.py`:
 - `test_catalyst_window_returns_are_split_from_other_days`
 - `test_fx_fee_defaults_to_zero_and_min_half_spread_to_ten_bps`
 
+In `services/backtesting/tests/unit/test_portfolio_verdict.py`:
+- `test_no_in_sample_spread_fires_below_registered_t_or_non_positive_top_quintile_excess` — spread t 1.9 → fired; t 2.5 with top-quintile net excess −0.5% → fired; t 2.5 and +2% → not fired
+- `test_turnover_cost_fires_when_cost_drag_exceeds_half_of_gross_excess`
+- `test_survivorship_marks_result_not_usable_above_unpriced_member_month_share`
+- `test_portfolio_deflated_sharpe_uses_monthly_returns_and_family_trial_count` — same monthly series, family count 4 vs 36 → lower deflated Sharpe at 36
+- `test_promotion_requires_deflated_sharpe_minimum_and_no_in_sample_kill_on_primary_cell`
+- `test_filter_use_is_never_promotable`
+- `test_holdout_sealed_until_in_sample_verdict_passes_then_read_once`
+- `test_holdout_check_fires_below_registered_net_excess_or_t_and_kills`
+- `test_kill_thresholds_come_from_registered_protocol` — a protocol fixture with a different `min_top_minus_bottom_quintile_newey_west_t` changes the verdict; an edited, unregistered protocol file raises
+
 ## Definition of done
 
 ```bash
-cd services/backtesting && uv run pytest tests/unit/test_portfolio_backtest.py -q --strict-markers && uv run pytest tests/unit -q
+cd services/backtesting && uv run pytest tests/unit/test_portfolio_backtest.py tests/unit/test_portfolio_verdict.py -q --strict-markers && uv run pytest tests/unit -q
 ```
 
-Expected: 29 passed; full unit suite green with a non-zero count.
+Expected: 38 passed (29 engine, 9 verdict); full unit suite green with a non-zero count.
 
 Then: `services/backtesting/README.md` documents the portfolio engine and `ScoreSnapshot` contract; `.env.example` gains `IBKR_PRICING` and the new `FX_FEE_RATE` and `MIN_HALF_SPREAD_BPS` defaults.
 

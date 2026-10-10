@@ -3,13 +3,15 @@
 **Status:** blocked
 **Blocked by:**
 1. `specs/strategy-runtime.md` — `StreamingRuntime`, `VirtualBook` (paper mode) and `BacktestReplayRunner` must exist.
-2. Backtest look-ahead fix (in progress, first wave) — the paper ledger and the backtest must build events the same way (one event per corroboration record as of `corroborated_at`, NYSE calendar, after-close timing), or the forward results cannot be compared with the backtest.
+2. Met: backtest look-ahead fix (`specs/done/backtest-look-ahead-fix.md`) — the paper ledger and the backtest must build events the same way (one event per corroboration record as of `corroborated_at`, NYSE calendar, after-close timing), or the forward results cannot be compared with the backtest.
 3. ~~Pre-registration and kill criteria~~ — done 2026-10-07 (`config/hypotheses/`, `DECISIONS.md`): the hypotheses, trial ledger, clustered standard errors and the "forward check" kill criterion must be recorded before any forward trade is logged; a hypothesis edited after paper trading starts is a new trial.
 4. ~~Realistic trading costs~~ — done (`specs/done/realistic-cost-model.md`): per-ticker spread (`SpreadEstimator`), FX conversion fee, average-daily-volume cap and gap risk. The capital tiers below are only meaningful with size-dependent costs.
 5. Met: `specs/done/slow-signal-preregistration.md` — the portfolio branch of the forward check and the `evaluation: portfolio` hypotheses.
 6. For portfolio strategies only: `specs/cross-sectional-portfolio-backtest.md` (`ScoreSnapshot`, `PortfolioRule`, `EqualRiskSizer`, and the replay the tracking check compares against). Portfolio strategies do not need `StreamingRuntime`; event strategies do.
 7. `specs/golden-set-expansion.md` — calibrated publish thresholds. The user decided on 2026-10-09 that the uncalibrated `min_confidence_to_publish` default of 0.0 must be corrected before launch, so no event strategy's ledger starts until every source it reads has a current calibration (`config/models/scores/calibration.json`, enforced by `test_every_live_source_has_a_current_calibration_matching_its_publish_threshold`). An `uncalibrated` source is excluded from paper inputs, logged, not silently used.
-8. Recommended, not a hard blocker: `specs/company-program-corroboration.md`. Paper trading can start on gene-target corroboration, but the audit expects company-program events to be the ones worth testing; starting earlier only buys calendar time.
+8. For portfolio strategies only: `specs/slow-signal-data-refresh.md` — the DAGs that write each rebalance date's `ScoreSnapshot` and keep its input panels and universe-member prices current. Without them every rebalance session is a data gap.
+9. For portfolio strategies only: `specs/catalyst-date-panel.md` — the point-in-time PDUFA and AdCom dates `CatalystGuard` reads on each trade date (kept current by the data refresh above).
+10. Recommended, not a hard blocker: `specs/company-program-corroboration.md`. Paper trading can start on gene-target corroboration, but the audit expects company-program events to be the ones worth testing; starting earlier only buys calendar time.
 
 **Branch:** `feature/forward-paper-trading`
 

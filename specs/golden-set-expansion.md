@@ -1,7 +1,7 @@
 # Golden Set Expansion
 
 **Status:** blocked
-**Blocked by:** `model-evaluation` — the local model must be selected (≥0.85 precision gate, DECISIONS.md CHOICE entry written) before gate records can be re-established for the expanded set under the chosen model.
+**Blocked by:** the local model gate in `specs/first-run-on-stack-machine.md` step 5 ("Gate the candidates"), which runs on the stack machine. The local model must be selected (≥0.85 precision gate, DECISIONS.md CHOICE entry written) before gate records can be re-established for the expanded set under the chosen model. The scoring scripts it uses are done (`specs/done/model-evaluation.md`).
 **Branch:** `feature/golden-set-expansion`
 
 ---

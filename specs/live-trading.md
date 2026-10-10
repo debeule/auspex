@@ -2,7 +2,7 @@
 
 **Status:** draft
 **Blocked by:**
-1. `specs/forward-paper-trading.md`: a `pass` forward-check verdict at a capital tier for at least one hypothesis. This spec is scoped after that verdict, at that tier. Its tests and definition of done are written then, not now.
+1. `specs/forward-paper-trading.md`: a `pass` forward-check verdict at a capital tier for at least one hypothesis. For a portfolio hypothesis, the backtest's `PortfolioVerdict` must also be `promoted` (`specs/cross-sectional-portfolio-backtest.md`). This spec is scoped after that verdict, at that tier. Its tests and definition of done are written then, not now.
 2. User actions in `docs/PREREQUISITES.md` ("Strategy layer — required before live trading"): Belgian tax advisor consultation, and an IBKR account opened and funded.
 3. The `requirements.md §0.1` amendment (`DECISIONS.md` 2026-09-20 FLAG "requirements.md §0.1 assumption flips at session 3"). It is the first step of scoping this spec, before any live-trading code.
 
