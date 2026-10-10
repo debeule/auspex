@@ -19,6 +19,27 @@ class HypothesisModifiedError(Exception):
     pass
 
 
+class HypothesisInvalidError(Exception):
+    pass
+
+
+EVALUATION_KINDS = frozenset({"event", "portfolio"})
+ROLES = frozenset({"promotable", "filter", "diagnostic", "descriptive"})
+EVENT_ONLY_FIELDS = frozenset({"known_at_delay_days", "entry_timing_days", "holding_period_days"})
+PORTFOLIO_ONLY_FIELDS = frozenset(
+    {
+        "score_frequency",
+        "rebalance_frequency",
+        "trade_date_rule",
+        "hold_bands",
+        "catalyst_guard",
+        "in_sample_years",
+        "holdout_years",
+    }
+)
+_PROTOCOL_ID = "protocol"
+
+
 def _sha256_bytes(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest()
 
@@ -35,6 +56,81 @@ def _last_entry(hypothesis_id: str, registry_path: Path) -> dict[str, Any] | Non
         if entry.get("hypothesis_id") == hypothesis_id:
             last = entry
     return last
+
+
+def hypothesis_views(hypothesis: dict[str, Any]) -> list[dict[str, Any]]:
+    """One view per registered use of a hypothesis.
+
+    A hypothesis with a `uses` list (one score registered as a filter in one universe and as a
+    promotable test in another) yields each use merged over the shared top-level fields, with
+    the use's id under `use`. Any other hypothesis is its own single view.
+    """
+    uses = hypothesis.get("uses")
+    if uses is None:
+        return [hypothesis]
+    shared = {k: v for k, v in hypothesis.items() if k != "uses"}
+    return [{**shared, **use, "id": hypothesis.get("id"), "use": use["id"]} for use in uses]
+
+
+def validate_hypothesis(hypothesis: dict[str, Any]) -> None:
+    """Refuse a hypothesis whose fields do not fit its evaluation kind.
+
+    Raises HypothesisInvalidError naming the offending field.
+    """
+    for view in hypothesis_views(hypothesis):
+        _validate_view(view)
+
+
+def _validate_view(view: dict[str, Any]) -> None:
+    name = str(view.get("id", "?")) + (f"/{view['use']}" if "use" in view else "")
+    kind = view.get("evaluation", "event")
+    if kind not in EVALUATION_KINDS:
+        raise HypothesisInvalidError(
+            f"{name}: evaluation {kind!r} is not one of {sorted(EVALUATION_KINDS)}"
+        )
+    if view.get("role") not in ROLES:
+        raise HypothesisInvalidError(
+            f"{name}: role {view.get('role')!r} is not one of {sorted(ROLES)}"
+        )
+
+    forbidden = EVENT_ONLY_FIELDS if kind == "portfolio" else PORTFOLIO_ONLY_FIELDS
+    named = set(view) | set(view.get("primary_cell") or {}) | set(view.get("trial_grid") or {})
+    clash = sorted(named & forbidden)
+    if clash:
+        raise HypothesisInvalidError(f"{name}: {kind} hypothesis names {', '.join(clash)}")
+
+    if kind == "portfolio":
+        if not view.get("family"):
+            raise HypothesisInvalidError(f"{name}: portfolio hypothesis names no family")
+        in_sample = _year_window(name, view, "in_sample_years")
+        holdout = _year_window(name, view, "holdout_years")
+        if holdout[0] <= in_sample[1]:
+            raise HypothesisInvalidError(f"{name}: holdout_years must start after in_sample_years")
+
+    grid = view.get("trial_grid")
+    if grid is not None:
+        cells = 1
+        for values in grid.values():
+            cells *= len(values)
+        if view.get("trial_cells") != cells:
+            raise HypothesisInvalidError(f"{name}: trial_cells must equal the trial_grid's {cells}")
+        for axis, value in (view.get("primary_cell") or {}).items():
+            if value not in grid.get(axis, []):
+                raise HypothesisInvalidError(
+                    f"{name}: primary_cell {axis}={value!r} is not in trial_grid"
+                )
+
+
+def _year_window(name: str, view: dict[str, Any], field: str) -> tuple[int, int]:
+    window = view.get(field)
+    if (
+        not isinstance(window, list)
+        or len(window) != 2
+        or not all(isinstance(y, int) for y in window)
+        or window[0] > window[1]
+    ):
+        raise HypothesisInvalidError(f"{name}: {field} must be [first_year, last_year]")
+    return window[0], window[1]
 
 
 def load_hypothesis(hypothesis_id: str, config_dir: Path | None = None) -> dict[str, Any]:
@@ -62,6 +158,8 @@ def verify_hypothesis(
         raise HypothesisModifiedError(
             f"{hypothesis_id}: registered hash {entry['file_hash']!r} != current {current_hash!r}"
         )
+    if hypothesis_id != _PROTOCOL_ID:
+        validate_hypothesis(load_hypothesis(hypothesis_id, config_dir))
 
 
 def register_hypothesis(

@@ -3,7 +3,7 @@
 **Status:** blocked
 **Blocked by:**
 1. Met in code: `specs/point-in-time-universe.md` (PR #21, #22) — universe snapshots. The broad universe's rules file is item 0 below.
-2. `specs/slow-signal-preregistration.md` — H10 registered.
+2. Met: `specs/done/slow-signal-preregistration.md` — H10 registered.
 
 **Branch:** `feature/filing-text-change-score`
 

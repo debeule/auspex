@@ -1,5 +1,5 @@
 id: h3
-version: 2
+version: 1
 description: "Pre-announcement drift — diagnostic comparison of pre- vs post-corroboration windows; runs first and gates H1"
 role: diagnostic
 signal_definition:

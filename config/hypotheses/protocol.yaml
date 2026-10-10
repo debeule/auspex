@@ -1,6 +1,6 @@
 id: protocol
 version: 1
-description: "Evaluation protocol locked before any backtest touches the backfill corpus: abnormal-return model, inference, trial accounting, promotion and kill criteria"
+description: "Evaluation protocol locked before any backtest touches a corpus: abnormal-return model, inference for events and for monthly portfolios, trial accounting per corpus family, promotion, sizing and instrument ceilings, kill criteria"
 abnormal_return:
   model: market_model
   benchmark: XBI
@@ -21,13 +21,50 @@ inference:
   # Same-ticker events whose holding windows overlap count as one independent event.
   independent_event_rule: same_ticker_overlapping_window_is_one
 trials:
-  # One trial per (holding_period_days, known_at_delay_days, variant) cell evaluated, summed over every run.
+  # One trial per declared cell evaluated, summed over every run: (holding_period_days,
+  # known_at_delay_days, variant) for event hypotheses, the trial_grid product for portfolio ones.
   counting: cells
-  # The deflated Sharpe uses the count across all promotable hypotheses evaluated on the same corpus.
+  # The deflated Sharpe uses the count across hypotheses evaluated on the same corpus (family).
+  # Tests on disjoint corpora do not select from each other, so each family has its own budget.
   scope: family
-  counts_roles: [promotable]
+  # Filters count their declared cells; diagnostic and descriptive hypotheses never count.
+  counts_roles: [promotable, filter]
   known_at_delay_days: [0, 1, 3, 5]
-  family_budget_cells: 64
+# A hypothesis names its family. Event hypotheses that name none belong to event_backfill.
+# A family not listed here has no budget, and nothing in it may be evaluated.
+families:
+  event_backfill:
+    corpus: "LLM-extracted company events from the historical backfill"
+    budget_cells: 64
+  holdings_panel:
+    corpus: "13F holdings, insider transactions and short interest as point-in-time panels"
+    # H9 grid 4 cadences x 4 catalyst guards x 2 floors = 32, plus the H10 exclusion filter on
+    # and off at the primary and the no-floor cell = 4.
+    budget_cells: 36
+  filing_text_panel:
+    corpus: "10-K and 10-Q Item 1A sections"
+    budget_cells: 8
+  registry_panel:
+    corpus: "ClinicalTrials.gov record version history"
+    budget_cells: 0
+    roles: [diagnostic]
+  catalyst_panel:
+    corpus: "Point-in-time PDUFA and advisory committee dates"
+    budget_cells: 0
+    roles: [diagnostic]
+default_event_family: event_backfill
+# For hypotheses with evaluation: portfolio. The unit of observation is a month, not an event.
+portfolio_inference:
+  return: monthly_net_excess_over_declared_benchmark
+  standard_errors: newey_west
+  # Holding up to 6 months overlaps rebalances, so monthly excess returns are autocorrelated.
+  newey_west_lag_months: 6
+  deflated_sharpe_on: monthly_returns
+  deflated_sharpe_trials: family_count
+  deflated_sharpe_min: 0.95
+  # Calendar years named by each hypothesis (in_sample_years, holdout_years); the holdout is read once.
+  windows: hypothesis_in_sample_and_holdout_years
+  holdout_reads: 1
 promotion:
   judged_on: primary_cell
   clustered_t_min: 3.0
@@ -39,6 +76,15 @@ sizing:
   max_position_pct: 0.05
   max_positions_per_theme: 1
   hold_through_known_binary_event: only_strategies_that_trade_that_event_type
+  default_sizer: equal_risk
+  # Portfolio hypotheses hold at least this many names; the 5% ceiling already implies 20 or more.
+  min_names: 15
+  # Kelly sizing, within the ceilings above, only after this many closed trades.
+  min_trades_for_kelly: 20
+# Ceilings, not defaults: enabling either is a protocol re-registration, never an .env edit.
+instruments:
+  shorts_enabled: false
+  options_enabled: false
 kill_criteria:
   - id: lagging_signal
     applies_to: [h3]
@@ -62,16 +108,59 @@ kill_criteria:
   - id: forward_check
     applies_to: promotable
     evaluated_on: forward_paper_trading
-    min_months: 12
-    min_independent_events: 60
-    min_mean_net_abnormal_return: 0.0
-    min_clustered_t: 2.0
-    rule: "all minimums must be exceeded before any real capital is committed"
+    # The branch is chosen by the hypothesis's evaluation kind.
+    event:
+      min_months: 12
+      min_independent_events: 60
+      min_mean_net_abnormal_return: 0.0
+      min_clustered_t: 2.0
+      rule: "all minimums must be exceeded before any real capital is committed"
+    # Tests the implementation, data timeliness and costs, not the edge: a slow portfolio's
+    # statistical evidence comes from its backtest and one-time holdout read.
+    portfolio:
+      min_months: 12
+      max_ledger_gaps: 0
+      # Paper ledger against a backtest replay of the same months with the same score snapshots.
+      max_abs_tracking_difference_per_year: 0.02
+      # Paper net excess return may not fall below the in-sample mean minus this many standard errors.
+      min_net_excess_standard_errors_below_in_sample_mean: 2.0
+      data_gap:
+        sessions: [rebalance, close_out]
+        required_inputs: [score_snapshot, universe_snapshot, closing_prices]
+        available_before: session_open
+      reported_per_capital_tier: [slippage_vs_cost_model, average_holding_period]
+      rule: "under 12 months is insufficient; otherwise pass only with no ledger gap, tracking within tolerance and net excess not below the bound, per capital tier"
     action: "otherwise Auspex stays a research and risk tool; no live orders"
   - id: cost_check
     applies_to: promotable
     max_cost_to_gross_ratio: 0.5
     rule: "median modelled round-trip cost on the traded names exceeds this fraction of the expected gross abnormal return"
     action: "raise the liquidity floor and re-register, or stop"
+portfolio_kill_criteria:
+  - id: no_in_sample_spread
+    applies_to: promotable
+    evaluated_on: in_sample
+    min_top_minus_bottom_quintile_newey_west_t: 2.0
+    min_top_quintile_net_excess_over_universe_equal_weight: 0.0
+    rule: "killed when the top-minus-bottom quintile spread t is below the minimum, or the long-only top quintile's net excess return over the universe equal-weight is below the minimum"
+    action: "drop the hypothesis"
+  - id: holdout_check
+    applies_to: promotable
+    evaluated_on: holdout
+    min_annual_net_excess: 0.01
+    min_newey_west_t: 1.5
+    rule: "the traded portfolio's holdout net excess return or its t is below the minimum"
+    action: "drop the hypothesis"
+  - id: survivorship
+    applies_to: promotable
+    max_unpriced_member_month_share: 0.10
+    rule: "more than this share of universe member-months has no price coverage"
+    action: "result is not used for promotion"
+  - id: turnover_cost
+    applies_to: promotable
+    evaluated_on: in_sample
+    max_cost_to_gross_excess_ratio: 0.5
+    rule: "modelled yearly cost drag above this fraction of in-sample gross excess return"
+    action: "re-register with a lower-turnover variant, or stop"
 status: pre-registered
-registered_at: "2026-10-07T00:00:00Z"
+registered_at: "2026-10-09T00:00:00Z"

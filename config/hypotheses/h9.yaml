@@ -1,0 +1,75 @@
+id: h9
+version: 1
+description: "Biotech holdings composite: specialist 13F ownership, net insider open-market buying and days to cover, scored monthly, traded quarterly with hold bands"
+evaluation: portfolio
+family: holdings_panel
+role: promotable
+direction: long
+universe:
+  source: point_in_time_biotech
+  # Applied in the score at each rebalance, not in the universe.
+  liquidity_floor:
+    min_market_cap_usd: 500000000
+    min_median_dollar_volume_20d_usd: 2000000
+  # The no_floor cells use the universe's own floors ($50M, $500k) so the floor's effect is measured.
+  no_floor: universe_rules
+components:
+  specialist_13f_ownership:
+    rule: "specs/sec-ownership-datasets.md#SpecialistClassifier"
+    reader: specialist_ownership
+    as_of: 13f_accepted_before_rebalance
+    thresholds:
+      SPECIALIST_HEALTHCARE_SHARE: 0.5
+      SPECIALIST_MIN_AUM_USD: 100000000
+    higher_ranks_higher: true
+  net_insider_buying:
+    reader: net_insider_buying
+    window_days: 90
+    transaction_codes: "P minus S"
+    excludes: "10b5-1 plan trades; purchases on or within two days of a 424B4 or 424B5 by the same issuer"
+    higher_ranks_higher: true
+  days_to_cover:
+    definition: "latest published short interest over average daily volume"
+    higher_ranks_higher: false
+score: rank_mean
+component_variants:
+  three_component: [specialist_13f_ownership, net_insider_buying, days_to_cover]
+  two_component: [specialist_13f_ownership, net_insider_buying]
+  # Chosen by data coverage dates only, never by looking at returns.
+  selection:
+    two_component_when: short_interest_history_starts_after_in_sample_start
+    otherwise: three_component
+score_frequency: monthly
+rebalance_frequency: quarterly
+trade_date_rule:
+  anchor: 13f_deadline
+  deadline_days_after_quarter_end: 45
+  min_calendar_days_after_deadline: 10
+  session: first_nyse_session_on_or_after
+hold_bands:
+  buy_rank_max: 15
+  sell_rank_below: 30
+catalyst_guard: skip_entry
+sizing: equal_risk
+benchmarks:
+  abnormal_return: XBI
+  excess: universe_equal_weight
+filters:
+  - {hypothesis: h10, use: biotech_exclusion_filter}
+trial_grid:
+  cadence: [monthly_top15, quarterly_top15, quarterly_bands_15_30, semi_annual_bands_15_30]
+  catalyst_guard: [none, skip_entry, exit_and_reenter, exit_low_score_only]
+  floor: [floor, no_floor]
+primary_cell:
+  cadence: quarterly_bands_15_30
+  catalyst_guard: skip_entry
+  floor: floor
+trial_cells: 32
+diagnostics:
+  catalyst_window_split_sessions: 5
+  holding_period_sweep_months: [1, 3, 6, 12]
+  average_holding_period: every_cell
+in_sample_years: [2014, 2021]
+holdout_years: [2022, 2025]
+status: pre-registered
+registered_at: "2026-10-09T00:00:00Z"

@@ -1,11 +1,11 @@
 # Cross-Sectional Portfolio Backtest
 
-**Status:** blocked
+**Status:** ready
 **Blocked by:**
 1. Met in code: `specs/point-in-time-universe.md` (PR #21, #22) — monthly `UniverseSnapshot`s with `exited_on`, `exit_reason` and `price_coverage`. Runs on the stack need its first build.
-2. `specs/slow-signal-preregistration.md` — `protocol.yaml` version 2 (`portfolio_inference`, `portfolio_kill_criteria`, families, equal-risk default).
+2. Met: `specs/done/slow-signal-preregistration.md` — `protocol.yaml` (`portfolio_inference`, `portfolio_kill_criteria`, families, equal-risk default). A portfolio run passes `EvaluationProtocol.admit()` before it reads returns; `quarterly_trade_date()` and `select_component_variant()` apply H9's registered rules.
 3. Soft: `specs/catalyst-date-panel.md` for the catalyst guard modes. The engine and the `none` guard work without it; guard tests use fixture dates.
-4. Before any H9 or H10 run, not before the code: the universe extended to start in 2014, built on the stack. This is the one existing universe (`config/universe/rules.yaml`) with its window moved back, not a separate version (`DECISIONS.md` 2026-10-08 FLAG "universe window").
+4. Before any H9 or H10 run, not before the code: the first universe build on the stack. `config/universe/rules.yaml` already starts in 2014.
 
 **Branch:** `feature/cross-sectional-portfolio-backtest`
 

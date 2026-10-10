@@ -1,17 +1,27 @@
 id: h8
-version: 2
-description: "Negative directionality asymmetry — negative corroborations show fast concentrated moves"
-role: promotable
-signal_definition:
-  variant: full
-  filter: negative_directionality
-  join_field: corroborated_at
-  note: "H4 negative subset: both contributing signals have directionality=negative"
-entry_timing_days: 1
-holding_period_days: [1, 3, 5]
+version: 1
+description: "Negative-event veto: after a company-level negative event, no entry and held names exit for 20 trading days"
+evaluation: event
+family: event_backfill
+role: filter
+host: any_portfolio_hypothesis
+# Values of the company-level extraction enum (auspex_ingest.extractor.EventType).
+event_types: [trial_readout, complete_response_letter, clinical_hold, trial_halted]
+event_conditions:
+  trial_readout: {directionality: negative}
+  clinical_hold: {directionality: negative}
+veto:
+  entry: blocked
+  held_names: exit
+  duration_trading_days: 20
+direction: none
+holding_period_days: [20]
+known_at_delay_days: [1]
+# One cell per horizon; a filter has no primary cell because it is never promoted on its own.
+trial_cells: 1
+evaluated_as:
+  - avoided_car_plus_1_to_plus_20
+  - change_in_host_net_return_with_and_without_veto
 benchmark: XBI
-exit: fixed_horizon_close
-direction: short
-status: suspended
-suspended_reason: "Rework as an exit or avoid filter on long holdings, not a short strategy: shorting hard-to-borrow small caps from a Belgian retail account is not worth the tax and borrow risk. Re-register before any backtest."
-registered_at: "2026-10-07T00:00:00Z"
+status: pre-registered
+registered_at: "2026-10-09T00:00:00Z"

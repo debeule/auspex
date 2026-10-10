@@ -1,5 +1,5 @@
 id: h2
-version: 2
+version: 1
 description: "Signal time decay — cumulative abnormal return decay curve across H1 event set"
 role: diagnostic
 signal_definition:

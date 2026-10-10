@@ -5,7 +5,7 @@
 1. `specs/sec-ownership-datasets.md` — specialist ownership and net insider buying readers.
 2. `specs/short-interest-snapshots.md` — `ShortInterestStore.as_of()` and the first available settlement date.
 3. Met in code: `specs/point-in-time-universe.md` (PR #21, #22) — monthly universe snapshots and `MarketCapEstimator`. Runs on the stack need its first build.
-4. `specs/slow-signal-preregistration.md` — H9 registered (components, floors, variants, two-component fallback rule).
+4. Met: `specs/done/slow-signal-preregistration.md` — H9 registered (components, floors, variants, two-component fallback rule).
 
 **Branch:** `feature/holdings-composite-score`
 

@@ -3,7 +3,7 @@
 **Status:** blocked
 **Blocked by:**
 1. Met in code: `specs/point-in-time-universe.md` (PR #21, #22) — lead sponsors are matched to universe companies. Runs on the stack need its first build.
-2. `specs/slow-signal-preregistration.md` — H11 registered as a diagnostic before any registry edit is joined to returns.
+2. Met: `specs/done/slow-signal-preregistration.md` — H11 registered as a diagnostic before any registry edit is joined to returns.
 
 **Branch:** `feature/clinicaltrials-version-diffs`
 

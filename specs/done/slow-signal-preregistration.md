@@ -1,6 +1,6 @@
 # Slow-Signal Pre-registration
 
-**Status:** ready
+**Status:** done
 **Blocked by:** none. The direction decision was taken 2026-10-08 (`DECISIONS.md`, "direction: both"): H9 in biotech with H10 as its filter, and the standalone H10 test on broad US small and mid caps.
 
 **Branch:** `feature/slow-signal-preregistration`
@@ -12,7 +12,7 @@
 The 2026-10-07 edge research (three independent reports, `/mnt/project-files/research/edge-result-{1,2,3}.md`, synthesis in `DECISIONS.md` 2026-10-07 "edge research synthesis") moved the alpha path from single events to slow, monthly cross-sectional scores:
 - **H9, biotech holdings composite**: specialist 13F ownership, insider open-market buying, low short interest, ranked monthly across the point-in-time biotech universe.
 - **H10, risk-factor change ("lazy prices")**: year-on-year change in a filer's 10-K/10-Q Item 1A text; firms that changed least are held.
-- **H8 version 3, negative-event veto**: H8 was suspended on PR #15 with the call "rework as an exit or avoid filter". The veto is that rework.
+- **H8, negative-event veto**: H8 was suspended on PR #15 with the call "rework as an exit or avoid filter". The veto is that rework.
 
 PR #15 locks an evaluation protocol written for event studies: market-model abnormal returns per event, two-way clustered t, a family budget of 64 `(holding_period, known_at_delay, variant)` cells, and a forward check of "12 months, 60 independent events, clustered t > 2". Two parts of it do not fit monthly portfolios:
 1. A portfolio's unit of observation is a month, not an event. Its inference is a time-series t on monthly excess returns with autocorrelation-robust errors.
@@ -26,7 +26,7 @@ Everything here must be registered **before** any of the new data (13F, Form 4 d
 
 ## What this builds
 
-1. **`protocol.yaml` version 2**, re-registered with a `DECISIONS.md` entry, adding:
+1. **`protocol.yaml`**, the single current protocol (nothing has been evaluated yet, so it replaces the earlier version rather than sitting beside it), with a `DECISIONS.md` entry, adding:
    - `families`: trial budgets are counted per **corpus** (`event_backfill`, `holdings_panel`, `filing_text_panel`, `registry_panel`, `catalyst_panel`), each with its own budget. A hypothesis declares its family. Rationale: the deflated Sharpe corrects for selection across tests on the same data; tests on disjoint data do not select from each other. The event family keeps budget 64. `holdings_panel` gets 36: H9's declared grid is 4 cadences × 4 guards × 2 floors = 32 cells, plus the H10 exclusion filter on and off at the primary and the no-floor cell (4). `filing_text_panel` gets 8. `registry_panel` and `catalyst_panel` hold diagnostics only, which never count.
    - `portfolio_inference` for hypotheses with `evaluation: portfolio`: monthly net excess return over the declared benchmark, Newey-West t with lag 6 (holding up to 6 months overlaps rebalances), deflated Sharpe on monthly returns with the family's trial count, an in-sample window and a sealed holdout window given as calendar years, read once.
    - `portfolio_kill_criteria`:
@@ -51,7 +51,7 @@ Everything here must be registered **before** any of the new data (13F, Form 4 d
    - `h10.yaml` risk-factor change (family `filing_text_panel`). Score = 1 − cosine similarity of Item 1A term frequencies against the same fiscal period a year earlier, known at the later filing's acceptance time. The report found the alpha sits with the changers, while the no-change long leg reverts to zero, so H10 has two registered uses:
      - **Inside biotech, an exclusion filter on H9** (`role: filter`): names in the most-changed quintile at the last 10-K/10-Q are not bought, and held names that move into it are sold at the next quarterly rebalance. It is evaluated as the change in H9's net return with and without it, and as a diagnostic, the long and short legs within biotech are reported separately. A filter is never promoted on its own.
      - **Broad US small and mid caps, a standalone test** (`role: promotable`), on its own universe file ($500M–$10B, same liquidity floor): the variant `exclude_most_changed_quintile` (hold the universe minus the changers, the low-turnover form) is the primary cell. Quarterly cadence with the same bands, held 3 to 12 months. In-sample 2015–2020, holdout 2021–2025. Registered only if the direction decision includes the broad test.
-   - `h8.yaml` version 3, negative-event veto (family `event_backfill`, `role: filter`): event types `trial_readout` with negative directionality, `complete_response_letter`, `clinical_hold` (placed), `trial_halted` — the company-level extraction enum (PR #18); entry is never taken and held names exit for 20 trading days; evaluated as the CAR[+1,+20] it avoids and as the change in the host portfolio's net return with and without the veto; never a short. A filter is not promoted on its own and counts one trial cell per horizon.
+   - `h8.yaml`, negative-event veto (family `event_backfill`, `role: filter`): event types `trial_readout` with negative directionality, `complete_response_letter`, `clinical_hold` (placed), `trial_halted` — the company-level extraction enum (PR #18); entry is never taken and held names exit for 20 trading days; evaluated as the CAR[+1,+20] it avoids and as the change in the host portfolio's net return with and without the veto; never a short. A filter is not promoted on its own and counts one trial cell per horizon.
    - `h11.yaml` registry edits (family `registry_panel`, `role: diagnostic` now). It measures returns after quiet ClinicalTrials.gov edits (completion date slip of at least 180 days, enrolment cut of at least 20%, primary-outcome change, status to terminated, suspended or withdrawn, with no 8-K from the sponsor in the prior 5 days), **in both directions**, for CAR[+1,+20] and up to the next readout. It also reports whether the registry edit or the 8-K came first. The report found the direction ambiguous (outcome switches go with about 16% larger reported effects), so H11 is diagnostic. It may only be re-registered as a veto, never a long or short trigger, after the diagnostic is read. Its data comes from `specs/clinicaltrials-version-diffs.md`.
    - `h12.yaml` pre-catalyst run-up (family `catalyst_panel`, `role: diagnostic`): the XBI-adjusted CAR[-30,-1] before PDUFA dates and AdComs on a point-in-time calendar (`specs/catalyst-date-panel.md`). Reported only. It settles whether a catalyst-timed entry is worth registering at all.
 3. **Volatility correction**: `docs/strategy-research.md` MDE rows use 22.5% for a 20-day window (and the matching figure per window), with a dated note. No hypothesis's thresholds change; the event kill criteria were never based on the MDE rows.
@@ -67,14 +67,14 @@ Everything here must be registered **before** any of the new data (13F, Form 4 d
 ## Constraints
 
 - Invariant 15 and the rule that matters most: the registration tests below assert what the protocol says; if a test can only pass by contradicting `docs/requirements.md`, stop and flag.
-- The registry is append-only: version 2 of `protocol.yaml` and version 3 of `h8.yaml` are new lines in `registry.jsonl`; earlier lines are never edited.
+- One version per file: every hypothesis and the protocol are version 1, with one line each in `registry.jsonl`. Nothing has been evaluated, so earlier drafts are not kept. From the first evaluation on, a change is a new registry line and earlier lines are never edited.
 - No backtest on the new corpora may run before this lands. `EvaluationProtocol.run()` refuses a hypothesis whose family has no registered budget.
 - No plan-step references in names (root `CLAUDE.md`).
 
 ## Required tests
 
 In `services/backtesting/tests/unit/test_preregistered_protocol.py` (extends PR #15's file):
-- `test_protocol_v2_is_registered_and_v1_line_is_unchanged`
+- `test_registry_holds_one_registration_per_file`
 - `test_trial_budget_is_counted_per_family_not_across_families` — 40 cells in `event_backfill` and 10 in `holdings_panel` leave both under budget
 - `test_portfolio_hypothesis_without_holdout_years_is_refused`
 - `test_portfolio_hypothesis_naming_known_at_delay_cells_is_refused` — event-only field on a portfolio hypothesis
@@ -103,7 +103,7 @@ cd services/backtesting && uv run pytest tests/unit/test_preregistered_protocol.
 
 Expected: 33 passed (13 existing, 20 new).
 
-Then: `DECISIONS.md` CHOICE entry with the protocol v2 diff, the registry hashes, and confirmation that no backtest has joined the new corpora to returns (`config/hypotheses/trials/` has no entry for the new families).
+Then: `DECISIONS.md` CHOICE entry with the protocol changes, the registry hashes, and confirmation that no backtest has joined the new corpora to returns (`config/hypotheses/trials/` has no entry for the new families).
 
 ## Notes
 

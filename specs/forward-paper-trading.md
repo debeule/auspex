@@ -6,7 +6,7 @@
 2. Backtest look-ahead fix (in progress, first wave) — the paper ledger and the backtest must build events the same way (one event per corroboration record as of `corroborated_at`, NYSE calendar, after-close timing), or the forward results cannot be compared with the backtest.
 3. ~~Pre-registration and kill criteria~~ — done 2026-10-07 (`config/hypotheses/`, `DECISIONS.md`): the hypotheses, trial ledger, clustered standard errors and the "forward check" kill criterion must be recorded before any forward trade is logged; a hypothesis edited after paper trading starts is a new trial.
 4. ~~Realistic trading costs~~ — done (`specs/done/realistic-cost-model.md`): per-ticker spread (`SpreadEstimator`), FX conversion fee, average-daily-volume cap and gap risk. The capital tiers below are only meaningful with size-dependent costs.
-5. `specs/slow-signal-preregistration.md` — the portfolio branch of the forward check and the `evaluation: portfolio` hypotheses.
+5. Met: `specs/done/slow-signal-preregistration.md` — the portfolio branch of the forward check and the `evaluation: portfolio` hypotheses.
 6. For portfolio strategies only: `specs/cross-sectional-portfolio-backtest.md` (`ScoreSnapshot`, `PortfolioRule`, `EqualRiskSizer`, and the replay the tracking check compares against). Portfolio strategies do not need `StreamingRuntime`; event strategies do.
 7. Recommended, not a hard blocker: `specs/company-program-corroboration.md`. Paper trading can start on gene-target corroboration, but the audit expects company-program events to be the ones worth testing; starting earlier only buys calendar time.
 

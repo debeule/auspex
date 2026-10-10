@@ -15,6 +15,7 @@ _H1_YAML = """\
 id: h1
 version: 1
 description: "Structural convergence premium"
+role: promotable
 signal_definition:
   variant: entity-only
   filter: none
@@ -31,6 +32,7 @@ _H1_YAML_V2 = """\
 id: h1
 version: 2
 description: "Structural convergence premium — revised entry timing"
+role: promotable
 signal_definition:
   variant: entity-only
   filter: none

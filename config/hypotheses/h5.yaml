@@ -1,5 +1,5 @@
 id: h5
-version: 2
+version: 1
 description: "Source-type composition effect — abnormal return by source_type pair, reported descriptively"
 role: descriptive
 signal_definition:

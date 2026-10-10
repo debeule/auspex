@@ -1,0 +1,54 @@
+id: h10
+version: 1
+description: "Risk-factor change (lazy prices): year-on-year change in a filer's 10-K/10-Q Item 1A text"
+evaluation: portfolio
+direction: long
+score:
+  definition: "1 - cosine similarity of Item 1A term frequencies against the same fiscal period a year earlier"
+  section: item_1a
+  forms: [10-K, 10-Q]
+  known_at: later_filing_accepted_at
+uses:
+  - id: biotech_exclusion_filter
+    role: filter
+    family: holdings_panel
+    host: h9
+    universe:
+      source: point_in_time_biotech
+    rule: "names in the most-changed quintile at their last 10-K/10-Q are not bought; held names that move into it are sold at the next quarterly rebalance"
+    evaluated_as: change_in_host_net_return_with_and_without_filter
+    trial_grid:
+      filter: [on, off]
+      host_floor: [floor, no_floor]
+    trial_cells: 4
+    diagnostics: [long_leg_within_biotech, short_leg_within_biotech]
+    in_sample_years: [2014, 2021]
+    holdout_years: [2022, 2025]
+  - id: broad_small_mid
+    role: promotable
+    family: filing_text_panel
+    universe:
+      source: us_small_mid
+      min_market_cap_usd: 500000000
+      max_market_cap_usd: 10000000000
+      min_median_dollar_volume_20d_usd: 2000000
+    score_frequency: monthly
+    rebalance_frequency: quarterly
+    hold_bands:
+      buy_rank_max: 15
+      sell_rank_below: 30
+    holding_months: [3, 12]
+    sizing: equal_risk
+    benchmarks:
+      excess: universe_equal_weight
+    trial_grid:
+      variant: [exclude_most_changed_quintile, least_changed_quintile]
+      cadence: [quarterly_bands_15_30, semi_annual_bands_15_30]
+    primary_cell:
+      variant: exclude_most_changed_quintile
+      cadence: quarterly_bands_15_30
+    trial_cells: 4
+    in_sample_years: [2015, 2020]
+    holdout_years: [2021, 2025]
+status: pre-registered
+registered_at: "2026-10-09T00:00:00Z"

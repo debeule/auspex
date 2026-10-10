@@ -41,6 +41,10 @@ Per `specs/done/point-in-time-alignment.md`: join on `corroborated_at` (the maxi
 
 ## Hypotheses
 
+The registered definitions in `config/hypotheses/` are the source of truth; this document explains them.
+
+**Volatility correction (2026-10-09).** The MDE figures below were first computed with a 20-day σ of about 7% for stocks described as 80% annualised volatility. Over 20 trading days 80% annualised is about 22.5% (80% × √(20/252)), and about 11.3% over 5 days. The MDE rows now use those figures, with MDE ≈ 2.8 σ / √n (two-sided 5%, 80% power). No hypothesis threshold changed: the event kill criteria in `config/hypotheses/protocol.yaml` were never based on these rows. At 22.5%, t > 2 on 60 independent events needs a mean net abnormal return of about 5.8% per event.
+
 For each hypothesis, the table covers: mechanism, signal definition (in Auspex field terms), direction, entry, holding period, exit, benchmark, expected sample size in the 24-month backfill, minimum detectable effect at that sample size (80% power, two-tailed, α=0.05), cost survivability, capacity constraint, and prior evidence.
 
 ---
@@ -57,8 +61,8 @@ For each hypothesis, the table covers: mechanism, signal definition (in Auspex f
 | **Exit** | Fixed horizon close |
 | **Benchmark** | XBI cumulative return over same window |
 | **Expected sample** | 50–150 events; true count unknown until backfill |
-| **MDE (80% power)** | At n=100, 20-day window: ~2.0% mean abnormal return (biotech annualised vol ~80%; 20-day σ ≈ 7%) |
-| **Cost survivability** | Probably not at 5-day window (MDE < 2.5% break-even); likely at 20-day window if effect > 3% |
+| **MDE (80% power)** | At n=100: ~6.3% mean abnormal return at a 20-day window, ~3.2% at 5 days (biotech annualised vol ~80%; 20-day σ ≈ 22.5%, 5-day σ ≈ 11.3%) |
+| **Cost survivability** | Any effect large enough to detect (above ~3.2% at 5 days, ~6.3% at 20 days) clears the ~3.2% all-in break-even; the open question is whether an effect that large exists |
 | **Capacity** | €500–2,000 per position before market impact at ADTV of these names |
 | **Prior evidence** | Cohen & Lou (2012) slow diffusion for complex firms; Engelberg, Reed & Ringgenberg (2012) short sellers and hard-to-process news; Da, Engelberg & Gao (2011) attention and returns |
 
@@ -118,7 +122,7 @@ For each hypothesis, the table covers: mechanism, signal definition (in Auspex f
 | **Exit** | Same as H1 |
 | **Benchmark** | XBI |
 | **Expected sample** | ~60–100 positive-directional pairs; ~15–30 negative pairs |
-| **MDE (80% power)** | At n=80 positive events, 20-day window: ~2.2% mean abnormal return |
+| **MDE (80% power)** | At n=80 positive events, 20-day window: ~7.0% mean abnormal return |
 | **Cost survivability** | Depends; requires MDE > 2.5% break-even |
 | **Capacity** | Same as H1 |
 | **Prior evidence** | Tetlock (2007) media pessimism and stock returns; Garcia (2013) sentiment and asset prices |
@@ -139,7 +143,7 @@ For each hypothesis, the table covers: mechanism, signal definition (in Auspex f
 | **Exit** | Same as H1 |
 | **Benchmark** | XBI |
 | **Expected sample** | Per-pair: <20 events each for 8 companies over 24 months. Exploratory only. |
-| **MDE (80% power)** | At n=20: ~3.5% mean abnormal return — high bar, unreliable at this n |
+| **MDE (80% power)** | At n=20, 20-day window: ~14% mean abnormal return — unreliable at this n |
 | **Cost survivability** | Per-group sample too small to support a reliable cost-survivability assessment |
 | **Capacity** | Same as H1 |
 | **Prior evidence** | Grossman & Stiglitz (1980) information cost hypothesis; Kogan et al. (2017) technological innovation from patent data |
@@ -160,7 +164,7 @@ For each hypothesis, the table covers: mechanism, signal definition (in Auspex f
 | **Exit** | Same as H1 |
 | **Benchmark** | XBI |
 | **Expected sample** | ~30–50% of H1 events are first appearances (estimate) |
-| **MDE (80% power)** | At n=60 novel events: ~2.5% mean abnormal return |
+| **MDE (80% power)** | At n=60 novel events, 20-day window: ~8.1% mean abnormal return |
 | **Cost survivability** | Depends on actual effect size |
 | **Capacity** | Same as H1 |
 | **Prior evidence** | Menzly & Ozbas (2010) industry information and cross-stock returns; Hirshleifer, Hsu & Li (2013) innovative efficiency and stock returns |
@@ -179,7 +183,7 @@ For each hypothesis, the table covers: mechanism, signal definition (in Auspex f
 | **Exit** | Same as H1 |
 | **Benchmark** | XBI |
 | **Expected sample** | ~50 per group (median split of H1 sample) |
-| **MDE (80% power)** | At n=50 per group: ~3.0% mean difference in abnormal return between groups |
+| **MDE (80% power)** | At n=50 per group, 20-day window: ~12.6% mean difference in abnormal return between groups |
 | **Cost survivability** | Filter only — not a standalone strategy |
 | **Capacity** | Same as H1 |
 | **Prior evidence** | Framing effects in analyst forecasts; confidence as a quality signal in automated extraction |
@@ -188,43 +192,23 @@ For each hypothesis, the table covers: mechanism, signal definition (in Auspex f
 
 ---
 
-### H8 — Negative directionality asymmetry
+### H8 — Negative-event veto
 
 | | |
 |---|---|
-| **Mechanism** | Negative biotech news (trial failure, safety signal, regulatory rejection) produces faster, more concentrated price moves than positive news because sell-side reactions are more binary and less subject to ongoing uncertainty. Negative corroborations should show front-loaded, larger-magnitude abnormal returns that decay within 1–5 days. |
-| **Signal definition** | H4 negative subset: both contributing signals have `directionality = 'negative'`. Short position. |
-| **Direction** | Short |
-| **Entry** | Same as H1 (T+1 open after corroborated_at) |
-| **Holding period** | 1, 3, 5 calendar days |
-| **Exit** | Fixed horizon close; also test trailing stop |
-| **Benchmark** | XBI (inverse — negative abnormal return relative to benchmark is positive for a short) |
-| **Expected sample** | 15–30 negative corroborations across 8 companies in 24 months (estimate) |
-| **MDE (80% power)** | At n=20: very high bar — not statistically reliable |
-| **Cost survivability** | Probably not — borrow fees 1–8%/year + 0.70% TOB + CGT speculative risk |
-| **Capacity** | Very limited — hard-to-borrow names often unavailable or prohibitively expensive |
-| **Prior evidence** | Dichev & Janes (2003) short-selling around earnings; Safieddine & Wilhelm (1996) short sales and FDA decisions |
-
-**Warning:** Belgian speculative classification risk is highest for short positions. IBKR borrow availability for these names is unverified. Do not design short-side tests until PREREQUISITES.md open items on borrow availability and tax classification are resolved.
+| **Mechanism** | Negative company events (a failed readout, a complete response letter, a clinical hold, a halted trial) are followed by losses that a long portfolio can avoid. The veto does not trade the event; it keeps the host portfolio out of the name. |
+| **Signal definition** | Company-level extraction `event_type` in `trial_readout` (negative directionality), `complete_response_letter`, `clinical_hold` (negative), `trial_halted`. |
+| **Direction** | None: a filter on long holdings, never a short |
+| **Rule** | No entry, and held names exit, for 20 trading days after the event (known-at delay 1 day) |
+| **Evaluated as** | The CAR[+1,+20] it avoids, and the change in the host portfolio's net return with and without the veto |
+| **Benchmark** | XBI |
+| **Role** | Filter: one trial cell in `event_backfill`; never promoted on its own |
 
 ---
 
-## Ranking
+## Triage (2026-10-07)
 
-| Rank | Hypothesis | Rationale |
-|---|---|---|
-| 1 | H1 — Structural convergence | Validates the premise; entity-only is the cleanest test; best sample size; gates H2–H8 |
-| 2 | H2 — Time decay | Determines optimal holding period; free from H1 events; no additional data needed |
-| 3 | H3 — Pre-announcement drift | Critical timing diagnostic; gates whether the strategy is forward-implementable |
-| 4 | H4 — Directional premium | Tests whether LLM directionality adds value; requires leakage canary first |
-| 5 | H5 — Source-type composition | Interesting mechanism; per-group sample is exploratory only |
-| 6 | H6 — Gene target novelty | Plausible mechanism; moderate sample; straightforward to implement from H1 |
-| 7 | H7 — Confidence gradient | Small subgroups; contamination-exposed; lower priority than structure-based hypotheses |
-| 8 | H8 — Negative asymmetry | Short-side operational complexity; very small sample; Belgian tax risk; defer until H1 confirms long-side edge |
-
-### Triage (2026-10-07, supersedes the ranking above for execution order)
-
-The edge feasibility audit found that gene-target corroboration does not map to a company, and that the price reaction to trial and FDA news finishes within one or two days. The hypotheses were re-registered as version 2 with a `role` and `status`, under the evaluation protocol locked in `config/hypotheses/protocol.yaml`.
+The edge feasibility audit found that gene-target corroboration does not map to a company, and that the price reaction to trial and FDA news finishes within one or two days. Each hypothesis has a `role` and `status`, under the evaluation protocol locked in `config/hypotheses/protocol.yaml`.
 
 | Hypothesis | Role | Status | Call |
 |---|---|---|---|
@@ -232,12 +216,25 @@ The edge feasibility audit found that gene-target corroboration does not map to 
 | H2 — Time decay | diagnostic | pre-registered | Free diagnostic on H1 events; never promoted. |
 | H1 — Structural convergence | promotable | suspended | Re-register on a company-level event definition. Primary cell fixed now: 20 days, known-at delay 1, entity-only; 32 trial cells. |
 | H4 — Directional premium | promotable | suspended | Rework around typed company events (readout positive or negative, CRL, clinical hold). |
-| H8 — Negative asymmetry | promotable | suspended | Rework as an exit or avoid filter on long holdings; no shorting. |
+| H8 — Negative-event veto | filter | pre-registered | No entry, and held names exit for 20 trading days, after a negative readout, CRL, clinical hold or halted trial. Judged by the loss it avoids in a host portfolio; never promoted, never a short. |
 | H6 — Gene target novelty | promotable | suspended | Defer; the version worth testing is a first-time company-program event. |
 | H5 — Source-type composition | descriptive | pre-registered | Reported as a table; no significance test. |
 | H7 — Confidence gradient | descriptive | pre-registered | Reported only; confidence may be used as a declared entry filter. |
 
-Every subgroup below about 50 events is noise at biotech volatility. Only promotable hypotheses count toward the family trial budget of 64 cells.
+Every subgroup below about 50 events is noise at biotech volatility.
+
+### Slow signals (2026-10-09)
+
+Monthly cross-sectional scores on structured data, evaluated as portfolios (monthly net excess return, Newey-West t, deflated Sharpe, a holdout read once) rather than as event studies.
+
+| Hypothesis | Role | Family | Call |
+|---|---|---|---|
+| H9 — Biotech holdings composite | promotable | `holdings_panel` | Specialist 13F ownership, net insider buying, days to cover; scored monthly, traded quarterly after the 13F deadline with 15/30 hold bands. In-sample 2014–2021, holdout 2022–2025. 32 trial cells. |
+| H10 — Risk-factor change | filter in biotech, promotable on broad small and mid caps | `holdings_panel` / `filing_text_panel` | Excludes the most-changed Item 1A quintile from H9 (4 cells); standalone test holds the universe minus the changers (4 cells). |
+| H11 — Quiet registry edits | diagnostic | `registry_panel` | Returns after ClinicalTrials.gov edits with no prior 8-K, both directions. May become a veto only after it is read. |
+| H12 — Pre-catalyst run-up | diagnostic | `catalyst_panel` | CAR[-30,-1] before PDUFA dates and AdComs; settles whether catalyst-timed entry is worth registering. |
+
+Trial budgets are per corpus family: `event_backfill` 64, `holdings_panel` 36, `filing_text_panel` 8; the registry and catalyst families hold diagnostics only. Promotable and filter hypotheses count their declared cells; diagnostic and descriptive ones never count.
 
 ---
 
@@ -247,10 +244,10 @@ Every subgroup below about 50 events is noise at biotech volatility. Only promot
 
 With 50–150 corroboration events across 8 small-cap biotech companies over 24 months:
 
-- H1 (structural convergence) is the only hypothesis with a sample large enough for a meaningful test. Even then, at n=100 and biotech's 80% annualised volatility, the minimum detectable effect at a 20-day window is ~2.0% — below the ~3.2% all-in break-even. Statistical significance does not imply economic significance at this sample size.
+- H1 (structural convergence) is the only hypothesis with a sample large enough for a meaningful test. Even then, at n=100 and biotech's 80% annualised volatility, the minimum detectable effect at a 20-day window is ~6.3%. Only an effect about twice the ~3.2% all-in break-even would be detected; a smaller real effect would look like no effect.
 - H2 (decay curve) and H3 (pre-announcement drift) are free from the H1 event set — they add insight without requiring more data.
 - H4–H8 partition the H1 sample into subgroups of 15–80 events each. None is reliable in isolation. Report them, but treat all subgroup findings as exploratory.
-- The deflated Sharpe ratio (Bailey & López de Prado 2014) penalises multiple testing on the same corpus. Testing all 8 hypotheses on a single 24-month sample will yield a deflated Sharpe substantially below the raw Sharpe. Promotion requires `t > 3.0` (Harvey, Liu & Zhu 2016 threshold for finance papers) AND `deflated_Sharpe > 0.95`. At n=100, achieving `t > 3` requires a mean abnormal return of ~4.5% at 20-day window with biotech volatility — a high bar.
+- The deflated Sharpe ratio (Bailey & López de Prado 2014) penalises multiple testing on the same corpus. Testing all 8 hypotheses on a single 24-month sample will yield a deflated Sharpe substantially below the raw Sharpe. Promotion requires `t > 3.0` (Harvey, Liu & Zhu 2016 threshold for finance papers) AND `deflated_Sharpe > 0.95`. At n=100, achieving `t > 3` requires a mean abnormal return of ~6.8% at a 20-day window with biotech volatility — a high bar.
 
 **Realistic outcome range:**
 - Best case: H1 shows `t > 2.0` at the 20-day window with mean abnormal return > 3%. Hypothesis-generating, not confirmatory. Proceed to expand the watchlist and collect more forward data.

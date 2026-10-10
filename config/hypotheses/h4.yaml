@@ -1,5 +1,5 @@
 id: h4
-version: 2
+version: 1
 description: "Directional premium over entity-only baseline — LLM directionality adds return signal"
 role: promotable
 signal_definition:

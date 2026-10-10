@@ -1,0 +1,16 @@
+id: h12
+version: 1
+description: "Pre-catalyst run-up: XBI-adjusted CAR[-30,-1] before PDUFA dates and advisory committees"
+evaluation: event
+family: catalyst_panel
+role: diagnostic
+direction: diagnostic
+data: "specs/catalyst-date-panel.md"
+event_types: [pdufa_date, advisory_committee]
+calendar: point_in_time
+window_trading_days: [-30, -1]
+benchmark: XBI
+reported: [car_minus_30_to_minus_1]
+reregistration: "settles whether a catalyst-timed entry is worth registering; reported only"
+status: pre-registered
+registered_at: "2026-10-09T00:00:00Z"

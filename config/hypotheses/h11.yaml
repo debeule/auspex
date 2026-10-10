@@ -1,0 +1,24 @@
+id: h11
+version: 1
+description: "Quiet ClinicalTrials.gov edits: returns after registry changes not preceded by a sponsor 8-K, in both directions"
+evaluation: event
+family: registry_panel
+role: diagnostic
+direction: diagnostic
+data: "specs/clinicaltrials-version-diffs.md"
+event_definition:
+  edits:
+    completion_date_slip_days_min: 180
+    enrolment_cut_min: 0.20
+    primary_outcome_changed: true
+    status_to: [terminated, suspended, withdrawn]
+  quiet: "no 8-K from the sponsor in the prior 5 days"
+holding_period_days: [20]
+reported:
+  - car_plus_1_to_plus_20
+  - car_to_next_readout
+  - registry_edit_or_8k_first
+benchmark: XBI
+reregistration: "only as a veto, never a long or short trigger, and only after this diagnostic is read"
+status: pre-registered
+registered_at: "2026-10-09T00:00:00Z"

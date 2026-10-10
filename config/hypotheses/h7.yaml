@@ -1,5 +1,5 @@
 id: h7
-version: 2
+version: 1
 description: "Confidence score gradient — abnormal return above vs below median confidence, reported descriptively"
 role: descriptive
 signal_definition:

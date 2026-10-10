@@ -9,7 +9,7 @@
 
 ## Context
 
-The holdings composite (H9, `specs/slow-signal-preregistration.md`) needs two point-in-time panels from SEC data:
+The holdings composite (H9, `specs/done/slow-signal-preregistration.md`) needs two point-in-time panels from SEC data:
 - **Institutional holdings**: who holds each biotech stock, from Form 13F. A quarter's holdings are public only when the 13F is filed, up to 45 days after quarter end, and amendments arrive later.
 - **Insider transactions**: open-market purchases and sales by officers, directors and 10% owners, from Forms 3, 4 and 5.
 

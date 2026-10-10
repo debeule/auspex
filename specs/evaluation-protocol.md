@@ -39,7 +39,7 @@ All hypotheses are evaluated via this protocol. The protocol itself does not dec
 **`TrialLedger`**
 - Each line appended to `config/hypotheses/trials/<id>.jsonl` records the cells evaluated in that run: a list of `(holding_period_days, known_at_delay_days, variant)`.
 - `family_trial_count(trials_dir, hypotheses) → int` — the number of cells evaluated across every run of every hypothesis whose `role` is listed in `protocol.yaml` `trials.counts_roles` (`promotable`). Diagnostic and descriptive runs are logged but not counted. This is the `n_trials` passed to `DeflatedSharpe`.
-- `remaining_budget()` = `family_budget_cells` (64) − `family_trial_count`. A run whose cells would exceed it raises `TrialBudgetExhaustedError` before any return is computed.
+- `remaining_budget()` = the hypothesis family's `families.<family>.budget_cells` (64 for `event_backfill`) − that family's trial count. A run whose cells would exceed it raises `TrialBudgetExhaustedError` before any return is computed.
 
 **`KillCriteria`**
 - `evaluate(hypothesis_id, results) → list[KillVerdict]` — applies each `protocol.yaml` `kill_criteria` entry whose `applies_to` covers the hypothesis, on the in-sample segment only. A `KillVerdict` carries `criterion_id`, `fired: bool`, the inputs it compared, and the registered `action`.
@@ -72,7 +72,7 @@ All hypotheses are evaluated via this protocol. The protocol itself does not dec
 
 **`EvaluationProtocol`**
 - `run(hypothesis_id: str, events: pd.DataFrame, variant: str) → EvaluationResult`
-- Calls `verify_hypothesis("protocol")` and `verify_hypothesis(hypothesis_id)` first — raises on an unregistered or modified file.
+- The class exists (`auspex_backtesting.protocol`, from the slow-signal pre-registration): its constructor verifies `protocol`, and `admit(hypothesis_id)` verifies the hypothesis and refuses an unbudgeted family, a family over budget, a role the family does not hold, and shorts or options. `run()` calls `admit()` first.
 - Raises `HypothesisSuspendedError` when the hypothesis `status` is `suspended`.
 - Raises `UnregisteredCellError` when asked for a horizon, delay or variant outside the hypothesis's declared grid.
 - Raises `TrialBudgetExhaustedError` (see `TrialLedger`) before computing anything when the run would exceed the family budget.

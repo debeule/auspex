@@ -74,6 +74,17 @@ Requests to SEC are paced at 5 per second with `SEC_USER_AGENT`, Federal Registe
 | `auspex_price_refresh_last_success_timestamp_seconds` | last refresh in which every ticker refreshed; absent until the first one |
 | `auspex_price_refresh_sessions_since_success` | NYSE sessions strictly between that success (or the service's start) and today, UTC; Grafana's **Price Refresh Stale** fires at 2 |
 
+## Evaluation protocol
+
+`config/hypotheses/protocol.yaml` and the `h*.yaml` hypotheses are locked by hash in `registry.jsonl`; a changed file is refused until re-registered with `scripts/register_hypothesis.py`, and earlier registry lines are never edited.
+
+- `verify_hypothesis()` checks the hash and the hypothesis's shape: `evaluation: event` or `portfolio`, a `role`, no event-only field (`known_at_delay_days`, `holding_period_days`, `entry_timing_days`) on a portfolio hypothesis and no portfolio-only field (`rebalance_frequency`, `hold_bands`, `in_sample_years`, ...) on an event one, `holdout_years` after `in_sample_years`, `trial_cells` equal to the `trial_grid` product.
+- A hypothesis with `uses` (H10) registers one score several ways; each use is checked and promoted on its own.
+- `EvaluationProtocol(config_dir=..., registry_path=...).admit(hypothesis_id)` is the gate before any evaluation reads returns: it refuses a family with no registered budget, a family over budget once every registered hypothesis is counted, a role the family does not hold (the registry and catalyst families hold diagnostics only), and shorts or options above the protocol's instrument ceilings.
+- `check_promotable()` refuses filters, diagnostics and descriptive hypotheses.
+- `forward_check_branch()` gives the event or portfolio forward check; `evaluate_portfolio_forward_check()` and `is_data_gap()` apply the portfolio branch per capital tier.
+- `quarterly_trade_date()` and `select_component_variant()` apply H9's registered trade-date rule and component fallback.
+
 ## Scripts
 
 | Script | Purpose |

@@ -1,5 +1,5 @@
 id: h6
-version: 2
+version: 1
 description: "Gene target novelty premium — first corroboration per (ticker, gene_target) pair"
 role: promotable
 signal_definition:
