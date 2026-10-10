@@ -11,13 +11,13 @@ Docker Compose stack for the full Auspex infrastructure.
 | `auspex-kafka` | `apache/kafka:4.3.0` | 9092 | Message broker (KRaft, no Zookeeper) |
 | `auspex-postgres` | `postgres:18.6` | 5432 | Application DB + Airflow metadata DB |
 | `auspex-neo4j` | `neo4j:2026.05-community` | 7474 / 7687 | Signal graph |
-| `auspex-minio` | `quay.io/minio/minio:RELEASE.2025-09-07T16-13-09Z` | 9000 / 9001 | S3-compatible object store: raw document archive (`auspex-raw`, written by the scraper) and backtesting data (`auspex-prices`, written by `price-service` and the backtesting jobs) |
+| `auspex-minio` | `quay.io/minio/minio:RELEASE.2025-09-07T16-13-09Z` | 9000 / 9001 | S3-compatible object store: raw document archive (`auspex-raw`, written by the scraper) backtesting data (`auspex-prices`, written by `price-service` and the backtesting jobs) and strategy runtime state (`auspex-strategy`: virtual books, pauses, latency, offsets) |
 | `auspex-elasticsearch` | `docker.elastic.co/elasticsearch/elasticsearch:8.17.3` | 9200 | Log storage (ECS format) |
 | `auspex-filebeat` | `docker.elastic.co/beats/filebeat:8.17.3` | — | Log shipper; Docker autodiscovery |
 | `auspex-prometheus` | `prom/prometheus:v3.14.0` | 9090 | Metrics scraper and storage |
 | `auspex-grafana` | `grafana/grafana-oss:13.0.2` | 3000 | Observability UI (logs + metrics) |
 | `auspex-kafka-init` | `apache/kafka:4.3.0` | — | One-shot init: creates every topic in `topics.yaml` (`--if-not-exists`) |
-| `auspex-minio-init` | built from `services/backtesting` | — | One-shot init: creates the `auspex-raw` and `auspex-prices` buckets |
+| `auspex-minio-init` | built from `services/backtesting` | — | One-shot init: creates the `auspex-raw`, `auspex-prices` and `auspex-strategy` buckets |
 | `auspex-price-bootstrap` | built from `services/backtesting` | — | One-shot init: fills missing price snapshots (watchlist, `XBI`, `EURUSD=X`) from `PRICE_HISTORY_START` and appends bars since the last run; fails `up --wait` if a ticker has no data at all |
 | `auspex-price-service` | built from `services/backtesting` | 8001 | HTTP API the price DAGs call: `POST /prices/refresh` (`auspex_price_refresh`) and `POST /universe/build` (`auspex_universe_build`, which also needs the `SEC_*` variables and mounts `config/universe/`) |
 | `auspex-backup` | built from `services/backup` (on `postgres:18.6`) | — | `POST /backup` for the `auspex_backup` DAG (daily 03:00 UTC): `pg_dump` of both databases and a Neo4j export into dated folders, and an additive mirror of both MinIO buckets, all under `BACKUP_HOST_DIR` on the host; reads the stores only |
@@ -25,6 +25,7 @@ Docker Compose stack for the full Auspex infrastructure.
 | `auspex-elasticsearch-setup` | `curlimages/curl:8.15.0` | — | One-shot init: applies the `auspex-logs-ilm` retention policy (delete after 30 days) and attaches it to existing log indices |
 | `auspex-ingestion-scraper` | built from `services/ingestion-scraper` | 8000 | Scraper HTTP API (profile `app`) |
 | `auspex-core-hub` | built from `services/core-hub` | 8080 | Signal processor (profile `app`) |
+| `auspex-strategy-runtime` | built from `services/strategy` (context `services/`) | 8003 | Consumes `auspex.signals.corroborated` and runs `paper`-or-above strategies into virtual books in `auspex-strategy`; `GET /health` (per-strategy failures and pauses) and `/metrics`; polls core-hub's `/api/v1/health/inputs` (profile `app`) |
 | `auspex-dashboard` | built from `services/dashboard` | 3001 (`DASHBOARD_PORT`) | Control and research UI behind a single-user login; its server forwards to core-hub, the scraper and price-service (profile `app`) |
 | `auspex-airflow` | `apache/airflow:3.3.1` | 8082 | DAG scheduler: ingestion DAGs (paused at creation) `auspex_price_refresh` (active, Mon–Fri 22:30 UTC) and `auspex_universe_build` (active, days 1–7 of each month 06:00 UTC), `auspex_backup` (active, daily 03:00 UTC). Sends statsd metrics to `statsd-exporter` |
 | `auspex-node-exporter` | `prom/node-exporter:v1.12.1` | — | Docker VM CPU, memory and filesystems (read through PID 1, no host mounts), plus the volume sizes from `volume-usage` |
@@ -39,7 +40,7 @@ Docker Compose stack for the full Auspex infrastructure.
 | `auspex-blackbox-exporter` | `prom/blackbox-exporter:v0.28.0` | — | Probes every health endpoint, Neo4j's HTTP port, Kafka and Postgres over TCP, and Ollama on the host |
 | `auspex-statsd-exporter` | `prom/statsd-exporter:v0.31.0` | — | Turns Airflow's statsd metrics into DAG run and task outcomes per `dag_id` (`statsd-exporter/mapping.yml`) |
 
-All ports bound to `127.0.0.1` — local only, intentional; the exporters publish none. Services in the `app` profile (`ingestion-scraper`, `core-hub`) only start with `--profile app`.
+All ports bound to `127.0.0.1` — local only, intentional; the exporters publish none. Services in the `app` profile (`ingestion-scraper`, `core-hub`, `strategy-runtime`, `dashboard`) only start with `--profile app`.
 
 Every service has a `mem_limit` from `.env` (`*_MEM_LIMIT`, values in `.env.example` only). The long-running services' limits add up to at most 7.5 GB, inside Docker Desktop's 8 GB VM with 512 MB left for the VM; `test_stack_observability_config.py` enforces both. A container that reaches its limit is OOM-killed and restarted, which raises **Container Restarting**; raise its variable in `.env` and look at **Container memory** on the infrastructure dashboard.
 
@@ -48,7 +49,7 @@ Every service has a `mem_limit` from `.env` (`*_MEM_LIMIT`, values in `.env.exam
 | Service | Limit (MB) | Inside it |
 |---|---|---|
 | airflow | 1,536 | one API worker (`AIRFLOW_API_WORKERS`), at most 4 task processes (`AIRFLOW_PARALLELISM`) |
-| price-service | 896 | peaks during the monthly universe build |
+| price-service | 736 | peaks during the monthly universe build |
 | elasticsearch | 768 | 512 MB heap |
 | core-hub | 704 | heap 60% of the limit (`CORE_HUB_JAVA_TOOL_OPTIONS`) |
 | kafka | 576 | 384 MB heap (`KAFKA_HEAP_OPTS`) |
@@ -58,6 +59,7 @@ Every service has a `mem_limit` from `.env` (`*_MEM_LIMIT`, values in `.env.exam
 | grafana, dashboard | 256 each | |
 | filebeat, cadvisor | 160 each | |
 | six exporters | 48 each | node, postgres, kafka, elasticsearch, blackbox, statsd |
+| strategy-runtime | 160 | one Kafka consumer; books read and written one Parquet object at a time |
 | backup | 128 | idle except the nightly 03:00 UTC run; `pg_dump` streams to disk |
 | volume-usage | 32 | |
 | **Total** | **7,680** | 8 GB VM less 512 MB; one-shots (`restart: "no"`) run before the stack is busy and are not counted |
@@ -95,7 +97,7 @@ Created by the `kafka-init` one-shot on every `up` from `topics.yaml`; existing 
 |---|---|---|---|
 | `auspex.raw.ingested` | 6 | 7 days | All fetched documents |
 | `auspex.signals.extracted` | 6 | 90 days | Extracted signals only |
-| `auspex.signals.corroborated` | 6 | 90 days | Corroboration events |
+| `auspex.signals.corroborated` | 6 | 90 days | Corroboration events; consumed by `strategy-runtime` (group `auspex-strategy-runtime`) |
 | `auspex.raw.ingested.dlt` | 6 | 30 days | Dead-letter for raw topic |
 | `auspex.signals.extracted.dlt` | 6 | 30 days | Dead-letter for extracted topic |
 | `auspex.signals.corroborated.dlt` | 6 | 30 days | Dead-letter for corroborated topic |

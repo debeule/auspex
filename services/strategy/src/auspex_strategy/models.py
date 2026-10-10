@@ -39,6 +39,8 @@ class ExitOnSignal:
 
 @dataclass(frozen=True)
 class StopLossPct:
+    """Exit when the price moves `pct` percent against the entry (10.0 is a 10% stop)."""
+
     pct: float
 
 
@@ -67,6 +69,8 @@ class IntentRationale:
     source_types: frozenset[str]
     directionality: str
     confidence_scores: tuple[float, ...]
+    # Intents from other strategies making the same bet on the same event; set by the runtime.
+    overlap_with: tuple[UUID, ...] = ()
 
 
 @dataclass

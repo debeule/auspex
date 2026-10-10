@@ -1,0 +1,9 @@
+# The build context is services/; only these paths go into the image.
+*
+!backtesting/pyproject.toml
+!backtesting/src/
+!strategy/pyproject.toml
+!strategy/uv.lock
+!strategy/src/
+**/__pycache__
+**/*.pyc

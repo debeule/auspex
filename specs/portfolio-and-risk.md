@@ -2,7 +2,7 @@
 
 **Status:** blocked
 **Blocked by:**
-1. `specs/strategy-runtime.md` — `TradeIntent` flow and `VirtualBook` must exist
+1. `specs/done/strategy-runtime.md` — `TradeIntent` flow and `VirtualBook` must exist
 2. Met: `specs/done/market-simulation.md` — `CostModel`, `CurrencyConverter`, `PositionSizer` required
 
 **Branch:** `feature/portfolio-and-risk`

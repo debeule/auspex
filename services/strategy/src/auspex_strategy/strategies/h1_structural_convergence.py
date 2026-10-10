@@ -1,7 +1,13 @@
 from __future__ import annotations
 
 from auspex_strategy.abc import AsOfContext, Strategy
-from auspex_strategy.models import InputSource, StrategyParameters, SubscriptionType, TradeIntent, Trigger
+from auspex_strategy.models import (
+    InputSource,
+    StrategyParameters,
+    SubscriptionType,
+    TradeIntent,
+    Trigger,
+)
 
 
 class StructuralConvergenceStrategy(Strategy):

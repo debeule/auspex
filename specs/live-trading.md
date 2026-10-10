@@ -15,7 +15,7 @@
 This draft gathers, in one place on the spec index, pre-live work that today exists only in `DECISIONS.md` and `docs/PREREQUISITES.md`. It does not start any of it early. Paper trading gates real capital (`DECISIONS.md` 2026-10-07 CHOICE "paper trading gates capital, run at several sizes"). The 2026-10-07 CHOICE "deferred items" says the IBKR mechanics belong in a live-trading spec written after a forward check passes.
 
 What exists or is specified:
-- `services/strategy`: strategy `status` runs `research` → `paper` → `live-confirm` → `live-auto`. `VirtualBook` with a `mode=live` book (`specs/strategy-runtime.md`).
+- `services/strategy`: strategy `status` runs `research` → `paper` → `live-confirm` → `live-auto`. `VirtualBook` with a `mode=live` book (`specs/done/strategy-runtime.md`).
 - `specs/forward-paper-trading.md`: paper ledger per capital tier, `PortfolioRebalance` intents, tracking check.
 - `specs/portfolio-and-risk.md`: kill switches and exposure limits, written for event strategies.
 - Cost model with IBKR commission schedules and Belgian TOB (`specs/cross-sectional-portfolio-backtest.md`, `specs/done/realistic-cost-model.md`).

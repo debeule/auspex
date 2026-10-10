@@ -28,6 +28,13 @@ from auspex_backtesting.prices.snapshot_store import PRICES_BUCKET
 
 log = logging.getLogger("auspex_backtesting.stack_bootstrap")
 
+# Virtual books, pauses, latency and offsets of the strategy runtime (services/strategy).
+STRATEGY_BUCKET = "auspex-strategy"
+
+
+def stack_buckets(raw_bucket: str) -> list[str]:
+    return [raw_bucket, PRICES_BUCKET, STRATEGY_BUCKET]
+
 
 def ensure_buckets(minio: Minio, buckets: Iterable[str]) -> None:
     for bucket in buckets:
@@ -65,7 +72,7 @@ def main() -> None:
         secure=False,
     )
     if job == "buckets":
-        ensure_buckets(minio, [os.environ["MINIO_BUCKET"], PRICES_BUCKET])
+        ensure_buckets(minio, stack_buckets(os.environ["MINIO_BUCKET"]))
         return
     tickers = price_universe(os.environ.get("WATCHED_TICKERS", ""))
     sys.exit(0 if fill_prices(refresher_from_env(), tickers) else 1)

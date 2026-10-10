@@ -4,7 +4,7 @@ from datetime import date, datetime, timedelta
 
 from auspex_strategy.abc import AsOfContext
 from auspex_strategy.errors import AsOfViolationError
-from auspex_strategy.models import CorroborationRecord, SignalRecord
+from auspex_strategy.models import CorroborationRecord, InputSource, SignalRecord
 
 
 class StubAsOfContext(AsOfContext):
@@ -67,3 +67,30 @@ class StubAsOfContext(AsOfContext):
 
     def is_trading_day(self, date: date) -> bool:
         return True
+
+
+class InMemoryObjectStore:
+    """`ObjectStore` held in a dict, for tests that must not reach MinIO."""
+
+    def __init__(self) -> None:
+        self.objects: dict[str, bytes] = {}
+
+    def get(self, key: str) -> bytes | None:
+        return self.objects.get(key)
+
+    def put(self, key: str, data: bytes) -> None:
+        self.objects[key] = data
+
+    def keys(self) -> list[str]:
+        return sorted(self.objects)
+
+    def lines(self, key: str) -> list[str]:
+        return [line for line in self.objects.get(key, b"").decode("utf-8").splitlines() if line]
+
+
+class FakeInputHealthClient:
+    def __init__(self, health: dict[InputSource, bool]) -> None:
+        self.health = dict(health)
+
+    def fetch(self) -> dict[InputSource, bool]:
+        return dict(self.health)

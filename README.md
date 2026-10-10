@@ -6,7 +6,7 @@ Local biotech signal research pipeline. Convergence of evidence across sources i
 
 ## Architecture
 
-Five public sources feed into `ingestion-scraper` (Python), which archives raw documents to MinIO and publishes extracted signals to Kafka. `core-hub` (Java/Spring) is the sole database writer: it consumes from Kafka, writes to Postgres (audit trail, signal state, corroborations) and Neo4j (signal graph), runs windowed corroboration, and exposes a REST API. `price-service` and the backtesting jobs (`services/backtesting`) keep price snapshots, the point-in-time universe, ownership and catalyst panels as Parquet in a second MinIO bucket. The `dashboard` (Next.js) is the application's interface: the browser talks only to the dashboard's own server, which checks the single-user session and forwards to core-hub, the scraper and price-service. core-hub accepts writes only with the dashboard's bearer token and serves no CORS headers.
+Five public sources feed into `ingestion-scraper` (Python), which archives raw documents to MinIO and publishes extracted signals to Kafka. `core-hub` (Java/Spring) is the sole database writer: it consumes from Kafka, writes to Postgres (audit trail, signal state, corroborations) and Neo4j (signal graph), runs windowed corroboration, and exposes a REST API. `price-service` and the backtesting jobs (`services/backtesting`) keep price snapshots, the point-in-time universe, ownership and catalyst panels as Parquet in a second MinIO bucket. `strategy-runtime` (`services/strategy`) consumes corroborations from Kafka, runs the registered strategies at `paper` status or above, and keeps their virtual books in a third bucket. The `dashboard` (Next.js) is the application's interface: the browser talks only to the dashboard's own server, which checks the single-user session and forwards to core-hub, the scraper and price-service. core-hub accepts writes only with the dashboard's bearer token and serves no CORS headers.
 
 **Hard boundary:** `ingestion-scraper` writes only to MinIO and Kafka — never the database. `core-hub` is the only process that touches Postgres or Neo4j.
 
@@ -55,6 +55,7 @@ curl http://localhost:8080/api/v1/signals/BEAM
 | Java: container tests | `cd services/core-hub && ./gradlew integrationTest` |
 | Java: everything | `cd services/core-hub && ./gradlew check` |
 | Backtesting: unit tests | `cd services/backtesting && uv run pytest tests/unit -q` |
+| Strategy: lint, types, unit tests | `cd services/strategy && uv run ruff check . && uv run mypy src && uv run pytest tests/unit -q` |
 | Backup: lint, types, unit tests | `cd services/backup && uv run ruff check . && uv run mypy src && uv run pytest tests/unit -q` |
 | Restore a nightly backup into empty stores | `docker compose --profile restore -f docker/docker-compose.yml --env-file .env run --rm restore --date YYYY-MM-DD` (`docs/backup-restore.md`) |
 | Dashboard: lint, types, tests | `cd services/dashboard && npm ci && npm run lint && npx tsc --noEmit && npm run test:ci` |

@@ -23,8 +23,8 @@ Project **Auspex**. Named for the Roman official who read scattered signs for me
 | Repo / compose project | `auspex` · `COMPOSE_PROJECT_NAME=auspex` |
 | Kafka topics | `auspex.raw.ingested`, `auspex.signals.extracted`, `auspex.signals.corroborated`, `*.dlt` |
 | Java root package | `dev.auspex.corehub` |
-| Python packages | `auspex_ingest` (inside `services/ingestion-scraper/src/`) · `auspex_backtesting` (inside `services/backtesting/src/`) · `auspex_backup` (inside `services/backup/src/`) |
-| MinIO buckets | `auspex-raw` (signal documents) · `auspex-prices` (market and reference data snapshots: OHLCV, splits, universe, ownership, short interest, catalysts) |
+| Python packages | `auspex_ingest` (inside `services/ingestion-scraper/src/`) · `auspex_backtesting` (inside `services/backtesting/src/`) · `auspex_backup` (inside `services/backup/src/`) · `auspex_strategy` (inside `services/strategy/src/`) |
+| MinIO buckets | `auspex-raw` (signal documents) · `auspex-prices` (market and reference data snapshots: OHLCV, splits, universe, ownership, short interest, catalysts) · `auspex-strategy` (strategy runtime: virtual books, pauses, latency, offsets) |
 | Postgres databases | `auspex` (application) · `airflow` (metadata) |
 | Neo4j / Postgres roles | `auspex_app`, `airflow` |
 

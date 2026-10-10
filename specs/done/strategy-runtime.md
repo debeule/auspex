@@ -1,6 +1,6 @@
 # Strategy Runtime
 
-**Status:** ready
+**Status:** done
 **Blocked by:** none. Both prerequisites are done: `specs/done/strategy-framework.md` (`Strategy` ABC, `AsOfContext`, `TradeIntent`, `StrategyRegistry`) and `specs/done/market-simulation.md` (`FillModel`, `CostModel`, `CurrencyConverter` for virtual book P&L).
 
 **Branch:** `feature/strategy-runtime`

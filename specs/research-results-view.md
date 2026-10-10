@@ -3,7 +3,7 @@
 **Status:** draft
 **Blocked by:**
 1. The strategy direction decision (scoping PR #19: event-driven signals vs a slow monthly score held as a long-only basket). The shapes below are deliberately strategy-agnostic, but the first results to show depend on it.
-2. Producers of the results: `specs/done/evaluation-protocol.md` (backtest report, kill-criteria verdicts), `specs/strategy-runtime.md` and `specs/forward-paper-trading.md` (paper ledger), `specs/decision-trace.md` (trace records). None defines a read API.
+2. Producers of the results: `specs/done/evaluation-protocol.md` (backtest report, kill-criteria verdicts), `specs/done/strategy-runtime.md` and `specs/forward-paper-trading.md` (paper ledger), `specs/decision-trace.md` (trace records). None defines a read API.
 3. `specs/lineage-trace-view.md` (the trace page this view extends) and `specs/dashboard-foundation.md`.
 **Branch:** `feature/research-results-view`
 

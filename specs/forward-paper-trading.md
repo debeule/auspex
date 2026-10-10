@@ -2,7 +2,7 @@
 
 **Status:** blocked
 **Blocked by:**
-1. `specs/strategy-runtime.md` — `StreamingRuntime`, `VirtualBook` (paper mode) and `BacktestReplayRunner` must exist.
+1. `specs/done/strategy-runtime.md` — `StreamingRuntime`, `VirtualBook` (paper mode) and `BacktestReplayRunner` must exist.
 2. Met: backtest look-ahead fix (`specs/done/backtest-look-ahead-fix.md`) — the paper ledger and the backtest must build events the same way (one event per corroboration record as of `corroborated_at`, NYSE calendar, after-close timing), or the forward results cannot be compared with the backtest.
 3. ~~Pre-registration and kill criteria~~ — done 2026-10-07 (`config/hypotheses/`, `DECISIONS.md`): the hypotheses, trial ledger, clustered standard errors and the "forward check" kill criterion must be recorded before any forward trade is logged; a hypothesis edited after paper trading starts is a new trial.
 4. ~~Realistic trading costs~~ — done (`specs/done/realistic-cost-model.md`): per-ticker spread (`SpreadEstimator`), FX conversion fee, average-daily-volume cap and gap risk. The capital tiers below are only meaningful with size-dependent costs.
@@ -23,7 +23,7 @@ The 2026-10-07 edge feasibility audit (row 7) calls forward paper trading "the o
 
 What exists or is specified:
 - `services/strategy` (`auspex_strategy`): `Strategy` ABC, `AsOfContext`, `TradeIntent`, `StrategyRegistry`, strategy `status` (`research` → `paper` → `live-confirm` → `live-auto`), `SubscriptionType.CALENDAR_TICK`.
-- `specs/strategy-runtime.md`: `StreamingRuntime` consumes `auspex.signals.corroborated` and runs `paper`-or-above strategies; `VirtualBook` is append-only Parquet in MinIO per strategy and mode; runtime state lives in MinIO, not Postgres (Invariant 2). It does not define a daily close-out, a gap check, or a report.
+- `specs/done/strategy-runtime.md`: `StreamingRuntime` consumes `auspex.signals.corroborated` and runs `paper`-or-above strategies; `VirtualBook` is append-only Parquet in MinIO per strategy and mode; runtime state lives in MinIO, not Postgres (Invariant 2). It does not define a daily close-out, a gap check, or a report.
 - `specs/decision-trace.md`: full `TraceRecord`. This spec needs only the subset listed below and must not block on the full trace.
 - `services/backtesting`: `PriceSnapshotStore` (MinIO Parquet), `MarketCalendar`, `CostModel`, `FillModel`, `CurrencyConverter`; `config/hypotheses/` with `verify_hypothesis()`.
 - Daily price refresh: price snapshots are "fetch once" for history; the forward ledger needs each new session's close for its tickers, XBI and `EURUSD=X`.

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import date, datetime
 
 
 class AsOfViolationError(Exception):
@@ -31,3 +31,13 @@ class StrategyRetiredError(Exception):
     def __init__(self, name: str) -> None:
         super().__init__(f"strategy {name!r} is retired and cannot produce trade intents")
         self.name = name
+
+
+class PriceLookAheadError(Exception):
+    def __init__(self, ticker: str, session: date, as_of: datetime) -> None:
+        super().__init__(
+            f"{ticker} close on {session.isoformat()} is not final at as_of={as_of.isoformat()}"
+        )
+        self.ticker = ticker
+        self.session = session
+        self.as_of = as_of

@@ -10,7 +10,7 @@ also copies.
 |---|---|---|
 | `postgres/<YYYY-MM-DD>/auspex.dump`, `airflow.dump` | `pg_dump --format=custom` of the application and Airflow databases | `BACKUP_KEEP_DAYS` (14), newest always |
 | `neo4j/<YYYY-MM-DD>/graph.jsonl` | Every node (labels, properties) and relationship (type, endpoints, properties) | `BACKUP_KEEP_DAYS` (14), newest always |
-| `minio/auspex-raw/…`, `minio/auspex-prices/…` | Mirror of both buckets; objects deleted from MinIO stay here | Never pruned |
+| `minio/auspex-raw/…`, `minio/auspex-prices/…`, `minio/auspex-strategy/…` | Mirror of the three buckets; objects deleted from MinIO stay here | Never pruned |
 | `minio/.index/<bucket>.json` | ETag and size per mirrored object, so a run copies only what changed | — |
 | `last_success.json` | UTC start and end and per-store counts of the last run in which every store succeeded | Replaced by the next full success |
 
@@ -53,7 +53,7 @@ Variables (the ingestion cursors) restore but do not decrypt.
 
 Restore checks every target first and writes nothing if one holds data; it prints which.
 It then runs `pg_restore` into both databases, replays `graph.jsonl` into Neo4j, and uploads the
-mirror into both buckets.
+mirror into each bucket.
 
 ## Checks afterwards
 

@@ -5,7 +5,7 @@ from auspex_backtesting.prices.price_refresher import (
     RefreshResult,
     SnapshotDiscontinuityError,
 )
-from auspex_backtesting.stack_bootstrap import ensure_buckets, fill_prices
+from auspex_backtesting.stack_bootstrap import ensure_buckets, fill_prices, stack_buckets
 
 
 def _minio(existing: set[str]) -> MagicMock:
@@ -20,6 +20,10 @@ def test_missing_buckets_are_created_and_existing_ones_left_alone() -> None:
     ensure_buckets(minio, ["auspex-raw", "auspex-prices"])
 
     minio.make_bucket.assert_called_once_with("auspex-prices")
+
+
+def test_stack_creates_the_raw_prices_and_strategy_buckets() -> None:
+    assert stack_buckets("auspex-raw") == ["auspex-raw", "auspex-prices", "auspex-strategy"]
 
 
 def test_ticker_without_any_snapshot_fails_the_bootstrap() -> None:
