@@ -134,6 +134,21 @@ Stored in the `auspex-prices` bucket under `ownership/`, each file written once 
 
 `scripts/fetch_ownership.py` backfills everything from `OWNERSHIP_HISTORY_START`, once (needs a built universe; it keeps only universe companies), and prints coverage. SEC requests go through one client paced at 5 per second with `SEC_USER_AGENT`; a refusal stops the run without retrying.
 
+## Short interest
+
+`auspex_backtesting.short_interest` keeps FINRA's consolidated short interest per universe ticker for the holdings composite's days-to-cover component (H9). FINRA counts short positions as of two settlement dates a month and publishes them on the 7th business day after; a period is known from its **publication date**, never its settlement date.
+
+| Reader | Returns |
+|---|---|
+| `ShortInterestStore(minio).as_of(ticker, date)` | the latest period published on or before `date` (known by the end of that day; FINRA gives no time of day, so a decision before the close asks for the session before), or None |
+| `ShortInterestStore(minio).features(ticker, date, shares)` | that record with short interest as a percentage of shares outstanding (None without a known share count) and the change in shares short since the previous period |
+
+A record has `settlement_date, publication_date, reported, short_interest_shares, average_daily_volume, days_to_cover`. `days_to_cover` is the exact ratio of the two counts (FINRA's own figure is rounded and floored at 1.00), None when volume is zero. A ticker missing from a period FINRA published is stored with `reported` false and no counts: absent, not zero.
+
+Stored in the `auspex-prices` bucket as `short_interest/{ticker}.parquet`. A file only gains new periods; a stored period is never rewritten, and a rerun fetches only periods some ticker lacks. Settlement and publication dates come from FINRA's rule (the 15th and the month's last settlement day, each moved back to an NYSE session; published seven sessions later), except in months whose dates FINRA published in `config/short_interest/finra_calendar.csv`, which win. Share counts by ticker (`UniverseShareCounts`) go through the ticker's universe company to the ownership panels' `shares_outstanding.parquet`.
+
+FINRA's data covers exchange-listed stocks only from June 2021 (earlier files are OTC only), so `SHORT_INTEREST_HISTORY_START` is 2021-06-01 and H9's in-sample period from 2014 runs its two-component variant by its pre-registered rule. Requests need a FINRA API credential (`FINRA_API_CLIENT_ID`, `FINRA_API_CLIENT_SECRET`).
+
 ## Scripts
 
 | Script | Purpose |
@@ -143,6 +158,7 @@ Stored in the `auspex-prices` bucket under `ownership/`, each file written once 
 | `scripts/build_catalyst_panel.py` | Build or extend the catalyst panel (`--since`, default 2014-01-01; `--until`, default today) and print its coverage: catalysts per year, members with any catalyst, unmatched advisory committee notices, PDUFA hits by precision. Needs the universe built first |
 | `scripts/register_hypothesis.py` | Register a hypothesis file in the pre-registration ledger |
 | `scripts/fetch_ownership.py` | Backfill and extend the SEC ownership panels and print their coverage |
+| `scripts/fetch_short_interest.py` | Backfill and extend FINRA short interest for the universe's tickers and print coverage: first available settlement date, periods FINRA returned nothing for, gaps, tickers never reported. Needs the universe built first |
 
 ## Commands
 

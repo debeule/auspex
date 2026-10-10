@@ -1,7 +1,9 @@
 # Short Interest Snapshots
 
-**Status:** ready
-**Blocked by:** none. Company-level event extraction is done (`specs/done/company-level-extraction.md`). `specs/point-in-time-universe.md` is done in code (PR #21, #22) and supplies the ticker list; runs on the stack need its first build.
+**Status:** blocked
+**Blocked by:** the first fetch on the stack machine (Definition of done, second block). All code and the 9 required tests are in `auspex_backtesting.short_interest`; what remains is a FINRA API credential (`docs/PREREQUISITES.md`) and running `scripts/fetch_short_interest.py` against FINRA, which cloud sessions cannot reach (`specs/first-run-on-stack-machine.md` step 3c, `DECISIONS.md` 2026-10-10 PENDING).
+
+**Progress (2026-10-10):** FINRA's documentation read (`DECISIONS.md` 2026-10-10 VERIFIED): the API needs a credential, exchange-listed coverage starts June 2021 (so H9 runs its two-component variant by its pre-registered rule), and publication is the 7th business day after settlement. Publication dates come from that rule, with FINRA's published schedule rows winning (`config/short_interest/finra_calendar.csv`, `DECISIONS.md` 2026-10-10 CHOICE). Red before implementation: `ModuleNotFoundError: No module named 'auspex_backtesting.short_interest'` at collection. Eleven supporting tests (calendar, client, share counts, gaps) are in `tests/unit/test_short_interest_sources.py`.
 
 **Branch:** `feature/short-interest-snapshots`
 

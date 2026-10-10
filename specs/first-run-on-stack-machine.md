@@ -186,6 +186,27 @@ If a `.env` key prints `0`, copy that line from `.env.example` (none of them is 
 
 Then record in `DECISIONS.md` a VERIFIED entry closing the 2026-10-09 PENDING "first backfill on the stack machine": the first data set of each kind; per 13F data set (a compact table, or min/median/max with the worst five named) universe issuers held, unmapped CUSIP share of value and `universe_value_without_holder_share`; insider filings per quarter (min/median/max); the disagreement count from the log; and whether the three unverified layout points held (header row, `ISAMENDMENT`/`AFF10B5ONE` values, `PUTCALL` values; look at one real file with `unzip -p <file> INFOTABLE.tsv | head -3`). Any 13F data set from 2014 on with `universe_value_without_holder_share` above 0.10 gets a separate FLAG entry naming the data sets: H9 must not run on them until the mapping is checked. Move `specs/sec-ownership-datasets.md` to `specs/done/`, set its status to `done` and update its `TODO.md` row. Commit: `sec ownership panels first backfill: coverage, spec done`.
 
+### 3c. FINRA short interest
+
+Precondition: step 3 passed (tickers come from the universe), `services/backtesting/src/auspex_backtesting/short_interest/` is on `develop`, and `.env` has a FINRA API credential (`docs/PREREQUISITES.md`); otherwise record "not run" with the reason and skip. FINRA is not SEC, so this may run alongside step 3b. It reads one settlement period at a time, from `SHORT_INTEREST_HISTORY_START` (2021-06-01), about 24 a year.
+
+```bash
+for k in FINRA_API_CLIENT_ID FINRA_API_CLIENT_SECRET FINRA_SHORT_INTEREST_URL FINRA_TOKEN_URL SHORT_INTEREST_HISTORY_START; do printf '%s %s\n' "$k" "$(grep -c "^$k=.\+" .env)"; done
+cd services/backtesting
+uv run --env-file ../../.env python scripts/fetch_short_interest.py > /tmp/short-interest-summary.json; echo "exit $?"
+jq '{tickers, first_available_settlement_date, last_settlement_date, periods_stored, unavailable: (.unavailable_periods | length), gaps, never_reported: (.tickers_never_reported | length)}' /tmp/short-interest-summary.json
+uv run pytest tests/unit/test_short_interest.py -q --strict-markers
+cd ../..
+```
+
+A `FINRA_*` key printing `0`: the two URLs copy from `.env.example`; the credential is the user's (stop and say so). Exit code 1 with "FINRA refused the credential" is a FLAG with the message.
+
+**Check:**
+- Exit code 0; `first_available_settlement_date` is set and `last_settlement_date` is within the last 20 days' publications; `gaps` is empty.
+- `test_short_interest.py`: 9 passed.
+
+Record in `DECISIONS.md` a VERIFIED entry closing the 2026-10-10 PENDING "Short interest snapshots — first fetch on the stack machine": the first available settlement date (and whether it is near 2021-06 or only a rolling year back, which needs the archive-file follow-up named there), the count and range of unavailable periods, any gaps, and the share of tickers never reported. Compare the newest period's publication date with FINRA's schedule page; a mismatch is a FLAG. Move `specs/short-interest-snapshots.md` to `specs/done/`, set its status to `done` and update its `TODO.md` row. Commit: `short interest first fetch: coverage, spec done`.
+
 ### 4. Install Ollama and pull the candidates
 
 Can start while step 3 runs: pulls are network-bound. Do not run step 5 until step 3 has finished.
@@ -327,6 +348,7 @@ Checks run on the Mac, each falsifiable and each tied to a step above:
 - `check_universe_build_succeeds_against_the_configured_sec_bulk_urls` — step 3
 - `check_universe_summary_covers_every_month_from_window_start` — step 3 (`already_stored` = month count)
 - `check_ownership_panels_backfilled_with_coverage_recorded` — step 3b
+- `check_short_interest_fetched_with_first_settlement_date_recorded` — step 3c
 - `check_backfill_scope_exported_and_non_empty` — step 3
 - `check_catalyst_panel_build_complete_with_hand_checked_precision` — step 3a
 - `check_phi3_tag_is_the_128k_context_build` — step 4

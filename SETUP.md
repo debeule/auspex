@@ -47,6 +47,7 @@ Fill in what only you have, group by group as `.env.example` lists them, and che
 | Extraction model | `OPENAI_API_KEY` | Only for the API fallback model. |
 | Source credentials | `SEC_USER_AGENT` | `Name email@example.com`; SEC returns 403 without it. |
 | Source credentials | `NCBI_API_KEY`, `EPO_OPS_KEY`, `EPO_OPS_SECRET` | From each provider's developer portal (EPO: `developers.epo.org`). |
+| Source credentials | `FINRA_API_CLIENT_ID`, `FINRA_API_CLIENT_SECRET` | A free public API credential from FINRA's API console (`developer.finra.org`); FINRA's API answers nothing without one. Only `scripts/fetch_short_interest.py` uses it. |
 | History windows | `PRICE_HISTORY_START` | First day of price history for a ticker with no snapshot yet. Existing snapshots only gain new bars and never reach further back, so set it before the first `up`. |
 | Backup | `BACKUP_HOST_DIR` | Absolute path of a folder on the Mac for the nightly backup, e.g. `/Users/<you>/auspex-backup`; it must be under a Docker Desktop shared folder (`/Users` is by default). Include it in Time Machine. `up` stops until it is set. |
 | Monitoring and alerts | `GRAFANA_ADMIN_PASSWORD` | Any strong value, e.g. `openssl rand -hex 24`. |
