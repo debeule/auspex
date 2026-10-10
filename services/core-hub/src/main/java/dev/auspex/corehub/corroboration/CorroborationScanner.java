@@ -76,7 +76,7 @@ public class CorroborationScanner {
         try (Session session = neo4jDriver.session()) {
             return session.run("""
                     MATCH (s:Signal)
-                    WHERE s.ingested_at.epochSeconds > $watermark.epochSeconds
+                    WHERE s.ingested_at > $watermark
                     MATCH (s)-[:TARGETS|USES_MECHANISM]->(e)
                     WITH s, e,
                          count { (:Signal)-[:TARGETS|USES_MECHANISM]->(e) } AS degree
