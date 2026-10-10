@@ -1,7 +1,6 @@
 # Dead-letter recovery
 
-**Status:** blocked
-**Blocked by:** `specs/dashboard-foundation.md` merged into `develop` (its bearer-token check on core-hub writes protects the replay endpoint)
+**Status:** done
 **Branch:** `feature/dead-letter-recovery`
 
 ---
@@ -21,7 +20,7 @@ Found by the soak-test readiness audit (2026-10-09): a Postgres or Neo4j restart
 - **Listeners pause while a store is down.** A scheduled check of the Postgres and Neo4j health indicators pauses both listener containers when either is unreachable and resumes them when both are back. No record is delivered while paused, so an outage no longer burns retries.
 - **Transient failures back off longer.** Still 1 attempt + 2 retries (§3 rule 10), but exponential: 5 s, then 30 s by default (`AUSPEX_KAFKA_RETRY_INITIAL_MS`, `AUSPEX_KAFKA_RETRY_MULTIPLIER`). Deserialization, validation and unknown-major-version failures still go straight to the DLT.
 - **Dead letters can be replayed.** `POST /api/dlt/{topic}/replay` re-publishes the records of `auspex.signals.extracted.dlt` or `auspex.raw.ingested.dlt` to their source topic with the original key, value and `schema_version` header. It tracks its position in its own consumer group, so a record is replayed at most once, and returns the count. Writes are idempotent on their natural keys, so replaying a record that was already stored is safe. The dashboard or a DAG can call it; nobody runs a command.
-- **The corroboration scan doesn't drop events.** The watermark is written only after every send in the batch is acknowledged, and the scan compares at millisecond precision.
+- **The corroboration scan doesn't drop events.** The watermark is written only after every send in the batch is acknowledged, and the scan compares full timestamps, not whole seconds.
 
 ## Out of scope
 
@@ -50,7 +49,7 @@ Unit (`./gradlew test`):
 - `watermarkIsNotWrittenWhenACorroboratedSendFails`
 
 Integration (`./gradlew integrationTest`):
-- `recordConsumedWhileNeo4jIsStoppedIsStoredAfterItRestarts` — stop the Neo4j container, publish a signal, restart, assert the signal is stored and the DLT is empty
+- `recordConsumedDuringANeo4jOutageIsStoredAfterRecovery` — make Neo4j unreachable to the probe and the graph write, wait for the listeners to pause, publish a signal, end the outage, assert the signal is stored and the DLT is empty (a stopped Testcontainer restarts on a new port, so the outage is injected rather than a real stop)
 - `replayRepublishesDeadLettersToTheSourceTopicWithKeyAndHeaders`
 - `replayDoesNotRepublishARecordTwice`
 - `replayedSignalIsStoredOnce` — a replayed record whose signal already exists leaves one row and one node

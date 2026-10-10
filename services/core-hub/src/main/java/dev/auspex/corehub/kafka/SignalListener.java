@@ -18,6 +18,9 @@ import org.springframework.stereotype.Component;
 @Component
 public class SignalListener {
 
+    /** Listener container id, used to pause and resume it. */
+    public static final String CONTAINER_ID = "signal-listener";
+
     private static final Logger log = LoggerFactory.getLogger(SignalListener.class);
 
     private final SignalIngestionService signalIngestionService;
@@ -29,6 +32,8 @@ public class SignalListener {
     }
 
     @KafkaListener(
+            id = CONTAINER_ID,
+            idIsGroup = false,
             topics = "auspex.signals.extracted",
             containerFactory = "signalListenerContainerFactory"
     )

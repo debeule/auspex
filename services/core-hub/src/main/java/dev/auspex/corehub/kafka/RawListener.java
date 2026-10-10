@@ -13,6 +13,9 @@ import org.springframework.stereotype.Component;
 @Component
 public class RawListener {
 
+    /** Listener container id, used to pause and resume it. */
+    public static final String CONTAINER_ID = "raw-listener";
+
     private static final Logger log = LoggerFactory.getLogger(RawListener.class);
 
     private final RawAuditService rawAuditService;
@@ -22,6 +25,8 @@ public class RawListener {
     }
 
     @KafkaListener(
+            id = CONTAINER_ID,
+            idIsGroup = false,
             topics = "auspex.raw.ingested",
             containerFactory = "rawListenerContainerFactory"
     )

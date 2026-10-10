@@ -222,6 +222,24 @@ abstract class CorroborationServiceContractTest extends AbstractIT {
     }
 
     @Test
+    void signalIngestedInTheWatermarkSecondIsCorroborated() {
+        Instant first = Instant.parse("2024-06-01T10:00:00.100Z");
+        Instant sameSecond = Instant.parse("2024-06-01T10:00:00.600Z");
+        insertSignalWithTargets(S1, "biorxiv",   "2024-01-15T00:00:00Z", first, "NTRK1");
+        insertSignalWithTargets(S2, "sec_edgar", "2024-01-20T00:00:00Z", first, "NTRK1");
+        corroborationService.runCorroboration(); // watermark = first
+
+        insertSignalWithTargets(S3, "clinicaltrials", "2024-01-25T00:00:00Z", sameSecond, "NTRK1");
+        corroborationService.runCorroboration();
+
+        assertThat(liveCorroborationCount()).isEqualTo(1);
+        int distinctSources = jdbcTemplate.queryForObject(
+                "SELECT distinct_source_count FROM corroboration WHERE superseded_by IS NULL",
+                Integer.class);
+        assertThat(distinctSources).isEqualTo(3);
+    }
+
+    @Test
     void test_fourth_signal_supersedes_rather_than_duplicating() {
         // Three signals corroborated in run 1; a fourth joins in run 2.
         Instant early = Instant.parse("2024-06-01T10:00:00Z");

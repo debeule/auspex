@@ -10,6 +10,12 @@ corroboration:
 
 # Prevent real SEC HTTP call at startup; SecTickerCache logs a warning and leaves cache empty.
 auspex:
+  kafka:
+    # 1 s, 1 s keeps the retry tests fast; production waits 5 s, then 30 s.
+    retry:
+      initial-ms: 1000
+      multiplier: 1.0
+    store-check-interval-ms: 200
   sec:
     tickers-url: http://127.0.0.1:1/company_tickers.json
   api:

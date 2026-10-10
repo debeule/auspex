@@ -5,6 +5,7 @@ import dev.auspex.corehub.kafka.CountingDeadLetterRecoverer;
 import dev.auspex.corehub.kafka.UnknownMajorVersionException;
 import io.micrometer.core.instrument.MeterRegistry;
 import dev.auspex.corehub.signal.ResearchSignalEvent;
+import org.apache.kafka.common.serialization.ByteArrayDeserializer;
 import org.apache.kafka.common.serialization.ByteArraySerializer;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
@@ -21,12 +22,14 @@ import org.springframework.kafka.core.KafkaOperations;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.core.MicrometerConsumerListener;
 import org.springframework.kafka.core.ProducerFactory;
+import org.springframework.kafka.listener.ConsumerRecordRecoverer;
 import org.springframework.kafka.listener.DefaultErrorHandler;
 import org.springframework.kafka.listener.DeadLetterPublishingRecoverer;
 import org.springframework.kafka.support.serializer.ErrorHandlingDeserializer;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
 import org.springframework.kafka.support.serializer.JsonSerializer;
-import org.springframework.util.backoff.FixedBackOff;
+import org.springframework.kafka.support.ExponentialBackOffWithMaxRetries;
+import org.springframework.util.backoff.BackOff;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -38,8 +41,34 @@ import static org.apache.kafka.clients.producer.ProducerConfig.VALUE_SERIALIZER_
 @Configuration
 class KafkaConfig {
 
+    /** Transient failures get 1 attempt + this many retries, then the DLT (requirements §3 rule 10). */
+    private static final int TRANSIENT_RETRIES = 2;
+
     @Value("${spring.kafka.bootstrap-servers}")
     private String bootstrapServers;
+
+    @Value("${auspex.kafka.retry.initial-ms:5000}")
+    private long retryInitialMs;
+
+    @Value("${auspex.kafka.retry.multiplier:6.0}")
+    private double retryMultiplier;
+
+    /** Exponential back-off for the two retries: {@code initialMs}, then {@code initialMs * multiplier}. */
+    static BackOff retryBackOff(long initialMs, double multiplier) {
+        var backOff = new ExponentialBackOffWithMaxRetries(TRANSIENT_RETRIES);
+        backOff.setInitialInterval(initialMs);
+        backOff.setMultiplier(multiplier);
+        backOff.setMaxInterval(Math.max(initialMs, Math.round(initialMs * multiplier)));
+        return backOff;
+    }
+
+    /**
+     * Retries with {@code backOff}, then hands the record to {@code recoverer}. Deserialization and
+     * validation failures skip the retries (Spring Kafka classifies them as not retryable).
+     */
+    static DefaultErrorHandler deadLetteringErrorHandler(ConsumerRecordRecoverer recoverer, BackOff backOff) {
+        return new DefaultErrorHandler(recoverer, backOff);
+    }
 
     @Bean
     ConsumerFactory<String, ResearchSignalEvent> signalConsumerFactory(ObjectMapper objectMapper, MeterRegistry meterRegistry) {
@@ -99,8 +128,9 @@ class KafkaConfig {
             DeadLetterPublishingRecoverer signalDltRecoverer,
             MeterRegistry meterRegistry
     ) {
-        DefaultErrorHandler handler = new DefaultErrorHandler(
-                new CountingDeadLetterRecoverer(signalDltRecoverer, meterRegistry), new FixedBackOff(1000L, 2));
+        DefaultErrorHandler handler = deadLetteringErrorHandler(
+                new CountingDeadLetterRecoverer(signalDltRecoverer, meterRegistry),
+                retryBackOff(retryInitialMs, retryMultiplier));
         handler.addNotRetryableExceptions(UnknownMajorVersionException.class);
         return handler;
     }
@@ -110,43 +140,81 @@ class KafkaConfig {
             DeadLetterPublishingRecoverer rawDltRecoverer,
             MeterRegistry meterRegistry
     ) {
-        return new DefaultErrorHandler(
-                new CountingDeadLetterRecoverer(rawDltRecoverer, meterRegistry), new FixedBackOff(1000L, 2));
+        return deadLetteringErrorHandler(
+                new CountingDeadLetterRecoverer(rawDltRecoverer, meterRegistry),
+                retryBackOff(retryInitialMs, retryMultiplier));
     }
 
     /**
      * Routes to lowercase .dlt and partition -1 (producer chooses).
      * Default resolver gives uppercase .DLT and same partition — both wrong for us.
      *
-     * Two templates handle the two DLT failure modes:
+     * The value template is picked by the failed record's value type, and each writes the value
+     * back in its wire form so a replay to the source topic deserializes like the original:
      *  byte[].class  → deserialization failures: DLPR extracts raw bytes from EHD headers
-     *  Object.class  → processing failures (e.g. Neo4j throw, UnknownMajorVersionException):
-     *                  value is the deserialized Java record, re-serialized as JSON
+     *  String.class  → raw-topic processing failures: the payload as received
+     *  Object.class  → signal processing failures: the deserialized record, re-serialized as
+     *                  snake_case JSON with the application mapper and no type header
      */
     @Bean
     DeadLetterPublishingRecoverer signalDltRecoverer(
             @Qualifier("dltBytesKafkaTemplate") KafkaTemplate<Object, Object> bytesTemplate,
-            @Qualifier("dltJsonKafkaTemplate")  KafkaTemplate<Object, Object> jsonTemplate
+            @Qualifier("kafkaTemplate") KafkaTemplate<Object, Object> stringTemplate,
+            @Qualifier("dltWireJsonKafkaTemplate") KafkaTemplate<Object, Object> wireJsonTemplate
+    ) {
+        return dltRecoverer(bytesTemplate, stringTemplate, wireJsonTemplate);
+    }
+
+    @Bean
+    DeadLetterPublishingRecoverer rawDltRecoverer(
+            @Qualifier("dltBytesKafkaTemplate") KafkaTemplate<Object, Object> bytesTemplate,
+            @Qualifier("kafkaTemplate") KafkaTemplate<Object, Object> stringTemplate,
+            @Qualifier("dltWireJsonKafkaTemplate") KafkaTemplate<Object, Object> wireJsonTemplate
+    ) {
+        return dltRecoverer(bytesTemplate, stringTemplate, wireJsonTemplate);
+    }
+
+    private static DeadLetterPublishingRecoverer dltRecoverer(
+            KafkaTemplate<Object, Object> bytesTemplate,
+            KafkaTemplate<Object, Object> stringTemplate,
+            KafkaTemplate<Object, Object> wireJsonTemplate
     ) {
         var templates = new LinkedHashMap<Class<?>, KafkaOperations<?, ?>>();
         templates.put(byte[].class, bytesTemplate);
-        templates.put(Object.class,  jsonTemplate);
+        templates.put(String.class, stringTemplate);
+        templates.put(Object.class, wireJsonTemplate);
         return new DeadLetterPublishingRecoverer(templates,
                 (record, ex) -> new org.apache.kafka.common.TopicPartition(
                         record.topic() + ".dlt", -1));
     }
 
     @Bean
-    DeadLetterPublishingRecoverer rawDltRecoverer(
-            @Qualifier("dltBytesKafkaTemplate") KafkaTemplate<Object, Object> bytesTemplate,
-            @Qualifier("dltJsonKafkaTemplate")  KafkaTemplate<Object, Object> jsonTemplate
-    ) {
-        var templates = new LinkedHashMap<Class<?>, KafkaOperations<?, ?>>();
-        templates.put(byte[].class, bytesTemplate);
-        templates.put(Object.class,  jsonTemplate);
-        return new DeadLetterPublishingRecoverer(templates,
-                (record, ex) -> new org.apache.kafka.common.TopicPartition(
-                        record.topic() + ".dlt", -1));
+    KafkaTemplate<Object, Object> dltWireJsonKafkaTemplate(ObjectMapper objectMapper) {
+        JsonSerializer<Object> valueSerializer = new JsonSerializer<>(objectMapper);
+        valueSerializer.setAddTypeInfo(false);
+        ProducerFactory<Object, Object> factory = new DefaultKafkaProducerFactory<>(
+                Map.of(BOOTSTRAP_SERVERS_CONFIG, bootstrapServers,
+                        KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class),
+                null,
+                valueSerializer);
+        return new KafkaTemplate<>(factory);
+    }
+
+    /** Reads dead letters byte-for-byte for replay; offsets are committed by the replay itself. */
+    @Bean
+    ConsumerFactory<byte[], byte[]> dltReplayConsumerFactory() {
+        return new DefaultKafkaConsumerFactory<>(
+                consumerProps("corehub-dlt-replay"),
+                new ByteArrayDeserializer(),
+                new ByteArrayDeserializer());
+    }
+
+    @Bean
+    KafkaTemplate<byte[], byte[]> dltReplayKafkaTemplate() {
+        return new KafkaTemplate<>(new DefaultKafkaProducerFactory<>(
+                Map.of(BOOTSTRAP_SERVERS_CONFIG, bootstrapServers),
+                new ByteArraySerializer(),
+                new ByteArraySerializer()));
     }
 
     @Bean
@@ -193,13 +261,6 @@ class KafkaConfig {
     }
 
     @Bean
-    KafkaTemplate<Object, Object> dltJsonKafkaTemplate(
-            @Qualifier("dltJsonProducerFactory") ProducerFactory<Object, Object> dltJsonProducerFactory
-    ) {
-        return new KafkaTemplate<>(dltJsonProducerFactory);
-    }
-
-    @Bean
     KafkaTemplate<Object, Object> corroboratedKafkaTemplate(
             @Qualifier("dltJsonProducerFactory") ProducerFactory<Object, Object> dltJsonProducerFactory
     ) {
@@ -207,7 +268,7 @@ class KafkaConfig {
     }
 
     private Map<String, Object> consumerProps(String groupId) {
-        return Map.of(
+        return Map.<String, Object>of(
                 BOOTSTRAP_SERVERS_CONFIG, bootstrapServers,
                 GROUP_ID_CONFIG, groupId,
                 AUTO_OFFSET_RESET_CONFIG, "earliest",

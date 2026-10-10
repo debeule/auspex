@@ -13,6 +13,7 @@ import java.sql.Array;
 import java.sql.PreparedStatement;
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HexFormat;
@@ -75,7 +76,7 @@ public class CorroborationScanner {
         try (Session session = neo4jDriver.session()) {
             return session.run("""
                     MATCH (s:Signal)
-                    WHERE s.ingested_at.epochSeconds > $watermarkSeconds
+                    WHERE s.ingested_at > $watermark
                     MATCH (s)-[:TARGETS|USES_MECHANISM]->(e)
                     WITH s, e,
                          count { (:Signal)-[:TARGETS|USES_MECHANISM]->(e) } AS degree
@@ -88,7 +89,7 @@ public class CorroborationScanner {
                     RETURN s.event_id AS triggerEventId,
                            s.source_type AS triggerSourceType,
                            s.published_date.epochSeconds AS triggerPublishedDateEpoch,
-                           s.ingested_at.epochSeconds AS triggerIngestedAtEpoch,
+                           s.ingested_at AS triggerIngestedAt,
                            e.name AS entityName,
                            labels(e)[0] AS entityLabel,
                            collect(DISTINCT {
@@ -98,7 +99,7 @@ public class CorroborationScanner {
                            }) AS partners
                     """,
                     Map.of(
-                            "watermarkSeconds", watermark.getEpochSecond(),
+                            "watermark", watermark.atZone(ZoneOffset.UTC),
                             "degreeCap", degreeCap,
                             "windowSeconds", WINDOW_SECONDS
                     ))
@@ -106,7 +107,7 @@ public class CorroborationScanner {
                             UUID.fromString(record.get("triggerEventId").asString()),
                             record.get("triggerSourceType").asString(),
                             Instant.ofEpochSecond(record.get("triggerPublishedDateEpoch").asLong()),
-                            Instant.ofEpochSecond(record.get("triggerIngestedAtEpoch").asLong()),
+                            record.get("triggerIngestedAt").asZonedDateTime().toInstant(),
                             record.get("entityName").asString(),
                             record.get("entityLabel").asString(),
                             record.get("partners").asList(v -> {

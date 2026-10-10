@@ -51,6 +51,13 @@ management:
       service: core-hub
 
 auspex:
+  kafka:
+    # Transient listener failures: 1 attempt + 2 retries, waiting initial-ms then initial-ms * multiplier.
+    retry:
+      initial-ms: ${AUSPEX_KAFKA_RETRY_INITIAL_MS:5000}
+      multiplier: ${AUSPEX_KAFKA_RETRY_MULTIPLIER:6.0}
+    # How often Postgres and Neo4j are probed; listeners pause while either is unreachable.
+    store-check-interval-ms: 5000
   api:
     # Bearer token required on every non-GET request under /api.
     write-token: ${CORE_HUB_WRITE_TOKEN:}

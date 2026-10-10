@@ -1,7 +1,7 @@
 # Soak test run
 
 **Status:** blocked
-**Blocked by:** the stack machine (this spec runs only on the owner's Mac, started there by name in Claude Code); `specs/first-run-on-stack-machine.md` done through its model gate (step 6), so a local model is registered and gated; and `specs/ingestion-run-reliability.md`, `specs/dead-letter-recovery.md`, `specs/container-limits-and-log-rotation.md`, `specs/pipeline-alerting-gaps.md` and `specs/infrastructure-observability.md` done on `develop`
+**Blocked by:** the stack machine (this spec runs only on the owner's Mac, started there by name in Claude Code); `specs/first-run-on-stack-machine.md` done through its model gate (step 6), so a local model is registered and gated; and `specs/ingestion-run-reliability.md`, `specs/done/dead-letter-recovery.md`, `specs/container-limits-and-log-rotation.md`, `specs/pipeline-alerting-gaps.md` and `specs/infrastructure-observability.md` done on `develop`
 **Branch:** `feature/soak-test-run`
 
 ---

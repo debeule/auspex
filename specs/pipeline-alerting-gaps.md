@@ -36,7 +36,7 @@ Found by the soak-test readiness audit (2026-10-09):
 
 ## Out of scope
 
-- Fixing the failures these rules detect (`specs/ingestion-run-reliability.md`, `specs/dead-letter-recovery.md`).
+- Fixing the failures these rules detect (`specs/ingestion-run-reliability.md`, `specs/done/dead-letter-recovery.md`).
 - Paging, on-call routing or a second contact point.
 - Dashboard panels beyond adding the new metrics to the existing pipeline dashboard.
 

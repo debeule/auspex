@@ -12,6 +12,12 @@ Kafka listeners → service layer → Neo4j → Postgres → acknowledge
 
 Write order is **Neo4j → Postgres → acknowledge** (ack-mode RECORD). Never commit the Kafka offset before both stores have returned. `core-hub` is the only process that writes to Postgres or Neo4j.
 
+### Failures and dead letters
+
+- **Store outages pause the listeners.** `StoreAvailabilityGuard` probes Postgres (`SELECT 1`) and Neo4j (`verifyConnectivity`) every `auspex.kafka.store-check-interval-ms` (5 s). While either is unreachable the signal and raw listener containers are paused, so records wait on the topic instead of spending their retries; they resume when both stores answer. Pause and resume are logged as warnings.
+- **Transient failures** get 1 attempt + 2 retries with exponential back-off, then the DLT: 5 s, then 30 s by default (`AUSPEX_KAFKA_RETRY_INITIAL_MS`, `AUSPEX_KAFKA_RETRY_MULTIPLIER`). Deserialization, validation and unknown-major-version failures go to the DLT at once.
+- **Dead letters keep their wire form.** The `.dlt` record carries the original key and headers plus Spring's `kafka_dlt-*` diagnostics; the value is the original bytes, the original string, or the signal re-serialized as snake_case JSON, so it can be replayed.
+
 ---
 
 ## Data model
@@ -52,6 +58,8 @@ Scorer: `score = 0.7 × diversity_factor + 0.3 × recency_factor`, clamped [0, 1
 - `diversity_factor = min(1, (source_count − 1) / 4)`
 - `recency_factor` decays linearly to 0 at the 90-day boundary
 
+The scheduled scan reads signals ingested after the watermark in `corroboration_state` (full timestamp comparison) and publishes to `auspex.signals.corroborated` inside one Postgres transaction: the inserts and the new watermark commit only after every send is acknowledged, so a failed send leaves the batch for the next scan.
+
 `CorroborationService` is abstract — `CorroborationServiceContractTest` re-runs at steps 2.8 and 6.4 against new implementations without modification.
 
 ---
@@ -61,6 +69,8 @@ Scorer: `score = 0.7 × diversity_factor + 0.3 × recency_factor`, clamped [0, 1
 Every request under `/api` that is not a GET or HEAD needs `Authorization: Bearer ${CORE_HUB_WRITE_TOKEN}`; without it, or with no token configured, the answer is 401. Only the dashboard's server sends the token. There are no CORS mappings: browsers reach core-hub through the dashboard, never directly.
 
 `GET /api/v1/watchlist/{ticker}/summary` — the watchlist entry's gene-target stats, the signals that mention the company (newest first), the corroborations on its tracked targets, and totals.
+
+`POST /api/dlt/{topic}/replay` — re-publishes the records on `auspex.signals.extracted.dlt` or `auspex.raw.ingested.dlt` (any other topic is 404) to their source topic with the original key, value and headers (minus `kafka_dlt-*`), and returns `{"replayed": n}`. Only records already on the DLT when the call starts are replayed. Progress is committed per record in consumer group `corehub-dlt-replay`, so a record is replayed at most once; writes are idempotent on their natural keys, so replaying a record that was already stored is safe. Needs the write token.
 
 `GET /api/v1/signals/{ticker}` — returns direct signals + corroborated signals for the ticker.
 

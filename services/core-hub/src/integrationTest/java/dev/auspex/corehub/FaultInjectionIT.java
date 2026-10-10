@@ -60,7 +60,7 @@ class FaultInjectionIT extends AbstractIT {
 
         publish(SIGNAL_TOPIC, validSignalJson());
 
-        // FixedBackOff(1000L, 2) = 1 attempt + 2 retries = 3 total
+        // 1 attempt + 2 retries (1 s apart in the test profile) = 3 total
         await().atMost(20, SECONDS).untilAsserted(() -> {
             assertThat(callCount.get()).isEqualTo(3);
             assertThat(testDltListener.signalDltRecords()).hasSize(1);
