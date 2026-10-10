@@ -1,7 +1,7 @@
 # Stack backup
 
 **Status:** blocked
-**Blocked by:** `specs/stack-state-persistence.md` (it fixes the compose project name and the Airflow secrets, which a restored Airflow database depends on)
+**Blocked by:** `specs/done/stack-state-persistence.md` merging into `develop` (it fixes the compose project name and the Airflow secrets, which a restored Airflow database depends on)
 **Branch:** `feature/stack-backup`
 
 ---

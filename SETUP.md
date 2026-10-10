@@ -38,7 +38,8 @@ Fill in what only you have:
 
 | Variable | Notes |
 |---|---|
-| `POSTGRES_PASSWORD`, `AIRFLOW_DB_PASSWORD`, `NEO4J_PASSWORD`, `MINIO_ACCESS_KEY`, `MINIO_SECRET_KEY`, `GRAFANA_ADMIN_PASSWORD`, `AIRFLOW_SECRET_KEY` | Any strong values, e.g. `openssl rand -hex 24`. Changing a database password later needs `down -v`. |
+| `POSTGRES_PASSWORD`, `AIRFLOW_DB_PASSWORD`, `NEO4J_PASSWORD`, `MINIO_ACCESS_KEY`, `MINIO_SECRET_KEY`, `GRAFANA_ADMIN_PASSWORD`, `AIRFLOW_SECRET_KEY`, `AIRFLOW_JWT_SECRET` | Any strong values, e.g. `openssl rand -hex 24`. To change one later, follow "Changing a password in place" in `docker/README.md`; `down -v` destroys all data. |
+| `AIRFLOW_FERNET_KEY` | `openssl rand -base64 32 \| tr '+/' '-_'`. Encrypts Airflow's stored Variables, including the ingestion cursors; keep it for the life of the stack. **If the stack already ran without it**, copy the key Airflow generated before you recreate the container: `docker exec auspex-airflow airflow config get-value core fernet_key`. |
 | `SEC_USER_AGENT` | `Name email@example.com`; SEC returns 403 without it. |
 | `NCBI_API_KEY`, `OPENFDA_API_KEY`, `EPO_OPS_KEY`, `EPO_OPS_SECRET` | From each provider's developer portal (EPO: `developers.epo.org`). |
 | `OPENAI_API_KEY` | Only for the API fallback model. |
@@ -55,7 +56,7 @@ Fill in what only you have:
 - **Docker Hub (optional):** `docker login` with a free Docker Hub account. The first `up` pulls about ten images, and Docker Hub limits anonymous pulls per IP.
 - **Linux:** `sudo sysctl -w vm.max_map_count=262144` and persist it in `/etc/sysctl.d/99-elasticsearch.conf`; Elasticsearch will not start without it.
 
-Then run the `up` command above. The dashboard is at `http://localhost:3001` (`DASHBOARD_PORT`). Airflow is at `http://localhost:8082`; its `admin` password is in `docker exec auspex-airflow cat /opt/airflow/simple_auth_manager_passwords.json.generated`.
+Then run the `up` command above. The dashboard is at `http://localhost:3001` (`DASHBOARD_PORT`). Airflow is at `http://localhost:8082`; its `admin` password is in `docker exec auspex-airflow cat /opt/airflow/state/simple_auth_manager_passwords.json`, and stays the same across recreates.
 
 ## 3. Install the local model (once, on the host)
 

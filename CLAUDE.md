@@ -75,7 +75,7 @@ This is not hypothetical: v1 of this plan contained a test (`test_dag_task_only_
 | Bring up infra only | `docker compose -f docker/docker-compose.yml --env-file .env up -d --wait` |
 | Bring up full stack (incl. app services) | `docker compose --profile app -f docker/docker-compose.yml --env-file .env up -d --wait` |
 | Tear down (keep volumes) | `docker compose -f docker/docker-compose.yml --env-file .env down` |
-| Tear down (wipe volumes) | `docker compose -f docker/docker-compose.yml --env-file .env down -v` |
+| Tear down and wipe volumes (destroys all data: price history, the pinned universe, the raw archive and every signal) | `docker compose -f docker/docker-compose.yml --env-file .env down -v` |
 | Python: install | `cd services/ingestion-scraper && uv sync --all-extras` |
 | Python: unit tests (inner loop) | `cd services/ingestion-scraper && uv run pytest tests/unit -q` |
 | Python: one file's tests | `cd services/ingestion-scraper && uv run pytest tests/unit/test_ingestion_pipeline.py -q` |
@@ -217,6 +217,7 @@ services/core-hub/src/integrationTest/java/**/<Subject>IT.java    # container-ba
 - **LocalStack calendar tags (`2026.x`) need a licence token** and exit with code 55 without one. Integration tests pin `localstack/localstack:4.9.2`.
 - **bcrypt hashes contain `$`.** In `.env`, `DASHBOARD_PASSWORD_HASH` must be single-quoted or compose reads `$2b`, `$12` as variables and passes a mangled hash; the hash script prints the quoted line. Next's own `.env.local` loading expands `$` too, so there each one is written `\$`.
 - **Next 16 renamed middleware to `proxy`.** `src/proxy.ts` exporting `proxy` runs on the Node runtime and reads `process.env` per request; a `middleware.ts` is deprecated. `next lint` is gone: lint runs `eslint .` with the flat config.
+- **Airflow generates its Fernet key into `airflow.cfg` inside the container when none is set.** A recreated container then makes a new key, and every encrypted Variable (the ingestion cursors) and Connection becomes unreadable. `AIRFLOW__CORE__FERNET_KEY`, `AIRFLOW__API_AUTH__JWT_SECRET` and `AIRFLOW__API__SECRET_KEY` come from `.env`; the `AIRFLOW__WEBSERVER__*` names are Airflow 2 and are ignored by 3.x.
 - **Local model backend — Docker/Metal:** Docker Desktop on macOS cannot use Metal. Run the model server (Ollama) on the host; the scraper reaches it via `host.docker.internal` in `EXTRACTION_BASE_URL`. See `docker/README.md` for the memory budget table.
 - **Local model backend — context length:** Ollama's OpenAI-compatible `/v1` endpoint ignores per-request `num_ctx`. The server default is 4096 tokens and longer prompts are silently truncated, so the registry's `num_ctx` only holds if Ollama runs with `OLLAMA_CONTEXT_LENGTH` ≥ that value. See `docs/local-model-runbook.md`.
 - **Local model backend — tag re-pointing:** `ollama pull llama3.1:8b-instruct-q8_0` downloads whatever HEAD is at that tag at pull time. The registry pins the exact digest (`llama3.1:8b-instruct-q8_0@sha256:...`); `LLMExtractorFactory` compares the registered digest against `ollama show` output at startup and fails before any extraction runs if they differ.

@@ -974,3 +974,13 @@ Where they disagree: report 1 stays in biotech with a holdings composite; report
 ## 2026-10-09 — CI — CHOICE — one prefix for every test image
 **What:** Test images are named as on Docker Hub and both container-test jobs set `TESTCONTAINERS_HUB_IMAGE_NAME_PREFIX=mirror.gcr.io/`, replacing the per-test `mirror.gcr.io/...` and `docker.elastic.co/...` names. Python's Testcontainers prepends the prefix to every image name, so the Elasticsearch test uses the Docker Hub official `elasticsearch:8.17.3` (same version as compose, which keeps `docker.elastic.co`). The Python job also disables Ryuk, whose own image would otherwise get the prefix.
 **Action:** `.github/workflows/python.yml`, the integration tests, CLAUDE.md known traps, VERSIONS.md.
+## 2026-10-10 — Stack state persistence — VERIFIED — Airflow 3.3.1 option names
+**What:** Checked against the 3.3.1 `config.yml`: `core.fernet_key`, `api_auth.jwt_secret`, `api.secret_key` and `core.simple_auth_manager_passwords_file` exist under those names. `webserver.secret_key` and `webserver.default_ui_timezone` do not exist in 3.x, so compose had been setting two options Airflow ignored: the API secret key was being generated per container. The secret moves to `AIRFLOW__API__SECRET_KEY` (same `AIRFLOW_SECRET_KEY` in `.env`). The UI timezone option is dropped with no replacement; `core.default_timezone` already defaults to `utc` (Invariant 9). SimpleAuthManager keeps passwords already in the file and generates only missing users, so a password file on a volume stays the same across recreates.
+**Action:** `docker/docker-compose.yml`; `test_airflow_uses_no_airflow_2_webserver_options` keeps the 2.x names out.
+
+## 2026-10-10 — Stack state persistence — CHOICE — required secrets and a writable state volume
+**What:**
+1. `AIRFLOW_FERNET_KEY`, `AIRFLOW_JWT_SECRET` and `AIRFLOW_SECRET_KEY` are `${VAR:?message}` in compose, unlike the bare `${VAR}` placeholders elsewhere: with an empty Fernet key Airflow stores Variables in plaintext and with an empty JWT secret it generates one per start, so `up` must stop instead. `docker compose config` with `.env.example` as-is now fails naming the variable; nothing in CI runs it.
+2. A new named volume is owned by root and Airflow runs as uid 50000, gid 0, so `airflow-state-init` (busybox, the image `volume-usage` already uses) chowns `airflow_state` before Airflow starts. It is a no-op once the ownership is right.
+3. `airflow-db-role` uses `postgres:18.6` for `psql` and passes the role name and password as psql variables into a quoted heredoc, so no value is spliced into SQL by the shell (Invariant 12).
+**Risk:** none of this has run on Docker Desktop. The recreate check in the spec's definition of done runs in first-run step 8.

@@ -1,7 +1,6 @@
 # Stack state persistence
 
-**Status:** blocked
-**Blocked by:** `specs/infrastructure-observability.md` and `specs/dashboard-foundation.md` merging into `develop` (both rewrite `docker/docker-compose.yml`, `.env.example` and `SETUP.md`; PRs #29 and #31)
+**Status:** done
 **Branch:** `feature/stack-state-persistence`
 
 ---

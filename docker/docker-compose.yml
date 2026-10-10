@@ -1,3 +1,5 @@
+name: auspex
+
 services:
   kafka:
     image: apache/kafka:4.3.0
@@ -16,6 +18,11 @@ services:
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: "false"
       KAFKA_LOG_DIRS: /var/lib/kafka/data
+      # The image's own default ID, pinned: a formatted volume refuses to start under another.
+      CLUSTER_ID: 5L6g3nShT-eMCtK--X86sw
+      # 90 days, the longest topic retention in topics.yaml; the broker default (7 days) would
+      # drop core-hub's committed offsets during a longer shutdown.
+      KAFKA_OFFSETS_RETENTION_MINUTES: "129600"
       KAFKA_HEAP_OPTS: ${KAFKA_HEAP_OPTS}
     ports:
       - "127.0.0.1:9092:9092"
@@ -220,6 +227,8 @@ services:
         condition: service_healthy
     volumes:
       - ./filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
+      # Registry of read positions; without it a recreated filebeat re-ships every log line.
+      - filebeat_data:/usr/share/filebeat/data
       - /var/lib/docker/containers:/var/lib/docker/containers:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
     command: filebeat -e --strict.perms=false
@@ -433,6 +442,39 @@ services:
     labels:
       co.elastic.logs/enabled: "true"
 
+  airflow-db-role:
+    image: postgres:18.6
+    container_name: auspex-airflow-db-role
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      PGHOST: postgres
+      PGDATABASE: ${POSTGRES_DB}
+      PGUSER: ${POSTGRES_USER}
+      PGPASSWORD: ${POSTGRES_PASSWORD}
+      AIRFLOW_DB_USER: ${AIRFLOW_DB_USER}
+      AIRFLOW_DB_PASSWORD: ${AIRFLOW_DB_PASSWORD}
+    volumes:
+      - ./airflow-db-role/apply-role.sh:/apply-role.sh:ro
+    entrypoint: ["sh", "/apply-role.sh"]
+    restart: "no"
+    mem_limit: ${AIRFLOW_DB_ROLE_MEM_LIMIT}
+    labels:
+      co.elastic.logs/enabled: "true"
+
+  airflow-state-init:
+    image: busybox:1.37.0
+    container_name: auspex-airflow-state-init
+    # A new named volume is created root-owned; Airflow runs as uid 50000, group 0.
+    command: ["sh", "-c", "chown 50000:0 /state && chmod 0770 /state"]
+    volumes:
+      - airflow_state:/state
+    restart: "no"
+    mem_limit: ${AIRFLOW_STATE_INIT_MEM_LIMIT}
+    labels:
+      co.elastic.logs/enabled: "true"
+
   airflow:
     image: apache/airflow:3.3.1
     container_name: auspex-airflow
@@ -445,13 +487,21 @@ services:
         condition: service_healthy
       price-service:
         condition: service_healthy
+      airflow-db-role:
+        condition: service_completed_successfully
+      airflow-state-init:
+        condition: service_completed_successfully
     environment:
       AIRFLOW__CORE__EXECUTOR: LocalExecutor
       AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://${AIRFLOW_DB_USER}:${AIRFLOW_DB_PASSWORD}@postgres:5432/airflow
       AIRFLOW__CORE__LOAD_EXAMPLES: "false"
       AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: "true"
-      AIRFLOW__WEBSERVER__SECRET_KEY: ${AIRFLOW_SECRET_KEY}
-      AIRFLOW__WEBSERVER__DEFAULT_UI_TIMEZONE: UTC
+      # Set here rather than generated into airflow.cfg inside the container, where a recreate
+      # would replace them: the Fernet key decrypts stored Variables such as the ingestion cursors.
+      AIRFLOW__CORE__FERNET_KEY: ${AIRFLOW_FERNET_KEY:?set AIRFLOW_FERNET_KEY in .env (SETUP.md)}
+      AIRFLOW__API_AUTH__JWT_SECRET: ${AIRFLOW_JWT_SECRET:?set AIRFLOW_JWT_SECRET in .env (SETUP.md)}
+      AIRFLOW__API__SECRET_KEY: ${AIRFLOW_SECRET_KEY:?set AIRFLOW_SECRET_KEY in .env (SETUP.md)}
+      AIRFLOW__CORE__SIMPLE_AUTH_MANAGER_PASSWORDS_FILE: /opt/airflow/state/simple_auth_manager_passwords.json
       AUSPEX_SOURCES_YAML: /opt/airflow/config/sources.yaml
       SCRAPER_API_URL: ${SCRAPER_API_URL}
       PRICE_API_URL: ${PRICE_API_URL}
@@ -464,6 +514,7 @@ services:
       - ../services/backtesting/dags:/opt/airflow/dags/prices:ro
       - ../services/ingestion-scraper/config:/opt/airflow/config:ro
       - airflow_logs:/opt/airflow/logs
+      - airflow_state:/opt/airflow/state
     ports:
       - "127.0.0.1:8082:8080"
     command: standalone
@@ -512,6 +563,8 @@ services:
       - neo4j_data:/volumes/neo4j_data:ro
       - minio_data:/volumes/minio_data:ro
       - airflow_logs:/volumes/airflow_logs:ro
+      - airflow_state:/volumes/airflow_state:ro
+      - filebeat_data:/volumes/filebeat_data:ro
       - elasticsearch_data:/volumes/elasticsearch_data:ro
       - prometheus_data:/volumes/prometheus_data:ro
       - grafana_data:/volumes/grafana_data:ro
@@ -635,6 +688,8 @@ volumes:
   neo4j_data:
   minio_data:
   airflow_logs:
+  airflow_state:
+  filebeat_data:
   elasticsearch_data:
   prometheus_data:
   grafana_data:

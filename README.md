@@ -46,7 +46,7 @@ curl http://localhost:8080/api/v1/signals/BEAM
 |---|---|
 | Bring up infra | `docker compose -f docker/docker-compose.yml --env-file .env up -d --wait` |
 | Tear down (keep volumes) | `docker compose -f docker/docker-compose.yml --env-file .env down` |
-| Tear down (wipe volumes) | `docker compose -f docker/docker-compose.yml --env-file .env down -v` |
+| Tear down and wipe volumes (destroys all data: price history, the pinned universe, the raw archive and every signal) | `docker compose -f docker/docker-compose.yml --env-file .env down -v` |
 | Python: install | `cd services/ingestion-scraper && uv sync --all-extras` |
 | Python: unit tests | `cd services/ingestion-scraper && uv run pytest tests/unit -q` |
 | Python: full suite | `cd services/ingestion-scraper && uv run pytest -q` |

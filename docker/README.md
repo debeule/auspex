@@ -28,6 +28,8 @@ Docker Compose stack for the full Auspex infrastructure.
 | `auspex-node-exporter` | `prom/node-exporter:v1.12.1` | — | Docker VM CPU, memory and filesystems (read through PID 1, no host mounts), plus the volume sizes from `volume-usage` |
 | `auspex-volume-usage` | `busybox:1.37.0` | — | Measures every named volume with `du` every `VOLUME_USAGE_INTERVAL_SECONDS` (`volume-usage/collect.sh`) |
 | `auspex-cadvisor` | `ghcr.io/google/cadvisor:0.57.0` | — | Per-container CPU, memory and start times |
+| `auspex-airflow-db-role` | `postgres:18.6` | — | One-shot init: creates the Airflow metadata role if missing and applies `AIRFLOW_DB_PASSWORD` on every `up` (`airflow-db-role/apply-role.sh`) |
+| `auspex-airflow-state-init` | `busybox:1.37.0` | — | One-shot init: makes the `airflow_state` volume (the admin password file) writable for Airflow's uid 50000 |
 | `auspex-postgres-monitor-role` | `postgres:18.6` | — | One-shot init: creates or updates the read-only `auspex_monitor` role (`pg_monitor`) on every `up` |
 | `auspex-postgres-exporter` | `prometheuscommunity/postgres-exporter:v0.20.1` | — | Connections, database sizes, as `auspex_monitor` |
 | `auspex-kafka-exporter` | `danielqsj/kafka-exporter:v1.10.0` | — | Brokers, topic offsets, consumer-group lag including `*.dlt` |
@@ -46,7 +48,7 @@ Every service has a `mem_limit` from `.env` (`*_MEM_LIMIT`, values in `.env.exam
 ```bash
 docker compose -f docker/docker-compose.yml --env-file .env up -d --wait   # bring up
 docker compose -f docker/docker-compose.yml --env-file .env down            # keep volumes
-docker compose -f docker/docker-compose.yml --env-file .env down -v         # wipe volumes
+docker compose -f docker/docker-compose.yml --env-file .env down -v         # destroys all data (every volume); never a fix
 ```
 
 `--wait` blocks until all healthchecks pass and every one-shot init has exited 0. `auspex-airflow` healthcheck is slow (~60s) — normal. Manual steps that remain (secrets, the local model, sign-offs) are in [`SETUP.md`](../SETUP.md).
@@ -68,7 +70,7 @@ Created by the `kafka-init` one-shot on every `up` from `topics.yaml`; existing 
 
 DLT partition count must match the source topic — Spring's `DeadLetterPublishingRecoverer` publishes to the same partition number.
 
-`--if-not-exists` never alters an existing topic. If partition counts are wrong: `down -v` then `up` again.
+`--if-not-exists` never alters an existing topic. To fix one topic's partition count, change only that topic: grow it with `docker exec auspex-kafka /opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --alter --topic <name> --partitions <n>`, or shrink it by `--delete`-ing that topic and running `up` (kafka-init recreates it; only that topic's messages are lost).
 
 ---
 
@@ -79,11 +81,27 @@ Two databases share one container:
 | Database | Role | Created by |
 |---|---|---|
 | `auspex` | `auspex_app` | `postgres-init/01_airflow.sh` on first volume init |
-| `airflow` | `airflow` | `postgres-init/01_airflow.sh` on first volume init |
+| `airflow` | `airflow` | `postgres-init/01_airflow.sh` on first volume init; `airflow-db-role` re-applies its password on every `up` |
 
 Flyway runs schema migrations against `auspex` on every `core-hub` startup (`ddl-auto: validate`).
 
 ---
+
+## What survives a recreate
+
+Everything stateful sits on a named volume, so `down`, deleting containers and images, and `up` again picks up where it left off: Kafka topics and consumer offsets (kept 90 days, `KAFKA_OFFSETS_RETENTION_MINUTES`, under a pinned `CLUSTER_ID`), both Postgres databases, Neo4j, MinIO (prices, universe, raw archive), Elasticsearch, Prometheus, Grafana, Airflow's logs and its admin password file (`airflow_state`), and Filebeat's read positions (`filebeat_data`). Airflow's Fernet key, JWT secret and API secret key come from `.env`, so stored Variables such as the ingestion cursors stay readable. The compose file names its project `auspex`, so the volumes are the same ones whichever directory compose runs from.
+
+`down -v` destroys all data listed above. Nothing in the stack needs it as a fix.
+
+**Changing a password in place** (change it in the store first, then in `.env`):
+
+| Store | How |
+|---|---|
+| Postgres `POSTGRES_USER` | `docker exec auspex-postgres psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -c "ALTER ROLE \"$POSTGRES_USER\" PASSWORD '<new>'"` (the container's local socket is trusted), then `.env`, then `up` |
+| Postgres `AIRFLOW_DB_PASSWORD`, `POSTGRES_MONITOR_PASSWORD` | Edit `.env` and `up`; a one-shot applies it |
+| Neo4j | `docker exec -it auspex-neo4j cypher-shell -u neo4j -d system "ALTER CURRENT USER SET PASSWORD FROM '<old>' TO '<new>'"`, then `.env` and `up` |
+| Grafana admin | `docker exec auspex-grafana grafana cli admin reset-admin-password '<new>'`, then `.env` |
+| MinIO root | Edit `.env` and `up`; MinIO reads it on every start |
 
 ## Observability
 
