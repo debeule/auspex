@@ -186,6 +186,7 @@ All credentials come from root `.env`. Copy from `.env.example` and fill in:
 - `SEC_USER_AGENT` — required for SEC EDGAR requests (format: `Name email@example.com`)
 - `EXTRACTION_API_KEY` — API key for the extraction model endpoint
 - `EXTRACTION_MODEL` — registry key matching an entry in `config/models/registry.yaml`
+- `NCBI_API_KEY` — PubMed; optional, raises NCBI's limit from 3 to 10 requests per second
 - `EPO_OPS_KEY` / `EPO_OPS_SECRET` — for patent connector
 - `POSTGRES_MONITOR_PASSWORD` — the exporter's read-only Postgres role
 - `ALERT_CONTACT_TYPE` and its settings (`ALERT_EMAIL_ADDRESSES` + `SMTP_*`, or `ALERT_WEBHOOK_URL`) — where alerts go; Grafana does not start without them
