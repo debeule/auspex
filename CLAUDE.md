@@ -24,7 +24,7 @@ Project **Auspex**. Named for the Roman official who read scattered signs for me
 | Kafka topics | `auspex.raw.ingested`, `auspex.signals.extracted`, `auspex.signals.corroborated`, `*.dlt` |
 | Java root package | `dev.auspex.corehub` |
 | Python packages | `auspex_ingest` (inside `services/ingestion-scraper/src/`) · `auspex_backtesting` (inside `services/backtesting/src/`) |
-| MinIO buckets | `auspex-raw` (signal documents) · `auspex-prices` (market and reference data snapshots: OHLCV, splits, universe) |
+| MinIO buckets | `auspex-raw` (signal documents) · `auspex-prices` (market and reference data snapshots: OHLCV, splits, universe, ownership, catalysts) |
 | Postgres databases | `auspex` (application) · `airflow` (metadata) |
 | Neo4j / Postgres roles | `auspex_app`, `airflow` |
 

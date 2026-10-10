@@ -75,7 +75,7 @@ uv run python scripts/run_pipeline.py --days 30 --sources clinicaltrials pubmed
 | Path | What runs | Tool |
 |---|---|---|
 | `tests/unit/` | pytest-socket disables network; respx stubs all HTTP; 138+ tests | `pytest tests/unit -q` |
-| `tests/integration/` | testcontainers (MinIO, Kafka); self-contained; no running stack needed | `pytest -m integration` |
+| `tests/integration/` | testcontainers (LocalStack's S3 API standing in for MinIO, Kafka); self-contained; no running stack needed | `pytest -m integration` |
 | `tests/golden/` | 50 hand-labelled docs for extraction quality evaluation (see FORMAT.txt) | `scripts/score_extraction.py` |
 | `tests/fixtures/` | Saved API responses used by respx for unit test stubs | — |
 

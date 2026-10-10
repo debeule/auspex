@@ -6,7 +6,7 @@ Local biotech signal research pipeline. Convergence of evidence across sources i
 
 ## Architecture
 
-Five public sources feed into `ingestion-scraper` (Python), which archives raw documents to MinIO and publishes extracted signals to Kafka. `core-hub` (Java/Spring) is the sole database writer: it consumes from Kafka, writes to Postgres (audit trail, signal state, corroborations) and Neo4j (signal graph), runs windowed corroboration, and exposes a REST API. The `dashboard` (Next.js) is the application's interface: the browser talks only to the dashboard's own server, which checks the single-user session and forwards to core-hub, the scraper and price-service. core-hub accepts writes only with the dashboard's bearer token and serves no CORS headers.
+Five public sources feed into `ingestion-scraper` (Python), which archives raw documents to MinIO and publishes extracted signals to Kafka. `core-hub` (Java/Spring) is the sole database writer: it consumes from Kafka, writes to Postgres (audit trail, signal state, corroborations) and Neo4j (signal graph), runs windowed corroboration, and exposes a REST API. `price-service` and the backtesting jobs (`services/backtesting`) keep price snapshots, the point-in-time universe, ownership and catalyst panels as Parquet in a second MinIO bucket. The `dashboard` (Next.js) is the application's interface: the browser talks only to the dashboard's own server, which checks the single-user session and forwards to core-hub, the scraper and price-service. core-hub accepts writes only with the dashboard's bearer token and serves no CORS headers.
 
 **Hard boundary:** `ingestion-scraper` writes only to MinIO and Kafka — never the database. `core-hub` is the only process that touches Postgres or Neo4j.
 
