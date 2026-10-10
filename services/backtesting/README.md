@@ -1,6 +1,6 @@
 # backtesting
 
-Price snapshots, the point-in-time stock universe, market simulation and the backtest runner (`auspex_backtesting`).
+Price snapshots, the point-in-time stock universe, SEC ownership panels, market simulation and the backtest runner (`auspex_backtesting`).
 
 ## Point-in-time universe
 
@@ -85,6 +85,37 @@ Requests to SEC are paced at 5 per second with `SEC_USER_AGENT`, Federal Registe
 - `forward_check_branch()` gives the event or portfolio forward check; `evaluate_portfolio_forward_check()` and `is_data_gap()` apply the portfolio branch per capital tier.
 - `quarterly_trade_date()` and `select_component_variant()` apply H9's registered trade-date rule and component fallback.
 
+## SEC ownership panels
+
+`auspex_backtesting.ownership` keeps two point-in-time panels from SEC's bulk data for the holdings composite (H9): who holds each universe company (Form 13F) and what its insiders bought and sold (Forms 4 and 5). They are time series joined to a monthly score, so they are stored like prices, not sent through the document pipeline.
+
+Every read is as of an instant and sees only filings accepted before it: `filing_accepted_at`, never the period a 13F reports on or the day a trade was made. The data sets give only a filing date, so `filing_accepted_at` is 22:00 US Eastern on that date, the latest EDGAR accepts; daily Form 4 rows carry their real acceptance time.
+
+| Reader | Returns |
+|---|---|
+| `HoldingsPanel.load(store).specialist_ownership(issuer_cik, as_of)` | shares held by healthcare specialist 13F filers in each one's latest report accepted before `as_of` (a later restatement never changes an earlier read), over shares outstanding filed before `as_of` |
+| `InsiderPanel.load(store, market_caps).net_insider_buying(issuer_cik, as_of, days=90)` | open-market purchases (`P`) minus sales (`S`) accepted in the window, in USD over market cap; 10b5-1 plan trades and purchases within two days of the issuer's `424B4`/`424B5` (`offering_participation`) left out |
+| `InsiderPanel.transactions(issuer_cik, as_of, days=90)` | the window's transactions with the `offering_participation` flag |
+| `SpecialistClassifier.from_hypothesis(filings).classify(as_of)` | per filer: healthcare share over the four quarters before `as_of`, latest reported value, `is_specialist` |
+
+A 13F filer is a **healthcare specialist** as of a date when at least `SPECIALIST_HEALTHCARE_SHARE` of its reported long equity value over the four calendar quarters before it is in SIC 2834, 2836, 8731 or 3841 issuers and its latest report totals at least `SPECIALIST_MIN_AUM_USD`. Both thresholds are read from the registered H9 hypothesis (`config/hypotheses/h9.yaml`, `components.specialist_13f_ownership.thresholds`), their only source; an unregistered or edited `h9.yaml` is refused. Derived from the filings, not from a list, so no fund is picked for having done well later.
+
+Stored in the `auspex-prices` bucket under `ownership/`, each file written once unless noted:
+
+| Object | Content |
+|---|---|
+| `13f/{label}.parquet` | universe holdings of one 13F data set: `accession_number, filer_cik, issuer_cik, cusip, shares, value_usd, period_of_report, filing_accepted_at, is_amendment, amendment_type`; the data set's coverage report in its metadata |
+| `13f/filings/{label}.parquet` | every holdings report in it, with total and healthcare long equity value |
+| `13f/specialists/{label}.parquet` | specialist classification as of just after the data set's last filing (rewritten only if missing) |
+| `insider/{yyyy}q{q}.parquet` | universe transactions of one insider data set: `accession_number, issuer_cik, owner_cik, role, transaction_code, acquired_disposed, shares, price, transaction_date, filing_date, filing_accepted_at, is_10b5_1` |
+| `insider/daily/{yyyy-mm-dd}.parquet` | the same, from that day's form index and Form 4 XML, for days after the latest insider data set; readers prefer the data set once stored and log any disagreement |
+| `offerings/{yyyy}q{q}.parquet`, `offerings/daily/{yyyy-mm-dd}.parquet` | `424B4`/`424B5` filings of universe issuers from the quarterly and daily form indexes |
+| `shares_outstanding.parquet` | cover-page share counts of universe companies; replaced on every run |
+
+13F data sets are labelled as SEC names them: calendar quarters (`2023q4`) through 2023, three-month windows (`01mar2024-31may2024`) since. Holdings are mapped from CUSIP to CIK by issuer name against every SEC operating company's current and former names; each data set reports unmapped CUSIPs and their value instead of dropping them. How amendments, joint filings and 10b5-1 trades are counted is recorded in `DECISIONS.md` (2026-10-09, SEC ownership datasets).
+
+`scripts/fetch_ownership.py` backfills everything from `OWNERSHIP_HISTORY_START`, once (needs a built universe; it keeps only universe companies), and prints coverage. SEC requests go through one client paced at 5 per second with `SEC_USER_AGENT`; a refusal stops the run without retrying.
+
 ## Scripts
 
 | Script | Purpose |
@@ -93,6 +124,7 @@ Requests to SEC are paced at 5 per second with `SEC_USER_AGENT`, Federal Registe
 | `scripts/build_universe.py` | Run a universe build outside the schedule, or `--export-backfill-scope PATH` to copy the backfill scope out of MinIO |
 | `scripts/build_catalyst_panel.py` | Build or extend the catalyst panel (`--since`, default 2014-01-01; `--until`, default today) and print its coverage: catalysts per year, members with any catalyst, unmatched advisory committee notices, PDUFA hits by precision. Needs the universe built first |
 | `scripts/register_hypothesis.py` | Register a hypothesis file in the pre-registration ledger |
+| `scripts/fetch_ownership.py` | Backfill and extend the SEC ownership panels and print their coverage |
 
 ## Commands
 

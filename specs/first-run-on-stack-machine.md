@@ -17,6 +17,7 @@ Everything the cloud sessions could build and test is merged into `develop`. Wha
 | Local model gate at prompt `v1` | `DECISIONS.md` 2026-10-07 PENDING "gate record for prompt v1.1" (the company-level prompt, now the single `v1`), `docs/local-model-runbook.md` | model weights and the GPU |
 | Price history reaching back to 2013 | `DECISIONS.md` 2026-10-08 FLAG "universe window" and CHOICE "price history from 2013" | snapshots only grow forward, so this must be set before the first `up` |
 | Historical backfill dry run | `specs/historical-backfill.md`, draft PR #8 | needs the stack, the gated model and its latency record |
+| First SEC ownership backfill (13F, insider, offerings) and its coverage | `specs/sec-ownership-datasets.md`, `DECISIONS.md` 2026-10-09 PENDING "first backfill on the stack machine" | the data sets are on `sec.gov` |
 
 Machine facts: Docker Desktop is capped at **8 GB** (`SETUP.md` step 2), which leaves about 10–12 GB for the model. Ollama runs natively on the host because Docker on macOS has no Metal access; containers reach it at `host.docker.internal:11434`, host scripts at `localhost:11434`.
 
@@ -160,6 +161,31 @@ Then draw 30 random PDUFA and matched AdCom rows (`CatalystPanel(minio).rows()`,
 
 Record in `DECISIONS.md`: a VERIFIED entry closing the 2026-10-09 PENDING, with the URLs that worked, the counters, the coverage (catalysts per year, the share of members with any catalyst, unmatched AdCom notices, PDUFA hits by precision) and the hand-check precision with the seed. Then move `specs/catalyst-date-panel.md` to `specs/done/`, set its status to `done`, update its `TODO.md` row and link, and commit: `catalyst date panel first build: coverage, hand check, spec done`.
 
+### 3b. SEC ownership panels (13F holdings, insider transactions)
+
+Precondition: step 3 passed (the panels keep only universe companies); independent of any other step 3 sub-step and `services/backtesting/src/auspex_backtesting/ownership/` is on `develop`. The first run downloads SEC's submissions and company facts archives, about 54 13F data sets (tens to hundreds of MB each), the insider data sets from 2013, a quarterly form index per quarter and a Form 4 per universe filing since the latest insider data set, all paced at 5 requests per second; expect hours. Stored files are kept if a run fails, and a rerun fetches only what is missing. Run it after the universe build and step 3a have finished, not alongside either, so they stay under SEC's limit together.
+
+```bash
+for k in SEC_13F_DATASETS_URL SEC_INSIDER_DATASETS_URL SEC_DAILY_INDEX_URL SEC_FULL_INDEX_URL OWNERSHIP_HISTORY_START; do printf '%s %s\n' "$k" "$(grep -c "^$k=.\+" .env)"; done
+cd services/backtesting
+caffeinate -i uv run --env-file ../../.env python scripts/fetch_ownership.py > /tmp/ownership-summary.json 2> /tmp/ownership.log; echo "exit $?"
+jq '{universe_issuers, first_13f: .form13f[0].label, first_insider: .insider[0].label, offering_quarters, daily_days, share_count_issuers}' /tmp/ownership-summary.json
+jq -r '.form13f[] | [.label, .filings, .universe_issuers_held, .unmapped_cusips, .unmapped_value_share, .universe_value_without_holder_share] | @tsv' /tmp/ownership-summary.json
+jq -r '.insider[] | [.label, .filings, .transactions] | @tsv' /tmp/ownership-summary.json
+grep -c -E 'insider .* (missing_from_dataset|missing_from_daily|different)' /tmp/ownership.log
+uv run pytest tests/unit/test_ownership_datasets.py -q --strict-markers
+cd ../..
+```
+
+If a `.env` key prints `0`, copy that line from `.env.example` (none of them is a secret). Exit code 1 with "SEC refused" means a rate-limit block: wait at least ten minutes and rerun once; a second refusal is a FLAG. A crash while parsing a data set means the real layout differs from the documented one (`DECISIONS.md` 2026-10-09 VERIFIED, "Not verified"): record the data set, the table and the traceback as a FLAG and stop this step; the fix goes through a cloud session.
+
+**Check:**
+- Exit code 0; the first 13F label is `2013q2` (or the first data set ending on or after `OWNERSHIP_HISTORY_START`) and the first insider label is `2013q1`.
+- Every 13F data set from 2014 on has `universe_issuers_held` > 0, and every insider quarter has `filings` > 0.
+- `test_ownership_datasets.py`: 15 passed.
+
+Then record in `DECISIONS.md` a VERIFIED entry closing the 2026-10-09 PENDING "first backfill on the stack machine": the first data set of each kind; per 13F data set (a compact table, or min/median/max with the worst five named) universe issuers held, unmapped CUSIP share of value and `universe_value_without_holder_share`; insider filings per quarter (min/median/max); the disagreement count from the log; and whether the three unverified layout points held (header row, `ISAMENDMENT`/`AFF10B5ONE` values, `PUTCALL` values; look at one real file with `unzip -p <file> INFOTABLE.tsv | head -3`). Any 13F data set from 2014 on with `universe_value_without_holder_share` above 0.10 gets a separate FLAG entry naming the data sets: H9 must not run on them until the mapping is checked. Move `specs/sec-ownership-datasets.md` to `specs/done/`, set its status to `done` and update its `TODO.md` row. Commit: `sec ownership panels first backfill: coverage, spec done`.
+
 ### 4. Install Ollama and pull the candidates
 
 Can start while step 3 runs: pulls are network-bound. Do not run step 5 until step 3 has finished.
@@ -300,6 +326,7 @@ Checks run on the Mac, each falsifiable and each tied to a step above:
 - `check_every_stack_service_healthy_and_prometheus_targets_up` — step 2
 - `check_universe_build_succeeds_against_the_configured_sec_bulk_urls` — step 3
 - `check_universe_summary_covers_every_month_from_window_start` — step 3 (`already_stored` = month count)
+- `check_ownership_panels_backfilled_with_coverage_recorded` — step 3b
 - `check_backfill_scope_exported_and_non_empty` — step 3
 - `check_catalyst_panel_build_complete_with_hand_checked_precision` — step 3a
 - `check_phi3_tag_is_the_128k_context_build` — step 4

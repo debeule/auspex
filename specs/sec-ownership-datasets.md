@@ -1,7 +1,9 @@
 # SEC Ownership Datasets (13F Holdings and Insider Transactions)
 
-**Status:** ready
-**Blocked by:** none. `specs/point-in-time-universe.md` is done in code (PR #21, #22) and supplies the CIK and ticker set the panels are filtered to and `MarketCapEstimator` for scaling; the stack backfill needs its first build. Direction decided 2026-10-08 (both).
+**Status:** blocked
+**Blocked by:** the first backfill on the stack machine (Definition of done, second block). All code and the 15 required tests are in `auspex_backtesting.ownership`; what remains is running `scripts/fetch_ownership.py` against SEC and recording coverage, which cloud sessions cannot reach (`specs/first-run-on-stack-machine.md` step 3b, `DECISIONS.md` 2026-10-09 PENDING).
+
+**Progress (2026-10-09):** data set pages and layouts verified on sec.gov (`DECISIONS.md` 2026-10-09 VERIFIED). Panels are keyed by the data set's own label, because 13F data sets since 2024 are three-month windows, not calendar quarters. Acceptance times come from the filing date as its 22:00 Eastern bound; how reports, amendments, CUSIPs and insider trades are counted is recorded in `DECISIONS.md` 2026-10-09 CHOICE. Test fixtures follow the documented layout and are not cut from real files; the stack run checks the three layout points the readmes leave open. A refresh endpoint and DAG are not part of this spec (`DECISIONS.md` 2026-10-09 FLAG).
 
 **Branch:** `feature/sec-ownership-datasets`
 
@@ -24,7 +26,7 @@ The research report recommended a "fixed, dated list of healthcare-dedicated 13F
 In `services/backtesting/src/auspex_backtesting/ownership/`:
 
 1. **`Form13FDatasetStore`** — downloads each quarterly 13F data set once, keeps holdings rows whose issuer maps (CUSIP → CIK via the data set's issuer name and the universe's ticker history; unmapped CUSIPs counted) to the universe, and writes `auspex-prices/ownership/13f/{yyyy}q{q}.parquet` with `filer_cik, issuer_cik, shares, value_usd, period_of_report, filing_accepted_at, is_amendment`. Written once per quarter, never rewritten; a later amendment appears in a later quarter's data set and is stored there.
-2. **`SpecialistClassifier`** — a 13F filer is a healthcare specialist as of date D if, across its 13Fs accepted before D in the trailing four quarters, at least `SPECIALIST_HEALTHCARE_SHARE` (default 0.5) of reported value is in issuers with SIC 2834, 2836, 8731 or 3841, and its total reported value is at least `SPECIALIST_MIN_AUM_USD` (default $100M). Both thresholds from `.env`, recorded in the hypothesis. The classification table per quarter is stored next to the holdings.
+2. **`SpecialistClassifier`** — a 13F filer is a healthcare specialist as of date D if, across its 13Fs accepted before D in the trailing four quarters, at least `SPECIALIST_HEALTHCARE_SHARE` (0.5) of reported value is in issuers with SIC 2834, 2836, 8731 or 3841, and its total reported value is at least `SPECIALIST_MIN_AUM_USD` ($100M). Both thresholds are read from the registered H9 hypothesis (`config/hypotheses/h9.yaml`), their only source; an unregistered or edited file is refused. The classification table per quarter is stored next to the holdings.
 3. **`InsiderTransactionStore`** — quarterly insider data sets → `auspex-prices/ownership/insider/{yyyy}q{q}.parquet` with `issuer_cik, owner_cik, role, transaction_code, shares, price, transaction_date, filing_accepted_at, is_10b5_1`. For the current quarter, before its data set is published, the same rows are filled from the daily form index and each Form 4's XML; when the quarterly set arrives it replaces nothing (the daily rows stay in a separate `daily/` prefix and the panel reader prefers the quarterly set, reporting any disagreement).
 4. **Point-in-time readers** — `specialist_ownership(issuer_cik, as_of)`: shares held by specialists in the latest 13F per filer **accepted before `as_of`**, over shares outstanding as of `as_of`; `net_insider_buying(issuer_cik, as_of, days=90)`: open-market purchases (code `P`) minus sales (code `S`) excluding 10b5-1 plan trades, by `filing_accepted_at` in the window, in USD over market cap. A purchase whose transaction date is within two days of a `424B4` or `424B5` filed by the same issuer is flagged `offering_participation` and excluded: insiders buying into their own financing is not an information signal. Offering dates come from the EDGAR quarterly form index, stored once per quarter alongside the insider panel.
 5. **`scripts/fetch_ownership.py`** — backfills both panels for the configured window and prints coverage: quarters stored, universe issuers with any 13F holder, unmapped CUSIP share, insider filings per quarter.
@@ -72,7 +74,7 @@ cd services/backtesting && uv run pytest tests/unit/test_ownership_datasets.py -
 
 Expected: 15 passed.
 
-Then: `scripts/fetch_ownership.py` run on the stack machine for 2013 onward; first available quarter of each data set, issuer coverage and unmapped-CUSIP share recorded in `DECISIONS.md`. `.env.example` gains the two specialist thresholds; `services/backtesting/README.md` lists the panels.
+Then: `scripts/fetch_ownership.py` run on the stack machine for 2013 onward; first available quarter of each data set, issuer coverage and unmapped-CUSIP share recorded in `DECISIONS.md`. `.env.example` gains the SEC data set URLs and `OWNERSHIP_HISTORY_START`; `services/backtesting/README.md` lists the panels.
 
 ## Notes
 
