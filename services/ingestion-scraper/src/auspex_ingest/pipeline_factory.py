@@ -54,6 +54,7 @@ def make_pipeline_factory(
             min_confidence_to_publish=entry.min_confidence_to_publish,
             metrics_registry=metrics_registry,
             extraction_identity=f"{built_extractor.model_id}|{built_extractor.prompt_version}",
+            max_extractions_per_run=entry.max_documents_per_run,
         )
 
     return factory

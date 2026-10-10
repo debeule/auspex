@@ -15,6 +15,12 @@ Pulls documents from 5 public biotech sources, archives raw content to MinIO (un
 7. Normalize — `HgncEntityNormalizer` resolves gene aliases and company tickers
 8. Publish — Kafka `auspex.signals.extracted` (signals only) + `auspex.raw.ingested` (all)
 
+A run sends at most `max_documents_per_run` documents to extraction (documents skipped as already processed don't count) and reports `next_cursor`, the cursor the DAG saves. It is the earliest `published_date` among documents that failed, so they are fetched again; otherwise the latest date processed. A run that stopped at the cap, or whose Kafka delivery could not be confirmed, reports the cursor it was given, and the processed markers carry the next run past what it finished. `/ingest/<source_type>` refuses a second run of a source while one is in progress (HTTP 409).
+
+## Scheduling
+
+Each `sources.yaml` entry gets a DAG in `dags/auspex_dags.py`. Live sources start an hour apart from 00:30 UTC; `mock` has no schedule. Ingestion tasks share Airflow pool `ingestion` (1 slot, created by the airflow service's start command), so one run at a time uses the model server. A task retries twice, 15 minutes apart, with a 3 h timeout that its HTTP request shares. When documents failed, the task saves the `next_cursor` and then fails, so the run shows red and retries; a request that errors (5xx, 409, timeout) leaves the cursor untouched.
+
 ---
 
 ## Connectors
@@ -45,10 +51,10 @@ Pulls documents from 5 public biotech sources, archives raw content to MinIO (un
 | Field | Type | Description |
 |---|---|---|
 | `source_type` | `str` | Unique connector identifier (e.g. `biorxiv`, `epo_ops`). |
-| `schedule` | `str` | Airflow 3 schedule expression (e.g. `@daily`, `0 6 * * 1`). Not `schedule_interval`. |
-| `rate_limit_rps` | `float` | Maximum requests per second to the connector's registered `rate_limit_host` (subdomains share the bucket). |
+| `schedule` | `str \| null` | Airflow 3 schedule expression in UTC (e.g. `30 0 * * *`). `null` (or omitted): the DAG only runs when triggered. Live sources start at least 30 minutes apart (test-enforced). |
+| `rate_limit_rps` | `float` | Maximum requests per second to the connector's registered `rate_limit_host` (subdomains share the bucket). Requests are spaced evenly with no burst, and a request waits for its turn rather than failing. Limits per requirements §6.5: bioRxiv and ClinicalTrials.gov 1, PubMed 3, EPO 2, SEC at most 5. |
 | `initial_lookback` | `int` | Days of history to fetch on first run (no cursor Variable yet). |
-| `max_documents_per_run` | `int` | Hard cap on documents fetched per DAG run. |
+| `max_documents_per_run` | `int` | Most documents one run sends to extraction, sized so a capped run fits the DAG's 3 h task timeout. Already-processed documents don't count. |
 | `prefilter_vocabulary` | `list[str]` | Terms the pre-filter checks before spending LLM calls. |
 | `source_config` | `dict` | Connector-specific configuration (base URLs, filters, etc.). |
 | `min_confidence_to_publish` | `float` | Optional, default `0.0` (off). Events scoring below it are counted in `below_threshold` instead of published (requirements §11). |
@@ -98,7 +104,7 @@ uv run python scripts/run_pipeline.py --days 30 --sources clinicaltrials pubmed
 
 ## Known API constraints
 
-- **SEC** blocks IPs at 10 req/s aggregate across all `*.sec.gov` (including `data.sec.gov`). Descriptive `User-Agent` is mandatory (403 without it). Filing documents are found on `Archives/edgar/data/{company_cik}/{accession_nodash}/{accession}-index.htm`, whose document table carries the type (`8-K`, `EX-99.1`) and whose `Accepted` field is the acceptance time in US Eastern time; the `index.json` directory endpoint has no type metadata, and `data.sec.gov/submissions` only lists recent filings (about a year or 1,000 filings), too few for a backfill. Use the company CIK from `ciks[0]`, not the accession prefix, which names the filing agent for most large filers. Inline-XBRL documents link as `/ix?doc=/Archives/...`. Full-text search may return a hit per filed document, so hits are deduplicated by accession. The EFTS `_source` schema uses `adsh`/`ciks`/`display_names` — not `accession_no`/`entity_id`/`entity_name`.
+- **SEC** blocks IPs at 10 req/s aggregate across all `*.sec.gov` (including `data.sec.gov`), and every request during a block extends it, so a 403 stops the EDGAR run (`SecRequestRefused`) and the DAG retries later. EDGAR ingestion runs at 4 req/s and the universe build's filing-index lookups at 5, so the two together stay under 10. Descriptive `User-Agent` is mandatory (403 without it). Filing documents are found on `Archives/edgar/data/{company_cik}/{accession_nodash}/{accession}-index.htm`, whose document table carries the type (`8-K`, `EX-99.1`) and whose `Accepted` field is the acceptance time in US Eastern time; the `index.json` directory endpoint has no type metadata, and `data.sec.gov/submissions` only lists recent filings (about a year or 1,000 filings), too few for a backfill. Use the company CIK from `ciks[0]`, not the accession prefix, which names the filing agent for most large filers. Inline-XBRL documents link as `/ix?doc=/Archives/...`. Full-text search may return a hit per filed document, so hits are deduplicated by accession. The EFTS `_source` schema uses `adsh`/`ciks`/`display_names` — not `accession_no`/`entity_id`/`entity_name`.
 - **EPO OPS**: OAuth2 client credentials, free standard tier at 2.5 req/s. Register at developers.epo.org.
 - **openFDA**: 1,000 requests/day without key; key raises limit significantly. No designations endpoint (no Fast Track/RMAT/orphan data).
 - **ClinicalTrials API v2**: uses `filter.advanced=AREA[LastUpdatePostDate]RANGE[start,end]` syntax — the `filter.lastUpdatePostDate` param was removed.

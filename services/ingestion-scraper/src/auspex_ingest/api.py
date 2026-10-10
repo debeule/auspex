@@ -1,4 +1,5 @@
 import os
+import threading
 from collections.abc import Callable
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
@@ -31,6 +32,9 @@ def create_app(
     _pipeline_for = pipeline_for_source or make_env_pipeline_factory(_sources_by_type, _registry)
     _runner: ReextractionRunner | None = reextract_runner
     _now = now or (lambda: datetime.now(UTC))
+    # One run per source at a time: a second run would fetch and extract the same documents while
+    # the first still holds the model server. Runs of different sources do not wait on each other.
+    _run_locks = {source_type: threading.Lock() for source_type in _sources_by_type}
 
     @app.route("/health")
     def health() -> Any:
@@ -53,11 +57,16 @@ def create_app(
         else:
             cursor = _now() - timedelta(days=entry.initial_lookback)
 
+        lock = _run_locks[source_type]
+        if not lock.acquire(blocking=False):
+            return jsonify({"error": f"A {source_type!r} run is already in progress"}), 409
         try:
             pipeline = _pipeline_for(source_type)
             result: RunResult = pipeline.run(source_type, cursor)
         except Exception as exc:  # noqa: BLE001
             return jsonify({"error": str(exc)}), 500
+        finally:
+            lock.release()
 
         return jsonify({
             "fetched": result.fetched,
@@ -66,11 +75,9 @@ def create_app(
             "not_signal": result.not_signal,
             "below_threshold": result.below_threshold,
             "failed": result.failed,
-            "max_published_date_processed": (
-                result.max_published_date_processed.isoformat()
-                if result.max_published_date_processed
-                else None
-            ),
+            "max_published_date_processed": _iso(result.max_published_date_processed),
+            "next_cursor": _iso(result.next_cursor),
+            "capped": result.capped,
         })
 
     @app.route("/reextract", methods=["POST"])
@@ -97,6 +104,10 @@ def create_app(
         return Response(generate_latest(_registry), mimetype="text/plain; version=0.0.4")
 
     return app
+
+
+def _iso(value: datetime | None) -> str | None:
+    return value.isoformat() if value is not None else None
 
 
 def _load_sources_config() -> SourcesConfig:

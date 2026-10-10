@@ -106,3 +106,15 @@ def test_no_module_builds_dags_in_the_scraper_package():
     assert airflow_users == []
     with pytest.raises(ModuleNotFoundError):
         importlib.import_module("auspex_ingest.dag_factory")
+
+
+# Requirements §6.5: bioRxiv and ClinicalTrials.gov 1 req/s, NCBI 3 without a key, EPO OPS 2, and
+# SEC configured at 5 of its 10 req/s aggregate so other SEC clients fit beside it.
+_MAX_RPS = {"biorxiv": 1.0, "clinicaltrials": 1.0, "pubmed": 3.0, "epo_ops": 2.0, "edgar": 5.0}
+
+
+def test_source_rates_follow_the_requirements_limits():
+    shipped = {e.source_type: e for e in load_sources_config(_SOURCES_YAML).sources}
+
+    for source_type, limit in _MAX_RPS.items():
+        assert shipped[source_type].rate_limit_rps <= limit, source_type

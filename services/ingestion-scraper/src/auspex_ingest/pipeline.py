@@ -22,6 +22,11 @@ class RunResult:
     below_threshold: int = 0
     failed: int = 0
     max_published_date_processed: datetime | None = None
+    # The cursor the caller saves for the next run: never later than a document this run failed
+    # to process, and the input cursor when the run stopped early. None when nothing was fetched.
+    next_cursor: datetime | None = None
+    # The run stopped at the extraction cap with documents left to fetch.
+    capped: bool = False
 
 
 class IngestionPipeline:
@@ -38,6 +43,7 @@ class IngestionPipeline:
         min_confidence_to_publish: float = 0.0,
         metrics_registry: Any = None,
         extraction_identity: str | None = None,
+        max_extractions_per_run: int | None = None,
     ) -> None:
         self._connector = connector
         self._archive = archive
@@ -52,6 +58,7 @@ class IngestionPipeline:
         # identical content was already fully processed under the same identity is not
         # re-extracted (requirements §7.1 step 3). None disables the check.
         self._extraction_identity = extraction_identity
+        self._max_extractions = max_extractions_per_run
 
     def run(self, source_type: str, cursor: datetime) -> RunResult:
         log = structlog.get_logger().bind(**{
@@ -66,6 +73,8 @@ class IngestionPipeline:
             else None
         )
         completed: list[Any] = []
+        extractions = 0
+        earliest_failed: datetime | None = None
 
         for doc in self._connector.fetch_since(cursor):
             result.fetched += 1
@@ -104,6 +113,12 @@ class IngestionPipeline:
                         f"Connector declares provides_canonical_id=True but "
                         f"doc {doc.external_id!r} has canonical_id=None"
                     )
+
+                if self._max_extractions is not None and extractions >= self._max_extractions:
+                    result.capped = True
+                    log.info("extraction cap reached", **{"auspex.cap": self._max_extractions})
+                    break
+                extractions += 1
 
                 extract_start = time.monotonic()
                 try:
@@ -160,6 +175,8 @@ class IngestionPipeline:
 
             except Exception as exc:  # noqa: BLE001
                 result.failed += 1
+                if earliest_failed is None or doc.published_date < earliest_failed:
+                    earliest_failed = doc.published_date
                 if self._metrics:
                     self._metrics["documents_failed"].labels(source_type=source_type).inc()
                 log.error("document processing failed", **{
@@ -167,11 +184,20 @@ class IngestionPipeline:
                     "exception_class": type(exc).__name__,
                 })
 
+        delivered = True
         try:
             self._producer.flush()
         except Exception:  # noqa: BLE001
             result.failed += 1
+            delivered = False
             completed.clear()  # delivery unconfirmed: leave unmarked so the next fetch retries
+
+        if result.capped or not delivered:
+            result.next_cursor = cursor if result.fetched else None
+        elif earliest_failed is not None:
+            result.next_cursor = earliest_failed
+        else:
+            result.next_cursor = result.max_published_date_processed
 
         if identity is not None:
             for doc in completed:
@@ -198,6 +224,7 @@ class IngestionPipeline:
                  published=result.published,
                  not_signal=result.not_signal,
                  below_threshold=result.below_threshold,
-                 failed=result.failed)
+                 failed=result.failed,
+                 capped=result.capped)
 
         return result
