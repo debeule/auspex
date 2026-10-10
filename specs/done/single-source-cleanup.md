@@ -1,6 +1,6 @@
 # Single-Source Cleanup
 
-**Status:** ready
+**Status:** done
 **Branch:** `feature/single-source-cleanup`
 
 ---

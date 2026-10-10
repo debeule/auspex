@@ -5,7 +5,6 @@ strategies:
     version: "1.0"
     hypothesis_id: h1
     status: draft
-    parameters_file: config/strategies/structural_convergence.yaml
 
   - name: directional_convergence
     module: auspex_strategy.strategies.h4_directional_convergence
@@ -13,7 +12,6 @@ strategies:
     version: "1.0"
     hypothesis_id: h4
     status: draft
-    parameters_file: config/strategies/directional_convergence.yaml
 
   - name: source_composition
     module: auspex_strategy.strategies.h5_source_composition
@@ -21,7 +19,6 @@ strategies:
     version: "1.0"
     hypothesis_id: h5
     status: draft
-    parameters_file: config/strategies/source_composition.yaml
 
   - name: gene_target_novelty
     module: auspex_strategy.strategies.h6_gene_target_novelty
@@ -29,7 +26,6 @@ strategies:
     version: "1.0"
     hypothesis_id: h6
     status: draft
-    parameters_file: config/strategies/gene_target_novelty.yaml
 
   - name: confidence_gradient
     module: auspex_strategy.strategies.h7_confidence_gradient
@@ -37,12 +33,3 @@ strategies:
     version: "1.0"
     hypothesis_id: h7
     status: draft
-    parameters_file: config/strategies/confidence_gradient.yaml
-
-  - name: negative_asymmetry
-    module: auspex_strategy.strategies.h8_negative_asymmetry
-    class: NegativeAsymmetryStrategy
-    version: "1.0"
-    hypothesis_id: h8
-    status: draft
-    parameters_file: config/strategies/negative_asymmetry.yaml

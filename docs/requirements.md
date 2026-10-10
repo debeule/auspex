@@ -1,6 +1,6 @@
 # Auspex — Technical Requirements & Constraints
 
-> **How to read this.** No code exists. This is a greenfield build, and this document plus `plan.md` are its entire input. Bracketed tags like `[A3]`, `[B1]`, `[P2-5]` are provenance markers from three rounds of adversarial review of this specification — they record *why* a non-obvious decision was made and do not reference anything ever implemented. Where a note calls a choice "intuitive and wrong," read it as a warning against a plausible mistake, not as a description of existing behaviour to be migrated away from.
+> **How to read this.** No code exists. This is a greenfield build, and this document was its entire input; the work itself is specified in `specs/`. Bracketed tags like `[A3]`, `[B1]`, `[P2-5]` are provenance markers from three rounds of adversarial review of this specification — they record *why* a non-obvious decision was made and do not reference anything ever implemented. Where a note calls a choice "intuitive and wrong," read it as a warning against a plausible mistake, not as a description of existing behaviour to be migrated away from.
 
 ---
 
@@ -329,9 +329,7 @@ extraction_id = uuid5(NAMESPACE_URL,
 
 ### 10.2 `ResearchSignalEvent`
 
-`schema_version`, `event_id`, `extraction_id`, `external_id`, `canonical_id`, `raw_object_key`, `source_type` (enum), `source_url`, `published_date`, `published_date_field`, `ingested_at`, `title`, `raw_text_snippet`, `gene_targets` (list), `mechanisms` (list), `companies_mentioned`, `summary`, `directionality` (enum), `confidence_score`, `prompt_version`, `prefilter_version`, `extraction_model`.
-
-Schema 1.1 adds the company-level fields: `event_type` (closed set: `trial_readout`, `trial_initiation`, `trial_halted`, `trial_revised`, `clinical_hold`, `regulatory_submission`, `regulatory_designation`, `regulatory_approval`, `complete_response_letter`, `preclinical_data`, `patent_publication`, `other`), `primary_company` (nullable), `program_identifiers` (list) and `trial_ids` (list of `NCT` + 8 digits). Consumers treat them as absent on 1.0 events.
+`schema_version`, `event_id`, `extraction_id`, `external_id`, `canonical_id`, `raw_object_key`, `source_type` (enum), `source_url`, `published_date`, `published_date_field`, `ingested_at`, `title`, `raw_text_snippet`, `gene_targets` (list), `mechanisms` (list), `companies_mentioned`, `summary`, `directionality` (enum), `confidence_score`, `prompt_version`, `prefilter_version`, `extraction_model`, `event_type` (closed set: `trial_readout`, `trial_initiation`, `trial_halted`, `trial_revised`, `clinical_hold`, `regulatory_submission`, `regulatory_designation`, `regulatory_approval`, `complete_response_letter`, `preclinical_data`, `patent_publication`, `other`), `primary_company` (nullable), `program_identifiers` (list) and `trial_ids` (list of `NCT` + 8 digits). The schema version is `1.0`.
 
 `external_id` and `raw_object_key` are what keep the chain of custody intact — without them a signal cannot be joined to its audit row, re-extracted from its snapshot, or resolved back to the per-source dates Phase 4 needs. `gene_targets` is a list because real papers name several; getting this wrong is expensive to correct once the graph and the topic key both depend on it.
 
@@ -376,7 +374,7 @@ The payoff here is content, not code execution: a document that induces a chosen
 
 ### 11.3 Extraction quality is measured `[E2]`
 
-The prompt is a versioned file (`prompts/extraction/v{N}.md`), referenced by `prompt_version` on every event; the pre-filter vocabulary is versioned as `prefilter_version`. A golden set of 20–30 hand-labelled real documents spanning every `source_type` scores per-field precision/recall, the `is_signal` confusion matrix, `confidence_score` calibration, and **pre-filter false negatives** `[P2-8]`. It runs manually, never in CI, and gates each connector step.
+The prompt is a versioned file (`prompts/extraction/<version>.txt`), referenced by `prompt_version` on every event; the pre-filter vocabulary is versioned as `prefilter_version`. A golden set of 20–30 hand-labelled real documents spanning every `source_type` scores per-field precision/recall, the `is_signal` confusion matrix, `confidence_score` calibration, and **pre-filter false negatives** `[P2-8]`. It runs manually, never in CI, and gates each connector step.
 
 ---
 
@@ -395,7 +393,7 @@ This belongs in Phases 1–2. A connector that silently started returning empty 
 
 ## 13. Testing Strategy — TDD
 
-Tests precede implementation for every step. A step's Definition of Done is that its suite passes **and that its tests were checked against these requirements before being written** (see `plan.md` instruction 4).
+Tests precede implementation for every step. A step's Definition of Done is that its suite passes **and that its tests were checked against these requirements before being written** (see "The rule that matters most" in the root `CLAUDE.md`).
 
 **`ingestion-scraper` — pytest.** `tests/unit/` and `tests/integration/` with an `integration` marker. `pytest-socket --disable-socket` across the unit suite — this, not a naming convention, is what makes "no live API calls" true. Source APIs stubbed via `respx` against saved fixtures. The OpenAI client is injected and stubbed. MinIO and Kafka integration tests use `testcontainers`, not a manually started compose stack. An injected `now()` provider throughout.
 

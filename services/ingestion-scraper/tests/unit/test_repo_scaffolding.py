@@ -131,3 +131,32 @@ def test_no_credential_has_a_source_default():
         if var in vars_map and vars_map[var] != "":
             violations.append(f"{var}={vars_map[var]!r}")
     assert not violations, f"Credentials with non-empty defaults in .env.example: {violations}"
+
+
+def test_airflow_metadata_is_a_separate_database() -> None:
+    init_dir = Path(__file__).parents[4] / "docker" / "postgres-init"
+    scripts = "\n".join(
+        f.read_text()
+        for f in sorted(init_dir.iterdir())
+        if f.suffix in {".sh", ".sql"}
+    )
+    assert "CREATE DATABASE airflow" in scripts, "Airflow DB must be created as a separate database"
+    assert "REVOKE ALL ON DATABASE airflow FROM PUBLIC" in scripts, "Airflow DB must be isolated from PUBLIC"
+
+
+_COMPOSE_REFERENCE = re.compile(r"\$\{([A-Z0-9_]+)([^}]*)\}")
+
+
+def _compose_references() -> list[tuple[str, str]]:
+    compose = (REPO_ROOT / "docker" / "docker-compose.yml").read_text()
+    return _COMPOSE_REFERENCE.findall(compose)
+
+
+def test_compose_reads_env_example_variables_bare():
+    defined = set(_parse_env_example())
+
+    suffixed = sorted(
+        f"{var}{suffix}" for var, suffix in _compose_references() if var in defined and suffix
+    )
+
+    assert suffixed == []

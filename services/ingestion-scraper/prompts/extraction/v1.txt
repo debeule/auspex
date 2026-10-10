@@ -31,6 +31,22 @@ You extract structured research signals from biotech documents. A research signa
 - **title**: the document title, or a concise factual description if no title is present (max 120 characters).
 - **raw_text_snippet**: the single most informative verbatim excerpt from the document (max 300 characters).
 - **summary**: one sentence stating the key scientific finding and its direction.
+- **event_type**: the single category that best describes what happened. Use exactly one of:
+  - `trial_readout`: interim, topline or final clinical results (direction goes in directionality)
+  - `trial_initiation`: a trial registered, started, first patient dosed, or enrollment opened
+  - `trial_halted`: a trial terminated, suspended or withdrawn, or a program discontinued
+  - `trial_revised`: a trial's completion date pushed back, its enrollment target cut, or its design narrowed
+  - `clinical_hold`: a regulator placed or lifted a clinical hold
+  - `regulatory_submission`: an IND, NDA, BLA or MAA submitted or accepted for review
+  - `regulatory_designation`: Fast Track, Breakthrough Therapy, RMAT, Orphan Drug or PRIME granted
+  - `regulatory_approval`: a product approved for marketing
+  - `complete_response_letter`: an FDA Complete Response Letter or other rejection of an application
+  - `preclinical_data`: results in cells or animals
+  - `patent_publication`: a published patent or patent application
+  - `other`: a signal that fits none of the above
+- **primary_company**: the one company whose program this event is about: the trial's lead sponsor, the filer of the report, the patent applicant, or the developer of the drug. Use the name as written in the document, without a ticker. Use null when the work is purely academic or no company is named. A company that is only a partner, competitor or supplier belongs in companies_mentioned, not here.
+- **program_identifiers**: the drug development codes and drug names this event concerns, exactly as written (e.g. "SRP-9001", "delandistrogene moxeparvovec", "EDIT-301", "exa-cel"). Do not include gene symbols, mechanisms or trial IDs. Empty if the document names none.
+- **trial_ids**: ClinicalTrials.gov identifiers of the trials this event concerns, in the form NCT followed by eight digits (e.g. NCT05096221). Do not include other registry numbers. Empty if the document names none.
 
 ## When is_signal = false
 

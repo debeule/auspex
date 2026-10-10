@@ -367,7 +367,7 @@ def test_exhibit_99_1_press_release_is_fetched_and_leads_raw_content():
 @respx.mock
 def test_readout_in_exhibit_99_1_reaches_the_extractor_input_window():
     """The extractor reads only the first `_MAX_CONTENT_CHARS`; the readout must sit inside it."""
-    from auspex_ingest.extractor import _MAX_CONTENT_CHARS
+    from auspex_ingest.extraction_backend import _MAX_CONTENT_CHARS
 
     long_cover = _COVER_HTML.replace(
         "<p>SIGNATURES", "<p>" + "Cover page boilerplate. " * 400 + "</p><p>SIGNATURES"

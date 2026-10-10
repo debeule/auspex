@@ -69,9 +69,9 @@ auspex/
 │   ├── ingestion-scraper/   Python scraper — fetch, archive, extract, publish
 │   ├── core-hub/            Java Spring Boot — sole DB writer, corroboration, REST
 │   └── backtesting/         Prices, market simulation, backtests; price refresh API
-├── orchestration/airflow/   Airflow DAGs (Phase 2+)
+├── orchestration/          Airflow notes (DAGs live with their services)
 ├── docker/                  Docker Compose stack + startup data bootstrap
-├── docs/                    Reference docs: plan, requirements, decisions, prerequisites
+├── docs/                    Reference docs: requirements, prerequisites, runbooks
 ├── SETUP.md                 The manual steps, in order; everything else fills itself on `up`
 ├── CLAUDE.md                Claude Code operational context (auto-loaded)
 ├── PROGRESS.md              Execution ledger (test counts, step status)

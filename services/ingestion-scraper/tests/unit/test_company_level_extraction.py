@@ -9,6 +9,7 @@ import pytest
 import yaml
 
 from auspex_ingest.extraction_backend import (
+    DEFAULT_PROMPT_VERSION,
     BackendLLMExtractor,
     GateNotPassedError,
     build_extractor_from_env,
@@ -45,7 +46,7 @@ def _extractor(result: _ExtractionResult) -> BackendLLMExtractor:
         model_id="test-model",
         entry=_ENTRY,
         schema_version=EVENT_SCHEMA_VERSION,
-        prompt_version="v1.1",
+        prompt_version=DEFAULT_PROMPT_VERSION,
         prompt_text="system prompt",
         now=lambda: _T0,
     )
@@ -108,28 +109,25 @@ def test_clinical_trial_document_always_lists_its_own_nct_id():
     assert event.trial_ids == ["NCT06123456"]
 
 
-def test_events_are_stamped_with_the_current_schema_version():
+def test_event_schema_version_is_one_point_zero():
     event = _extractor(_signal()).extract(_doc(), prefilter_version="v1", raw_object_key="k")
-
-    assert EVENT_SCHEMA_VERSION == "1.1"
     assert event is not None
-    assert event.schema_version == EVENT_SCHEMA_VERSION
+    producer = MagicMock()
+
+    KafkaProducerClient(producer, raw_topic="raw", signals_topic="signals").publish_signal(event)
+
+    assert EVENT_SCHEMA_VERSION == "1.0"
+    assert event.schema_version == "1.0"
+    assert producer.produce.call_args.kwargs["headers"] == {"schema_version": "1.0"}
 
 
-def test_prompt_v1_1_asks_for_every_new_field():
-    prompt = (_PROMPT_DIR / "v1.1.txt").read_text()
+def test_default_prompt_asks_for_every_company_level_field():
+    prompt = (_PROMPT_DIR / f"{DEFAULT_PROMPT_VERSION}.txt").read_text()
 
     for field in ("event_type", "primary_company", "program_identifiers", "trial_ids"):
-        assert f"**{field}**" in prompt, f"prompt v1.1 has no extraction rule for {field}"
+        assert f"**{field}**" in prompt, f"the prompt has no extraction rule for {field}"
     for event_type in _ExtractionResult.model_fields["event_type"].annotation.__args__:
-        assert f"`{event_type}`" in prompt, f"prompt v1.1 does not define {event_type}"
-
-
-def test_production_default_prompt_version_is_v1_1():
-    from auspex_ingest import extraction_backend
-
-    assert extraction_backend._DEFAULT_PROMPT_VERSION == "v1.1"
-    assert (_PROMPT_DIR / "v1.1.txt").exists()
+        assert f"`{event_type}`" in prompt, f"the prompt does not define {event_type}"
 
 
 @pytest.mark.parametrize("event_type", get_args(EventType))
@@ -208,7 +206,7 @@ def test_kafka_payload_round_trips_every_company_level_field():
 
     kwargs = producer.produce.call_args.kwargs
     payload = json.loads(kwargs["value"])
-    assert kwargs["headers"] == {"schema_version": "1.1"}
+    assert kwargs["headers"] == {"schema_version": EVENT_SCHEMA_VERSION}
     assert payload["event_type"] == "complete_response_letter"
     assert payload["primary_company"] == "Sarepta Therapeutics"
     assert payload["program_identifiers"] == ["SRP-9001"]
@@ -217,7 +215,7 @@ def test_kafka_payload_round_trips_every_company_level_field():
 
 
 def test_production_extractor_stamps_the_current_schema_version_by_default(tmp_path):
-    registry, scores = _registry_with_gate(tmp_path, "v1.1")
+    registry, scores = _registry_with_gate(tmp_path, DEFAULT_PROMPT_VERSION)
     extractor = build_extractor_from_env(_env(registry, scores))
     extractor._client = MagicMock()
     extractor._client.chat.completions.create.return_value = _signal()
@@ -225,14 +223,14 @@ def test_production_extractor_stamps_the_current_schema_version_by_default(tmp_p
     event = extractor.extract(_doc(), prefilter_version=PREFILTER_VERSION, raw_object_key="k")
 
     assert event is not None
-    assert event.schema_version == "1.1"
-    assert event.prompt_version == "v1.1"
+    assert event.schema_version == EVENT_SCHEMA_VERSION
+    assert event.prompt_version == DEFAULT_PROMPT_VERSION
 
 
-def test_production_refuses_to_start_with_only_a_v1_0_gate_record(tmp_path):
-    registry, scores = _registry_with_gate(tmp_path, "v1.0")
+def test_production_refuses_to_start_with_only_a_gate_record_for_another_prompt(tmp_path):
+    registry, scores = _registry_with_gate(tmp_path, "v0")
 
-    with pytest.raises(GateNotPassedError, match="v1.1"):
+    with pytest.raises(GateNotPassedError, match=f"prompt_version={DEFAULT_PROMPT_VERSION!r}"):
         build_extractor_from_env(_env(registry, scores))
 
 
@@ -272,22 +270,12 @@ def _env(registry: Path, scores: Path) -> dict[str, str]:
     }
 
 
-def test_legacy_extractor_maps_company_level_fields_the_same_way():
-    from auspex_ingest.extractor import LLMExtractor
+def test_extractor_module_defines_no_extractor_class():
+    from auspex_ingest import extractor
 
-    client = MagicMock()
-    client.chat.completions.create.return_value = _signal(
-        event_type="clinical_hold", primary_company="Rocket", trial_ids=["bad"]
-    )
-    extractor = LLMExtractor(
-        client=client, model="m", schema_version=EVENT_SCHEMA_VERSION, prompt_version="v1.1"
-    )
+    extractors = [
+        name for name, value in vars(extractor).items()
+        if isinstance(value, type) and callable(getattr(value, "extract", None))
+    ]
 
-    event = extractor.extract(
-        _doc(canonical_id="nct:NCT06123456"), prefilter_version="v1", raw_object_key="k"
-    )
-
-    assert event is not None
-    assert event.event_type == "clinical_hold"
-    assert event.primary_company == "Rocket"
-    assert event.trial_ids == ["NCT06123456"]
+    assert extractors == []

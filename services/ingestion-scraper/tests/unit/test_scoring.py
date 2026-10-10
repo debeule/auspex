@@ -138,7 +138,7 @@ def test_scoring_script_reproduces_hand_computed_scores_on_a_toy_set():
 
 
 def test_prompt_and_prefilter_versions_are_recorded_on_every_extracted_event():
-    from auspex_ingest.extractor import LLMExtractor
+    from auspex_ingest.extraction_backend import BackendLLMExtractor
     from auspex_ingest.models import RawDocument
 
     mock_result = MagicMock()
@@ -159,11 +159,13 @@ def test_prompt_and_prefilter_versions_are_recorded_on_every_extracted_event():
     mock_client = MagicMock()
     mock_client.chat.completions.create.return_value = mock_result
 
-    extractor = LLMExtractor(
+    extractor = BackendLLMExtractor(
         client=mock_client,
-        model="gpt-4o",
+        model_id="gpt-4o",
+        entry={"num_ctx": 8192, "temperature": 0, "seed": 42},
         schema_version="1.0",
         prompt_version="v1",
+        prompt_text="system prompt",
         now=lambda: _T0,
     )
     doc = RawDocument(

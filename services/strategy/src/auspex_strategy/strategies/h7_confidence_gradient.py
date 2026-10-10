@@ -8,7 +8,7 @@ class ConfidenceGradientStrategy(Strategy):
     name = "confidence_gradient"
     version = "1.0"
     hypothesis_id = "h7"
-    description = "Long on corroborations with above-threshold mean confidence_score"
+    description = "Long on corroborations whose mean confidence_score is above the median"
 
     @property
     def subscriptions(self) -> frozenset[SubscriptionType]:

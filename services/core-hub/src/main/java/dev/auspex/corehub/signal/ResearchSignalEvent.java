@@ -13,8 +13,8 @@ import java.util.UUID;
  * Wire contract for the auspex.signals.extracted Kafka topic.
  * Snake_case mapping is applied by the application Jackson ObjectMapper.
  *
- * <p>The company-level fields ({@code eventType} onwards) arrived in schema 1.1 and are
- * nullable so that 1.0 events, which lack them, still validate under minor-version tolerance.
+ * <p>{@code primaryCompany} is the only nullable company-level field: a document need not
+ * concern one company.
  */
 public record ResearchSignalEvent(
         @NotNull String schemaVersion,
@@ -39,8 +39,8 @@ public record ResearchSignalEvent(
         @NotNull String promptVersion,
         @NotNull String prefilterVersion,
         @NotNull String extractionModel,
-        String eventType,
+        @NotNull String eventType,
         String primaryCompany,
-        List<String> programIdentifiers,
-        List<String> trialIds
+        @NotNull List<String> programIdentifiers,
+        @NotNull List<String> trialIds
 ) {}

@@ -960,3 +960,8 @@ Where they disagree: report 1 stays in biotech with a holdings composite; report
 **What:** The dashboard container (dashboard foundation) landed on develop alongside this work. It gets `DASHBOARD_MEM_LIMIT=256m` and a blackbox probe of `/api/health`. The 256 MB comes from price-service (1,280 → 1,024), the same two values `specs/container-limits-and-log-rotation.md` starts from, so the long-running total stays 7,680 MB.
 **Risk:** the monthly universe build is price-service's peak; at 1,024 MB it may be OOM-killed.
 **Action:** the stack-machine memory check in the PENDING entry above covers it.
+
+## 2026-10-10 — Single-source cleanup — CHOICE — one version of each pre-rollout artifact
+**What:** Nothing has run in production, so every artifact with a second version collapses to one: the extraction prompt is `v1` (the company-level text, formerly `v1.1`; `v1.0` and the old `v1` deleted); the hand-written gpt-4o-mini gate record and `config/prefilter/v1.yaml` are deleted; the event schema is `1.0` with the company-level fields required in Java (only `primary_company` nullable); `LLMExtractor` and `dag_factory.py` are deleted, with the cursor tests moved to the real HTTP DAG; `docs/plan.md` is deleted; strategy parameter files and the H8 `negative_asymmetry` strategy are deleted, so hypothesis files are the only parameter source; the watchlist-alerts hold spec reads the V3 tables; compose reads every `.env.example` variable as a bare `${VAR}`, matching the monitoring variables. Flyway `V4__company_level_fields.sql` keeps its frozen header saying "schema 1.1"; it predates this reset and is checksummed.
+**Action:** `specs/done/single-source-cleanup.md`.
+

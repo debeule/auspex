@@ -43,8 +43,8 @@ _VALID_LOCAL_ENTRY = {
 
 _PASSING_SCORE = {
     "model_id": "gpt-4o-mini-2024-07-18",
-    "prompt_version": "v1.0",
-    "prefilter_version": "v1.0",
+    "prompt_version": "v1",
+    "prefilter_version": "v1",
     "precision": 1.0,
     "passed": True,
     "scored_at": "2024-01-01T00:00:00Z",
@@ -87,8 +87,8 @@ def _make_factory(
     model_id: str = "gpt-4o-mini-2024-07-18",
     registry_entries: dict | None = None,
     score: dict | None = None,
-    prompt_version: str = "v1.0",
-    prefilter_version: str = "v1.0",
+    prompt_version: str = "v1",
+    prefilter_version: str = "v1",
     model_info_fn=None,
     env_overrides: dict | None = None,
 ) -> LLMExtractorFactory:
@@ -132,8 +132,8 @@ def test_extraction_base_url_is_read_from_env(tmp_path, monkeypatch):
         model_id=os.environ["EXTRACTION_MODEL"],
         base_url=os.environ.get("EXTRACTION_BASE_URL"),
         api_key=os.environ.get("EXTRACTION_API_KEY"),
-        prompt_version="v1.0",
-        prefilter_version="v1.0",
+        prompt_version="v1",
+        prefilter_version="v1",
     )
     assert factory.base_url == "http://localhost:11434/v1"
 
@@ -151,8 +151,8 @@ def test_extraction_base_url_defaults_to_openai_when_absent(tmp_path, monkeypatc
         model_id="gpt-4o-mini-2024-07-18",
         base_url=None,
         api_key="test-key",
-        prompt_version="v1.0",
-        prefilter_version="v1.0",
+        prompt_version="v1",
+        prefilter_version="v1",
     )
     assert factory.base_url is None
 
@@ -169,8 +169,8 @@ def test_moving_alias_rejected_at_startup(tmp_path):
             model_id="gpt-4o-mini",
             base_url=None,
             api_key="test-key",
-            prompt_version="v1.0",
-            prefilter_version="v1.0",
+            prompt_version="v1",
+            prefilter_version="v1",
         )
 
 
@@ -186,8 +186,8 @@ def test_unknown_model_fails_loudly_at_startup(tmp_path):
             model_id="gpt-x-9999",
             base_url=None,
             api_key="test-key",
-            prompt_version="v1.0",
-            prefilter_version="v1.0",
+            prompt_version="v1",
+            prefilter_version="v1",
         )
 
 
@@ -217,8 +217,8 @@ def test_registry_entry_missing_cutoff_source_is_rejected(tmp_path):
             model_id="bad-model",
             base_url=None,
             api_key="test-key",
-            prompt_version="v1.0",
-            prefilter_version="v1.0",
+            prompt_version="v1",
+            prefilter_version="v1",
         )
 
 
@@ -249,8 +249,8 @@ def test_registry_entry_missing_digest_is_rejected_for_local_backend(tmp_path):
             model_id="gemma3:27b",
             base_url=None,
             api_key="test-key",
-            prompt_version="v1.0",
-            prefilter_version="v1.0",
+            prompt_version="v1",
+            prefilter_version="v1",
         )
 
 
@@ -280,8 +280,8 @@ def test_registry_entry_missing_num_ctx_is_rejected(tmp_path):
             model_id="some-model",
             base_url=None,
             api_key="test-key",
-            prompt_version="v1.0",
-            prefilter_version="v1.0",
+            prompt_version="v1",
+            prefilter_version="v1",
         )
 
 
@@ -301,8 +301,8 @@ def test_digest_mismatch_fails_at_startup(tmp_path):
             model_id=model_id,
             base_url=None,
             api_key="test-key",
-            prompt_version="v1.0",
-            prefilter_version="v1.0",
+            prompt_version="v1",
+            prefilter_version="v1",
             model_info_fn=bad_model_info_fn,
         )
 
@@ -315,19 +315,19 @@ def test_over_context_prompt_fails_loudly_not_truncated(tmp_path):
         }
     }
     factory = _make_factory(tmp_path, registry_entries=tiny_entry)
-    extractor = factory.make_extractor(schema_version="1.0", prompt_version="v1.0")
+    extractor = factory.make_extractor(schema_version="1.0", prompt_version="v1")
 
     doc = _make_raw(content="BCL11A gene target CRISPR trial")
 
     with pytest.raises(ContextLengthError):
-        extractor.extract(doc, prefilter_version="v1.0", raw_object_key="key/raw.json")
+        extractor.extract(doc, prefilter_version="v1", raw_object_key="key/raw.json")
 
 
 def test_malformed_json_response_is_counted_and_nothing_is_published(tmp_path, mocker):
     from auspex_ingest.normalizer import IdentityNormalizer
 
     factory = _make_factory(tmp_path)
-    extractor = factory.make_extractor(schema_version="1.0", prompt_version="v1.0")
+    extractor = factory.make_extractor(schema_version="1.0", prompt_version="v1")
 
     mock_client = mocker.MagicMock()
     mock_client.chat.completions.create.side_effect = Exception("JSON decode error")
@@ -365,7 +365,7 @@ def test_timeout_is_isolated_to_document_and_batch_continues(tmp_path, mocker):
     from auspex_ingest.normalizer import IdentityNormalizer
 
     factory = _make_factory(tmp_path)
-    extractor = factory.make_extractor(schema_version="1.0", prompt_version="v1.0")
+    extractor = factory.make_extractor(schema_version="1.0", prompt_version="v1")
 
     call_count = 0
 
@@ -413,7 +413,7 @@ def test_model_server_unreachable_documents_stay_archived_and_not_published(tmp_
     from auspex_ingest.normalizer import IdentityNormalizer
 
     factory = _make_factory(tmp_path)
-    extractor = factory.make_extractor(schema_version="1.0", prompt_version="v1.0")
+    extractor = factory.make_extractor(schema_version="1.0", prompt_version="v1")
 
     mock_client = mocker.MagicMock()
     mock_client.chat.completions.create.side_effect = ConnectionRefusedError("server down")
@@ -448,14 +448,14 @@ def test_model_server_unreachable_documents_stay_archived_and_not_published(tmp_
 
 def test_extraction_parameters_come_from_registry_not_hardcoded(tmp_path, mocker):
     factory = _make_factory(tmp_path)
-    extractor = factory.make_extractor(schema_version="1.0", prompt_version="v1.0")
+    extractor = factory.make_extractor(schema_version="1.0", prompt_version="v1")
 
     mock_client = mocker.MagicMock()
     mock_client.chat.completions.create.return_value = mocker.MagicMock(is_signal=False)
     extractor._client = mock_client
 
     doc = _make_raw()
-    extractor.extract(doc, prefilter_version="v1.0", raw_object_key="raw/key.json")
+    extractor.extract(doc, prefilter_version="v1", raw_object_key="raw/key.json")
 
     call_kwargs = mock_client.chat.completions.create.call_args
     assert call_kwargs.kwargs.get("temperature") == 0
@@ -475,8 +475,8 @@ def test_startup_refuses_model_without_passing_gate_record(tmp_path):
             model_id="gpt-4o-mini-2024-07-18",
             base_url=None,
             api_key="test-key",
-            prompt_version="v1.0",
-            prefilter_version="v1.0",
+            prompt_version="v1",
+            prefilter_version="v1",
         )
 
 
@@ -485,3 +485,41 @@ def test_llm_is_never_called_live(tmp_path):
     and constructs it — if anything tries to reach the network, the suite fails."""
     factory = _make_factory(tmp_path)
     assert factory is not None
+
+
+_SERVICE_ROOT = Path(__file__).resolve().parents[2]
+_REPO_ROOT = _SERVICE_ROOT.parents[1]
+
+
+def test_extraction_prompt_directory_holds_only_the_default_prompt():
+    from auspex_ingest.extraction_backend import DEFAULT_PROMPT_VERSION
+
+    prompts = sorted(p.stem for p in (_SERVICE_ROOT / "prompts" / "extraction").glob("*.txt"))
+
+    assert prompts == [DEFAULT_PROMPT_VERSION]
+
+
+def test_env_example_prompt_version_is_the_service_default():
+    import re
+
+    from auspex_ingest.extraction_backend import DEFAULT_PROMPT_VERSION
+
+    env_example = (_REPO_ROOT / ".env.example").read_text(encoding="utf-8")
+    (configured,) = re.findall(r"^EXTRACTION_PROMPT_VERSION=(\S+)$", env_example, re.MULTILINE)
+
+    assert configured == DEFAULT_PROMPT_VERSION
+
+
+def test_committed_gate_records_match_the_active_prompt_and_prefilter():
+    from auspex_ingest.extraction_backend import DEFAULT_PROMPT_VERSION
+    from auspex_ingest.prefilter import PREFILTER_VERSION
+
+    stale = [
+        record.name
+        for record in (_REPO_ROOT / "config" / "models" / "scores").glob("*.json")
+        if (score := json.loads(record.read_text(encoding="utf-8")))["prompt_version"]
+        != DEFAULT_PROMPT_VERSION
+        or score["prefilter_version"] != PREFILTER_VERSION
+    ]
+
+    assert stale == []

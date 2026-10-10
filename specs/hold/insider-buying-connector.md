@@ -3,7 +3,7 @@
 **Status:** hold
 **Hold reason (2026-10-07 edge research):** the holdings composite reads insider transactions as a point-in-time panel from SEC data sets (`specs/sec-ownership-datasets.md`), not as documents, and T+1 copying of insider purchases was dropped (the reaction ends within two to three sessions; Zhao 2026, 13,534 microcap purchases 2018–2024). Comes off hold only if a hypothesis needs Form 4s as events in the signal pipeline. `DECISIONS.md` 2026-10-07 "ownership and insider data are snapshots, not connectors".
 **Blocked by:**
-1. Met: company-level event extraction (`specs/done/company-level-extraction.md`, schema 1.1) — event type and company identifier fields on `ResearchSignalEvent`.
+1. Met: company-level event extraction (`specs/done/company-level-extraction.md`) — event type and company identifier fields on `ResearchSignalEvent`.
 2. `specs/hold/structured-source-extraction.md` — the deterministic mapper path and the issuer-scope pre-filter.
 3. Soft: `specs/point-in-time-universe.md` for the issuer list. Until it lands, the issuer scope is a configured CIK list (the watchlist companies).
 

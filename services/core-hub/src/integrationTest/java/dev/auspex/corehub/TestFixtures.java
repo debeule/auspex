@@ -38,21 +38,13 @@ final class TestFixtures {
                   "confidence_score": 0.92,
                   "prompt_version": "v1",
                   "prefilter_version": "v1",
-                  "extraction_model": "gpt-4o"
+                  "extraction_model": "gpt-4o",
+                  "event_type": "preclinical_data",
+                  "primary_company": "Beam Therapeutics",
+                  "program_identifiers": ["BEAM-101"],
+                  "trial_ids": ["NCT05456880"]
                 }
                 """;
-    }
-
-    /** Schema 1.1 event carrying the company-level fields. */
-    static String companyLevelSignalJson() {
-        return validSignalJson()
-                .replace("\"schema_version\": \"1.0\"", "\"schema_version\": \"1.1\"")
-                .replace("\"extraction_model\": \"gpt-4o\"", """
-                        "extraction_model": "gpt-4o",
-                          "event_type": "trial_readout",
-                          "primary_company": "Beam Therapeutics",
-                          "program_identifiers": ["BEAM-101"],
-                          "trial_ids": ["NCT05456880"]""");
     }
 
     /** Same event_id, different extraction_id — simulates re-extraction of the same document. */

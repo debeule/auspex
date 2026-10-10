@@ -28,7 +28,7 @@ class RegistryEntry:
     version: str
     hypothesis_id: str
     status: str
-    parameters_file: str
+    parameters_file: str | None
     strategy_class: type[Strategy]
 
     def decide(self, context: AsOfContext, trigger: Trigger) -> list[TradeIntent]:
@@ -79,7 +79,10 @@ class StrategyRegistry:
                 _verify_hypothesis(hypothesis_id, hypothesis_registry_path)
 
             if versions_dir is not None:
-                parameters_file = resolved_config_root / item["parameters_file"]
+                parameters_file = (
+                    resolved_config_root / item["parameters_file"]
+                    if "parameters_file" in item else None
+                )
                 _check_version(name, version, module_name, parameters_file, versions_dir)
 
             entries.append(RegistryEntry(
@@ -89,7 +92,7 @@ class StrategyRegistry:
                 version=version,
                 hypothesis_id=hypothesis_id,
                 status=item.get("status", "draft"),
-                parameters_file=item.get("parameters_file", ""),
+                parameters_file=item.get("parameters_file"),
                 strategy_class=strategy_class,
             ))
 
@@ -120,13 +123,16 @@ def _check_version(
     name: str,
     version: str,
     module_name: str,
-    parameters_file: Path,
+    parameters_file: Path | None,
     versions_dir: Path,
 ) -> None:
     spec = importlib.util.find_spec(module_name)
     module_file: Path | None = Path(spec.origin) if spec and spec.origin else None
     code_hash = _sha256_file(module_file) if module_file else None
-    params_hash = _sha256_file(parameters_file) if parameters_file.exists() else None
+    params_hash = (
+        _sha256_file(parameters_file)
+        if parameters_file is not None and parameters_file.exists() else None
+    )
 
     version_file = versions_dir / name / f"{version}.json"
 

@@ -64,7 +64,7 @@ uv run python scripts/score_extraction.py --model llama3.1:8b-instruct-q8_0
 ```
 
 - `evaluate_model.py` prints precision, recall, mean and p95 latency, and the backfill wall-clock estimate. It writes `config/models/latency/<tag>.json`.
-- `score_extraction.py` writes the gate record `config/models/scores/<tag>.json`. The gate passes at `is_signal` precision ≥ 0.85. The service refuses any model without a passing record at the active prompt and prefilter versions. The scripts default to prompt `v1.1`, the production default.
+- `score_extraction.py` writes the gate record `config/models/scores/<tag>.json`. The gate passes at `is_signal` precision ≥ 0.85. The service refuses any model without a passing record at the active prompt and prefilter versions. The scripts default to prompt `v1`, the production default.
 - Both run the exact registry configuration production uses (temperature 0, fixed seed, JSON mode, timeout).
 
 Optional before the backfill: `scripts/compare_models.py --model-a <local> --model-b gpt-4o-mini-2024-07-18` (needs a populated MinIO archive and an OpenAI key) and `scripts/check_leakage.py` (needs a real 10 to 15 entry outcome manifest; the current one is a 3-entry test fixture).
@@ -79,7 +79,7 @@ In `.env`:
 EXTRACTION_MODEL=<chosen tag>
 EXTRACTION_BASE_URL=http://host.docker.internal:11434/v1
 EXTRACTION_API_KEY=ollama
-EXTRACTION_PROMPT_VERSION=v1.1
+EXTRACTION_PROMPT_VERSION=v1
 ```
 
 Then rebuild the scraper and run one source as a test:

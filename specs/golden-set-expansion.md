@@ -8,7 +8,7 @@
 
 ## Context
 
-The Phase 2 golden set is 50 documents covering a single disease area (DMD — dystrophin gene therapy). `score_extraction.py --model gpt-4o-mini-2024-07-18` produced precision=1.000 on this set at `prompt_version=v1.0`, `prefilter_version=v1.0`.
+The Phase 2 golden set is 50 documents covering a single disease area (DMD — dystrophin gene therapy). No model has a gate record against it yet: the earlier `gpt-4o-mini-2024-07-18` record was written by hand, not by `score_extraction.py`, and was removed.
 
 This is too narrow to trust Phase 4 findings across the full watchlist. The 8 watched companies span multiple gene targets and disease areas. A golden set that validates only DMD extraction does not detect model failures on other targets, and a gate record that passes on 50 DMD documents does not establish that the backfill model extracts reliably across the corpus it will actually process.
 

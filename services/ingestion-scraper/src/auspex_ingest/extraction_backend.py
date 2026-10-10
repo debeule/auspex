@@ -25,7 +25,7 @@ _REQUIRED_FIELDS = frozenset({
 })
 _PROMPT_DIR = Path(__file__).parent.parent.parent / "prompts" / "extraction"
 _REPO_MODELS_DIR = Path(__file__).parents[4] / "config" / "models"
-_DEFAULT_PROMPT_VERSION = "v1.1"
+DEFAULT_PROMPT_VERSION = "v1"
 _MAX_CONTENT_CHARS = 4_000
 # ~4 characters per token is a rough but consistent estimate; exact tokenisation
 # requires the model's tokeniser which is not worth importing at startup.
@@ -372,7 +372,7 @@ def build_extractor_from_env(
     if not resolved_model:
         raise ConfigurationError("EXTRACTION_MODEL is not set")
     resolved_prompt = (
-        prompt_version or env.get("EXTRACTION_PROMPT_VERSION") or _DEFAULT_PROMPT_VERSION
+        prompt_version or env.get("EXTRACTION_PROMPT_VERSION") or DEFAULT_PROMPT_VERSION
     )
     base_url = env.get("EXTRACTION_BASE_URL") or None
     api_key = env.get("EXTRACTION_API_KEY") or env.get("OPENAI_API_KEY") or None

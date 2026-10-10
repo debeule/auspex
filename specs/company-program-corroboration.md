@@ -2,7 +2,7 @@
 
 **Status:** blocked
 **Blocked by:**
-1. Met: company-level event extraction (`specs/done/company-level-extraction.md`, schema 1.1) — `ResearchSignalEvent` must carry the event type and the company and program identifiers (company CIK or ticker where known, lead sponsor, NCT ID, drug code such as `SRP-9001`) before signals can be matched on them. Use the field names that spec lands; this spec does not add extraction fields.
+1. Met: company-level event extraction (`specs/done/company-level-extraction.md`) — `ResearchSignalEvent` must carry the event type and the company and program identifiers (company CIK or ticker where known, lead sponsor, NCT ID, drug code such as `SRP-9001`) before signals can be matched on them. Use the field names that spec lands; this spec does not add extraction fields.
 2. User approval of the requirements amendment below (§4 and §9 of `docs/requirements.md`). Logged in `DECISIONS.md` 2026-10-07 FLAG "corroboration is matched on gene target, not company".
 
 **Priority (2026-10-07 edge research):** off the alpha path. Corroborated events at 50 to 150 per year cannot reach the promotion t at a realistic 20-day σ of about 22.5%, so this spec serves the research tool and the negative-event veto's company mapping, not a trading trigger. Still valid as written; build it after the slow-signal specs unless the user says otherwise.

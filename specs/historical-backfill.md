@@ -71,7 +71,7 @@ New connectors. Changes to `IngestionPipeline`. Modification of the live schedul
 
 ## Required tests
 
-Carried from plan.md Step 4.0:
+Carried from the original backfill design:
 - `test_backfill_does_not_advance_the_live_cursor`
 - `test_backfill_is_resumable_from_its_checkpoint`
 - `test_backfill_respects_the_shared_rate_limiter`

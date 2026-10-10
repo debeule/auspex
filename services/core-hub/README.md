@@ -21,7 +21,7 @@ Write order is **Neo4j → Postgres → acknowledge** (ack-mode RECORD). Never c
 | Table | Purpose |
 |---|---|
 | `raw_fetch_audit` | Every document fetched, regardless of signal outcome |
-| `signal_current` | Latest extracted state per event_id, including the schema 1.1 company-level fields (null or empty for 1.0 events) |
+| `signal_current` | Latest extracted state per event_id, including the company-level fields |
 | `signal_extraction_history` | Full extraction history per event_id |
 | `source_observation` | One row per (event_id, source_type) |
 | `corroboration` | Active corroboration records |

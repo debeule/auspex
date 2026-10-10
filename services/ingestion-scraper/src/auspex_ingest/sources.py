@@ -1,6 +1,8 @@
 from collections import Counter
+from pathlib import Path
 from typing import Any
 
+import yaml
 from pydantic import BaseModel, ConfigDict, model_validator
 
 
@@ -28,3 +30,7 @@ class SourcesConfig(BaseModel):
         if dupes:
             raise ValueError(f"Duplicate source_type(s): {dupes}")
         return self
+
+
+def load_sources_config(path: Path) -> SourcesConfig:
+    return SourcesConfig.model_validate(yaml.safe_load(path.read_text()))

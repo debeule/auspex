@@ -80,3 +80,10 @@ def test_generate_contract_fixture():
     _CONTRACT_PATH.parent.mkdir(parents=True, exist_ok=True)
     _CONTRACT_PATH.write_text(json.dumps(payload, indent=2))
     print(f"\nWrote contract fixture → {_CONTRACT_PATH}")
+
+
+def test_contract_fixture_carries_the_current_schema_version():
+    payload = json.loads(_CONTRACT_PATH.read_text(encoding="utf-8"))
+
+    assert payload["schema_version"] == EVENT_SCHEMA_VERSION
+    assert set(payload) == set(ResearchSignalEvent.model_fields)

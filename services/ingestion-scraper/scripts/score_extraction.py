@@ -11,7 +11,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
 import yaml
 
-from auspex_ingest.extraction_backend import score_file_name
+from auspex_ingest.extraction_backend import DEFAULT_PROMPT_VERSION, score_file_name
 from auspex_ingest.golden import GoldenDocument, load_golden_set, score_batch
 from auspex_ingest.model_evaluation import GATE_PRECISION, gate_record
 from auspex_ingest.prefilter import Prefilter
@@ -143,13 +143,11 @@ def _print_report(golden: list[GoldenDocument], results: list[dict | None], scor
         )
 
 
-def main() -> None:
-    import os
-
+def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Score LLM extraction against the golden set")
     parser.add_argument("--model", required=True, help="Registry key (e.g. gpt-4o-mini-2024-07-18)")
     parser.add_argument("--golden-dir", default="tests/golden", type=Path)
-    parser.add_argument("--prompt-version", default="v1.1")
+    parser.add_argument("--prompt-version", default=DEFAULT_PROMPT_VERSION)
     parser.add_argument("--prefilter-vocab", default=None, type=Path)
     parser.add_argument(
         "--registry",
@@ -161,7 +159,13 @@ def main() -> None:
         default=Path(__file__).parent.parent.parent.parent / "config" / "models" / "scores",
         type=Path,
     )
-    args = parser.parse_args()
+    return parser
+
+
+def main() -> None:
+    import os
+
+    args = build_parser().parse_args()
 
     raw_registry = yaml.safe_load(args.registry.read_text())
     models = raw_registry.get("models", {})

@@ -11,6 +11,7 @@ import respx
 import yaml
 
 from auspex_ingest.extraction_backend import (
+    DEFAULT_PROMPT_VERSION,
     ConfigurationError,
     GateNotPassedError,
     LLMExtractorFactory,
@@ -103,7 +104,7 @@ def test_unreachable_model_server_warns_at_startup_and_checks_digest_on_first_ex
 ):
     registry = _write_registry(tmp_path, {_TAG: {**_LOCAL_ENTRY, "digest": _DIGEST}})
     scores = tmp_path / "scores"
-    _write_score(scores, _TAG, "v1.0", "v1")
+    _write_score(scores, _TAG, "v1", "v1")
 
     calls = {"n": 0}
 
@@ -120,13 +121,13 @@ def test_unreachable_model_server_warns_at_startup_and_checks_digest_on_first_ex
             model_id=_TAG,
             base_url=_BASE_URL,
             api_key="ollama",
-            prompt_version="v1.0",
+            prompt_version="v1",
             prefilter_version="v1",
             model_info_fn=info,
         )
     assert any("unreachable" in r.getMessage() for r in caplog.records)
 
-    extractor = factory.make_extractor(schema_version="1.0", prompt_version="v1.0")
+    extractor = factory.make_extractor(schema_version="1.0", prompt_version="v1")
     extractor._client = mocker.MagicMock()
     with pytest.raises(ConfigurationError, match="digest mismatch"):
         extractor.extract(_doc(), prefilter_version="v1", raw_object_key="k")
@@ -151,7 +152,7 @@ def test_instructor_client_uses_registry_mode_timeout_and_base_url():
 def test_extractor_from_env_targets_configured_model_and_base_url(tmp_path):
     registry = _write_registry(tmp_path, {_TAG: {**_LOCAL_ENTRY, "digest": _DIGEST}})
     scores = tmp_path / "scores"
-    _write_score(scores, _TAG, "v1.1", PREFILTER_VERSION)
+    _write_score(scores, _TAG, DEFAULT_PROMPT_VERSION, PREFILTER_VERSION)
     env = {
         "EXTRACTION_MODEL": _TAG,
         "EXTRACTION_BASE_URL": _BASE_URL,
@@ -161,14 +162,14 @@ def test_extractor_from_env_targets_configured_model_and_base_url(tmp_path):
     }
     extractor = build_extractor_from_env(env, model_info_fn=lambda tag: _DIGEST)
     assert extractor._model_id == _TAG
-    assert extractor._prompt_version == "v1.1"
+    assert extractor._prompt_version == DEFAULT_PROMPT_VERSION
     assert str(extractor._client.client.base_url).rstrip("/") == _BASE_URL
 
 
 def test_extractor_from_env_refuses_gate_record_for_other_prompt_version(tmp_path):
     registry = _write_registry(tmp_path, {_TAG: {**_LOCAL_ENTRY, "digest": _DIGEST}})
     scores = tmp_path / "scores"
-    _write_score(scores, _TAG, "v1", PREFILTER_VERSION)
+    _write_score(scores, _TAG, "v0", PREFILTER_VERSION)
     env = {
         "EXTRACTION_MODEL": _TAG,
         "EXTRACTION_BASE_URL": _BASE_URL,
@@ -182,8 +183,8 @@ def test_extractor_from_env_refuses_gate_record_for_other_prompt_version(tmp_pat
 def test_gate_record_passes_at_documented_precision_threshold():
     now = datetime(2026, 10, 7, tzinfo=UTC)
     assert GATE_PRECISION == 0.85
-    passing = gate_record("m", "v1.0", "v1", precision=0.86, now=now)
-    failing = gate_record("m", "v1.0", "v1", precision=0.84, now=now)
+    passing = gate_record("m", "v1", "v1", precision=0.86, now=now)
+    failing = gate_record("m", "v1", "v1", precision=0.84, now=now)
     assert passing["passed"] is True
     assert failing["passed"] is False
     assert passing["scored_at"] == "2026-10-07T00:00:00Z"

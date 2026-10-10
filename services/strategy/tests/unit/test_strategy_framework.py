@@ -43,7 +43,7 @@ def _load_real_registry() -> StrategyRegistry:
 def test_contract_suite_auto_discovers_all_registered_strategies() -> None:
     registry = _load_real_registry()
     entries = registry.all()
-    assert len(entries) == 6
+    assert entries
 
     context = StubAsOfContext(as_of=_AS_OF)
 
@@ -94,7 +94,6 @@ def test_adding_strategy_requires_no_change_outside_module_and_registry(tmp_path
                 "version": "1.0",
                 "hypothesis_id": "h1",
                 "status": "draft",
-                "parameters_file": "config/strategies/structural_convergence.yaml",
             }]
         }
         registry_path = tmp_path / "registry.yaml"
@@ -171,7 +170,6 @@ def test_unregistered_hypothesis_id_raises_at_construction(tmp_path: Path) -> No
             "version": "1.0",
             "hypothesis_id": "h99",
             "status": "draft",
-            "parameters_file": "config/strategies/structural_convergence.yaml",
         }]
     }
     registry_path = tmp_path / "registry.yaml"
@@ -185,22 +183,25 @@ def test_unregistered_hypothesis_id_raises_at_construction(tmp_path: Path) -> No
 
 
 def test_parameter_change_without_version_bump_raises(tmp_path: Path) -> None:
+    parameters = tmp_path / "structural_convergence.yaml"
+    parameters.write_text("min_source_count: 2\n")
+    registry_path = tmp_path / "registry.yaml"
+    registry_path.write_text(yaml.dump({"strategies": [{
+        "name": "structural_convergence",
+        "module": "auspex_strategy.strategies.h1_structural_convergence",
+        "class": "StructuralConvergenceStrategy",
+        "version": "1.0",
+        "hypothesis_id": "h1",
+        "status": "draft",
+        "parameters_file": "structural_convergence.yaml",
+    }]}))
     versions_dir = tmp_path / "versions"
-    entry_versions = versions_dir / "structural_convergence"
-    entry_versions.mkdir(parents=True)
-    (entry_versions / "1.0.json").write_text(json.dumps({
-        "code_hash": "0" * 64,
-        "parameters_hash": "0" * 64,
-        "created_at": "2026-09-20T00:00:00+00:00",
-    }))
+    StrategyRegistry.load(registry_path, versions_dir=versions_dir, config_root=tmp_path)
 
-    with pytest.raises(VersionConflictError):
-        StrategyRegistry.load(
-            _STRATEGY_REGISTRY,
-            hypothesis_registry_path=_HYPOTHESIS_REGISTRY,
-            versions_dir=versions_dir,
-            config_root=_REPO_ROOT,
-        )
+    parameters.write_text("min_source_count: 3\n")
+
+    with pytest.raises(VersionConflictError, match="parameters changed"):
+        StrategyRegistry.load(registry_path, versions_dir=versions_dir, config_root=tmp_path)
 
 
 def test_retired_strategy_decide_raises(tmp_path: Path) -> None:
@@ -212,7 +213,6 @@ def test_retired_strategy_decide_raises(tmp_path: Path) -> None:
             "version": "1.0",
             "hypothesis_id": "h1",
             "status": "retired",
-            "parameters_file": "config/strategies/structural_convergence.yaml",
         }]
     }
     registry_path = tmp_path / "registry.yaml"
@@ -239,7 +239,6 @@ def test_retired_strategy_remains_in_registry(tmp_path: Path) -> None:
             "version": "1.0",
             "hypothesis_id": "h1",
             "status": "retired",
-            "parameters_file": "config/strategies/structural_convergence.yaml",
         }]
     }
     registry_path = tmp_path / "registry.yaml"
@@ -252,3 +251,58 @@ def test_retired_strategy_remains_in_registry(tmp_path: Path) -> None:
     entry = registry.get("structural_convergence")
     assert entry is not None
     assert entry.status == "retired"
+
+
+_HYPOTHESES_DIR = _REPO_ROOT / "config" / "hypotheses"
+
+
+def test_strategy_parameter_files_do_not_redeclare_hypothesis_fields() -> None:
+    entries = yaml.safe_load(_STRATEGY_REGISTRY.read_text(encoding="utf-8"))["strategies"]
+
+    redeclared = {}
+    for entry in entries:
+        if "parameters_file" not in entry:
+            continue
+        parameters = yaml.safe_load((_REPO_ROOT / entry["parameters_file"]).read_text()) or {}
+        hypothesis = yaml.safe_load((_HYPOTHESES_DIR / f"{entry['hypothesis_id']}.yaml").read_text())
+        if overlap := set(parameters) & set(hypothesis):
+            redeclared[entry["name"]] = sorted(overlap)
+
+    assert redeclared == {}
+
+
+def test_registry_lists_one_strategy_per_tradeable_hypothesis() -> None:
+    hypothesis_ids = sorted(entry.hypothesis_id for entry in _load_real_registry().all())
+
+    assert hypothesis_ids == ["h1", "h4", "h5", "h6", "h7"]
+
+
+def test_strategy_without_parameters_file_versions_on_code_hash(tmp_path: Path) -> None:
+    registry_path = tmp_path / "registry.yaml"
+    registry_path.write_text(yaml.dump({"strategies": [{
+        "name": "structural_convergence",
+        "module": "auspex_strategy.strategies.h1_structural_convergence",
+        "class": "StructuralConvergenceStrategy",
+        "version": "1.0",
+        "hypothesis_id": "h1",
+        "status": "draft",
+    }]}))
+    versions_dir = tmp_path / "versions"
+
+    StrategyRegistry.load(registry_path, versions_dir=versions_dir, config_root=tmp_path)
+
+    record = json.loads((versions_dir / "structural_convergence" / "1.0.json").read_text())
+    assert record["parameters_hash"] is None
+    record["code_hash"] = "0" * 64
+    (versions_dir / "structural_convergence" / "1.0.json").write_text(json.dumps(record))
+    with pytest.raises(VersionConflictError):
+        StrategyRegistry.load(registry_path, versions_dir=versions_dir, config_root=tmp_path)
+
+
+def test_confidence_gradient_describes_the_median_split_its_hypothesis_registers() -> None:
+    from auspex_strategy.strategies.h7_confidence_gradient import ConfidenceGradientStrategy
+
+    description = ConfidenceGradientStrategy.description
+
+    assert "median" in description
+    assert not any(ch.isdigit() for ch in description)

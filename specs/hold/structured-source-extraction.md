@@ -3,7 +3,7 @@
 **Status:** hold
 **Hold reason (2026-10-07 edge research):** its only consumers (the Form 4 and offering connectors) are on hold. Comes off hold with either of them. `DECISIONS.md` 2026-10-07 "ownership and insider data are snapshots, not connectors".
 **Blocked by:**
-1. Met: company-level event extraction (`specs/done/company-level-extraction.md`, schema 1.1) — `ResearchSignalEvent` must carry the event type and company identifiers that a structured mapper fills in.
+1. Met: company-level event extraction (`specs/done/company-level-extraction.md`) — `ResearchSignalEvent` must carry the event type and company identifiers that a structured mapper fills in.
 
 **Branch:** `feature/structured-source-extraction`
 

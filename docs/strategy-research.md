@@ -29,7 +29,7 @@ These are invariants for all hypotheses. They determine which hypotheses are sur
 - Secondary (where sample permits): size-matched basket of gene-therapy companies not in the watchlist
 
 ### Entry timing
-Per `docs/plan.md` §4.2: join on `corroborated_at` (the maximum `published_date` of the two corroborating signals). Never join on `ingested_at` or `retrieved_at`. A configurable known-at delay (default 1 business day) is added to simulate realistic ingestion-to-trade latency; sensitivity analysis over 0, 1, 3, 5 days required (see evaluation-protocol spec).
+Per `specs/done/point-in-time-alignment.md`: join on `corroborated_at` (the maximum `published_date` of the two corroborating signals). Never join on `ingested_at` or `retrieved_at`. A configurable known-at delay (default 1 business day) is added to simulate realistic ingestion-to-trade latency; sensitivity analysis over 0, 1, 3, 5 days required (see evaluation-protocol spec).
 
 ### Data window and sample expectations
 - 24-month backfill: September 2024 – September 2026 across five sources (ClinicalTrials.gov, EPO OPS patents, EDGAR 8-K, bioRxiv, PubMed)

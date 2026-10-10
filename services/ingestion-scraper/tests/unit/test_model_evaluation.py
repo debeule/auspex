@@ -1,3 +1,5 @@
+import pytest
+
 from auspex_ingest.golden import GoldenDocument
 from auspex_ingest.model_evaluation import (
     compute_candidate_scores,
@@ -106,3 +108,35 @@ def test_cross_model_agreement_reproduces_hand_computed_metrics_on_toy_set():
     assert m["jaccard_mechanisms"] == 1.0
     assert m["directionality_agreement"] == 0.5        # doc 0 agrees, doc 1 disagrees
     assert abs(m["confidence_pearson"] - 1.0) < 1e-9  # perfectly correlated offsets
+
+
+def _load_script(name: str):
+    import importlib.util
+    from pathlib import Path
+
+    path = Path(__file__).resolve().parents[2] / "scripts" / f"{name}.py"
+    spec = importlib.util.spec_from_file_location(f"script_{name}", path)
+    assert spec is not None and spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module, path.read_text(encoding="utf-8")
+
+
+@pytest.mark.parametrize(
+    ("script", "required"),
+    [
+        ("evaluate_model", ["--model", "m"]),
+        ("compare_models", ["--model-a", "a", "--model-b", "b"]),
+        ("score_extraction", ["--model", "m"]),
+    ],
+)
+def test_evaluation_scripts_take_the_prompt_default_from_the_service(script, required):
+    import re
+
+    from auspex_ingest.extraction_backend import DEFAULT_PROMPT_VERSION
+
+    module, source = _load_script(script)
+    args = module.build_parser().parse_args(required)
+
+    assert args.prompt_version == DEFAULT_PROMPT_VERSION
+    assert re.findall(r"""["']v\d""", source) == []

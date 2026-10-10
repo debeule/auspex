@@ -85,5 +85,5 @@ Expected: both suites pass with the 20 new tests among them, lint and types clea
 ## Notes
 
 - Why a pool and staggering both: staggering is what §5 asks for and spreads the normal day; the pool keeps runs from piling up after the Mac wakes from sleep, when every missed DAG fires at once.
-- `src/auspex_ingest/dag_factory.py` still carries an older in-process version of the DAG task (`run_with_cursor`) next to the HTTP version the deployed DAG uses. Put the HTTP task's logic in one importable place the DAG file and the tests share; whether `dag_factory.py`'s old path goes away belongs to the single-source cleanup, not here.
+- The DAG task lives only in `dags/auspex_dags.py`, tested by `tests/unit/test_ingestion_dag.py` against stand-in Airflow modules; the older in-process DAG factory module was removed.
 - The cap per source is set so a capped run fits inside the task timeout at the measured extraction latency (`specs/soak-test-run.md` measures it on day 1).

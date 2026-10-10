@@ -1,7 +1,7 @@
 {
-  "schema_version": "1.1",
+  "schema_version": "1.0",
   "event_id": "c1261cdc-1cf0-5bca-922d-7d098c8f0d6f",
-  "extraction_id": "b3bf98e4-bc23-59be-ab4e-425aa86d631d",
+  "extraction_id": "ff46e2f9-35f9-55dc-9d3e-080de1f77cca",
   "external_id": "ext-contract-001",
   "canonical_id": "doi:10.1101/2024.06.01.600001",
   "raw_object_key": "raw/biorxiv/ext-contract-001/20240615T120000Z-abcdef12.json",

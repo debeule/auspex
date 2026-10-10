@@ -189,7 +189,7 @@ def test_live_api_pipelines_skip_unchanged_refetches_for_their_model(monkeypatch
     }.items():
         monkeypatch.setenv(name, value)
     monkeypatch.setattr(confluent_kafka, "Producer", MagicMock())
-    extractor = MagicMock(model_id="llama3.1:8b", prompt_version="v1.0")
+    extractor = MagicMock(model_id="llama3.1:8b", prompt_version="v1")
     monkeypatch.setattr(
         "auspex_ingest.extraction_backend.build_extractor_from_env", lambda **_: extractor
     )
@@ -202,4 +202,4 @@ def test_live_api_pipelines_skip_unchanged_refetches_for_their_model(monkeypatch
     )
     _make_env_pipeline_factory({"biorxiv": entry}, CollectorRegistry())("biorxiv")
 
-    assert built.call_args.kwargs["extraction_identity"] == "llama3.1:8b|v1.0"
+    assert built.call_args.kwargs["extraction_identity"] == "llama3.1:8b|v1"

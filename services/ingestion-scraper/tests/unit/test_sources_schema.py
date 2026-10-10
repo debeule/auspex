@@ -1,8 +1,15 @@
+import importlib
+import pkgutil
+from pathlib import Path
 
 import pytest
 from pydantic import ValidationError
 
-from auspex_ingest.sources import SourceEntry, SourcesConfig
+import auspex_ingest
+from auspex_ingest.sources import SourceEntry, SourcesConfig, load_sources_config
+
+_SERVICE_ROOT = Path(__file__).resolve().parents[2]
+_SOURCES_YAML = _SERVICE_ROOT / "config" / "sources.yaml"
 
 _VALID_ENTRY = {
     "source_type": "biorxiv",
@@ -46,3 +53,56 @@ def test_unknown_field_in_sources_yaml_is_rejected_at_parse_time():
         SourcesConfig.model_validate(
             {"sources": [{**_VALID_ENTRY, "unknown_field": "oops"}]}
         )
+
+
+def test_load_sources_config_reads_every_entry():
+    import yaml
+
+    declared = [s["source_type"] for s in yaml.safe_load(_SOURCES_YAML.read_text())["sources"]]
+
+    config = load_sources_config(_SOURCES_YAML)
+
+    assert [entry.source_type for entry in config.sources] == declared
+
+
+def test_malformed_sources_yaml_fails_loudly(tmp_path: Path) -> None:
+    bad = tmp_path / "sources.yaml"
+    bad.write_text(
+        "sources:\n"
+        "  - source_type: mock\n"
+        "    schedule: '@daily'\n"
+        "    rate_limit_rps: NOT_A_NUMBER\n"
+        "    initial_lookback: 7\n"
+        "    max_documents_per_run: 100\n"
+        "    prefilter_vocabulary: []\n"
+        "    source_config: {}\n"
+    )
+    with pytest.raises(ValueError):
+        load_sources_config(bad)
+
+
+def test_duplicate_source_type_is_rejected() -> None:
+    with pytest.raises(ValidationError, match="[Dd]uplicate"):
+        SourcesConfig.model_validate({"sources": [_VALID_ENTRY, _VALID_ENTRY]})
+
+
+def test_prefilter_vocabulary_is_declared_only_in_sources_yaml():
+    config = load_sources_config(_SOURCES_YAML)
+
+    assert not (_SERVICE_ROOT / "config" / "prefilter").exists()
+    assert any(entry.prefilter_vocabulary for entry in config.sources)
+
+
+def test_no_module_builds_dags_in_the_scraper_package():
+    modules = [
+        importlib.import_module(info.name)
+        for info in pkgutil.walk_packages(auspex_ingest.__path__, "auspex_ingest.")
+    ]
+    airflow_users = [
+        m.__name__ for m in modules
+        if m.__file__ and "airflow" in Path(m.__file__).read_text(encoding="utf-8")
+    ]
+
+    assert airflow_users == []
+    with pytest.raises(ModuleNotFoundError):
+        importlib.import_module("auspex_ingest.dag_factory")

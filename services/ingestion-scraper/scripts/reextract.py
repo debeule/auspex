@@ -77,7 +77,9 @@ def _build_runner(args: argparse.Namespace):  # type: ignore[no-untyped-def]
 
 
 def main() -> None:
+    from auspex_ingest.extraction_backend import DEFAULT_PROMPT_VERSION
     from auspex_ingest.models import EVENT_SCHEMA_VERSION
+    from auspex_ingest.prefilter import PREFILTER_VERSION
 
     parser = argparse.ArgumentParser(
         description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
@@ -87,11 +89,11 @@ def main() -> None:
     parser.add_argument("--until", help="Only re-extract documents published on or before this date (YYYY-MM-DD)")
     parser.add_argument(
         "--prompt-version",
-        help="Prompt version to use (default: $EXTRACTION_PROMPT_VERSION, else v1.1)",
+        help=f"Prompt version to use (default: $EXTRACTION_PROMPT_VERSION, else {DEFAULT_PROMPT_VERSION})",
     )
     parser.add_argument("--model", help="Registry key of the model to use (default: $EXTRACTION_MODEL)")
     parser.add_argument("--schema-version", default=EVENT_SCHEMA_VERSION, help="Schema version to stamp on events")
-    parser.add_argument("--prefilter-version", default="v1", help="Pre-filter version to stamp on events")
+    parser.add_argument("--prefilter-version", default=PREFILTER_VERSION, help="Pre-filter version to stamp on events")
     parser.add_argument(
         "--skip-prefilter",
         action="store_true",

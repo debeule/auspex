@@ -131,7 +131,7 @@ def main() -> None:
     )
     args = parser.parse_args()
 
-    from auspex_ingest.dag_factory import load_sources_config
+    from auspex_ingest.sources import load_sources_config
     config = load_sources_config(_ROOT / "config" / "sources.yaml")
 
     cursor = datetime.now(UTC) - timedelta(days=args.days)

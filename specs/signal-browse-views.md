@@ -11,7 +11,7 @@
 The dashboard is the place to use what Auspex produces (decided 2026-10-08). Today core-hub offers only `GET /api/v1/signals/{ticker}`, which returns direct signals and corroborations for one ticker, plus the watchlist endpoints. There is no list, search or filter, no corroboration endpoint, and no company view. No list endpoint pages its results.
 
 The data exists:
-- Postgres `signal_current`: one row per `event_id` with title, summary, source, `published_date`, directionality, confidence, schema 1.1 `event_type`, `primary_company`, `program_identifiers`, `trial_ids`.
+- Postgres `signal_current`: one row per `event_id` with title, summary, source, `published_date`, directionality, confidence, `event_type`, `primary_company`, `program_identifiers`, `trial_ids`.
 - Postgres `corroboration`: `entity_key`, `participants_hash`, `participant_event_ids`, `distinct_source_count`, `corroborated_at`, `superseded_by`.
 - Neo4j: `Signal` linked to `GeneTarget`, `Mechanism` and `Company`.
 - `CorroborationScorer` computes a confidence at read time.

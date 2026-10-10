@@ -14,7 +14,7 @@ Everything the cloud sessions could build and test is merged into `develop`. Wha
 |---|---|---|
 | First point-in-time universe build; SEC bulk URL check; coverage numbers; `config/universe/backfill_scope.yaml` | `specs/point-in-time-universe.md` (blocked only on this), `DECISIONS.md` 2026-10-08 PENDING "SEC bulk URLs and first build on the stack" | `sec.gov` and Yahoo are unreachable from cloud sessions |
 | `XBI` and `EURUSD=X` snapshots in MinIO | `DECISIONS.md` 2026-10-07 PENDING (market simulation), superseded by `price-bootstrap` but never confirmed | same |
-| Local model gate at prompt `v1.1` | `DECISIONS.md` 2026-10-07 PENDING "gate record for prompt v1.1", `docs/local-model-runbook.md` | model weights and the GPU |
+| Local model gate at prompt `v1` | `DECISIONS.md` 2026-10-07 PENDING "gate record for prompt v1.1" (the company-level prompt, now the single `v1`), `docs/local-model-runbook.md` | model weights and the GPU |
 | Price history reaching back to 2013 | `DECISIONS.md` 2026-10-08 FLAG "universe window" and CHOICE "price history from 2013" | snapshots only grow forward, so this must be set before the first `up` |
 | Historical backfill dry run | `specs/historical-backfill.md`, draft PR #8 | needs the stack, the gated model and its latency record |
 
@@ -22,7 +22,7 @@ Machine facts: Docker Desktop is capped at **8 GB** (`SETUP.md` step 2), which l
 
 Model choice research (thread "Research: best local model for extraction", 2026-10-07): **Llama 3.1 8B Instruct Q8_0** is the primary candidate (cutoff Dec 2023, best documented instruction following that fits). **Phi-3-medium 14B Q4_K_M** is the only challenger worth gating (cutoff Oct 2023, more biomedical knowledge, ~1.4x slower, fills the memory budget). **Llama 3.1 8B Q4_K_M** is the memory fallback. Mistral Small 24B and Gemma 3 27B stay in `local_candidates.yaml` but are not gated here: neither fits next to Docker, and Gemma's cutoff (Aug 2024) is inside the window.
 
-The golden set (`services/ingestion-scraper/tests/golden/`, 50 documents, 46 pass the prefilter, 35 of those are signals) carries **no `v1.1` labels** (`event_type`, `primary_company`, `program_identifiers`, `trial_ids`). The gate production enforces is `is_signal` precision ≥ 0.85 at the active prompt and prefilter versions, and that is fully measurable today. The new fields are reported by `score_extraction.py` only for documents carrying their labels, so this run reports them as "not measured". Adding those labels is file work for a cloud session under `specs/golden-set-expansion.md`; it does not block this gate and is not done here. A model answering "signal" every time already scores 35/46 = 0.76, and one golden document moves precision by 2–3 points, which is why the decision rule in step 5 needs a margin before preferring the slower model.
+The golden set (`services/ingestion-scraper/tests/golden/`, 50 documents, 46 pass the prefilter, 35 of those are signals) carries **no company-level labels** (`event_type`, `primary_company`, `program_identifiers`, `trial_ids`). The gate production enforces is `is_signal` precision ≥ 0.85 at the active prompt and prefilter versions, and that is fully measurable today. The new fields are reported by `score_extraction.py` only for documents carrying their labels, so this run reports them as "not measured". Adding those labels is file work for a cloud session under `specs/golden-set-expansion.md`; it does not block this gate and is not done here. A model answering "signal" every time already scores 35/46 = 0.76, and one golden document moves precision by 2–3 points, which is why the decision rule in step 5 needs a margin before preferring the slower model.
 
 The automated bake-off sketched in the research report (compose profile, McNemar test, hallucinated-symbol rate) was never built. This spec runs the existing per-candidate scripts instead, with the decision rule fixed below before any result exists.
 
@@ -188,7 +188,7 @@ cd ../..
 
 To confirm the context setting reached the server, once step 5's first evaluation has loaded a model: `ollama ps` shows a context of 8192 for it (older Ollama versions print no context column; then the server log shows it, `~/.ollama/logs/server.log` for the app). If it shows 4096, the `launchctl` values did not reach the server: restart Ollama and repeat.
 
-### 5. Gate the candidates at prompt v1.1
+### 5. Gate the candidates at prompt v1
 
 Precondition: step 3 finished (success or a recorded failure), step 4 passed, the stack from step 2 still up. Close other heavy apps. Per candidate, in this order: Llama Q8, Phi-3, Llama Q4.
 
@@ -207,10 +207,10 @@ cd ../..
 `evaluate_model.py`'s memory warning only knows 8B, 24B and 27B tags; for Phi-3 use `ollama ps` (model size) and the swap delta instead.
 
 **Check, per candidate:**
-- `config/models/latency/<slug>.json` (the tag with `:` replaced by `_`) and `config/models/scores/<tag>.json` exist; the score record has `prompt_version` `v1.1`, the production prefilter version, and `passed` true or false.
+- `config/models/latency/<slug>.json` (the tag with `:` replaced by `_`) and `config/models/scores/<tag>.json` exist; the score record has `prompt_version` `v1`, the production prefilter version, and `passed` true or false.
 - Precision, recall, mean and p95 latency and the backfill estimate are copied from the output into the notes for the DECISIONS entry. Compute `F1 = 2PR/(P+R)`.
 - Swap used grew by less than 1 GB during the run ("fits": the model and the stack ran side by side without paging).
-- The new-field report reads "not measured" (no `v1.1` labels). If it shows numbers, the golden set gained labels since this spec was written; record them too.
+- The new-field report reads "not measured" (no company-level labels). If it shows numbers, the golden set gained labels since this spec was written; record them too.
 
 **Decision rule (fixed before any result):**
 1. Eligible = gate passed (`is_signal` precision ≥ 0.85) and fits.
@@ -219,7 +219,7 @@ cd ../..
 4. If the Q8 is not eligible only because it does not fit, pick `llama3.1:8b-instruct-q4_K_M` if eligible.
 5. If none is eligible: no CHOICE. Record a FLAG with all three results and stop steps 6 and 8. The next options are the user's: a prompt `v1.2` with one worked example (a cloud spec, since a prompt change is a new version) or the `gpt-4o-mini-2024-07-18` fallback for the backfill only (needs re-scoring and budget approval). Do neither here.
 
-Record in `DECISIONS.md`: a CHOICE entry "Local model — CHOICE — <tag> for extraction at v1.1" under the 2026-09-19 Option A entry's instruction, with every candidate's precision, recall, F1, latency, backfill estimate, swap delta and the rule line that decided it; and a VERIFIED entry closing the 2026-10-07 PENDING "gate record for prompt v1.1". Update `docs/PREREQUISITES.md` "Local model selection" to done. Commit the registry, all gate and latency records and `VERSIONS.md`: `local model gate at v1.1: <tag> chosen, gate and latency records`.
+Record in `DECISIONS.md`: a CHOICE entry "Local model — CHOICE — <tag> for extraction at prompt v1" under the 2026-09-19 Option A entry's instruction, with every candidate's precision, recall, F1, latency, backfill estimate, swap delta and the rule line that decided it; and a VERIFIED entry closing the 2026-10-07 PENDING "gate record for prompt v1.1". Update `docs/PREREQUISITES.md` "Local model selection" to done. Commit the registry, all gate and latency records and `VERSIONS.md`: `local model gate at prompt v1: <tag> chosen, gate and latency records`.
 
 ### 6. Point the pipeline at the chosen model
 
@@ -231,7 +231,7 @@ In `.env` (not tracked):
 EXTRACTION_MODEL=<chosen tag>
 EXTRACTION_BASE_URL=http://host.docker.internal:11434/v1
 EXTRACTION_API_KEY=ollama
-EXTRACTION_PROMPT_VERSION=v1.1
+EXTRACTION_PROMPT_VERSION=v1
 ```
 
 ```bash

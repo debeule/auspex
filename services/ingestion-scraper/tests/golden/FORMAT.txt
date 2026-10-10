@@ -15,7 +15,7 @@ Each file must contain:
     "companies_mentioned": ["Company Name", ...],
     "directionality": "positive" | "negative" | "neutral",
     "prefilter_should_pass": true | false,
-    "event_type": "trial_readout" | ... (optional; see prompts/extraction/v1.1.txt),
+    "event_type": "trial_readout" | ... (optional; see prompts/extraction/v1.txt),
     "primary_company": "Company Name" | null (optional),
     "program_identifiers": ["SRP-9001", ...] (optional),
     "trial_ids": ["NCT05096221", ...] (optional)

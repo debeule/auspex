@@ -13,7 +13,9 @@ sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
 import yaml
 
+from auspex_ingest.extraction_backend import DEFAULT_PROMPT_VERSION
 from auspex_ingest.model_evaluation import compute_model_agreement, sample_archive_keys
+from auspex_ingest.prefilter import PREFILTER_VERSION
 
 
 def _extract_batch(
@@ -50,7 +52,7 @@ def _extract_batch(
         )
         print(f"  [{i}/{len(docs)}] {raw.source_type}/{raw.external_id}", end="", flush=True)
         try:
-            event = extractor.extract(raw, prefilter_version="v1", raw_object_key="")
+            event = extractor.extract(raw, prefilter_version=PREFILTER_VERSION, raw_object_key="")
         except Exception as exc:  # noqa: BLE001
             print(f" ERROR: {exc}")
             results.append(None)
@@ -88,7 +90,7 @@ def _load_from_minio(keys: list[str]) -> list[dict]:
     return docs
 
 
-def main() -> None:
+def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Cross-model agreement comparison")
     parser.add_argument("--model-a", required=True)
     parser.add_argument("--model-b", required=True)
@@ -99,8 +101,12 @@ def main() -> None:
     )
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--sample", type=int, default=100)
-    parser.add_argument("--prompt-version", default="v1.1")
-    args = parser.parse_args()
+    parser.add_argument("--prompt-version", default=DEFAULT_PROMPT_VERSION)
+    return parser
+
+
+def main() -> None:
+    args = build_parser().parse_args()
 
     raw_registry = yaml.safe_load(args.registry.read_text())
     for m in [args.model_a, args.model_b]:

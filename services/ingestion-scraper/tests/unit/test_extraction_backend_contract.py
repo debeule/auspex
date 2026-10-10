@@ -25,8 +25,8 @@ _VALID_API_ENTRY = {
 
 _PASSING_SCORE = {
     "model_id": "gpt-4o-mini-2024-07-18",
-    "prompt_version": "v1.0",
-    "prefilter_version": "v1.0",
+    "prompt_version": "v1",
+    "prefilter_version": "v1",
     "precision": 1.0,
     "passed": True,
     "scored_at": "2024-01-01T00:00:00Z",
@@ -63,7 +63,7 @@ class ExtractionBackendContractTest:
         extractor._client = mock_client
 
         result = extractor.extract(
-            _make_doc(), prefilter_version="v1.0", raw_object_key="raw/key.json"
+            _make_doc(), prefilter_version="v1", raw_object_key="raw/key.json"
         )
         assert result is None or hasattr(result, "event_id")
 
@@ -75,7 +75,7 @@ class ExtractionBackendContractTest:
 
         with pytest.raises(TimeoutError):
             extractor.extract(
-                _make_doc(), prefilter_version="v1.0", raw_object_key="raw/key.json"
+                _make_doc(), prefilter_version="v1", raw_object_key="raw/key.json"
             )
 
     def test_backend_malformed_response_counted_not_published(self, tmp_path, mocker):
@@ -86,7 +86,7 @@ class ExtractionBackendContractTest:
 
         with pytest.raises(ValueError, match="malformed"):
             extractor.extract(
-                _make_doc(), prefilter_version="v1.0", raw_object_key="raw/key.json"
+                _make_doc(), prefilter_version="v1", raw_object_key="raw/key.json"
             )
 
     def test_backend_parameters_match_registry_entry(self, tmp_path, mocker):
@@ -96,7 +96,7 @@ class ExtractionBackendContractTest:
         extractor._client = mock_client
 
         extractor.extract(
-            _make_doc(), prefilter_version="v1.0", raw_object_key="raw/key.json"
+            _make_doc(), prefilter_version="v1", raw_object_key="raw/key.json"
         )
         call_kwargs = mock_client.chat.completions.create.call_args
         entry = self.registry_entries[self.model_id]
@@ -112,8 +112,8 @@ def _build_factory(tmp_path: Path, registry_entries: dict, model_id: str) -> LLM
     score_file = scores_dir / f"{model_id}.json"
     score_file.write_text(json.dumps({
         "model_id": model_id,
-        "prompt_version": "v1.0",
-        "prefilter_version": "v1.0",
+        "prompt_version": "v1",
+        "prefilter_version": "v1",
         "precision": 1.0,
         "passed": True,
         "scored_at": "2024-01-01T00:00:00Z",
@@ -124,8 +124,8 @@ def _build_factory(tmp_path: Path, registry_entries: dict, model_id: str) -> LLM
         model_id=model_id,
         base_url=None,
         api_key="test-key",
-        prompt_version="v1.0",
-        prefilter_version="v1.0",
+        prompt_version="v1",
+        prefilter_version="v1",
     )
 
 
@@ -135,7 +135,7 @@ class TestApiBackendContract(ExtractionBackendContractTest):
 
     def make_extractor(self, tmp_path: Path, mocker):
         factory = _build_factory(tmp_path, self.registry_entries, self.model_id)
-        return factory.make_extractor(schema_version="1.0", prompt_version="v1.0")
+        return factory.make_extractor(schema_version="1.0", prompt_version="v1")
 
 
 class TestLocalBackendContract(ExtractionBackendContractTest):
@@ -162,8 +162,8 @@ class TestLocalBackendContract(ExtractionBackendContractTest):
         score_file = scores_dir / f"{self.model_id}.json"
         score_file.write_text(json.dumps({
             "model_id": self.model_id,
-            "prompt_version": "v1.0",
-            "prefilter_version": "v1.0",
+            "prompt_version": "v1",
+            "prefilter_version": "v1",
             "precision": 1.0,
             "passed": True,
             "scored_at": "2024-01-01T00:00:00Z",
@@ -174,8 +174,8 @@ class TestLocalBackendContract(ExtractionBackendContractTest):
             model_id=self.model_id,
             base_url="http://localhost:11434/v1",
             api_key="ollama",
-            prompt_version="v1.0",
-            prefilter_version="v1.0",
+            prompt_version="v1",
+            prefilter_version="v1",
             model_info_fn=lambda tag: self.model_id,
         )
-        return factory.make_extractor(schema_version="1.0", prompt_version="v1.0")
+        return factory.make_extractor(schema_version="1.0", prompt_version="v1")

@@ -54,9 +54,9 @@ class ResearchSignalEventTest {
         String json = loadFixture("contract/signal_event_v1.json");
         ResearchSignalEvent event = mapper.readValue(json, ResearchSignalEvent.class);
 
-        assertThat(event.schemaVersion()).isEqualTo("1.1");
+        assertThat(event.schemaVersion()).isEqualTo("1.0");
         assertThat(event.eventId()).isEqualTo(UUID.fromString("c1261cdc-1cf0-5bca-922d-7d098c8f0d6f"));
-        assertThat(event.extractionId()).isEqualTo(UUID.fromString("b3bf98e4-bc23-59be-ab4e-425aa86d631d"));
+        assertThat(event.extractionId()).isEqualTo(UUID.fromString("ff46e2f9-35f9-55dc-9d3e-080de1f77cca"));
         assertThat(event.externalId()).isEqualTo("ext-contract-001");
         assertThat(event.canonicalId()).isEqualTo("doi:10.1101/2024.06.01.600001");
         assertThat(event.rawObjectKey()).startsWith("raw/biorxiv/");
@@ -83,7 +83,7 @@ class ResearchSignalEventTest {
         String json = loadFixture("contract/signal_event_v1.json");
         // Inject an unknown field that a 1.2 schema might add
         String extended = json.replace(
-                "\"schema_version\": \"1.1\"",
+                "\"schema_version\": \"1.0\"",
                 "\"schema_version\": \"1.2\", \"new_field_added_in_v1_2\": \"some value\""
         );
         ResearchSignalEvent event = mapper.readValue(extended, ResearchSignalEvent.class);
@@ -92,16 +92,14 @@ class ResearchSignalEventTest {
     }
 
     @Test
-    void test_schema_one_zero_event_without_company_fields_is_valid() throws Exception {
+    void test_event_without_company_level_fields_is_rejected() throws Exception {
         ObjectNode payload = (ObjectNode) mapper.readTree(loadFixture("contract/signal_event_v1.json"));
-        payload.put("schema_version", "1.0");
         payload.remove(List.of("event_type", "primary_company", "program_identifiers", "trial_ids"));
 
         ResearchSignalEvent event = mapper.treeToValue(payload, ResearchSignalEvent.class);
 
-        assertThat(event.eventType()).isNull();
-        assertThat(event.trialIds()).isNull();
-        assertThat(validator.validate(event)).isEmpty();
+        assertThat(validator.validate(event)).extracting(v -> v.getPropertyPath().toString())
+                .containsExactlyInAnyOrder("eventType", "programIdentifiers", "trialIds");
     }
 
     @Test

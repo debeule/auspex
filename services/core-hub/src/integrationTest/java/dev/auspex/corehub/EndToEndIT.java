@@ -59,7 +59,11 @@ class EndToEndIT extends AbstractIT {
               "confidence_score": 0.90,
               "prompt_version": "v1",
               "prefilter_version": "v1",
-              "extraction_model": "gpt-4o"
+              "extraction_model": "gpt-4o",
+              "event_type": "other",
+              "primary_company": null,
+              "program_identifiers": [],
+              "trial_ids": []
             }
             """;
 
@@ -86,7 +90,11 @@ class EndToEndIT extends AbstractIT {
               "confidence_score": 0.60,
               "prompt_version": "v1",
               "prefilter_version": "v1",
-              "extraction_model": "gpt-4o"
+              "extraction_model": "gpt-4o",
+              "event_type": "other",
+              "primary_company": null,
+              "program_identifiers": [],
+              "trial_ids": []
             }
             """;
 

@@ -133,7 +133,7 @@ All credentials come from root `.env`. Copy from `.env.example` and fill in:
 - `POSTGRES_MONITOR_PASSWORD` — the exporter's read-only Postgres role
 - `ALERT_CONTACT_TYPE` and its settings (`ALERT_EMAIL_ADDRESSES` + `SMTP_*`, or `ALERT_WEBHOOK_URL`) — where alerts go; Grafana does not start without them
 
-The monitoring variables (sizes, retention, alert thresholds) have no defaults in `docker-compose.yml`: their values live only in `.env.example`, so an `.env` copied before they existed needs them added.
+No variable has a default in `docker-compose.yml`: values live only in `.env.example`, so an `.env` copied before a variable existed needs it added (step 1 of `specs/first-run-on-stack-machine.md` does this).
 
 ---
 

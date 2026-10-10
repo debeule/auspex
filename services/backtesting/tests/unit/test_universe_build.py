@@ -509,14 +509,11 @@ def test_repository_universe_covers_the_slow_signal_study_from_2014() -> None:
 def test_default_price_history_reaches_before_the_universe_window() -> None:
     rules = load_rules(_REPO_ROOT / "config" / "universe" / "rules.yaml")
     env_example = (_REPO_ROOT / ".env.example").read_text(encoding="utf-8")
-    compose = (_REPO_ROOT / "docker" / "docker-compose.yml").read_text(encoding="utf-8")
-    (example,) = re.findall(r"^PRICE_HISTORY_START=(\S+)$", env_example, re.MULTILINE)
-    (default,) = re.findall(r"PRICE_HISTORY_START:-([0-9-]+)", compose)
+    (start,) = re.findall(r"^PRICE_HISTORY_START=(\S+)$", env_example, re.MULTILINE)
     (scope_start,) = re.findall(r"^BACKFILL_SCOPE_START=(\S+)$", env_example, re.MULTILINE)
 
-    for start in (example, default):
-        # Liquidity on the first rebalance reads 20 sessions back.
-        assert date.fromisoformat(start) <= rules.window_start - timedelta(days=45)
+    # Liquidity on the first rebalance reads 20 sessions back.
+    assert date.fromisoformat(start) <= rules.window_start - timedelta(days=45)
     assert date.fromisoformat(scope_start) > rules.window_start
 
 

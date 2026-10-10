@@ -106,5 +106,4 @@ Then on the stack: add a term to PubMed through the API with a reason; the next 
 ## Notes
 
 - Why golden-set validation rather than re-gating the model: the prefilter is deterministic and cheap to measure, and adding terms can only let more documents through. Re-running the LLM gate for every edited term would make the config unmanageable on a local model.
-- The existing gate record `config/models/scores/gpt-4o-mini-2024-07-18.json` stores `prefilter_version: "v1.0"` while `PREFILTER_VERSION` is `"v1"`. Comparing the algorithm part removes the mismatch only if both are normalised to the same algorithm id; settle it in this spec's first commit.
 - Vocabulary removals are the risky edit: they can only add false negatives, which the golden check catches for labelled documents only.

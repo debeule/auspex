@@ -11,7 +11,6 @@ Those two are imported, so they are already in context — do not re-read them f
 - `docs/requirements.md` — read the sections the spec cites when verifying test consistency.
 - `docs/PREREQUISITES.md` — read when a spec is blocked on a credential or user decision.
 - `DECISIONS.md` — read before flagging something (it may already be logged); append when you flag.
-- `docs/plan.md` — reference only; contains original phase definitions for Phases 0–6.
 - `SETUP.md` — the only manual steps (secrets, host installs, sign-offs), in order. Everything else loads on `docker compose up` or refreshes on an Airflow schedule. A new manual step goes there, and only if it cannot be automated.
 
 **The spec you were assigned is the work; with no assignment, the first `ready` spec in TODO.md.** Update it as items complete, not at the end of the session.
@@ -237,7 +236,6 @@ services/core-hub/src/integrationTest/java/**/<Subject>IT.java    # container-ba
 | `docs/local-model-runbook.md` | Install Ollama, register and gate a local extraction model, switch the pipeline to it. |
 | `SETUP.md` | Manual setup steps in order; what the stack fills by itself. |
 | `docs/HISTORY.md` | Completed phases (0–3) — test counts, pre-fix failures, key decisions. |
-| `docs/plan.md` | Reference only — original phase definitions. Superseded by `specs/` for active work. |
 
 ## Tone
 Do not report a step complete unless its tests actually ran and passed. If something is blocked, say so plainly in `DECISIONS.md` and stop — do not work around an invariant to keep moving.

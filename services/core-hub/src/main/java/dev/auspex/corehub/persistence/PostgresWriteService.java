@@ -8,7 +8,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
-import java.util.List;
 
 /**
  * Writes to signal_current, signal_extraction_history, and source_observation atomically.
@@ -107,14 +106,10 @@ public class PostgresWriteService implements SignalRecordPort {
             ps.setString(22, e.extractionModel());
             ps.setString(23, e.eventType());
             ps.setString(24, e.primaryCompany());
-            ps.setArray(25,  conn.createArrayOf("text", orEmpty(e.programIdentifiers()).toArray()));
-            ps.setArray(26,  conn.createArrayOf("text", orEmpty(e.trialIds()).toArray()));
+            ps.setArray(25,  conn.createArrayOf("text", e.programIdentifiers().toArray()));
+            ps.setArray(26,  conn.createArrayOf("text", e.trialIds().toArray()));
             return ps;
         });
-    }
-
-    private static List<String> orEmpty(List<String> values) {
-        return values == null ? List.of() : values;
     }
 
     private void insertExtractionHistory(ResearchSignalEvent e) {

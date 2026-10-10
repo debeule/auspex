@@ -54,7 +54,7 @@ services:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB}
-      AIRFLOW_DB_USER: ${AIRFLOW_DB_USER:-airflow}
+      AIRFLOW_DB_USER: ${AIRFLOW_DB_USER}
       AIRFLOW_DB_PASSWORD: ${AIRFLOW_DB_PASSWORD}
       TZ: UTC
       PGTZ: UTC
@@ -152,7 +152,7 @@ services:
     environment: &price-env
       <<: *minio-env
       WATCHED_TICKERS: ${WATCHED_TICKERS}
-      PRICE_HISTORY_START: ${PRICE_HISTORY_START:-2013-01-01}
+      PRICE_HISTORY_START: ${PRICE_HISTORY_START}
     command: ["uv", "run", "--no-project", "python", "-m", "auspex_backtesting.stack_bootstrap", "prices"]
     restart: "no"
     mem_limit: ${PRICE_BOOTSTRAP_MEM_LIMIT}
@@ -172,7 +172,7 @@ services:
       SEC_SUBMISSIONS_BULK_URL: ${SEC_SUBMISSIONS_BULK_URL}
       SEC_COMPANYFACTS_BULK_URL: ${SEC_COMPANYFACTS_BULK_URL}
       SEC_ARCHIVES_URL: ${SEC_ARCHIVES_URL}
-      BACKFILL_SCOPE_START: ${BACKFILL_SCOPE_START:-2024-01-01}
+      BACKFILL_SCOPE_START: ${BACKFILL_SCOPE_START}
       UNIVERSE_RULES_PATH: /app/universe/rules.yaml
     volumes:
       - ../config/universe:/app/universe:ro
@@ -381,7 +381,7 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB}
       SPRING_NEO4J_URI: bolt://neo4j:7687
-      NEO4J_USER: ${NEO4J_USER:-neo4j}
+      NEO4J_USER: ${NEO4J_USER}
       NEO4J_PASSWORD: ${NEO4J_PASSWORD}
       KAFKA_BOOTSTRAP_SERVERS: kafka:9094
       LOGGING_STRUCTURED_FORMAT_CONSOLE: ecs
@@ -422,7 +422,7 @@ services:
       DASHBOARD_SESSION_IDLE_MINUTES: ${DASHBOARD_SESSION_IDLE_MINUTES}
     # Grafana holds 3000 on the host.
     ports:
-      - "127.0.0.1:${DASHBOARD_PORT:-3001}:3000"
+      - "127.0.0.1:${DASHBOARD_PORT}:3000"
     healthcheck:
       test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/api/health').then(r => process.exit(r.ok ? 0 : 1), () => process.exit(1))"]
       interval: 15s
@@ -453,8 +453,8 @@ services:
       AIRFLOW__WEBSERVER__SECRET_KEY: ${AIRFLOW_SECRET_KEY}
       AIRFLOW__WEBSERVER__DEFAULT_UI_TIMEZONE: UTC
       AUSPEX_SOURCES_YAML: /opt/airflow/config/sources.yaml
-      SCRAPER_API_URL: ${SCRAPER_API_URL:-http://ingestion-scraper:8000}
-      PRICE_API_URL: ${PRICE_API_URL:-http://price-service:8001}
+      SCRAPER_API_URL: ${SCRAPER_API_URL}
+      PRICE_API_URL: ${PRICE_API_URL}
       AIRFLOW__METRICS__STATSD_ON: "true"
       AIRFLOW__METRICS__STATSD_HOST: statsd-exporter
       AIRFLOW__METRICS__STATSD_PORT: "9125"

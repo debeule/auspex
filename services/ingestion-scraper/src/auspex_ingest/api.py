@@ -101,7 +101,7 @@ def create_app(
 def _load_sources_config() -> SourcesConfig:
 
     path = Path(os.environ.get("AUSPEX_SOURCES_YAML", "config/sources.yaml"))
-    from .dag_factory import load_sources_config
+    from .sources import load_sources_config
     return load_sources_config(path)
 
 

@@ -14,6 +14,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
 import yaml
 
+from auspex_ingest.extraction_backend import DEFAULT_PROMPT_VERSION
 from auspex_ingest.golden import GoldenDocument, load_golden_set
 from auspex_ingest.model_evaluation import compute_candidate_scores, sample_golden
 from auspex_ingest.prefilter import Prefilter
@@ -134,11 +135,11 @@ def _print_feasibility(
         )
 
 
-def main() -> None:
+def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Evaluate a candidate model against the golden set")
     parser.add_argument("--model", required=True, help="Registry key (e.g. llama3.1:8b-instruct-q8_0)")
     parser.add_argument("--golden-dir", default="tests/golden", type=Path)
-    parser.add_argument("--prompt-version", default="v1.1")
+    parser.add_argument("--prompt-version", default=DEFAULT_PROMPT_VERSION)
     parser.add_argument("--prefilter-vocab", default=None, type=Path)
     parser.add_argument(
         "--registry",
@@ -147,7 +148,11 @@ def main() -> None:
     )
     parser.add_argument("--seed", type=int, default=None)
     parser.add_argument("--sample", type=int, default=None, help="Subsample N docs from the golden set")
-    args = parser.parse_args()
+    return parser
+
+
+def main() -> None:
+    args = build_parser().parse_args()
 
     raw_registry = yaml.safe_load(args.registry.read_text())
     if args.model not in raw_registry.get("models", {}):
