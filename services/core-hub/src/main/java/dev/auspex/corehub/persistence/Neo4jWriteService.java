@@ -16,7 +16,8 @@ import java.util.UUID;
  * Uses MERGE on natural keys throughout — never CREATE — to stay idempotent.
  * confidence_score stored as double (Neo4j has no decimal type).
  * Every write, new or repeated, leaves the signal pending for the corroboration scan under a
- * fresh write token, in the same transaction as the rest of the write.
+ * fresh write token, in the same transaction as the rest of the write. A write replaces the
+ * signal's entity edges: those its event no longer lists are deleted in the same transaction.
  */
 @Service
 public class Neo4jWriteService implements SignalGraphPort {
@@ -34,6 +35,7 @@ public class Neo4jWriteService implements SignalGraphPort {
             session.executeWrite(tx -> {
                 mergeSignal(tx, event);
                 String eventId = event.eventId().toString();
+                removeDroppedRelationships(tx, event);
                 for (String gene : event.geneTargets()) {
                     mergeGeneRelationship(tx, eventId, gene);
                 }
@@ -93,6 +95,33 @@ public class Neo4jWriteService implements SignalGraphPort {
                     s.extraction_model     = $extraction_model,
                     s.corroboration_pending = true,
                     s.write_token          = $write_token
+                """, params);
+    }
+
+    /**
+     * Deletes the signal's own entity edges that its new extraction no longer lists. Entity nodes
+     * are shared with other signals, so only the edges go.
+     */
+    private void removeDroppedRelationships(TransactionContext tx, ResearchSignalEvent e) {
+        Map<String, Object> params = Map.of(
+                "event_id", e.eventId().toString(),
+                "genes", e.geneTargets(),
+                "mechanisms", e.mechanisms(),
+                "companies", e.companiesMentioned());
+        tx.run("""
+                MATCH (s:Signal {event_id: $event_id})-[r:TARGETS]->(g:GeneTarget)
+                WHERE NOT g.name IN $genes
+                DELETE r
+                """, params);
+        tx.run("""
+                MATCH (s:Signal {event_id: $event_id})-[r:USES_MECHANISM]->(m:Mechanism)
+                WHERE NOT m.name IN $mechanisms
+                DELETE r
+                """, params);
+        tx.run("""
+                MATCH (s:Signal {event_id: $event_id})-[r:MENTIONS]->(c:Company)
+                WHERE NOT c.name IN $companies
+                DELETE r
                 """, params);
     }
 

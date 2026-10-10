@@ -20,9 +20,25 @@ final class GraphTestEvents {
 
     ResearchSignalEvent event(String sourceType, List<String> geneTargets, List<String> mechanisms,
                               List<String> companies) {
+        return event(UUID.randomUUID(), sourceType, geneTargets, mechanisms, companies);
+    }
+
+    /** A fresh extraction of {@code eventId}: a new extraction id, the same document. */
+    ResearchSignalEvent event(UUID eventId, String sourceType, List<String> geneTargets, List<String> mechanisms,
+                              List<String> companies) {
+        try {
+            return objectMapper.treeToValue(json(eventId, sourceType, geneTargets, mechanisms, companies),
+                    ResearchSignalEvent.class);
+        } catch (Exception ex) {
+            throw new IllegalStateException(ex);
+        }
+    }
+
+    ObjectNode json(UUID uuid, String sourceType, List<String> geneTargets, List<String> mechanisms,
+                    List<String> companies) {
         try {
             ObjectNode node = (ObjectNode) objectMapper.readTree(TestFixtures.validSignalJson());
-            String eventId = UUID.randomUUID().toString();
+            String eventId = uuid.toString();
             node.put("event_id", eventId);
             node.put("extraction_id", UUID.randomUUID().toString());
             node.put("external_id", "ext-" + eventId);
@@ -31,7 +47,7 @@ final class GraphTestEvents {
             node.set("gene_targets", array(geneTargets));
             node.set("mechanisms", array(mechanisms));
             node.set("companies_mentioned", array(companies));
-            return objectMapper.treeToValue(node, ResearchSignalEvent.class);
+            return node;
         } catch (Exception ex) {
             throw new IllegalStateException(ex);
         }

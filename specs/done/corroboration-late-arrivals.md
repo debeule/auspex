@@ -24,7 +24,7 @@ A clock-based fix (scan on write time with a lookback) still loses a write whose
 
 ## Out of scope
 
-- Re-extraction removing relationships a new extraction no longer has (`specs/graph-relationship-replacement.md`).
+- Re-extraction removing relationships a new extraction no longer has (`specs/done/graph-relationship-replacement.md`).
 - Withdrawing corroborations whose evidence later disappears.
 - Changing the corroboration window, the degree cap or `CorroborationService`.
 - Kafka Streams (`specs/kafka-streams-correlation.md`).

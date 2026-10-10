@@ -1,6 +1,6 @@
 # Graph relationship replacement
 
-**Status:** ready
+**Status:** done
 **Branch:** `feature/graph-relationship-replacement`
 
 ---
@@ -24,7 +24,7 @@ Found by the consolidated audit of 2026-10-10 (finding C5; the audit file is in 
 - Withdrawing or recomputing corroborations already stored or published from a removed edge (nothing consumes `auspex.signals.corroborated` yet; recorded in `DECISIONS.md` for when something does).
 - Removing orphaned entity nodes.
 - Signal history in the graph (Postgres `signal_extraction_history` stays the record of past extractions).
-- When the corroboration scan sees a rewritten signal (`specs/corroboration-late-arrivals.md`).
+- When the corroboration scan sees a rewritten signal (`specs/done/corroboration-late-arrivals.md`).
 
 ## Constraints
 
