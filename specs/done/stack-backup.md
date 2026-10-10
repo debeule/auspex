@@ -1,7 +1,6 @@
 # Stack backup
 
-**Status:** blocked
-**Blocked by:** `specs/done/stack-state-persistence.md` merging into `develop` (it fixes the compose project name and the Airflow secrets, which a restored Airflow database depends on)
+**Status:** done
 **Branch:** `feature/stack-backup`
 
 ---
@@ -88,7 +87,7 @@ cd services/ingestion-scraper && uv run pytest tests/unit -q --strict-markers   
 Expected: 11 passed; 3 passed; the unit suite green. In CI: the 3 integration tests pass.
 
 **On the stack machine** (step 8 of `specs/first-run-on-stack-machine.md` picks this up):
-Set `BACKUP_HOST_DIR`, `up` with the `app` profile, then trigger `auspex_backup` once from Airflow. Check that `last_success.json` exists, its counts match `select count(*) from signal_current`, the Neo4j node count and the MinIO object counts, both `.dump` files are non-empty, and `pg_restore --list` reads each one. A full restore drill against live data is left out: the fixed `container_name`s stop a second copy of the stack from running beside the live one, and the round trip is proven by the integration tests. Record the outcome as a VERIFIED or FLAG entry in `DECISIONS.md`.
+Set `BACKUP_HOST_DIR`, `up` with the `app` profile, then trigger `auspex_backup` once from Airflow. Check that `last_success.json` exists, its Neo4j node count equals `MATCH (n) RETURN count(n)` and its per-bucket object counts equal the MinIO console's, both `.dump` files are non-empty, and `pg_restore --list` reads each one (`docker exec auspex-backup pg_restore --list /backup/postgres/<date>/auspex.dump`). A full restore drill against live data is left out: the fixed `container_name`s stop a second copy of the stack from running beside the live one, and the round trip is proven by the integration tests. Record the outcome as a VERIFIED or FLAG entry in `DECISIONS.md`.
 
 ## Notes
 

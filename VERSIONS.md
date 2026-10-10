@@ -110,6 +110,16 @@ These were verified against **older** versions than we are now pinning. Confirm 
 | Spring Data Neo4j `BigDecimal` conversion behaviour | general SDN behaviour | graph writes (sidestepped by an explicit `double` converter) |
 | Kafka Streams internal topics are created via AdminClient regardless of `auto.create.topics.enable` | general Kafka behaviour | Kafka Streams correlation spec, if ever built |
 
+## Python dependencies — backup service (`services/backup/`)
+Managed with **uv**; `uv.lock` is committed. Resolved 2026-10-10 from PyPI. The image is built on `postgres:18.6` (above), so `pg_dump` and `pg_restore` match the server's major version, with Python 3.14.2 installed by uv.
+
+| Package | Pinned version |
+|---|---|
+| neo4j | 6.3.1 (released 2026-09-15; 6.4.0 skipped, released 2026-10-05) |
+| minio | 7.2.20 (shared with ingestion-scraper) |
+| flask | 3.1.3 (same as ingestion-scraper) |
+| gunicorn | 26.2.0 (same as ingestion-scraper) |
+
 ## Dashboard dependencies (`services/dashboard/`)
 Managed with **npm**; `package-lock.json` is committed and authoritative. Exact versions in `package.json`. Resolved 2026-10-09 from npm; `npm audit --omit=dev --audit-level=high` reports 0 (see `DECISIONS.md` for the dev-only residual).
 

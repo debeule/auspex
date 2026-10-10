@@ -1,0 +1,44 @@
+[project]
+name = "auspex-backup"
+version = "0.1.0"
+description = "Nightly backup of the Auspex stores into a host folder, and their restore"
+requires-python = ">=3.14"
+dependencies = [
+    "minio==7.2.20",
+    "neo4j==6.3.1",
+    "flask==3.1.3",
+    "gunicorn==26.2.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/auspex_backup"]
+
+[dependency-groups]
+dev = [
+    "pytest==9.1.1",
+    "pytest-socket==0.8.0",
+    "ruff==0.16.3",
+    "mypy==2.3.1",
+    "testcontainers==4.15.0",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "--strict-markers"
+markers = [
+    "integration: requires live containers via testcontainers",
+]
+
+[tool.ruff]
+src = ["src"]
+target-version = "py314"
+line-length = 100
+
+[tool.mypy]
+python_version = "3.14"
+strict = true
+packages = ["auspex_backup"]

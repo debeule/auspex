@@ -1070,3 +1070,13 @@ The summary lists every source in `sources.yaml`. A source with a run in the las
 4. `golden-set-expansion` is blocked by the Ollama gate step of `first-run-on-stack-machine`, not by `model-evaluation`, which is done.
 5. `live-trading` also requires a `promoted` portfolio verdict for a portfolio hypothesis.
 **Action:** this PR.
+## 2026-10-10 — Stack backup — CHOICE — client tools from the server image, memory and restore semantics
+**What:**
+1. The `backup` image is built on `postgres:18.6` with Python 3.14.2 installed by uv, instead of `python:3.14.2-slim` plus `postgresql-client-18` from the PostgreSQL apt repository. `pg_dump` then always matches the server's major version, and there is no second apt version to pin.
+2. `backup` is long-running, so it needs memory under the 7.5 GB cap: `BACKUP_MEM_LIMIT=128m`, taken for now from Elasticsearch (896 → 768 MB, the value the container-limits work also gives it). The multi-week test run readiness thread owns memory limits and decides where the 128 MB finally comes from. `restore` is a one-shot (`RESTORE_MEM_LIMIT=512m`, not counted).
+3. A backup run lets every store run even after one fails, so a partial copy is still taken; only `last_success.json` waits for all three. "Older than `BACKUP_KEEP_DAYS`" means strictly older: with 14, a folder exactly 14 days old is kept.
+4. "Empty" for `restore`: no table outside the system schemas in either database, no Neo4j node, no object in either bucket. Everything is checked before anything is written. The runbook (`docs/backup-restore.md`) starts only Postgres, Neo4j and MinIO before restoring, because Airflow and core-hub write their schemas as soon as they start.
+5. The integration tests run `pg_dump` and `pg_restore` inside the Postgres test container (`docker exec`), because the CI runner's own client is an older major version.
+6. The spec's stack check compared the manifest with `select count(*) from signal_current`, but the manifest records Postgres dump sizes, not row counts. The check now compares the Neo4j node and MinIO object counts, and reads each dump with `pg_restore --list`.
+**Action:** `services/backup/`, `docker/docker-compose.yml`, `docs/backup-restore.md`.
+

@@ -20,11 +20,13 @@ Docker Compose stack for the full Auspex infrastructure.
 | `auspex-minio-init` | built from `services/backtesting` | — | One-shot init: creates the `auspex-raw` and `auspex-prices` buckets |
 | `auspex-price-bootstrap` | built from `services/backtesting` | — | One-shot init: fills missing price snapshots (watchlist, `XBI`, `EURUSD=X`) from `PRICE_HISTORY_START` and appends bars since the last run; fails `up --wait` if a ticker has no data at all |
 | `auspex-price-service` | built from `services/backtesting` | 8001 | HTTP API the price DAGs call: `POST /prices/refresh` (`auspex_price_refresh`) and `POST /universe/build` (`auspex_universe_build`, which also needs the `SEC_*` variables and mounts `config/universe/`) |
+| `auspex-backup` | built from `services/backup` (on `postgres:18.6`) | — | `POST /backup` for the `auspex_backup` DAG (daily 03:00 UTC): `pg_dump` of both databases and a Neo4j export into dated folders, and an additive mirror of both MinIO buckets, all under `BACKUP_HOST_DIR` on the host; reads the stores only |
+| `auspex-restore` | built from `services/backup` | — | Profile `restore` only: restores one dated backup into empty stores (`docs/backup-restore.md`) |
 | `auspex-elasticsearch-setup` | `curlimages/curl:8.15.0` | — | One-shot init: applies the `auspex-logs-ilm` retention policy (delete after 30 days) and attaches it to existing log indices |
 | `auspex-ingestion-scraper` | built from `services/ingestion-scraper` | 8000 | Scraper HTTP API (profile `app`) |
 | `auspex-core-hub` | built from `services/core-hub` | 8080 | Signal processor (profile `app`) |
 | `auspex-dashboard` | built from `services/dashboard` | 3001 (`DASHBOARD_PORT`) | Control and research UI behind a single-user login; its server forwards to core-hub, the scraper and price-service (profile `app`) |
-| `auspex-airflow` | `apache/airflow:3.3.1` | 8082 | DAG scheduler: ingestion DAGs (paused at creation) `auspex_price_refresh` (active, Mon–Fri 22:30 UTC) and `auspex_universe_build` (active, days 1–7 of each month 06:00 UTC). Sends statsd metrics to `statsd-exporter` |
+| `auspex-airflow` | `apache/airflow:3.3.1` | 8082 | DAG scheduler: ingestion DAGs (paused at creation) `auspex_price_refresh` (active, Mon–Fri 22:30 UTC) and `auspex_universe_build` (active, days 1–7 of each month 06:00 UTC), `auspex_backup` (active, daily 03:00 UTC). Sends statsd metrics to `statsd-exporter` |
 | `auspex-node-exporter` | `prom/node-exporter:v1.12.1` | — | Docker VM CPU, memory and filesystems (read through PID 1, no host mounts), plus the volume sizes from `volume-usage` |
 | `auspex-volume-usage` | `busybox:1.37.0` | — | Measures every named volume with `du` every `VOLUME_USAGE_INTERVAL_SECONDS` (`volume-usage/collect.sh`) |
 | `auspex-cadvisor` | `ghcr.io/google/cadvisor:0.57.0` | — | Per-container CPU, memory and start times |
@@ -121,6 +123,12 @@ Flyway runs schema migrations against `auspex` on every `core-hub` startup (`ddl
 Everything stateful sits on a named volume, so `down`, deleting containers and images, and `up` again picks up where it left off: Kafka topics and consumer offsets (kept 90 days, `KAFKA_OFFSETS_RETENTION_MINUTES`, under a pinned `CLUSTER_ID`), both Postgres databases, Neo4j, MinIO (prices, universe, raw archive), Elasticsearch, Prometheus, Grafana, Airflow's logs and its admin password file (`airflow_state`), and Filebeat's read positions (`filebeat_data`). Airflow's Fernet key, JWT secret and API secret key come from `.env`, so stored Variables such as the ingestion cursors stay readable. The compose file names its project `auspex`, so the volumes are the same ones whichever directory compose runs from.
 
 `down -v` destroys all data listed above. Nothing in the stack needs it as a fix.
+
+None of that survives resetting Docker Desktop or deleting its disk image. The nightly backup copies Postgres, Neo4j and MinIO into `BACKUP_HOST_DIR` on the Mac; `docs/backup-restore.md` says how to restore it:
+
+```bash
+docker compose --profile restore -f docker/docker-compose.yml --env-file .env run --rm restore --date YYYY-MM-DD
+```
 
 **Changing a password in place** (change it in the store first, then in `.env`):
 

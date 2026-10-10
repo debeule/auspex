@@ -55,6 +55,8 @@ curl http://localhost:8080/api/v1/signals/BEAM
 | Java: container tests | `cd services/core-hub && ./gradlew integrationTest` |
 | Java: everything | `cd services/core-hub && ./gradlew check` |
 | Backtesting: unit tests | `cd services/backtesting && uv run pytest tests/unit -q` |
+| Backup: lint, types, unit tests | `cd services/backup && uv run ruff check . && uv run mypy src && uv run pytest tests/unit -q` |
+| Restore a nightly backup into empty stores | `docker compose --profile restore -f docker/docker-compose.yml --env-file .env run --rm restore --date YYYY-MM-DD` (`docs/backup-restore.md`) |
 | Dashboard: lint, types, tests | `cd services/dashboard && npm ci && npm run lint && npx tsc --noEmit && npm run test:ci` |
 | Dashboard: build + bundle secret check | `cd services/dashboard && npm run build && npm run test:bundle` |
 | Smoke test | `./verify_pipeline.sh` |

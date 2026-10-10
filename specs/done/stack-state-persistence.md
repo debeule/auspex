@@ -38,7 +38,7 @@ The docs no longer suggest `down -v` as a fix. They give the targeted step inste
 
 ## Out of scope
 
-- Backups outside Docker Desktop's disk (`specs/stack-backup.md`).
+- Backups outside Docker Desktop's disk (`specs/done/stack-backup.md`).
 - Ingestion cursor and retry behaviour, DAG schedules, dead-letter handling, memory limits, log rotation and alerting. These belong to the multi-week test run readiness work.
 - Regrouping `.env.example`. Add the new variables into the existing grouping with minimal edits.
 - The Airflow API user for the dashboard BFF (`specs/pipeline-control-view.md`).

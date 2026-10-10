@@ -216,6 +216,76 @@ services:
     mem_limit: ${PRICE_SERVICE_MEM_LIMIT}
     logging: *logging
 
+  # Nightly copy of Postgres, Neo4j and MinIO into a folder on the host (the auspex_backup DAG
+  # calls POST /backup). It only reads from the stores; `restore` writes them back.
+  backup:
+    build:
+      context: ../services/backup
+      dockerfile: Dockerfile
+      args:
+        UV_VERSION: ${UV_VERSION}
+    image: auspex-backup
+    container_name: auspex-backup
+    depends_on:
+      postgres:
+        condition: service_healthy
+      neo4j:
+        condition: service_healthy
+      minio-init:
+        condition: service_completed_successfully
+    environment: &backup-environment
+      PGHOST: postgres
+      PGUSER: ${POSTGRES_USER}
+      PGPASSWORD: ${POSTGRES_PASSWORD}
+      BACKUP_DATABASES: ${POSTGRES_DB},airflow
+      NEO4J_URI: bolt://neo4j:7687
+      NEO4J_USER: ${NEO4J_USER}
+      NEO4J_PASSWORD: ${NEO4J_PASSWORD}
+      MINIO_ENDPOINT: minio:9000
+      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}
+      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
+      BACKUP_BUCKETS: ${MINIO_BUCKET},auspex-prices
+      BACKUP_KEEP_DAYS: ${BACKUP_KEEP_DAYS}
+    volumes:
+      - ${BACKUP_HOST_DIR:?set BACKUP_HOST_DIR in .env (SETUP.md)}:/backup
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "/app/.venv/bin/python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8002/health', timeout=4)"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    labels:
+      co.elastic.logs/enabled: "true"
+    mem_limit: ${BACKUP_MEM_LIMIT}
+
+  # Restores one dated backup into empty stores; refuses any store that holds data.
+  # docker compose --profile restore -f docker/docker-compose.yml --env-file .env run --rm restore --date YYYY-MM-DD
+  restore:
+    profiles: ["restore"]
+    image: auspex-backup
+    build:
+      context: ../services/backup
+      dockerfile: Dockerfile
+      args:
+        UV_VERSION: ${UV_VERSION}
+    container_name: auspex-restore
+    depends_on:
+      postgres:
+        condition: service_healthy
+      neo4j:
+        condition: service_healthy
+      minio-init:
+        condition: service_completed_successfully
+    environment: *backup-environment
+    entrypoint: ["uv", "run", "--no-project", "python", "-m", "auspex_backup.restore"]
+    volumes:
+      - ${BACKUP_HOST_DIR:?set BACKUP_HOST_DIR in .env (SETUP.md)}:/backup:ro
+    restart: "no"
+    labels:
+      co.elastic.logs/enabled: "true"
+    mem_limit: ${RESTORE_MEM_LIMIT}
+
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:${ELASTIC_VERSION}
     container_name: auspex-elasticsearch
@@ -541,6 +611,7 @@ services:
       AUSPEX_SOURCES_YAML: /opt/airflow/config/sources.yaml
       SCRAPER_API_URL: ${SCRAPER_API_URL}
       PRICE_API_URL: ${PRICE_API_URL}
+      BACKUP_API_URL: ${BACKUP_API_URL}
       AIRFLOW__METRICS__STATSD_ON: "true"
       AIRFLOW__METRICS__STATSD_HOST: statsd-exporter
       AIRFLOW__METRICS__STATSD_PORT: "9125"
@@ -557,6 +628,7 @@ services:
     volumes:
       - ../services/ingestion-scraper/dags:/opt/airflow/dags/ingestion:ro
       - ../services/backtesting/dags:/opt/airflow/dags/prices:ro
+      - ../services/backup/dags:/opt/airflow/dags/backup:ro
       - ../services/ingestion-scraper/config:/opt/airflow/config:ro
       - airflow_logs:/opt/airflow/logs
       - airflow_state:/opt/airflow/state

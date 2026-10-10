@@ -24,6 +24,7 @@ docker compose --profile app -f docker/docker-compose.yml --env-file .env up -d 
 |---|---|
 | New daily bars for the same tickers, Mon–Fri 22:30 UTC | Airflow DAG `auspex_price_refresh`, active from the first start |
 | Point-in-time stock universe (`config/universe/rules.yaml`), first week of each month 06:00 UTC and on the first start | Airflow DAG `auspex_universe_build`, active from the first start. The first run downloads SEC's bulk archives (a few GB, deleted afterwards) and every member's price history, so it takes a while; later runs only add the new month. |
+| Backup of Postgres, Neo4j and MinIO into `BACKUP_HOST_DIR`, daily 03:00 UTC | Airflow DAG `auspex_backup`, active from the first start; `last_success.json` there says when it last fully succeeded. Restoring: `docs/backup-restore.md` |
 | Source ingestion | Airflow DAGs `auspex_<source>`, paused until step 5 |
 
 `up --wait` fails if a ticker has no price data at all after `price-bootstrap` (`docker logs auspex-price-bootstrap` names it). Yahoo rate limits are the usual cause; run the same `up` again later. A ticker added to `WATCHED_TICKERS` is filled on the next `up`.
@@ -40,6 +41,7 @@ Fill in what only you have:
 |---|---|
 | `POSTGRES_PASSWORD`, `AIRFLOW_DB_PASSWORD`, `NEO4J_PASSWORD`, `MINIO_ACCESS_KEY`, `MINIO_SECRET_KEY`, `GRAFANA_ADMIN_PASSWORD`, `AIRFLOW_SECRET_KEY`, `AIRFLOW_JWT_SECRET` | Any strong values, e.g. `openssl rand -hex 24`. To change one later, follow "Changing a password in place" in `docker/README.md`; `down -v` destroys all data. |
 | `AIRFLOW_FERNET_KEY` | `openssl rand -base64 32 \| tr '+/' '-_'`. Encrypts Airflow's stored Variables, including the ingestion cursors; keep it for the life of the stack. **If the stack already ran without it**, copy the key Airflow generated before you recreate the container: `docker exec auspex-airflow airflow config get-value core fernet_key`. |
+| `BACKUP_HOST_DIR` | Absolute path of a folder on the Mac for the nightly backup, e.g. `/Users/<you>/auspex-backup`; it must be under a Docker Desktop shared folder (`/Users` is by default). Include it in Time Machine. `up` stops until it is set. |
 | `SEC_USER_AGENT` | `Name email@example.com`; SEC returns 403 without it. |
 | `NCBI_API_KEY`, `OPENFDA_API_KEY`, `EPO_OPS_KEY`, `EPO_OPS_SECRET` | From each provider's developer portal (EPO: `developers.epo.org`). |
 | `OPENAI_API_KEY` | Only for the API fallback model. |
@@ -48,6 +50,8 @@ Fill in what only you have:
 | `DASHBOARD_SESSION_SECRET`, `CORE_HUB_WRITE_TOKEN` | Any strong values, e.g. `openssl rand -hex 32`. Changing the session secret signs everyone out; changing the write token needs both `core-hub` and `dashboard` restarted. |
 | `POSTGRES_MONITOR_PASSWORD` | Any strong value; the read-only role Prometheus's Postgres exporter uses. Created or updated on every `up`. |
 | `ALERT_CONTACT_TYPE`, `ALERT_EMAIL_ADDRESSES`, `SMTP_HOST`, `SMTP_USER`, `SMTP_PASSWORD`, `SMTP_FROM_ADDRESS` | Where Grafana sends alerts. `email` (the default) needs the address list and an SMTP account, e.g. `smtp.gmail.com:587` with an app password. For a webhook instead, set `ALERT_CONTACT_TYPE=webhook` and `ALERT_WEBHOOK_URL`. Grafana does not start without one of the two. |
+
+`.env` is the only copy of the stack's secrets, and a restored Airflow database decrypts only with the same `AIRFLOW_FERNET_KEY`. Keep a copy of `.env` somewhere safe outside the repo, such as a password manager.
 
 ## 2. Host settings (once)
 

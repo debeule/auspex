@@ -69,7 +69,7 @@ git checkout -b feature/first-run-on-stack-machine
 git config user.name; git config user.email                # the user's identity, not a bot
 docker info --format '{{.MemTotal}}'                       # about 8 GB (8.0e9 to 8.6e9 bytes)
 command -v uv jq curl
-test -f .env && for k in POSTGRES_PASSWORD AIRFLOW_DB_PASSWORD NEO4J_PASSWORD MINIO_ACCESS_KEY MINIO_SECRET_KEY GRAFANA_ADMIN_PASSWORD AIRFLOW_SECRET_KEY AIRFLOW_FERNET_KEY AIRFLOW_JWT_SECRET SEC_USER_AGENT NCBI_API_KEY OPENFDA_API_KEY EPO_OPS_KEY EPO_OPS_SECRET PRICE_HISTORY_START SEC_SUBMISSIONS_BULK_URL SEC_COMPANYFACTS_BULK_URL SEC_ARCHIVES_URL BACKFILL_SCOPE_START POSTGRES_MONITOR_PASSWORD ALERT_CONTACT_TYPE; do printf '%s %s\n' "$k" "$(grep -c "^$k=.\+" .env)"; done
+test -f .env && for k in POSTGRES_PASSWORD AIRFLOW_DB_PASSWORD NEO4J_PASSWORD MINIO_ACCESS_KEY MINIO_SECRET_KEY GRAFANA_ADMIN_PASSWORD AIRFLOW_SECRET_KEY AIRFLOW_FERNET_KEY AIRFLOW_JWT_SECRET BACKUP_HOST_DIR SEC_USER_AGENT NCBI_API_KEY OPENFDA_API_KEY EPO_OPS_KEY EPO_OPS_SECRET PRICE_HISTORY_START SEC_SUBMISSIONS_BULK_URL SEC_COMPANYFACTS_BULK_URL SEC_ARCHIVES_URL BACKFILL_SCOPE_START POSTGRES_MONITOR_PASSWORD ALERT_CONTACT_TYPE; do printf '%s %s\n' "$k" "$(grep -c "^$k=.\+" .env)"; done
 grep '^PRICE_HISTORY_START=' .env
 comm -23 <(grep -o '^[A-Z_0-9]*=' .env.example | sort) <(grep -o '^[A-Z_0-9]*=' .env | sort)   # keys .env lacks
 docker volume ls --format '{{.Name}}' | grep '^auspex_' || echo "no auspex volumes"

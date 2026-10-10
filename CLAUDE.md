@@ -23,7 +23,7 @@ Project **Auspex**. Named for the Roman official who read scattered signs for me
 | Repo / compose project | `auspex` · `COMPOSE_PROJECT_NAME=auspex` |
 | Kafka topics | `auspex.raw.ingested`, `auspex.signals.extracted`, `auspex.signals.corroborated`, `*.dlt` |
 | Java root package | `dev.auspex.corehub` |
-| Python packages | `auspex_ingest` (inside `services/ingestion-scraper/src/`) · `auspex_backtesting` (inside `services/backtesting/src/`) |
+| Python packages | `auspex_ingest` (inside `services/ingestion-scraper/src/`) · `auspex_backtesting` (inside `services/backtesting/src/`) · `auspex_backup` (inside `services/backup/src/`) |
 | MinIO buckets | `auspex-raw` (signal documents) · `auspex-prices` (market and reference data snapshots: OHLCV, splits, universe) |
 | Postgres databases | `auspex` (application) · `airflow` (metadata) |
 | Neo4j / Postgres roles | `auspex_app`, `airflow` |
@@ -88,6 +88,8 @@ This is not hypothetical: v1 of this plan contained a test (`test_dag_task_only_
 | Java: forked-TZ execution | `cd services/core-hub && ./gradlew timezoneCheck` |
 | Java: force re-run (defeat up-to-date) | `cd services/core-hub && ./gradlew test --rerun-tasks` |
 | Backtesting: unit tests | `cd services/backtesting && uv run pytest tests/unit -q` |
+| Backup: lint, types, unit tests | `cd services/backup && uv run ruff check . && uv run mypy src && uv run pytest tests/unit -q` |
+| Restore a nightly backup into empty stores | `docker compose --profile restore -f docker/docker-compose.yml --env-file .env run --rm restore --date YYYY-MM-DD` (`docs/backup-restore.md`) |
 | Dashboard: lint, types, tests | `cd services/dashboard && npm ci && npm run lint && npx tsc --noEmit && npm run test:ci` |
 | Dashboard: build + bundle secret check | `cd services/dashboard && npm run build && npm run test:bundle` |
 | Smoke test | `./verify_pipeline.sh` |
@@ -234,6 +236,7 @@ services/core-hub/src/integrationTest/java/**/<Subject>IT.java    # container-ba
 | `DECISIONS.md` | Append-only log of flags, blocks, and choices made. Entry heading: `## YYYY-MM-DD — <topic> — TYPE — <title>`. |
 | `docs/requirements.md` | What the system must satisfy. Cited by specs when verifying tests. |
 | `docs/PREREQUISITES.md` | Outstanding credentials and user decisions. |
+| `docs/backup-restore.md` | When and how to restore the nightly backup. |
 | `docs/local-model-runbook.md` | Install Ollama, register and gate a local extraction model, switch the pipeline to it. |
 | `SETUP.md` | Manual setup steps in order; what the stack fills by itself. |
 | `docs/HISTORY.md` | Completed phases (0–3) — test counts, pre-fix failures, key decisions. |
