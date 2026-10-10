@@ -22,8 +22,9 @@ from auspex_backtesting.universe.model import CompanyRecord
 log = logging.getLogger("auspex_backtesting.universe")
 
 # SEC allows 10 requests per second across all of its hosts and blocks the address for about
-# ten minutes beyond that; retrying during a block extends it.
-_REQUEST_INTERVAL_S = 0.125
+# ten minutes beyond that; retrying during a block extends it. 5 per second leaves room for EDGAR
+# ingestion's 4 when both run at once from different containers.
+_REQUEST_INTERVAL_S = 0.2
 _BLOCKED_STATUSES = frozenset({403, 429})
 
 _ROW = re.compile(r"<tr[^>]*>(.*?)</tr>", re.IGNORECASE | re.DOTALL)

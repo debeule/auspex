@@ -9,9 +9,9 @@ import pytest
 import respx
 from httpx import Response
 
-from auspex_ingest.connectors import RateLimitedClient, RateLimitExceeded
+from auspex_ingest.connectors import RateLimitedClient
 from auspex_ingest.connectors import sec_edgar as _sec_edgar_module
-from auspex_ingest.connectors.sec_edgar import SecEdgarConnector
+from auspex_ingest.connectors.sec_edgar import SecEdgarConnector, SecRequestRefused
 from auspex_ingest.models import RawDocument
 from auspex_ingest.normalizer import IdentityNormalizer
 from auspex_ingest.pipeline import IngestionPipeline
@@ -113,22 +113,17 @@ def test_empty_result_set_yields_no_documents_and_no_error():
 
 
 @respx.mock
-def test_user_agent_header_sent_on_every_request_including_retries():
-    calls = 0
+def test_user_agent_header_sent_on_every_request():
     seen_user_agents: list[str] = []
 
     def side_effect(request):
-        nonlocal calls
-        calls += 1
         seen_user_agents.append(request.headers.get("user-agent", ""))
-        if calls == 1:
-            return Response(403)
         return Response(200, json=_PAGE1)
 
     respx.get(_EFTS_URL).mock(side_effect=side_effect)
-    list(_connector(sleep=lambda _: None).fetch_since(_CURSOR))
+    list(_connector().fetch_since(_CURSOR))
 
-    assert calls == 2
+    assert seen_user_agents
     assert all(ua == _TEST_USER_AGENT for ua in seen_user_agents)
 
 
@@ -139,11 +134,11 @@ def test_user_agent_is_a_named_constant():
 
 def test_sec_hosts_share_one_rate_limit_bucket():
     """A single 'sec.gov' bucket covers all *.sec.gov subdomains."""
-    t = 0.0
-    client = RateLimitedClient({"sec.gov": 1.0}, _clock=lambda: t)
+    slept: list[float] = []
+    client = RateLimitedClient({"sec.gov": 1.0}, _clock=lambda: 0.0, _sleep=slept.append)
     client._acquire("https://efts.sec.gov/LATEST/search-index")
-    with pytest.raises(RateLimitExceeded):
-        client._acquire("https://data.sec.gov/submissions/CIK0001821552.json")
+    client._acquire("https://data.sec.gov/submissions/CIK0001821552.json")
+    assert slept == [1.0]
 
 
 @respx.mock
@@ -156,25 +151,14 @@ def test_8k_with_multiple_items_yields_one_document_not_one_per_item():
 
 
 @respx.mock
-def test_403_is_treated_as_a_block_and_backs_off_before_retrying():
-    """403 from SEC signals an IP block — must sleep before retrying, not fail immediately."""
-    calls = 0
+def test_edgar_stops_on_a_refused_request_without_retrying():
+    """A 403 from SEC means its IP block is on; another request only extends it."""
+    search = respx.get(_EFTS_URL).mock(return_value=Response(403))
 
-    def side_effect(request):
-        nonlocal calls
-        calls += 1
-        if calls == 1:
-            return Response(403)
-        return Response(200, json=_PAGE1)
+    with pytest.raises(SecRequestRefused):
+        list(_connector().fetch_since(_CURSOR))
 
-    respx.get(_EFTS_URL).mock(side_effect=side_effect)
-    slept: list[float] = []
-    docs = list(_connector(sleep=lambda s: slept.append(s)).fetch_since(_CURSOR))
-    assert len(docs) == 2
-    assert calls == 2
-    assert len(slept) >= 1
-    assert slept[0] > 0
-
+    assert search.call_count == 1
 
 
 @respx.mock
@@ -635,15 +619,16 @@ def test_network_error_on_the_index_falls_back_to_metadata_and_warns(caplog):
 
 
 @respx.mock
-def test_index_403_falls_back_without_the_search_backoff():
+def test_index_403_stops_the_run_without_further_sec_requests():
     respx.get(_EFTS_URL).mock(return_value=Response(200, json=_SINGLE_HIT_BEAM))
-    respx.get(_BEAM_INDEX_URL).mock(return_value=Response(403))
-    slept: list[float] = []
+    archives = respx.get(url__startswith="https://www.sec.gov/Archives/").mock(
+        return_value=Response(403)
+    )
 
-    docs = list(_connector(sleep=slept.append).fetch_since(_CURSOR))
+    with pytest.raises(SecRequestRefused):
+        list(_connector().fetch_since(_CURSOR))
 
-    assert "Accession:" in docs[0].raw_content
-    assert slept == []
+    assert [str(c.request.url) for c in archives.calls] == [_BEAM_INDEX_URL]
 
 
 @respx.mock

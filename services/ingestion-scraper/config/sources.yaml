@@ -1,6 +1,9 @@
+# schedule: cron in UTC, null for a source that only runs when triggered. Live sources start an
+# hour apart and share one Airflow pool slot. rate_limit_rps: per host, requirements §6.5.
+# max_documents_per_run: extraction calls per run, sized to fit the DAG's 3 h task timeout.
 sources:
   - source_type: mock
-    schedule: "@daily"
+    schedule: null
     rate_limit_rps: 10.0
     initial_lookback: 7
     max_documents_per_run: 1000
@@ -14,10 +17,10 @@ sources:
     source_config: {}
 
   - source_type: biorxiv
-    schedule: "@daily"
-    rate_limit_rps: 3.0
+    schedule: "30 0 * * *"
+    rate_limit_rps: 1.0
     initial_lookback: 30
-    max_documents_per_run: 5000
+    max_documents_per_run: 150
     prefilter_vocabulary:
       - DMD
       - dystrophin
@@ -39,10 +42,10 @@ sources:
     source_config: {}
 
   - source_type: clinicaltrials
-    schedule: "@daily"
-    rate_limit_rps: 5.0
+    schedule: "30 2 * * *"
+    rate_limit_rps: 1.0
     initial_lookback: 30
-    max_documents_per_run: 50000
+    max_documents_per_run: 150
     prefilter_vocabulary:
       - DMD
       - dystrophin
@@ -63,10 +66,10 @@ sources:
     source_config: {}
 
   - source_type: pubmed
-    schedule: "@daily"
+    schedule: "30 1 * * *"
     rate_limit_rps: 3.0
     initial_lookback: 30
-    max_documents_per_run: 2000
+    max_documents_per_run: 150
     prefilter_vocabulary:
       - DMD
       - dystrophin
@@ -87,10 +90,10 @@ sources:
       search_term: "(gene therapy) OR (CRISPR) OR (base editing) OR (exon skipping) OR (duchenne) OR (BCL11A) OR (sickle cell)"
 
   - source_type: edgar
-    schedule: "@daily"
+    schedule: "30 3 * * *"
     rate_limit_rps: 4.0
     initial_lookback: 30
-    max_documents_per_run: 10000
+    max_documents_per_run: 150
     prefilter_vocabulary:
       - gene therapy
       - CRISPR
@@ -106,10 +109,10 @@ sources:
     source_config: {}
 
   - source_type: epo_ops
-    schedule: "@daily"
+    schedule: "30 4 * * *"
     rate_limit_rps: 2.0
     initial_lookback: 30
-    max_documents_per_run: 5000
+    max_documents_per_run: 150
     prefilter_vocabulary:
       - DMD
       - dystrophin

@@ -127,14 +127,14 @@ The `CorroborationService` interface stays because it is cheap; the Streams impl
 
 Airflow owns *when* each source is polled; Kafka owns what happens after extraction. RabbitMQ stays out: its per-message ack/retry/priority semantics overlap what Kafka consumer groups already give us here, and a second broker is a second thing to operate.
 
-**The pipeline is stateless with respect to cursors.** `IngestionPipeline.run(source_type, cursor)` receives a cursor and returns a `RunResult` containing `max_published_date_processed`. It never reads or writes cursor state.
+**The pipeline is stateless with respect to cursors.** `IngestionPipeline.run(source_type, cursor)` receives a cursor and returns a `RunResult` containing `next_cursor`: the earliest `published_date` among documents that failed, else the latest processed date, or the input cursor when the run stopped at its extraction cap (`DECISIONS.md` 2026-10-09, cursor after a run with failed documents). It never reads or writes cursor state.
 
 **The DAG task owns the cursor**, because Airflow already holds the connection to its own metadata database:
 
 1. Read Variable `cursor:{source_type}`; default to `now − initial_lookback` from `sources.yaml`.
 2. Call `IngestionPipeline.run(source_type, cursor)`.
-3. On success, write back `result.max_published_date_processed` — **not `now`**, which would skip anything published during the run.
-4. On failure, leave the Variable untouched.
+3. When the run completes, write back `result.next_cursor` — **not `now`**, which would skip anything published during the run. If any document failed, fail the task after writing, so the run shows red and retries.
+4. When the request fails (error, timeout, refused), leave the Variable untouched.
 
 `run_mock_ingestion.py` and the Step 4.0 backfill runner take the cursor as an argument. **A backfill never writes the live cursor.**
 
@@ -166,7 +166,7 @@ class IngestionPipeline:
 
 Per document: **pre-filter → dedup → MinIO archive → extract → publish**. It is the single caller of the connector, MinIO client, extractor, and producer.
 
-**Per-document error isolation** `[A8]`: a failing document is recorded and the run continues. `RunResult` counts `fetched / prefiltered_out / deduped / not_signal / below_threshold / extracted / published / failed` `[P2-7]`, plus `max_published_date_processed`. The task fails only if the failure *rate* exceeds a configured threshold.
+**Per-document error isolation** `[A8]`: a failing document is recorded and the run continues. `RunResult` counts `fetched / prefiltered_out / deduped / not_signal / below_threshold / extracted / published / failed` `[P2-7]`, plus `max_published_date_processed` and `next_cursor`. The task fails when any document failed, after saving `next_cursor`, which never passes a failed document.
 
 **Publish is not fire-and-forget** `[A7]`: `produce()` is asynchronous; the run must `flush()` and check delivery reports. An undelivered message fails the run.
 

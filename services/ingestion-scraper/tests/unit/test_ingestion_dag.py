@@ -21,6 +21,10 @@ _SERVICE_ROOT = Path(__file__).resolve().parents[2]
 _DAG_FILE = _SERVICE_ROOT / "dags" / "auspex_dags.py"
 _SOURCES_YAML = _SERVICE_ROOT / "config" / "sources.yaml"
 _SCRAPER_URL = "http://scraper.test:8000"
+_COMPOSE = _SERVICE_ROOT.parents[1] / "docker" / "docker-compose.yml"
+# The HTTP timeout each `requests.post` was given, in call order, for the test that last loaded
+# the DAG file.
+_timeouts: list[float] = []
 
 
 class _Variables:
@@ -67,10 +71,13 @@ class _Dag:
 
 
 class _Operator:
-    def __init__(self, task_id: str, python_callable: Any, op_kwargs: dict[str, Any]) -> None:
+    def __init__(
+        self, task_id: str, python_callable: Any, op_kwargs: dict[str, Any], **kwargs: Any
+    ) -> None:
         self.task_id = task_id
         self.python_callable = python_callable
         self.op_kwargs = op_kwargs
+        self.kwargs = kwargs
         assert _Dag.current is not None, "task defined outside a DAG"
         _Dag.current.tasks.append(self)
 
@@ -86,8 +93,9 @@ def _load_dags(
 ) -> tuple[dict[str, _Dag], list[tuple[str, dict[str, Any]]]]:
     posts: list[tuple[str, dict[str, Any]]] = []
 
-    def post(url: str, json: dict[str, Any], timeout: int) -> _Response:
+    def post(url: str, json: dict[str, Any], timeout: float) -> _Response:
         posts.append((url, json))
+        _timeouts.append(timeout)
         return response
 
     airflow = types.ModuleType("airflow")
@@ -97,6 +105,7 @@ def _load_dags(
     python.PythonOperator = _Operator  # type: ignore[attr-defined]
     sdk = types.ModuleType("airflow.sdk")
     sdk.Variable = variables  # type: ignore[attr-defined]
+    _timeouts.clear()
     requests = types.ModuleType("requests")
     requests.post = post  # type: ignore[attr-defined]
     for name, module in {
@@ -156,9 +165,9 @@ def test_dag_task_posts_the_cursor_to_the_scraper_ingest_endpoint(monkeypatch, t
     assert posts == [(f"{_SCRAPER_URL}/ingest/biorxiv", {"cursor": "2024-06-01T00:00:00+00:00"})]
 
 
-def test_cursor_advances_to_max_published_date_after_a_successful_run(monkeypatch, tmp_path):
+def test_cursor_advances_to_the_reported_next_cursor_after_a_successful_run(monkeypatch, tmp_path):
     variables = _Variables({"cursor:biorxiv": "2024-06-01T00:00:00+00:00"})
-    response = _Response({"max_published_date_processed": "2024-06-14T09:30:00+00:00"})
+    response = _Response({"failed": 0, "next_cursor": "2024-06-14T09:30:00+00:00"})
     dags, _ = _load_dags(monkeypatch, _one_source(tmp_path), variables, response)
 
     dags["auspex_biorxiv"].tasks[0].run()
@@ -166,9 +175,9 @@ def test_cursor_advances_to_max_published_date_after_a_successful_run(monkeypatc
     assert variables.writes == [("cursor:biorxiv", "2024-06-14T09:30:00+00:00")]
 
 
-def test_failed_run_leaves_cursor_unchanged(monkeypatch, tmp_path):
+def test_ingestion_task_leaves_the_cursor_untouched_when_the_request_fails(monkeypatch, tmp_path):
     variables = _Variables({"cursor:biorxiv": "2024-06-01T00:00:00+00:00"})
-    response = _Response({"max_published_date_processed": "2024-06-14T09:30:00+00:00"}, status=500)
+    response = _Response({"next_cursor": "2024-06-14T09:30:00+00:00"}, status=500)
     dags, _ = _load_dags(monkeypatch, _one_source(tmp_path), variables, response)
 
     with pytest.raises(RuntimeError):
@@ -179,7 +188,7 @@ def test_failed_run_leaves_cursor_unchanged(monkeypatch, tmp_path):
 
 def test_run_that_processed_nothing_leaves_cursor_unchanged(monkeypatch, tmp_path):
     variables = _Variables({"cursor:biorxiv": "2024-06-01T00:00:00+00:00"})
-    response = _Response({"max_published_date_processed": None})
+    response = _Response({"failed": 0, "next_cursor": None})
     dags, _ = _load_dags(monkeypatch, _one_source(tmp_path), variables, response)
 
     dags["auspex_biorxiv"].tasks[0].run()
@@ -208,3 +217,83 @@ def test_dag_file_contains_no_source_specific_branching():
     configured = {s["source_type"] for s in yaml.safe_load(_SOURCES_YAML.read_text())["sources"]}
 
     assert literals & configured == set()
+
+
+def test_ingestion_task_saves_the_safe_cursor_then_fails_when_documents_failed(monkeypatch, tmp_path):
+    variables = _Variables({"cursor:biorxiv": "2024-06-01T00:00:00+00:00"})
+    response = _Response({"failed": 2, "next_cursor": "2024-06-05T08:00:00+00:00"})
+    dags, _ = _load_dags(monkeypatch, _one_source(tmp_path), variables, response)
+
+    with pytest.raises(RuntimeError, match="2 documents failed"):
+        dags["auspex_biorxiv"].tasks[0].run()
+
+    assert variables.writes == [("cursor:biorxiv", "2024-06-05T08:00:00+00:00")]
+
+
+def _scheduled_minute_of_day(schedule: str) -> int:
+    minute, hour, *rest = schedule.split()
+    assert rest == ["*", "*", "*"], f"{schedule!r} is not a once-a-day schedule"
+    return int(hour) * 60 + int(minute)
+
+
+def test_live_sources_start_at_distinct_times():
+    scheduled = [
+        s for s in yaml.safe_load(_SOURCES_YAML.read_text())["sources"] if s.get("schedule")
+    ]
+    starts = {s["source_type"]: _scheduled_minute_of_day(s["schedule"]) for s in scheduled}
+
+    assert len(starts) >= 5
+    for a, start_a in starts.items():
+        for b, start_b in starts.items():
+            if a < b:
+                gap = abs(start_a - start_b)
+                assert min(gap, 24 * 60 - gap) >= 30, f"{a} and {b} start {gap} minutes apart"
+
+
+def test_ingestion_tasks_use_the_single_slot_ingestion_pool(monkeypatch):
+    dags, _ = _load_dags(monkeypatch, _SOURCES_YAML, _Variables(), _Response({}))
+
+    assert {dag.tasks[0].kwargs.get("pool") for dag in dags.values()} == {"ingestion"}
+
+
+def test_airflow_creates_the_ingestion_pool_before_the_scheduler_starts():
+    command = yaml.safe_load(_COMPOSE.read_text())["services"]["airflow"]["command"]
+    script = command if isinstance(command, str) else " ".join(command)
+
+    migrate = script.index("airflow db migrate")
+    pool = script.index("airflow pools set ingestion 1 ")
+    start = script.index("airflow standalone")
+    assert migrate < pool < start
+
+
+def test_ingestion_tasks_retry_twice_fifteen_minutes_apart(monkeypatch):
+    dags, _ = _load_dags(monkeypatch, _SOURCES_YAML, _Variables(), _Response({}))
+
+    for dag in dags.values():
+        task = dag.tasks[0]
+        assert task.kwargs["retries"] == 2
+        assert task.kwargs["retry_delay"] == timedelta(minutes=15)
+
+
+def test_ingestion_http_timeout_matches_the_task_execution_timeout(monkeypatch, tmp_path):
+    dags, _ = _load_dags(monkeypatch, _one_source(tmp_path), _Variables(), _Response({}))
+    task = dags["auspex_biorxiv"].tasks[0]
+
+    task.run()
+
+    assert _timeouts == [task.kwargs["execution_timeout"].total_seconds()]
+
+
+def test_source_without_schedule_is_never_scheduled(monkeypatch, tmp_path):
+    path = tmp_path / "sources.yaml"
+    path.write_text(yaml.safe_dump({"sources": [
+        {"source_type": "mock", "schedule": None, "initial_lookback": 7},
+        {"source_type": "biorxiv", "schedule": "30 0 * * *", "initial_lookback": 7},
+    ]}))
+
+    dags, _ = _load_dags(monkeypatch, path, _Variables(), _Response({}))
+
+    assert dags["auspex_mock"].kwargs["schedule"] is None
+    assert dags["auspex_biorxiv"].kwargs["schedule"] == "30 0 * * *"
+    shipped = {s["source_type"]: s for s in yaml.safe_load(_SOURCES_YAML.read_text())["sources"]}
+    assert shipped["mock"].get("schedule") is None

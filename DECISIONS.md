@@ -1070,3 +1070,19 @@ The summary lists every source in `sources.yaml`. A source with a run in the las
 4. `golden-set-expansion` is blocked by the Ollama gate step of `first-run-on-stack-machine`, not by `model-evaluation`, which is done.
 5. `live-trading` also requires a `promoted` portfolio verdict for a portfolio hypothesis.
 **Action:** this PR.
+## 2026-10-10 — Ingestion run reliability — CHOICE — schedule times, extraction cap and task timeout
+**What:** Live sources start an hour apart, at 00:30 (bioRxiv), 01:30 (PubMed), 02:30 (ClinicalTrials.gov), 03:30 (EDGAR) and 04:30 UTC (EPO). EDGAR starts after 22:00 US Eastern, when EDGAR stops accepting the day's filings. The ingestion task timeout is 3 h, which the HTTP request shares. `max_documents_per_run` is 150 for every live source: 150 extractions at the 60 s p95 that alerts as slow (`ALERT_EXTRACTION_P95_SECONDS`) take 2.5 h, inside the timeout. The pool's single slot queues runs that overrun the hour.
+**Why:** the spec leaves the cap to the measured latency, which only the soak run's day 1 gives (`specs/soak-test-run.md`). Until then the cap is sized from the slow-extraction alert threshold, so a capped run never hits the timeout. A capped run returns its input cursor and continues the next day, past what it finished.
+**Action:** revisit the caps with the day-1 p95 measurement.
+
+## 2026-10-10 — Ingestion run reliability — CHOICE — rate limiter spaces requests evenly, with no burst
+**What:** `RateLimitedClient`'s bucket now holds one token, not one second's worth, so requests to a host are spaced `1 / rate` apart. A request that finds the bucket empty reserves the next slot under a lock and sleeps until it.
+**Why:** a full one-second bucket lets `2 × rate` requests through in the first second after an idle period, and SEC counts its 10 req/s limit per second across hosts and containers. Even spacing keeps the configured rate a true ceiling in any one-second window.
+
+## 2026-10-10 — Ingestion run reliability — CHOICE — a 403 on a filing index also stops the EDGAR run
+**What:** a 403 from the EFTS search, a filing index or an exhibit raises `SecRequestRefused` and ends the run. Previously the search retried after 60 s and an index 403 fell back to the search metadata.
+**Why:** a 403 from any `*.sec.gov` host means the IP block is on, and every further request extends it. Ending the run leaves the cursor where it was (the request fails), and the DAG retries in 15 minutes.
+
+## 2026-10-10 — Ingestion run reliability — CHOICE — requirements §5 text follows the 2026-10-09 cursor decision
+**What:** `docs/requirements.md` §5 now names `next_cursor` as what the DAG writes, and says the task fails when any document failed (after saving it). It previously said the DAG writes `max_published_date_processed` and fails only above a failure-rate threshold.
+**Why:** the 2026-10-09 decision (cursor after a run with failed documents) replaced that rule. The requirements text is updated to the rule the code follows, so the next spec checked against §5 is checked against the rule in force.
