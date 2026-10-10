@@ -35,6 +35,8 @@ docker-compose.yml (or `${VAR:?message}` where an unset value must stop `up`), w
 
 Every service needs a `mem_limit` from `.env`, the `co.elastic.logs/enabled` label, and, if it has a
 healthcheck, a Prometheus scrape job or blackbox probe. The long-running limits must fit 7.5 GB.
+Every service also needs `logging: *logging`, the shared rotating `json-file` setting. Not the
+`local` driver: Filebeat's container input reads the JSON files Docker writes.
 Grafana expands `$VAR` in `grafana/provisioning/alerting/*.yaml`: write a literal `$` (as in
 `{{ $$labels.instance }}`) as `$$`, or it silently becomes empty. Alert PromQL is tested with
 promtool in `tests/unit/test_stack_alert_expressions.py`; add a case for every new rule.

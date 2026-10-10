@@ -1,7 +1,6 @@
 # Container limits and log rotation
 
-**Status:** blocked
-**Blocked by:** `specs/infrastructure-observability.md` and `specs/dashboard-foundation.md` merged into `develop` (the first adds the per-container memory limits and Prometheus retention this spec adjusts; the second adds the dashboard container this spec budgets)
+**Status:** done
 **Branch:** `feature/container-limits-and-log-rotation`
 
 ---
@@ -19,7 +18,7 @@ Found by the soak-test readiness audit (2026-10-09):
 
 ## What this builds
 
-- Every service in `docker-compose.yml`, one-shots included, uses one shared logging setting: the `local` driver with `max-size` 20 MB and `max-file` 3, from an `x-logging` anchor.
+- Every service in `docker-compose.yml`, one-shots included, uses one shared logging setting: the `json-file` driver with `max-size` 20 MB and `max-file` 3, from an `x-logging` anchor (`json-file`, not `local`: see Notes).
 - Log indices are deleted after 30 days, and Filebeat drops access-log lines for the healthcheck and probe paths (`/health`, `/actuator/health`, `/api/v2/monitor/health`, `/-/healthy`, `/api/health`, `/minio/health/live`).
 - Airflow starts one API worker and runs at most 4 tasks at once (`AIRFLOW__API__WORKERS=1`, `AIRFLOW__CORE__PARALLELISM=4`). Its limit is raised to 1,536 MB.
 - Neo4j's heap and page cache are set explicitly from `.env` (`NEO4J_HEAP_SIZE`, `NEO4J_PAGECACHE_SIZE`), with heap plus page cache at most 75% of its limit.
@@ -62,9 +61,9 @@ cd services/ingestion-scraper && uv run pytest tests/unit -q --strict-markers &&
 docker compose -f docker/docker-compose.yml --env-file .env.example config --quiet && echo compose-ok
 ```
 
-Expected: the suite passes with the 10 new tests among them; `compose-ok`; CI green on the PR. On the stack (picked up by `specs/first-run-on-stack-machine.md` step 8): every container shows `local` as its log driver in `docker inspect`, and `docker stats` shows no container above 90% of its limit an hour after `up`.
+Expected: the suite passes with the 10 new tests among them; `compose-ok`; CI green on the PR. On the stack (picked up by `specs/first-run-on-stack-machine.md` step 8): every container shows `json-file` with `max-size` 20m and `max-file` 3 in `docker inspect` and `docker stats` shows no container above 90% of its limit an hour after `up`.
 
 ## Notes
 
-- The `local` driver compresses rotated files and is Docker's recommended driver for this; Filebeat reads it through the same container input as before. If Filebeat's container input can't read `local` files on the pinned version, use `json-file` with the same sizes instead and say so in `DECISIONS.md`.
+- Filebeat's container input reads Docker's `json-file` output; the `local` driver writes a binary format it cannot parse, so `json-file` with rotation is used (`DECISIONS.md`, 2026-10-10).
 - Starting values that sum to exactly 7,680 MB from infrastructure observability's set (adjust after the day-1 measurement): Airflow 1,152 → 1,536; dashboard 256 and price-service 1,024 (already set when the dashboard joined the stack; the monthly universe build is price-service's peak, watch it); Neo4j 576 → 512 (256 MB heap, 128 MB page cache); Elasticsearch 896 → 768 (heap stays 512m); Kafka 640 → 576 (heap stays 384m); Prometheus 384 → 320; core-hub 768 → 704. Everything else is unchanged.

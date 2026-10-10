@@ -13,6 +13,14 @@ processors:
       target: ""
       overwrite_keys: true
       add_error_key: false
+  # Healthcheck and probe requests: one access line per container every few seconds.
+  - drop_event:
+      when:
+        or:
+          - regexp:
+              message: '"(GET|HEAD) (/health|/actuator/health|/api/v2/monitor/health|/-/healthy|/api/health|/minio/health/live)[ ?"]'
+          - regexp:
+              url.path: '^(/health|/actuator/health|/api/v2/monitor/health|/-/healthy|/api/health|/minio/health/live)$'
   - timestamp:
       field: "@timestamp"
       layouts:

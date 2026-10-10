@@ -20,7 +20,7 @@ Docker Compose stack for the full Auspex infrastructure.
 | `auspex-minio-init` | built from `services/backtesting` | — | One-shot init: creates the `auspex-raw` and `auspex-prices` buckets |
 | `auspex-price-bootstrap` | built from `services/backtesting` | — | One-shot init: fills missing price snapshots (watchlist, `XBI`, `EURUSD=X`) from `PRICE_HISTORY_START` and appends bars since the last run; fails `up --wait` if a ticker has no data at all |
 | `auspex-price-service` | built from `services/backtesting` | 8001 | HTTP API the price DAGs call: `POST /prices/refresh` (`auspex_price_refresh`) and `POST /universe/build` (`auspex_universe_build`, which also needs the `SEC_*` variables and mounts `config/universe/`) |
-| `auspex-elasticsearch-setup` | `curlimages/curl:8.15.0` | — | One-shot init: applies the `auspex-logs-ilm` retention policy (delete after 180 days) and attaches it to existing log indices |
+| `auspex-elasticsearch-setup` | `curlimages/curl:8.15.0` | — | One-shot init: applies the `auspex-logs-ilm` retention policy (delete after 30 days) and attaches it to existing log indices |
 | `auspex-ingestion-scraper` | built from `services/ingestion-scraper` | 8000 | Scraper HTTP API (profile `app`) |
 | `auspex-core-hub` | built from `services/core-hub` | 8080 | Signal processor (profile `app`) |
 | `auspex-dashboard` | built from `services/dashboard` | 3001 (`DASHBOARD_PORT`) | Control and research UI behind a single-user login; its server forwards to core-hub, the scraper and price-service (profile `app`) |
@@ -40,6 +40,35 @@ Docker Compose stack for the full Auspex infrastructure.
 All ports bound to `127.0.0.1` — local only, intentional; the exporters publish none. Services in the `app` profile (`ingestion-scraper`, `core-hub`) only start with `--profile app`.
 
 Every service has a `mem_limit` from `.env` (`*_MEM_LIMIT`, values in `.env.example` only). The long-running services' limits add up to at most 7.5 GB, inside Docker Desktop's 8 GB VM with 512 MB left for the VM; `test_stack_observability_config.py` enforces both. A container that reaches its limit is OOM-killed and restarted, which raises **Container Restarting**; raise its variable in `.env` and look at **Container memory** on the infrastructure dashboard.
+
+**Memory budget** (`.env.example` starting values; the soak test measures day-1 peaks and adjusts `.env`):
+
+| Service | Limit (MB) | Inside it |
+|---|---|---|
+| airflow | 1,536 | one API worker (`AIRFLOW_API_WORKERS`), at most 4 task processes (`AIRFLOW_PARALLELISM`) |
+| price-service | 1,024 | peaks during the monthly universe build |
+| elasticsearch | 768 | 512 MB heap |
+| core-hub | 704 | heap 60% of the limit (`CORE_HUB_JAVA_TOOL_OPTIONS`) |
+| kafka | 576 | 384 MB heap (`KAFKA_HEAP_OPTS`) |
+| neo4j | 512 | 256 MB heap (`NEO4J_HEAP_SIZE`) + 128 MB page cache (`NEO4J_PAGECACHE_SIZE`), at most 75% of the limit |
+| postgres, ingestion-scraper | 384 each | |
+| minio, prometheus | 320 each | |
+| grafana, dashboard | 256 each | |
+| filebeat, cadvisor | 160 each | |
+| six exporters | 48 each | node, postgres, kafka, elasticsearch, blackbox, statsd |
+| volume-usage | 32 | |
+| **Total** | **7,680** | 8 GB VM less 512 MB; one-shots (`restart: "no"`) run before the stack is busy and are not counted |
+
+**Disk budget.** Every store on the VM disk has a setting that bounds it:
+
+| Store | Grows with | Bounded by |
+|---|---|---|
+| Container logs (Docker's own files) | every stdout line | `json-file` rotation: `LOG_MAX_SIZE` (20m) × `LOG_MAX_FILE` (3), so at most 60 MB per container |
+| Elasticsearch `auspex-logs-*` | the same lines, minus healthcheck access lines (Filebeat drops them) | ILM `auspex-logs-ilm` deletes indices after 30 days |
+| Prometheus TSDB | series count, mostly cAdvisor's | `PROMETHEUS_RETENTION_TIME` (30d) or `PROMETHEUS_RETENTION_SIZE` (6GB), whichever comes first |
+| Kafka log | published records | per-topic retention in `topics.yaml` |
+| MinIO, Postgres, Neo4j | documents and signals; never deleted | nothing: watched by **Docker Disk Low** and the volume-size panels |
+| Airflow task logs | one file per task run | the `airflow_logs` volume; watched by the volume-size panels |
 
 ---
 
@@ -133,7 +162,7 @@ Grafana at `http://localhost:3000` (folder **Auspex**), Prometheus at `:9090`, E
 
 Every alert goes to one contact point, `auspex-default` (`grafana/provisioning/alerting/contactpoints.yaml`), set by `ALERT_CONTACT_TYPE` in `.env`: `email` (default; `ALERT_EMAIL_ADDRESSES` and the `SMTP_*` variables) or `webhook` (`ALERT_WEBHOOK_URL`). A firing alert repeats every 4 hours until it resolves. Grafana expands `$VAR` in the alerting files from its environment, so a literal `$` there is written `$$`.
 
-Prometheus keeps metrics for `PROMETHEUS_RETENTION_TIME` (30 days) or `PROMETHEUS_RETENTION_SIZE` (4 GB), whichever is hit first.
+Prometheus keeps metrics for `PROMETHEUS_RETENTION_TIME` (30 days) or `PROMETHEUS_RETENTION_SIZE` (6 GB), whichever is hit first.
 
 **Mac vs VM.** On Docker Desktop, `node-exporter` sees the Linux VM: its memory (8 GB) and the disk that holds images and volumes. The Mac itself (Ollama's memory, the Mac's disk) comes from a `node_exporter` installed on the Mac with Homebrew (`SETUP.md` step 2), scraped as job `mac-host` at `host.docker.internal:9100`. Each covers a failure the other cannot see. The stack does not need the Mac exporter: without it the Mac panels are empty and one info alert fires.
 

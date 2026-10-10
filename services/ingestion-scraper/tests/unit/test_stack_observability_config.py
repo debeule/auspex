@@ -149,21 +149,30 @@ def test_every_new_image_is_pinned_to_an_exact_tag() -> None:
         assert tag in versions, f"{name}: {image} missing from VERSIONS.md"
 
 
-def test_every_compose_service_has_a_memory_limit_from_env() -> None:
-    env = _env_example()
-    long_running_mib = 0
-    for name, svc in _services().items():
-        limit = svc.get("mem_limit")
-        assert limit is not None, f"{name} has no mem_limit"
-        m = _PLACEHOLDER.match(str(limit))
-        assert m, f"{name}: mem_limit {limit!r} is not an .env placeholder"
-        var = m.group("var")
-        assert env.get(var), f"{name}: {var} not set in .env.example"
-        if _long_running(svc):
-            long_running_mib += _mib(env[var])
+def _limit_var(name: str, svc: dict[str, Any]) -> str:
+    limit = svc.get("mem_limit")
+    assert limit is not None, f"{name} has no mem_limit"
+    m = _PLACEHOLDER.match(str(limit))
+    assert m, f"{name}: mem_limit {limit!r} is not an .env placeholder"
+    return m.group("var")
 
-    assert long_running_mib <= _DOCKER_DESKTOP_MIB - _VM_RESERVE_MIB, (
-        f"long-running services may use {long_running_mib} MiB, more than the Docker Desktop VM"
+
+def test_every_service_has_a_memory_limit() -> None:
+    env = _env_example()
+    for name, svc in _services().items():
+        var = _limit_var(name, svc)
+        assert env.get(var), f"{name}: {var} not set in .env.example"
+
+
+def test_long_running_memory_limits_fit_the_vm_budget() -> None:
+    env = _env_example()
+    services = _services()
+    long_running = {name: _mib(env[_limit_var(name, svc)])
+                    for name, svc in services.items() if _long_running(svc)}
+
+    assert "dashboard" in long_running
+    assert sum(long_running.values()) <= _DOCKER_DESKTOP_MIB - _VM_RESERVE_MIB, (
+        f"long-running services may use {sum(long_running.values())} MiB, more than the Docker Desktop VM"
     )
 
 
@@ -425,3 +434,122 @@ def test_volume_usage_mounts_every_named_volume() -> None:
     node = _services()["node-exporter"]
     assert "--collector.textfile.directory=/textfile" in node["command"]
     assert "volume_usage_textfile:/textfile:ro" in node["volumes"]
+
+
+# Every rotated file is kept at most this long per container: max-size x max-file.
+_LOG_CAP_MIB = 60
+# Paths only health checks and probes request; their access-log lines carry no information.
+_HEALTH_PATHS = (
+    "/health",
+    "/actuator/health",
+    "/api/v2/monitor/health",
+    "/-/healthy",
+    "/api/health",
+    "/minio/health/live",
+)
+
+
+def _logging_options(name: str, svc: dict[str, Any]) -> dict[str, str]:
+    logging = svc.get("logging")
+    assert logging, f"{name} has no logging setting"
+    return {key: _resolve(str(value)) for key, value in logging.get("options", {}).items()}
+
+
+def _filebeat() -> dict[str, Any]:
+    return yaml.safe_load((DOCKER / "filebeat" / "filebeat.yml").read_text(encoding="utf-8"))
+
+
+def _matches(condition: dict[str, Any], event: dict[str, str]) -> bool:
+    """Evaluates the subset of Filebeat conditions the drop processor uses: `or` and `regexp`."""
+    if "or" in condition:
+        return any(_matches(c, event) for c in condition["or"])
+    if "regexp" in condition:
+        return all(re.search(pattern, event.get(field, "")) is not None
+                   for field, pattern in condition["regexp"].items())
+    raise AssertionError(f"unsupported condition {condition}")
+
+
+def _dropped(event: dict[str, str]) -> bool:
+    drops = [p["drop_event"] for p in _filebeat()["processors"] if "drop_event" in p]
+    assert drops, "filebeat has no drop_event processor"
+    return any(_matches(d["when"], event) for d in drops)
+
+
+def test_every_service_uses_the_shared_rotating_log_driver() -> None:
+    compose = _compose()
+    shared = compose["x-logging"]
+    assert shared["driver"] == "json-file"
+    for name, svc in compose["services"].items():
+        assert svc.get("logging") == shared, f"{name} does not use the shared x-logging setting"
+    text = (DOCKER / "docker-compose.yml").read_text(encoding="utf-8")
+    assert text.count("logging: *logging") == len(compose["services"])
+
+
+def test_log_rotation_caps_each_container_at_sixty_megabytes() -> None:
+    for name, svc in _services().items():
+        options = _logging_options(name, svc)
+        size = re.fullmatch(r"(\d+)m", options["max-size"])
+        assert size, f"{name}: max-size {options['max-size']!r} is not in megabytes"
+        assert int(size.group(1)) * int(options["max-file"]) <= _LOG_CAP_MIB, name
+
+
+def test_neo4j_heap_and_page_cache_fit_within_its_limit() -> None:
+    env = _env_example()
+    neo4j = _services()["neo4j"]
+    environment = neo4j["environment"]
+    heap = _resolve(environment["NEO4J_server_memory_heap_max__size"])
+    assert _resolve(environment["NEO4J_server_memory_heap_initial__size"]) == heap
+    pagecache = _resolve(environment["NEO4J_server_memory_pagecache_size"])
+    limit = _mib(env[_limit_var("neo4j", neo4j)])
+
+    assert (_mib(heap) + _mib(pagecache)) * 4 <= limit * 3
+
+
+def test_airflow_runs_one_api_worker_and_at_most_four_tasks() -> None:
+    environment = _services()["airflow"]["environment"]
+
+    assert _resolve(environment["AIRFLOW__API__WORKERS"]) == "1"
+    assert 1 <= int(_resolve(environment["AIRFLOW__CORE__PARALLELISM"])) <= 4
+
+
+def test_log_indices_are_deleted_after_thirty_days() -> None:
+    policy = json.loads((DOCKER / "elasticsearch" / "ilm_policy.json").read_text(encoding="utf-8"))
+    delete = policy["policy"]["phases"]["delete"]
+
+    assert delete["min_age"] == "30d"
+    assert "delete" in delete["actions"]
+
+
+def test_filebeat_drops_healthcheck_access_lines() -> None:
+    for path in _HEALTH_PATHS:
+        assert _dropped({"message": f'172.18.0.5 - - "GET {path} HTTP/1.1" 200 15'}), path
+        assert _dropped({"message": "request completed", "url.path": path}), path
+    # Real traffic, and paths that merely start like a health path, are kept.
+    assert not _dropped({"message": '172.18.0.5 - - "POST /ingest/biorxiv HTTP/1.1" 200 812'})
+    assert not _dropped({"message": '"GET /api/v1/signals/BEAM HTTP/1.1" 200 2048'})
+    assert not _dropped({"message": "request completed", "url.path": "/healthcare/report"})
+    assert not _dropped({"message": '"GET /healthcare/report HTTP/1.1" 200 512'})
+    assert not _dropped({"message": "health check of neo4j failed"})
+
+
+def test_prometheus_keeps_up_to_six_gigabytes() -> None:
+    assert _env_example()["PROMETHEUS_RETENTION_SIZE"] == "6GB"
+
+
+def test_every_limit_variable_is_documented_in_env_example() -> None:
+    env = _env_example()
+    services = _services()
+    referenced: set[str] = set()
+    for name, svc in services.items():
+        referenced.add(_limit_var(name, svc))
+        for value in svc["logging"].get("options", {}).values():
+            referenced.update(_PLACEHOLDER.findall(str(value)) or re.findall(r"\$\{([A-Z0-9_]+)\}", str(value)))
+    for key in ("NEO4J_server_memory_heap_max__size", "NEO4J_server_memory_heap_initial__size",
+                "NEO4J_server_memory_pagecache_size"):
+        referenced.update(re.findall(r"\$\{([A-Z0-9_]+)\}", services["neo4j"]["environment"][key]))
+    for key in ("AIRFLOW__API__WORKERS", "AIRFLOW__CORE__PARALLELISM"):
+        referenced.update(re.findall(r"\$\{([A-Z0-9_]+)\}", services["airflow"]["environment"][key]))
+
+    assert {"LOG_MAX_SIZE", "LOG_MAX_FILE", "NEO4J_HEAP_SIZE", "NEO4J_PAGECACHE_SIZE",
+            "AIRFLOW_API_WORKERS", "AIRFLOW_PARALLELISM"} <= referenced
+    assert sorted(var for var in referenced if not env.get(var)) == []

@@ -1,5 +1,13 @@
 name: auspex
 
+# One rotating log setting for every service, one-shots included. json-file, not local: Filebeat's
+# container input reads the JSON files under /var/lib/docker/containers.
+x-logging: &logging
+  driver: json-file
+  options:
+    max-size: ${LOG_MAX_SIZE}
+    max-file: ${LOG_MAX_FILE}
+
 services:
   kafka:
     image: apache/kafka:4.3.0
@@ -36,6 +44,7 @@ services:
       retries: 15
       start_period: 30s
     mem_limit: ${KAFKA_MEM_LIMIT}
+    logging: *logging
     labels:
       co.elastic.logs/enabled: "true"
 
@@ -51,6 +60,7 @@ services:
     entrypoint: ["/create-topics.sh"]
     restart: "no"
     mem_limit: ${KAFKA_INIT_MEM_LIMIT}
+    logging: *logging
     labels:
       co.elastic.logs/enabled: "true"
 
@@ -77,6 +87,7 @@ services:
       timeout: 5s
       retries: 10
     mem_limit: ${POSTGRES_MEM_LIMIT}
+    logging: *logging
     labels:
       co.elastic.logs/enabled: "true"
 
@@ -86,6 +97,10 @@ services:
     environment:
       NEO4J_AUTH: neo4j/${NEO4J_PASSWORD}
       TZ: UTC
+      # Heap plus page cache stay at most 75% of NEO4J_MEM_LIMIT; the rest is native memory.
+      NEO4J_server_memory_heap_initial__size: ${NEO4J_HEAP_SIZE}
+      NEO4J_server_memory_heap_max__size: ${NEO4J_HEAP_SIZE}
+      NEO4J_server_memory_pagecache_size: ${NEO4J_PAGECACHE_SIZE}
     ports:
       - "127.0.0.1:7474:7474"
       - "127.0.0.1:7687:7687"
@@ -99,6 +114,7 @@ services:
       retries: 15
       start_period: 30s
     mem_limit: ${NEO4J_MEM_LIMIT}
+    logging: *logging
     labels:
       co.elastic.logs/enabled: "true"
 
@@ -124,6 +140,7 @@ services:
       retries: 5
       start_period: 10s
     mem_limit: ${MINIO_MEM_LIMIT}
+    logging: *logging
     labels:
       co.elastic.logs/enabled: "true"
 
@@ -146,6 +163,7 @@ services:
     command: ["uv", "run", "--no-project", "python", "-m", "auspex_backtesting.stack_bootstrap", "buckets"]
     restart: "no"
     mem_limit: ${MINIO_INIT_MEM_LIMIT}
+    logging: *logging
     labels:
       co.elastic.logs/enabled: "true"
 
@@ -163,6 +181,7 @@ services:
     command: ["uv", "run", "--no-project", "python", "-m", "auspex_backtesting.stack_bootstrap", "prices"]
     restart: "no"
     mem_limit: ${PRICE_BOOTSTRAP_MEM_LIMIT}
+    logging: *logging
     labels:
       co.elastic.logs/enabled: "true"
 
@@ -195,6 +214,7 @@ services:
     labels:
       co.elastic.logs/enabled: "true"
     mem_limit: ${PRICE_SERVICE_MEM_LIMIT}
+    logging: *logging
 
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:${ELASTIC_VERSION}
@@ -215,6 +235,7 @@ services:
       retries: 15
       start_period: 30s
     mem_limit: ${ELASTICSEARCH_MEM_LIMIT}
+    logging: *logging
     labels:
       co.elastic.logs/enabled: "true"
 
@@ -234,6 +255,7 @@ services:
     command: filebeat -e --strict.perms=false
     restart: unless-stopped
     mem_limit: ${FILEBEAT_MEM_LIMIT}
+    logging: *logging
     labels:
       co.elastic.logs/enabled: "true"
 
@@ -248,6 +270,7 @@ services:
     command: /setup/setup.sh
     restart: "no"
     mem_limit: ${ELASTICSEARCH_SETUP_MEM_LIMIT}
+    logging: *logging
     labels:
       co.elastic.logs/enabled: "true"
 
@@ -274,6 +297,7 @@ services:
       timeout: 5s
       retries: 5
     mem_limit: ${PROMETHEUS_MEM_LIMIT}
+    logging: *logging
     labels:
       co.elastic.logs/enabled: "true"
 
@@ -317,6 +341,7 @@ services:
       retries: 10
       start_period: 30s
     mem_limit: ${GRAFANA_MEM_LIMIT}
+    logging: *logging
     labels:
       co.elastic.logs/enabled: "true"
 
@@ -369,6 +394,7 @@ services:
     labels:
       co.elastic.logs/enabled: "true"
     mem_limit: ${INGESTION_SCRAPER_MEM_LIMIT}
+    logging: *logging
 
   core-hub:
     build:
@@ -408,6 +434,7 @@ services:
     labels:
       co.elastic.logs/enabled: "true"
     mem_limit: ${CORE_HUB_MEM_LIMIT}
+    logging: *logging
 
   dashboard:
     build:
@@ -439,6 +466,7 @@ services:
       retries: 5
       start_period: 20s
     mem_limit: ${DASHBOARD_MEM_LIMIT}
+    logging: *logging
     labels:
       co.elastic.logs/enabled: "true"
 
@@ -460,6 +488,7 @@ services:
     entrypoint: ["sh", "/apply-role.sh"]
     restart: "no"
     mem_limit: ${AIRFLOW_DB_ROLE_MEM_LIMIT}
+    logging: *logging
     labels:
       co.elastic.logs/enabled: "true"
 
@@ -472,6 +501,7 @@ services:
       - airflow_state:/state
     restart: "no"
     mem_limit: ${AIRFLOW_STATE_INIT_MEM_LIMIT}
+    logging: *logging
     labels:
       co.elastic.logs/enabled: "true"
 
@@ -493,6 +523,9 @@ services:
         condition: service_completed_successfully
     environment:
       AIRFLOW__CORE__EXECUTOR: LocalExecutor
+      # The API server starts 4 worker processes by default; LocalExecutor forks one per task.
+      AIRFLOW__API__WORKERS: ${AIRFLOW_API_WORKERS}
+      AIRFLOW__CORE__PARALLELISM: ${AIRFLOW_PARALLELISM}
       AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://${AIRFLOW_DB_USER}:${AIRFLOW_DB_PASSWORD}@postgres:5432/airflow
       AIRFLOW__CORE__LOAD_EXAMPLES: "false"
       AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: "true"
@@ -526,6 +559,7 @@ services:
       retries: 10
       start_period: 60s
     mem_limit: ${AIRFLOW_MEM_LIMIT}
+    logging: *logging
 
   # Exporters. None publishes a port: Prometheus reaches them on the compose network.
 
@@ -546,6 +580,7 @@ services:
       - volume_usage_textfile:/textfile:ro
     restart: unless-stopped
     mem_limit: ${NODE_EXPORTER_MEM_LIMIT}
+    logging: *logging
     labels:
       co.elastic.logs/enabled: "true"
 
@@ -570,6 +605,7 @@ services:
       - grafana_data:/volumes/grafana_data:ro
     restart: unless-stopped
     mem_limit: ${VOLUME_USAGE_MEM_LIMIT}
+    logging: *logging
     labels:
       co.elastic.logs/enabled: "true"
 
@@ -591,6 +627,7 @@ services:
       - /var/lib/docker:/var/lib/docker:ro
     restart: unless-stopped
     mem_limit: ${CADVISOR_MEM_LIMIT}
+    logging: *logging
     labels:
       co.elastic.logs/enabled: "true"
 
@@ -612,6 +649,7 @@ services:
     entrypoint: ["sh", "/create-role.sh"]
     restart: "no"
     mem_limit: ${POSTGRES_MONITOR_ROLE_MEM_LIMIT}
+    logging: *logging
     labels:
       co.elastic.logs/enabled: "true"
 
@@ -627,6 +665,7 @@ services:
       DATA_SOURCE_PASS: ${POSTGRES_MONITOR_PASSWORD}
     restart: unless-stopped
     mem_limit: ${POSTGRES_EXPORTER_MEM_LIMIT}
+    logging: *logging
     labels:
       co.elastic.logs/enabled: "true"
 
@@ -639,6 +678,7 @@ services:
     command: ["--kafka.server=kafka:9094"]
     restart: unless-stopped
     mem_limit: ${KAFKA_EXPORTER_MEM_LIMIT}
+    logging: *logging
     labels:
       co.elastic.logs/enabled: "true"
 
@@ -652,6 +692,7 @@ services:
     command: ["--es.uri=http://elasticsearch:9200"]
     restart: unless-stopped
     mem_limit: ${ELASTICSEARCH_EXPORTER_MEM_LIMIT}
+    logging: *logging
     labels:
       co.elastic.logs/enabled: "true"
 
@@ -666,6 +707,7 @@ services:
       - ./blackbox-exporter/blackbox.yml:/etc/blackbox/blackbox.yml:ro
     restart: unless-stopped
     mem_limit: ${BLACKBOX_EXPORTER_MEM_LIMIT}
+    logging: *logging
     labels:
       co.elastic.logs/enabled: "true"
 
@@ -679,6 +721,7 @@ services:
       - ./statsd-exporter/mapping.yml:/etc/statsd/mapping.yml:ro
     restart: unless-stopped
     mem_limit: ${STATSD_EXPORTER_MEM_LIMIT}
+    logging: *logging
     labels:
       co.elastic.logs/enabled: "true"
 
