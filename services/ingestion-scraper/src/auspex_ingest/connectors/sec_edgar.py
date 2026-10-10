@@ -12,7 +12,6 @@ import hashlib
 import logging
 import os
 import re
-import time
 from collections.abc import Callable, Iterator
 from datetime import UTC, date, datetime
 from datetime import time as dt_time
@@ -20,8 +19,6 @@ from html.parser import HTMLParser
 from typing import Any, cast
 from urllib.parse import urljoin
 from zoneinfo import ZoneInfo
-
-import httpx
 
 from ..models import RawDocument
 from .base import SourceConnector
@@ -43,8 +40,13 @@ _EDGAR_TZ = ZoneInfo("America/New_York")
 # so a filing is known to be public by this time on its file date.
 _FILING_DATE_CUTOFF = dt_time(17, 30)
 _PAGE_SIZE = 20
-# SEC blocks by IP for ~10 minutes on rate limit; back off conservatively.
-_BLOCK_BACKOFF = 60.0
+# SEC answers 403 while an IP block is on (about 10 minutes); every further request extends it.
+_REFUSED = 403
+
+
+class SecRequestRefused(Exception):
+    """SEC refused a request. The run stops so no further request extends the block; the DAG
+    retries later from the cursor it kept."""
 
 
 class _HTMLStripper(HTMLParser):
@@ -192,14 +194,10 @@ class SecEdgarConnector(SourceConnector):
         client: RateLimitedClient,
         user_agent: str = _USER_AGENT,
         now: Callable[[], datetime] | None = None,
-        sleep: Callable[[float], None] | None = None,
-        max_retries: int = 3,
     ) -> None:
         self._client = client
         self._user_agent = user_agent
         self._now = now or (lambda: datetime.now(UTC))
-        self._sleep: Callable[[float], None] = sleep or time.sleep
-        self._max_retries = max_retries
 
     def fetch_since(self, cursor: datetime) -> Iterator[RawDocument]:
         start = cursor.strftime("%Y-%m-%d")
@@ -335,6 +333,8 @@ class SecEdgarConnector(SourceConnector):
         except Exception as exc:  # noqa: BLE001
             _log.warning("edgar %s fetch error: accession=%s exc=%s", what, accession_no, exc)
             return None
+        if resp.status_code == _REFUSED:
+            raise SecRequestRefused(f"SEC refused the {what} of {accession_no} (HTTP 403)")
         if resp.status_code >= 400:
             _log.warning(
                 "edgar %s fetch failed: accession=%s status=%d", what, accession_no, resp.status_code
@@ -343,18 +343,11 @@ class SecEdgarConnector(SourceConnector):
         return resp.text
 
     def _get_json(self, params: dict[str, str]) -> dict[str, Any]:
-        headers = {"User-Agent": self._user_agent}
-        last_resp: httpx.Response | None = None
-        for _ in range(self._max_retries):
-            last_resp = self._client.get(_EFTS_URL, params=params, headers=headers)
-            if last_resp.status_code == 403:
-                self._sleep(_BLOCK_BACKOFF)
-                continue
-            last_resp.raise_for_status()
-            return cast(dict[str, Any], last_resp.json())
-        if last_resp is not None:
-            last_resp.raise_for_status()
-        raise RuntimeError(f"Exhausted retries for {_EFTS_URL}")
+        resp = self._client.get(_EFTS_URL, params=params, headers={"User-Agent": self._user_agent})
+        if resp.status_code == _REFUSED:
+            raise SecRequestRefused("SEC refused the full-text search (HTTP 403)")
+        resp.raise_for_status()
+        return cast(dict[str, Any], resp.json())
 
 
 @REGISTRY.register("edgar", rate_limit_host="sec.gov")

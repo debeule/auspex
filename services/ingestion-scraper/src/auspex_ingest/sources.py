@@ -10,10 +10,12 @@ class SourceEntry(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     source_type: str
-    schedule: str
+    # Cron expression for the source's Airflow DAG; None gives a DAG that only runs when triggered.
+    schedule: str | None = None
     rate_limit_rps: float
     initial_lookback: int
-    max_documents_per_run: int
+    # Most documents one run sends to extraction; already-processed documents do not count.
+    max_documents_per_run: int = Field(gt=0)
     prefilter_vocabulary: list[str]
     source_config: dict[str, Any]
     # Events scoring below this are counted in `below_threshold` instead of published.

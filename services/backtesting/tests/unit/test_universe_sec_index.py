@@ -105,7 +105,8 @@ def test_instance_lookup_reads_only_unresolved_companies_listed_in_the_window() 
     assert records[:4] == [current, inline, before_window, no_xbrl]
 
 
-def test_instance_lookups_are_paced_under_sec_request_limit() -> None:
+def test_filing_index_lookups_run_at_most_five_per_second() -> None:
+    """Half of SEC's 10 req/s aggregate, leaving room for EDGAR ingestion's 4 req/s."""
     companies = [_delisted_2015(f"000000000{i}") for i in range(1, 4)]
     sec = _Sec({_index_url(c.cik, "0001193125-14-012345"): _INDEX_2014 for c in companies})
     pauses: list[float] = []
@@ -116,7 +117,7 @@ def test_instance_lookups_are_paced_under_sec_request_limit() -> None:
 
     assert len(sec.requested) == 3
     assert len(pauses) == 2
-    assert all(p >= 0.1 for p in pauses)
+    assert all(p >= 0.2 for p in pauses)
 
 
 def test_instance_lookups_stop_once_sec_refuses_requests() -> None:
