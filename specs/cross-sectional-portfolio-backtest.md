@@ -34,7 +34,7 @@ In `services/backtesting/src/auspex_backtesting/portfolio/`:
    - cadence: `monthly`, `quarterly_after_13f` (first NYSE session at least `offset_days` calendar days after each 13F deadline, 45 days after quarter end), or `semi_annual_after_13f`. Scores can be newer than the last trade date; trades happen only on cadence dates.
    - an optional exclusion filter from a second `ScoreSnapshot` (for example the most-changed quintile of the filing-text score): excluded names are not bought and held names in it are sold at the next trade date.
    Ties are broken by CIK so runs are deterministic.
-3. **`EqualRiskSizer`** — weights proportional to 1 / trailing 60-session volatility (data before the rebalance date only), capped at the protocol's per-name ceiling, renormalised; fails if fewer than the protocol's `min_names` remain.
+3. **`EqualRiskSizer`** — weights proportional to 1 / trailing 60-session volatility (data before the rebalance date only), capped at the protocol's per-name ceiling: weight a cap removes goes to the uncapped names in proportion, repeated until none exceeds the ceiling, and whatever is left when every name is at the ceiling is held as cash earning nothing (15 names at 5% hold 75% invested, 25% cash; no weight is ever renormalised above the ceiling); fails if fewer than the protocol's `min_names` remain. `PortfolioResult` reports the cash share each month, and the excess over the universe equal-weight is reported both as is and against the same benchmark scaled to the portfolio's invested share.
 4. **`CatalystGuard`** — reads point-in-time catalyst dates (`specs/catalyst-date-panel.md`) as of each trade date. Modes, as the hypothesis declares:
    - `none`.
    - `skip_entry`: do not buy a name with a binary due before the next trade date. Held names stay.
@@ -77,6 +77,7 @@ In `services/backtesting/tests/unit/test_portfolio_backtest.py`:
 - `test_exclude_bottom_quintile_turns_over_less_than_top_quintile` — same scores, lower turnover and cost
 - `test_equal_risk_weights_are_inverse_trailing_volatility_capped_at_ceiling`
 - `test_equal_risk_sizer_refuses_fewer_than_minimum_names`
+- `test_equal_risk_weights_never_exceed_the_ceiling_and_the_rest_is_cash` — 15 names at equal volatility: each 5%, cash 25%; 25 names: weights sum to 1 and none above 5%
 - `test_trailing_volatility_uses_only_sessions_before_rebalance`
 - `test_member_delisted_mid_month_is_closed_at_last_close`
 - `test_delisting_with_missing_tail_is_booked_at_minus_thirty_percent_and_flagged`
@@ -117,7 +118,7 @@ In `services/backtesting/tests/unit/test_portfolio_verdict.py`:
 cd services/backtesting && uv run pytest tests/unit/test_portfolio_backtest.py tests/unit/test_portfolio_verdict.py -q --strict-markers && uv run pytest tests/unit -q
 ```
 
-Expected: 38 passed (29 engine, 9 verdict); full unit suite green with a non-zero count.
+Expected: 39 passed (30 engine, 9 verdict); full unit suite green with a non-zero count.
 
 Then: `services/backtesting/README.md` documents the portfolio engine and `ScoreSnapshot` contract; `.env.example` gains `IBKR_PRICING` and the new `FX_FEE_RATE` and `MIN_HALF_SPREAD_BPS` defaults.
 

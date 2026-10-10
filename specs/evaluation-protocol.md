@@ -37,6 +37,7 @@ All hypotheses are evaluated via this protocol. The protocol itself does not dec
 - Each line appended to `config/hypotheses/trials/<id>.jsonl` records the cells evaluated in that run: a list of `(holding_period_days, known_at_delay_days, variant)`.
 - `family_trial_count(trials_dir, hypotheses) → int` — the number of cells evaluated across every run of every hypothesis whose `role` is listed in `protocol.yaml` `trials.counts_roles` (`promotable`). Diagnostic and descriptive runs are logged but not counted. This is the `n_trials` passed to `DeflatedSharpe`.
 - `remaining_budget()` = the hypothesis family's `families.<family>.budget_cells` (64 for `event_backfill`) − that family's trial count. A run whose cells would exceed it raises `TrialBudgetExhaustedError` before any return is computed.
+- A run appends its cells to the ledger before it reads any return, so a run that fails or is interrupted afterwards still counts against the budget. The portfolio verdict uses the same rule.
 
 **`KillCriteria`**
 - `evaluate(hypothesis_id, results) → list[KillVerdict]` — applies each `protocol.yaml` `kill_criteria` entry whose `applies_to` covers the hypothesis, on the in-sample segment only. A `KillVerdict` carries `criterion_id`, `fired: bool`, the inputs it compared, and the registered `action`.
@@ -101,6 +102,7 @@ In `tests/unit/test_evaluation_protocol.py`:
 - `test_independent_event_count_merges_overlapping_same_ticker_windows` — three SRPT events 5 days apart with 20-day windows plus one BEAM event → `n_independent == 2`
 - `test_family_trial_count_sums_cells_across_promotable_hypotheses` — `trials/h1.jsonl` with two runs of 8 cells and `trials/h4.jsonl` with one run of 4 cells, plus a diagnostic `trials/h3.jsonl` run → `family_trial_count == 20`
 - `test_run_refuses_when_family_trial_budget_would_be_exceeded` — ledger at 60 cells, budget 64, a run requesting 8 cells raises `TrialBudgetExhaustedError` and appends nothing
+- `test_run_logs_its_cells_before_reading_returns_and_counts_them_when_it_fails` — a return reader that raises after the budget check leaves the run's cells in the ledger, and `family_trial_count` includes them
 - `test_run_refuses_cell_outside_registered_grid` — horizon 15 requested for a hypothesis declaring `[5, 10, 20, 30]` raises `UnregisteredCellError`
 - `test_run_refuses_suspended_hypothesis` — hypothesis with `status: suspended` raises `HypothesisSuspendedError`
 - `test_run_refuses_modified_protocol_file` — `protocol.yaml` edited after registration raises `HypothesisModifiedError`
@@ -123,7 +125,7 @@ In `tests/unit/test_evaluation_protocol.py`:
 cd services/backtesting && uv run pytest tests/unit/test_evaluation_protocol.py -q
 ```
 
-Expected: 22 passed.
+Expected: 23 passed.
 
 Then, once the historical backfill exists (a later session; not a merge condition): the first `EvaluationProtocol.run()` on real backfill data is H3 (its `run_order` is 1), recorded in DECISIONS.md with the pre and post CARs, n_events, n_independent_events, inference method and the `lagging_signal` verdict. Promotable hypotheses run only after H3 and only once re-registered with `status: pre-registered`; each such run is recorded with n_events, mean_abnormal_return, clustered t_stat, deflated_sharpe, n_trials, variant, known_at_delay_days, kill verdicts and holdout_sealed status.
 
