@@ -100,7 +100,7 @@ cd services/ingestion-scraper && uv run pytest tests/unit -q --strict-markers &&
 cd ../backtesting && uv run pytest tests/unit -q --strict-markers
 cd ../strategy && uv run pytest tests/unit -q --strict-markers
 cd ../core-hub && ./gradlew test --rerun-tasks
-cd ../.. && ! git grep -nE 'docs/plan\.md|plan\.md (instruction|§|Step)|prompts/extraction/v1\.(0|1)|v1\.1\.txt|watchlist_entries|dag_factory|LLMExtractor\b|schema 1\.1' -- . ':!DECISIONS.md' ':!docs/HISTORY.md' ':!specs/done' ':!services/core-hub/src/main/resources/db/migration'
+cd ../.. && ! git grep -nE 'docs/plan\.md|plan\.md (instruction|§|Step)|prompts/extraction/v1\.(0|1)|v1\.1\.txt|watchlist_entries|dag_factory|\bLLMExtractor\b|schema 1\.1' -- . ':!DECISIONS.md' ':!docs/HISTORY.md' ':!specs/done' ':!specs/single-source-cleanup.md' ':!services/core-hub/src/main/resources/db/migration' ':!services/ingestion-scraper/tests/unit/test_sources_schema.py'
 ```
 
 Expected: all suites pass with nonzero counts, ruff and mypy are clean, and the final grep prints nothing. `./gradlew integrationTest` runs in CI (Java workflow) and must be green on the PR.
@@ -110,5 +110,5 @@ Expected: all suites pass with nonzero counts, ruff and mypy are clean, and the 
 - **Why `v1` and not `v1.1` for the prompt name.** A version number that implies earlier versions misleads the next reader. The first gate run on the stack machine will write the first real gate record at `v1`.
 - **Why the schema resets to `1.0` while the V4 header says 1.1.** Migrations are frozen. The header is a comment in a file Flyway checksums, and DECISIONS.md records why it disagrees.
 - **Why bare `${VAR}` and not `${VAR:?…}`.** `:?` would stop `up` on a stale `.env`, but the monitoring variables already merged as bare placeholders, with the first-run preflight adding missing keys. Two spellings for the same rule would be the duplication this spec removes.
-- **`docs/HISTORY.md` stays.** It records what happened, not a parallel version of anything current. Its `dag_factory` lines describe phase 2 and are excluded from the grep.
+- **`docs/HISTORY.md` stays.** It records what happened, not a parallel version of anything current. Its `dag_factory` lines describe phase 2 and are excluded from the grep, as are this spec and the test that asserts the module is gone.
 - Record one `DECISIONS.md` CHOICE entry: "Single-source cleanup — CHOICE — one version of each pre-rollout artifact". List what was collapsed and the V4 header note.
