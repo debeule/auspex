@@ -17,11 +17,10 @@ from auspex_ingest.connectors.registry import (
     UnknownSourceTypeError,
     default_registry,
 )
-from auspex_ingest.sources import load_sources_config
 from auspex_ingest.identity import compute_event_id, compute_extraction_id
 from auspex_ingest.models import RawDocument, ResearchSignalEvent
 from auspex_ingest.pipeline_factory import make_pipeline_factory
-from auspex_ingest.sources import SourceEntry
+from auspex_ingest.sources import SourceEntry, load_sources_config
 
 _ROOT = Path(__file__).resolve().parents[2]
 _SOURCES = load_sources_config(_ROOT / "config" / "sources.yaml")
