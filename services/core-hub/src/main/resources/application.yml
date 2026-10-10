@@ -58,6 +58,9 @@ auspex:
       multiplier: ${AUSPEX_KAFKA_RETRY_MULTIPLIER:6.0}
     # How often Postgres and Neo4j are probed; listeners pause while either is unreachable.
     store-check-interval-ms: 5000
+  health:
+    # How often dead-letter depth and per-source signal age are logged and exported (5 minutes).
+    report-interval-ms: 300000
   api:
     # Bearer token required on every non-GET request under /api.
     write-token: ${CORE_HUB_WRITE_TOKEN:}

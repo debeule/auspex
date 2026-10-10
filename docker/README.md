@@ -138,7 +138,7 @@ Grafana at `http://localhost:3000` (folder **Auspex**), Prometheus at `:9090`, E
 
 | Dashboard | Shows |
 |---|---|
-| Auspex Pipeline | fetched / published per source, failed documents, LLM extraction latency (p50, p95, mean), LLM error ratio, run duration, hours since last run |
+| Auspex Pipeline | fetched / published per source, failed documents, LLM extraction latency (p50, p95, mean), LLM error ratio, run duration, hours since last run, days since each source's latest stored signal, dead letters not replayed, corroboration scan failures |
 | Auspex Operations | scrape targets up, core-hub throughput, Kafka consumer lag, listener time per record, DLT events, JVM heap, scraper memory, HTTP 5xx |
 | Auspex Error Drill-Down | error log lines by container, DLT events, error log stream, failed-document log stream |
 | Auspex Infrastructure | service up/down grid (health probes and scrape targets), container restarts and memory, Mac CPU/memory/disk, Docker VM CPU/memory/disk, volume sizes, Postgres connections and size, Elasticsearch disk, Kafka lag per group, dead-letter topic size, MinIO capacity, Airflow DAG runs by outcome, price refresh sessions behind |
@@ -146,7 +146,7 @@ Grafana at `http://localhost:3000` (folder **Auspex**), Prometheus at `:9090`, E
 | Alert | Fires when |
 |---|---|
 | DLT Backlog | any record dead-lettered in the last hour |
-| Source Silence | a source has not completed a run for 6 h |
+| Source Silence | a source has not completed a run for 30 h; its last run is looked up over 7 days, so a scraper restart does not hide it, and no data at all counts as firing |
 | Kafka Lag Critical | lag on `auspex.signals.extracted` above 1000 for 5 min |
 | Scrape Target Down | any scrape target except the Mac's exporter is unscrapeable for 5 min |
 | LLM Extraction Errors | more than 20% of extraction calls fail over 15 min |
@@ -159,6 +159,16 @@ Grafana at `http://localhost:3000` (folder **Auspex**), Prometheus at `:9090`, E
 | Airflow DAG Run Failed | a DAG run failed in the last hour |
 | Price Refresh Stale | no fully successful price refresh for `ALERT_PRICE_REFRESH_MAX_MISSED_SESSIONS` (2) NYSE sessions |
 | Ollama Down During Extraction | Ollama is unreachable for 5 min while an ingestion DAG task runs or extraction calls are being made |
+| Documents Failed | a source had any failed document in the last 24 h |
+| Source Quiet | a source has stored no signal for `ALERT_SOURCE_QUIET_DAYS` (5) days, read by core-hub from Postgres |
+| Extraction Slow | p95 of one extraction call over the last hour is above `ALERT_EXTRACTION_P95_SECONDS` (60) s |
+| Raw Topic Lag | consumer lag on `auspex.raw.ingested` above 1,000 for 15 min |
+| DLT Not Empty | a dead-letter topic has held records nobody replayed for 1 h (`DLT Backlog` says one just arrived) |
+| Elasticsearch Unhealthy | the cluster is red or an index is read-only, so logs are not stored; a single node's yellow is normal |
+| Corroboration Scan Failing | the corroboration scan threw in the last 15 min |
+| Universe Month Missing | from day 8 of a month, the latest stored universe month is not the current one |
+
+**Daily health summary.** The `auspex_daily_health` DAG runs at 07:00 UTC, asks Prometheus (`PROMETHEUS_URL`) for the last day's numbers and sends one message through the same contact settings: per source the last run and documents fetched, published and failed (a source with no run in 26 h is marked; one with none in 30 days is listed as not run), dead letters, consumer lag, price refresh, container restarts, VM disk free and its growth since yesterday, Mac swap, and alerts open now and at peak (from Grafana's own `/metrics`, scraped as job `grafana`). It needs no unpausing. When it does not arrive, the stack or the Mac is down, which no alert on the stack can say.
 
 Every alert goes to one contact point, `auspex-default` (`grafana/provisioning/alerting/contactpoints.yaml`), set by `ALERT_CONTACT_TYPE` in `.env`: `email` (default; `ALERT_EMAIL_ADDRESSES` and the `SMTP_*` variables) or `webhook` (`ALERT_WEBHOOK_URL`). A firing alert repeats every 4 hours until it resolves. Grafana expands `$VAR` in the alerting files from its environment, so a literal `$` there is written `$$`.
 
@@ -166,7 +176,7 @@ Prometheus keeps metrics for `PROMETHEUS_RETENTION_TIME` (30 days) or `PROMETHEU
 
 **Mac vs VM.** On Docker Desktop, `node-exporter` sees the Linux VM: its memory (8 GB) and the disk that holds images and volumes. The Mac itself (Ollama's memory, the Mac's disk) comes from a `node_exporter` installed on the Mac with Homebrew (`SETUP.md` step 2), scraped as job `mac-host` at `host.docker.internal:9100`. Each covers a failure the other cannot see. The stack does not need the Mac exporter: without it the Mac panels are empty and one info alert fires.
 
-Key metrics: `auspex_price_refresh_runs_total{outcome}`, `auspex_price_tickers_refreshed_total`, `auspex_price_tickers_failed_total`, `auspex_price_refresh_last_success_timestamp_seconds`, `auspex_price_refresh_sessions_since_success` (price-service); `auspex_pipeline_documents_fetched_total`, `auspex_pipeline_documents_failed_total`, `auspex_pipeline_signals_published_total`, `auspex_llm_extraction_calls_total{result}`, `auspex_llm_extraction_duration_seconds`, `auspex_pipeline_run_duration_seconds`, `auspex_pipeline_run_last_timestamp` (scraper); `auspex_signals_processed_total`, `auspex_dlt_events_total{topic}`, `kafka_consumer_fetch_manager_records_lag`, `spring_kafka_listener_seconds` (core-hub).
+Key metrics: `auspex_price_refresh_runs_total{outcome}`, `auspex_price_tickers_refreshed_total`, `auspex_price_tickers_failed_total`, `auspex_price_refresh_last_success_timestamp_seconds`, `auspex_price_refresh_sessions_since_success`, `auspex_universe_latest_month` (price-service); `auspex_pipeline_documents_fetched_total`, `auspex_pipeline_documents_failed_total`, `auspex_pipeline_signals_published_total`, `auspex_llm_extraction_calls_total{result}`, `auspex_llm_extraction_duration_seconds`, `auspex_pipeline_run_duration_seconds`, `auspex_pipeline_run_last_timestamp` (scraper); `auspex_signals_processed_total`, `auspex_dlt_events_total{topic}`, `auspex_dlt_depth{topic}`, `auspex_source_latest_signal_age_seconds{source_type}`, `auspex_corroboration_scan_failures_total`, `kafka_consumer_fetch_manager_records_lag`, `spring_kafka_listener_seconds` (core-hub).
 
 Smoke test after `up` (give Prometheus a minute for its first scrapes): `GRAFANA_ADMIN_PASSWORD=... sh docker/grafana/test_provisioning.sh`. It checks the dashboards, alert rules, contact point and policy, that every target except `mac-host` is up, every probe except Ollama succeeds, and that the Postgres, Kafka, Elasticsearch, cAdvisor and volume metrics arrive.
 

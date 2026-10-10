@@ -18,6 +18,12 @@ scrape_configs:
       - targets: ['price-service:8001']
     metrics_path: /metrics
 
+  # Grafana's own metrics: alert counts by state, for the daily health summary.
+  - job_name: grafana
+    static_configs:
+      - targets: ['grafana:3000']
+    metrics_path: /metrics
+
   # Docker VM: CPU, memory, the disk holding the volumes, and volume sizes from volume-usage.
   - job_name: node-exporter
     static_configs:

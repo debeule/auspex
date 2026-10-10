@@ -1,4 +1,4 @@
-"""Prometheus metrics for the price service's refresh endpoint."""
+"""Prometheus metrics for the price service's refresh endpoint and stored universe months."""
 
 from collections.abc import Callable, Iterator
 from datetime import UTC, datetime, timedelta
@@ -83,4 +83,27 @@ class _SinceSuccess(Collector):
             "auspex_price_refresh_sessions_since_success",
             "NYSE sessions since the last fully successful refresh, or since the service started",
             value=self._metrics.sessions_since_success(),
+        )
+
+
+class UniverseMonthCollector(Collector):
+    """`auspex_universe_latest_month` as YYYYMM, read from the store at every scrape.
+
+    0 when no month is stored. Absent while the store cannot be read, so a MinIO outage (which
+    its own probe reports) does not read as a missing month.
+    """
+
+    def __init__(self, months: Callable[[], list[str]]) -> None:
+        self._months = months
+
+    def collect(self) -> Iterator[GaugeMetricFamily]:
+        try:
+            months = self._months()
+        except OSError:
+            return
+        latest = max(months, default=None)
+        yield GaugeMetricFamily(
+            "auspex_universe_latest_month",
+            "Latest month with a stored universe snapshot, as YYYYMM; 0 when none is stored",
+            value=int(latest.replace("-", "")) if latest else 0,
         )

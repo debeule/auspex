@@ -553,3 +553,42 @@ def test_every_limit_variable_is_documented_in_env_example() -> None:
     assert {"LOG_MAX_SIZE", "LOG_MAX_FILE", "NEO4J_HEAP_SIZE", "NEO4J_PAGECACHE_SIZE",
             "AIRFLOW_API_WORKERS", "AIRFLOW_PARALLELISM"} <= referenced
     assert sorted(var for var in referenced if not env.get(var)) == []
+
+
+def test_source_silence_counts_missing_data_as_alerting() -> None:
+    rules = _rules()
+    assert rules["Source Silence"]["noDataState"] == "Alerting"
+    assert rules["Raw Topic Lag"]["for"] == "15m"
+
+
+def test_daily_health_summary_reaches_prometheus_and_the_alert_contact() -> None:
+    env = _services()["airflow"]["environment"]
+    for var in (
+        "PROMETHEUS_URL",
+        "ALERT_CONTACT_TYPE",
+        "ALERT_EMAIL_ADDRESSES",
+        "ALERT_WEBHOOK_URL",
+        "SMTP_HOST",
+        "SMTP_USER",
+        "SMTP_PASSWORD",
+        "SMTP_FROM_ADDRESS",
+    ):
+        assert env[var] == f"${{{var}}}", var
+    assert _env_example()["PROMETHEUS_URL"] == "http://prometheus:9090"
+    # Grafana's alert counts come from its own /metrics.
+    jobs = {j["job_name"]: j for j in _prometheus()["scrape_configs"]}
+    assert jobs["grafana"]["static_configs"][0]["targets"] == ["grafana:3000"]
+
+
+def test_elasticsearch_exporter_reports_read_only_indices() -> None:
+    assert "--es.indices_settings" in _services()["elasticsearch-exporter"]["command"]
+
+
+def test_pipeline_dashboard_shows_signal_age_dead_letters_and_scan_failures() -> None:
+    panels = {p["title"]: p for p in _dashboard("auspex-pipeline")["panels"]}
+    for title, metric in {
+        "Days since latest stored signal": "auspex_source_latest_signal_age_seconds",
+        "Dead letters not replayed": "auspex_dlt_depth",
+        "Corroboration scan failures per hour": "auspex_corroboration_scan_failures_total",
+    }.items():
+        assert metric in _panel_exprs(panels[title]), f"{title} does not query {metric}"

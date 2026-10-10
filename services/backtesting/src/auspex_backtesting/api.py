@@ -19,7 +19,7 @@ from auspex_backtesting.catalysts import (
     PressReleaseCatalystExtractor,
 )
 from auspex_backtesting.catalysts.job import CatalystPanelBuild, universe_members
-from auspex_backtesting.price_metrics import PriceRefreshMetrics
+from auspex_backtesting.price_metrics import PriceRefreshMetrics, UniverseMonthCollector
 from auspex_backtesting.prices.price_refresher import (
     PriceDataUnavailableError,
     PriceRefresher,
@@ -45,9 +45,11 @@ def create_app(
     tickers: list[str] | None = None,
     universe_job: Callable[[], UniverseBuildJob] | None = None,
     metrics: PriceRefreshMetrics | None = None,
+    universe_months: Callable[[], list[str]] | None = None,
 ) -> Flask:
     if metrics is None:
         metrics = PriceRefreshMetrics(CollectorRegistry())
+    metrics.registry.register(UniverseMonthCollector(universe_months or stored_universe_months))
     if refresher is None:
         refresher = refresher_from_env()
     if tickers is None:
@@ -91,6 +93,16 @@ def create_app(
         return Response(generate_latest(metrics.registry), mimetype="text/plain; version=0.0.4")
 
     return app
+
+
+def stored_universe_months() -> list[str]:
+    """Months stored under the configured rules version; empty before the first build."""
+    try:
+        rules_version = load_rules(Path(os.environ["UNIVERSE_RULES_PATH"])).version
+    except KeyError as exc:
+        # Not configured (tests, a bare run): the metric is left out, as for an unreadable store.
+        raise OSError("UNIVERSE_RULES_PATH is not set") from exc
+    return UniverseStore(_minio_from_env()).months(rules_version)
 
 
 def refresher_from_env() -> PriceRefresher:

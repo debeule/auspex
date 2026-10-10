@@ -58,7 +58,8 @@ class ArchRulesTest {
                         "dev.auspex.corehub.signal..",
                         "dev.auspex.corehub.corroboration..",
                         "dev.auspex.corehub.audit..",
-                        "dev.auspex.corehub.query.."
+                        "dev.auspex.corehub.query..",
+                        "dev.auspex.corehub.health.."
                 )
                 .should(new ArchCondition<JavaMethod>("not call java.sql.Statement raw-string methods") {
                     @Override

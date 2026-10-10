@@ -3,6 +3,8 @@ package dev.auspex.corehub;
 import dev.auspex.corehub.corroboration.CorroboratedSignalEvent;
 import dev.auspex.corehub.corroboration.CorroborationScanner;
 import dev.auspex.corehub.corroboration.ScheduledCorroborationService;
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.junit.jupiter.api.Test;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -66,7 +68,7 @@ class ScheduledCorroborationServiceTest {
         when(kafka.send(any(), any(), any())).thenReturn(CompletableFuture.completedFuture(null));
 
         ScheduledCorroborationService service =
-                new ScheduledCorroborationService(scanner, kafka, new RecordingTransactionManager(), 1000L);
+                new ScheduledCorroborationService(scanner, kafka, new RecordingTransactionManager(), 1000L, new SimpleMeterRegistry());
         service.runCorroboration();
 
         verify(kafka).send(eq("auspex.signals.corroborated"), eq(e1.entityKey()), eq(e1));
@@ -81,7 +83,7 @@ class ScheduledCorroborationServiceTest {
         when(scanner.scan()).thenReturn(List.of());
 
         ScheduledCorroborationService service =
-                new ScheduledCorroborationService(scanner, kafka, new RecordingTransactionManager(), 1000L);
+                new ScheduledCorroborationService(scanner, kafka, new RecordingTransactionManager(), 1000L, new SimpleMeterRegistry());
         service.runCorroboration();
 
         verify(kafka, never()).send(any(), any(), any());
@@ -98,11 +100,33 @@ class ScheduledCorroborationServiceTest {
         RecordingTransactionManager transactions = new RecordingTransactionManager();
 
         ScheduledCorroborationService service =
-                new ScheduledCorroborationService(scanner, kafka, transactions, 1000L);
+                new ScheduledCorroborationService(scanner, kafka, transactions, 1000L, new SimpleMeterRegistry());
 
         assertThatThrownBy(service::runCorroboration).isInstanceOf(IllegalStateException.class);
         // The scan's inserts and its watermark write share this transaction.
         assertThat(transactions.rolledBack).isTrue();
         assertThat(transactions.committed).isFalse();
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    void corroborationScanFailureIncrementsTheCounter() {
+        CorroborationScanner scanner = mock(CorroborationScanner.class);
+        KafkaTemplate<Object, Object> kafka = mock(KafkaTemplate.class);
+        when(scanner.scan()).thenThrow(new IllegalStateException("neo4j unavailable"));
+        SimpleMeterRegistry registry = new SimpleMeterRegistry();
+
+        ScheduledCorroborationService service = new ScheduledCorroborationService(
+                scanner, kafka, new RecordingTransactionManager(), 1000L, registry);
+
+        // Registered at zero, so the first failure is an increase Prometheus can see.
+        Counter failures = registry.find("auspex.corroboration.scan.failures").counter();
+        assertThat(failures).isNotNull();
+        assertThat(failures.count()).isZero();
+
+        assertThatThrownBy(service::runCorroboration).isInstanceOf(IllegalStateException.class);
+        assertThatThrownBy(service::runCorroboration).isInstanceOf(IllegalStateException.class);
+
+        assertThat(failures.count()).isEqualTo(2.0);
     }
 }

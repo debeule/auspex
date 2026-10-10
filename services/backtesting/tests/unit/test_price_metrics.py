@@ -108,3 +108,41 @@ def test_each_app_gets_its_own_metrics_registry_by_default() -> None:
 
     assert first.get("/metrics").status_code == 200
     assert second.get("/metrics").status_code == 200
+
+
+def test_metrics_report_the_latest_stored_universe_month() -> None:
+    months: list[str] = ["2026-08", "2026-09"]
+    registry = CollectorRegistry()
+    client = create_app(
+        refresher=MagicMock(),
+        tickers=[],
+        metrics=_metrics(datetime(2026, 10, 8, tzinfo=UTC), registry),
+        universe_months=lambda: months,
+    ).test_client()
+
+    client.get("/metrics")
+    assert _sample(registry, "auspex_universe_latest_month") == 202609
+
+    # Read at scrape time, so a build between scrapes shows on the next one.
+    months.append("2026-10")
+    assert _sample(registry, "auspex_universe_latest_month") == 202610
+
+    # Nothing built yet reads as month 0, which the alert treats as missing.
+    months.clear()
+    assert _sample(registry, "auspex_universe_latest_month") == 0
+
+
+def test_universe_month_is_absent_while_the_store_cannot_be_read() -> None:
+    def unreachable() -> list[str]:
+        raise OSError("minio unreachable")
+
+    registry = CollectorRegistry()
+    client = create_app(
+        refresher=MagicMock(),
+        tickers=[],
+        metrics=_metrics(datetime(2026, 10, 8, tzinfo=UTC), registry),
+        universe_months=unreachable,
+    ).test_client()
+
+    assert client.get("/metrics").status_code == 200
+    assert _sample(registry, "auspex_universe_latest_month") is None

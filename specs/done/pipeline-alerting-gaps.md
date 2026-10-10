@@ -1,7 +1,6 @@
 # Pipeline alerting gaps
 
-**Status:** blocked
-**Blocked by:** `specs/infrastructure-observability.md` merged into `develop` (it adds the alert contact point, the exporters and statsd metrics these rules read, and the alert-expression test harness)
+**Status:** done
 **Branch:** `feature/pipeline-alerting-gaps`
 
 ---

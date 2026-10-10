@@ -73,6 +73,7 @@ Requests to SEC are paced at 5 per second with `SEC_USER_AGENT`, Federal Registe
 | `auspex_price_tickers_refreshed_total` / `auspex_price_tickers_failed_total` | tickers per outcome |
 | `auspex_price_refresh_last_success_timestamp_seconds` | last refresh in which every ticker refreshed; absent until the first one |
 | `auspex_price_refresh_sessions_since_success` | NYSE sessions strictly between that success (or the service's start) and today, UTC; Grafana's **Price Refresh Stale** fires at 2 |
+| `auspex_universe_latest_month` | latest stored universe month as YYYYMM, read from MinIO at each scrape; 0 before the first build, absent while MinIO cannot be read; **Universe Month Missing** fires from day 8 |
 
 ## Evaluation protocol
 

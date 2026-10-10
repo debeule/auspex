@@ -16,6 +16,7 @@ Write order is **Neo4j → Postgres → acknowledge** (ack-mode RECORD). Never c
 
 - **Store outages pause the listeners.** `StoreAvailabilityGuard` probes Postgres (`SELECT 1`) and Neo4j (`verifyConnectivity`) every `auspex.kafka.store-check-interval-ms` (5 s). While either is unreachable the signal and raw listener containers are paused, so records wait on the topic instead of spending their retries; they resume when both stores answer. Pause and resume are logged as warnings.
 - **Transient failures** get 1 attempt + 2 retries with exponential back-off, then the DLT: 5 s, then 30 s by default (`AUSPEX_KAFKA_RETRY_INITIAL_MS`, `AUSPEX_KAFKA_RETRY_MULTIPLIER`). Deserialization, validation and unknown-major-version failures go to the DLT at once.
+- **Health report (requirements §12).** `HealthReporter` runs every `auspex.health.report-interval-ms` (5 min) and logs and exports `auspex_dlt_depth{topic}` (records after the replay group's committed offset, or after the earliest retained one) and `auspex_source_latest_signal_age_seconds{source_type}` (from `max(ingested_at)` in `signal_current`, so it survives restarts and grows between reports). A failed corroboration run, in the scan or a send, increments `auspex_corroboration_scan_failures_total`.
 - **Dead letters keep their wire form.** The `.dlt` record carries the original key and headers plus Spring's `kafka_dlt-*` diagnostics; the value is the original bytes, the original string, or the signal re-serialized as snake_case JSON, so it can be replayed.
 
 ---

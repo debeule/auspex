@@ -328,6 +328,9 @@ services:
       ALERT_VM_MEMORY_MAX_PCT: ${ALERT_VM_MEMORY_MAX_PCT}
       ALERT_CONTAINER_RESTARTS_MAX_PER_HOUR: ${ALERT_CONTAINER_RESTARTS_MAX_PER_HOUR}
       ALERT_PRICE_REFRESH_MAX_MISSED_SESSIONS: ${ALERT_PRICE_REFRESH_MAX_MISSED_SESSIONS}
+      # Read by alerting/rules.yaml.
+      ALERT_SOURCE_QUIET_DAYS: ${ALERT_SOURCE_QUIET_DAYS}
+      ALERT_EXTRACTION_P95_SECONDS: ${ALERT_EXTRACTION_P95_SECONDS}
     volumes:
       - ./grafana/provisioning:/etc/grafana/provisioning:ro
       - grafana_data:/var/lib/grafana
@@ -542,6 +545,15 @@ services:
       AIRFLOW__METRICS__STATSD_HOST: statsd-exporter
       AIRFLOW__METRICS__STATSD_PORT: "9125"
       AIRFLOW__METRICS__STATSD_PREFIX: airflow
+      # Read by the daily health summary DAG (auspex_daily_health).
+      PROMETHEUS_URL: ${PROMETHEUS_URL}
+      ALERT_CONTACT_TYPE: ${ALERT_CONTACT_TYPE}
+      ALERT_EMAIL_ADDRESSES: ${ALERT_EMAIL_ADDRESSES}
+      ALERT_WEBHOOK_URL: ${ALERT_WEBHOOK_URL}
+      SMTP_HOST: ${SMTP_HOST}
+      SMTP_USER: ${SMTP_USER}
+      SMTP_PASSWORD: ${SMTP_PASSWORD}
+      SMTP_FROM_ADDRESS: ${SMTP_FROM_ADDRESS}
     volumes:
       - ../services/ingestion-scraper/dags:/opt/airflow/dags/ingestion:ro
       - ../services/backtesting/dags:/opt/airflow/dags/prices:ro
@@ -689,7 +701,8 @@ services:
       elasticsearch:
         condition: service_healthy
     # Security is off on this single-node cluster, so there is no role to create.
-    command: ["--es.uri=http://elasticsearch:9200"]
+    # --es.indices_settings exports the read-only index count Elasticsearch Unhealthy reads.
+    command: ["--es.uri=http://elasticsearch:9200", "--es.indices_settings"]
     restart: unless-stopped
     mem_limit: ${ELASTICSEARCH_EXPORTER_MEM_LIMIT}
     logging: *logging

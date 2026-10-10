@@ -45,7 +45,9 @@ echo "$response" | grep -q '"title":"Scrape Target Down"' || fail "Scrape Target
 echo "$response" | grep -q '"title":"LLM Extraction Errors"' || fail "LLM Extraction Errors alert rule not found"
 for title in "Probe Target Down" "Mac Host Exporter Down" "Docker Disk Low" "Mac Disk Low" \
   "VM Memory High" "Container Restarting" "Airflow DAG Run Failed" "Price Refresh Stale" \
-  "Ollama Down During Extraction"; do
+  "Ollama Down During Extraction" "Documents Failed" "Source Quiet" "Extraction Slow" \
+  "Raw Topic Lag" "DLT Not Empty" "Elasticsearch Unhealthy" "Corroboration Scan Failing" \
+  "Universe Month Missing"; do
   echo "$response" | grep -q "\"title\":\"${title}\"" || fail "${title} alert rule not found"
 done
 echo "   PASS"

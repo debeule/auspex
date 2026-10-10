@@ -1,3 +1,5 @@
+# Grafana expands $VAR and ${VAR} in this file from its environment (the ALERT_* thresholds in
+# docker-compose.yml); a literal $, as in {{ $$labels.x }}, is written $$.
 apiVersion: 1
 groups:
   - name: auspex-operational
@@ -42,37 +44,42 @@ groups:
       - uid: auspex-source-silence
         title: Source Silence
         condition: C
-        noDataState: OK
-        execErrState: Alerting
+        noDataState: Alerting
+        execErrState: Error
         for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "{{ $$labels.source_type }} has had no completed run for 30 hours"
+        # The 7-day lookback keeps a source's last run visible after a scraper restart drops its
+        # gauge; no data at all means no source has run for a week, which is alerting too.
         data:
           - refId: A
             datasourceUid: prometheus
             relativeTimeRange:
-              from: 3600
+              from: 604800
               to: 0
             model:
-              expr: time() - max by(source_type)(auspex_pipeline_run_last_timestamp) > 21600
+              expr: time() - max by (source_type) (max_over_time(auspex_pipeline_run_last_timestamp[7d])) > bool 108000
+              instant: true
               refId: A
+          - refId: B
+            datasourceUid: __expr__
+            model:
+              type: reduce
+              expression: A
+              reducer: last
+              refId: B
           - refId: C
             datasourceUid: __expr__
-            relativeTimeRange:
-              from: 3600
-              to: 0
             model:
+              type: threshold
+              expression: B
               conditions:
                 - evaluator:
-                    params: [0]
                     type: gt
-                  operator:
-                    type: and
-                  query:
-                    params: [A]
-                  reducer:
-                    type: last
-                  type: query
+                    params: [0]
               refId: C
-              type: classic_conditions
 
       - uid: auspex-kafka-lag-critical
         title: Kafka Lag Critical
@@ -183,3 +190,307 @@ groups:
                   type: query
               refId: C
               type: classic_conditions
+
+      - uid: auspex-documents-failed
+        title: Documents Failed
+        condition: C
+        noDataState: OK
+        execErrState: Error
+        for: 0s
+        labels:
+          severity: warning
+        annotations:
+          summary: "{{ $$labels.source_type }} had documents fail in the last 24 hours"
+        data:
+          - refId: A
+            datasourceUid: prometheus
+            relativeTimeRange:
+              from: 86400
+              to: 0
+            model:
+              expr: (sum by (source_type) (increase(auspex_pipeline_documents_failed_total[24h])) > 0) or sum by (source_type) (auspex_pipeline_documents_failed_total unless auspex_pipeline_documents_failed_total offset 24h)
+              instant: true
+              refId: A
+          - refId: B
+            datasourceUid: __expr__
+            model:
+              type: reduce
+              expression: A
+              reducer: last
+              refId: B
+          - refId: C
+            datasourceUid: __expr__
+            model:
+              type: threshold
+              expression: B
+              conditions:
+                - evaluator:
+                    type: gt
+                    params: [0]
+              refId: C
+
+      - uid: auspex-source-quiet
+        title: Source Quiet
+        condition: C
+        noDataState: OK
+        execErrState: Error
+        for: 15m
+        labels:
+          severity: warning
+        annotations:
+          summary: "{{ $$labels.source_type }} has stored no signal for ${ALERT_SOURCE_QUIET_DAYS} days"
+        data:
+          - refId: A
+            datasourceUid: prometheus
+            relativeTimeRange:
+              from: 600
+              to: 0
+            model:
+              expr: max by (source_type) (auspex_source_latest_signal_age_seconds) > bool ${ALERT_SOURCE_QUIET_DAYS} * 86400
+              instant: true
+              refId: A
+          - refId: B
+            datasourceUid: __expr__
+            model:
+              type: reduce
+              expression: A
+              reducer: last
+              refId: B
+          - refId: C
+            datasourceUid: __expr__
+            model:
+              type: threshold
+              expression: B
+              conditions:
+                - evaluator:
+                    type: gt
+                    params: [0]
+              refId: C
+
+      - uid: auspex-extraction-slow
+        title: Extraction Slow
+        condition: C
+        noDataState: OK
+        execErrState: Error
+        for: 0s
+        labels:
+          severity: warning
+        annotations:
+          summary: "p95 extraction time over the last hour is above ${ALERT_EXTRACTION_P95_SECONDS} s"
+        data:
+          - refId: A
+            datasourceUid: prometheus
+            relativeTimeRange:
+              from: 3600
+              to: 0
+            model:
+              expr: histogram_quantile(0.95, sum by (le) (rate(auspex_llm_extraction_duration_seconds_bucket[1h]))) > bool ${ALERT_EXTRACTION_P95_SECONDS}
+              instant: true
+              refId: A
+          - refId: B
+            datasourceUid: __expr__
+            model:
+              type: reduce
+              expression: A
+              reducer: last
+              refId: B
+          - refId: C
+            datasourceUid: __expr__
+            model:
+              type: threshold
+              expression: B
+              conditions:
+                - evaluator:
+                    type: gt
+                    params: [0]
+              refId: C
+
+      - uid: auspex-raw-topic-lag
+        title: Raw Topic Lag
+        condition: C
+        noDataState: OK
+        execErrState: Error
+        for: 15m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Consumer lag on auspex.raw.ingested has been above 1,000 for 15 minutes"
+        data:
+          - refId: A
+            datasourceUid: prometheus
+            relativeTimeRange:
+              from: 600
+              to: 0
+            model:
+              expr: sum(kafka_consumergroup_lag{topic="auspex.raw.ingested"}) > bool 1000
+              instant: true
+              refId: A
+          - refId: B
+            datasourceUid: __expr__
+            model:
+              type: reduce
+              expression: A
+              reducer: last
+              refId: B
+          - refId: C
+            datasourceUid: __expr__
+            model:
+              type: threshold
+              expression: B
+              conditions:
+                - evaluator:
+                    type: gt
+                    params: [0]
+              refId: C
+
+      - uid: auspex-dlt-not-empty
+        title: DLT Not Empty
+        condition: C
+        noDataState: OK
+        execErrState: Error
+        for: 1h
+        labels:
+          severity: warning
+        annotations:
+          summary: "{{ $$labels.topic }} has held unreplayed dead letters for an hour"
+        data:
+          - refId: A
+            datasourceUid: prometheus
+            relativeTimeRange:
+              from: 600
+              to: 0
+            model:
+              expr: max by (topic) (auspex_dlt_depth) > bool 0
+              instant: true
+              refId: A
+          - refId: B
+            datasourceUid: __expr__
+            model:
+              type: reduce
+              expression: A
+              reducer: last
+              refId: B
+          - refId: C
+            datasourceUid: __expr__
+            model:
+              type: threshold
+              expression: B
+              conditions:
+                - evaluator:
+                    type: gt
+                    params: [0]
+              refId: C
+
+      - uid: auspex-elasticsearch-unhealthy
+        title: Elasticsearch Unhealthy
+        condition: C
+        noDataState: OK
+        execErrState: Error
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Elasticsearch is red or has a read-only index; logs are not being stored"
+        data:
+          - refId: A
+            datasourceUid: prometheus
+            relativeTimeRange:
+              from: 600
+              to: 0
+            model:
+              expr: max(elasticsearch_cluster_health_status{color="red"}) == 1 or max(elasticsearch_indices_settings_stats_read_only_indices) > 0
+              instant: true
+              refId: A
+          - refId: B
+            datasourceUid: __expr__
+            model:
+              type: reduce
+              expression: A
+              reducer: last
+              refId: B
+          - refId: C
+            datasourceUid: __expr__
+            model:
+              type: threshold
+              expression: B
+              conditions:
+                - evaluator:
+                    type: gt
+                    params: [0]
+              refId: C
+
+      - uid: auspex-corroboration-scan-failing
+        title: Corroboration Scan Failing
+        condition: C
+        noDataState: OK
+        execErrState: Error
+        for: 0s
+        labels:
+          severity: warning
+        annotations:
+          summary: "The corroboration scan failed in the last 15 minutes"
+        data:
+          - refId: A
+            datasourceUid: prometheus
+            relativeTimeRange:
+              from: 900
+              to: 0
+            model:
+              expr: sum(increase(auspex_corroboration_scan_failures_total[15m])) > bool 0
+              instant: true
+              refId: A
+          - refId: B
+            datasourceUid: __expr__
+            model:
+              type: reduce
+              expression: A
+              reducer: last
+              refId: B
+          - refId: C
+            datasourceUid: __expr__
+            model:
+              type: threshold
+              expression: B
+              conditions:
+                - evaluator:
+                    type: gt
+                    params: [0]
+              refId: C
+
+      - uid: auspex-universe-month-missing
+        title: Universe Month Missing
+        condition: C
+        noDataState: OK
+        execErrState: Error
+        for: 0s
+        labels:
+          severity: warning
+        annotations:
+          summary: "This month's stock universe has not been built by day 8"
+        data:
+          - refId: A
+            datasourceUid: prometheus
+            relativeTimeRange:
+              from: 600
+              to: 0
+            model:
+              expr: (year() * 100 + month() > bool on () max(auspex_universe_latest_month)) and on () (day_of_month() >= 8)
+              instant: true
+              refId: A
+          - refId: B
+            datasourceUid: __expr__
+            model:
+              type: reduce
+              expression: A
+              reducer: last
+              refId: B
+          - refId: C
+            datasourceUid: __expr__
+            model:
+              type: threshold
+              expression: B
+              conditions:
+                - evaluator:
+                    type: gt
+                    params: [0]
+              refId: C
