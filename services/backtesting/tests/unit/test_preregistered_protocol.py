@@ -165,10 +165,20 @@ def _register_edited(
     )
 
 
+def _monthly(values: list[float], start: str = "2027-01") -> list[tuple[str, float]]:
+    """Ledger rows `(YYYY-MM, value)` for consecutive months from `start`."""
+    year, month = (int(part) for part in start.split("-"))
+    rows = []
+    for value in values:
+        rows.append((f"{year:04d}-{month:02d}", value))
+        year, month = (year + 1, 1) if month == 12 else (year, month + 1)
+    return rows
+
+
 def _forward_record(**overrides: Any) -> PortfolioForwardRecord:
     fields: dict[str, Any] = {
-        "paper_monthly_net_excess": [0.01] * 12,
-        "replay_monthly_net_excess": [0.01] * 12,
+        "paper_monthly_net_excess": _monthly([0.01] * 12),
+        "replay_monthly_net_excess": _monthly([0.01] * 12),
         "ledger_gap_sessions": [],
         "in_sample_mean_annual_net_excess": 0.08,
         "in_sample_standard_error_annual": 0.03,
@@ -257,7 +267,8 @@ def test_portfolio_forward_check_fails_on_tracking_difference_above_two_percent_
 
     # Paper trails the replay by 0.25% a month: 3% a year.
     lagging = _forward_record(
-        paper_monthly_net_excess=[r - 0.0025 for r in replay], replay_monthly_net_excess=replay
+        paper_monthly_net_excess=_monthly([r - 0.0025 for r in replay]),
+        replay_monthly_net_excess=_monthly(replay),
     )
     verdict = evaluate_portfolio_forward_check(lagging, protocol)
     assert verdict.status == "fail"
@@ -265,7 +276,8 @@ def test_portfolio_forward_check_fails_on_tracking_difference_above_two_percent_
 
     # 0.15% a month: 1.8% a year, inside the tolerance.
     close = _forward_record(
-        paper_monthly_net_excess=[r - 0.0015 for r in replay], replay_monthly_net_excess=replay
+        paper_monthly_net_excess=_monthly([r - 0.0015 for r in replay]),
+        replay_monthly_net_excess=_monthly(replay),
     )
     assert evaluate_portfolio_forward_check(close, protocol).status == "pass"
 
@@ -280,9 +292,125 @@ def test_portfolio_forward_check_fails_on_any_ledger_gap() -> None:
     assert verdict.reasons == ["ledger_gap"]
 
     short = _forward_record(
-        paper_monthly_net_excess=[0.01] * 11, replay_monthly_net_excess=[0.01] * 11
+        paper_monthly_net_excess=_monthly([0.01] * 11),
+        replay_monthly_net_excess=_monthly([0.01] * 11),
     )
     assert evaluate_portfolio_forward_check(short, protocol).status == "insufficient"
+
+
+def test_portfolio_forward_check_fails_on_net_excess_below_the_in_sample_bound() -> None:
+    protocol = _load("protocol")
+    # Bound: 8% - 2 x 3% = 2% a year; 0.1% a month is 1.2% a year.
+    weak = _forward_record(
+        paper_monthly_net_excess=_monthly([0.001] * 12),
+        replay_monthly_net_excess=_monthly([0.001] * 12),
+    )
+    verdict = evaluate_portfolio_forward_check(weak, protocol)
+    assert verdict.status == "fail"
+    assert verdict.reasons == ["net_excess_below_bound"]
+
+
+def _invalid(record: PortfolioForwardRecord) -> list[str]:
+    verdict = evaluate_portfolio_forward_check(record, _load("protocol"))
+    assert verdict.status == "invalid"
+    return verdict.reasons
+
+
+def test_forward_check_with_an_all_nan_ledger_is_invalid() -> None:
+    nan = float("nan")
+    reasons = _invalid(_forward_record(paper_monthly_net_excess=_monthly([nan] * 12)))
+    assert reasons == [
+        "non_finite_return: paper " + ", ".join(month for month, _ in _monthly([nan] * 12))
+    ]
+
+
+def test_forward_check_with_one_nan_month_is_invalid() -> None:
+    values = [0.01] * 12
+    values[4] = float("nan")
+    reasons = _invalid(_forward_record(replay_monthly_net_excess=_monthly(values)))
+    assert reasons == ["non_finite_return: replay 2027-05"]
+
+
+@pytest.mark.parametrize("infinity", [float("inf"), float("-inf")])
+def test_forward_check_with_an_infinite_return_is_invalid(infinity: float) -> None:
+    values = [0.01] * 12
+    values[0] = infinity
+    reasons = _invalid(_forward_record(paper_monthly_net_excess=_monthly(values)))
+    assert reasons == ["non_finite_return: paper 2027-01"]
+
+
+@pytest.mark.parametrize("value", [float("nan"), float("inf"), float("-inf")])
+@pytest.mark.parametrize(
+    "field_name", ["in_sample_mean_annual_net_excess", "in_sample_standard_error_annual"]
+)
+def test_forward_check_with_non_finite_in_sample_values_is_invalid(
+    field_name: str, value: float
+) -> None:
+    reasons = _invalid(_forward_record(**{field_name: value}))
+    assert reasons == [f"non_finite_in_sample: {field_name}"]
+
+
+def test_forward_check_with_a_negative_standard_error_is_invalid() -> None:
+    # -3% would lift the bound to 14% a year; the record must not be judged at all.
+    reasons = _invalid(_forward_record(in_sample_standard_error_annual=-0.03))
+    assert reasons == ["negative_standard_error"]
+
+
+def test_forward_check_with_shifted_months_is_invalid() -> None:
+    reasons = _invalid(
+        _forward_record(
+            paper_monthly_net_excess=_monthly([0.01] * 12, start="2027-01"),
+            replay_monthly_net_excess=_monthly([0.01] * 12, start="2027-02"),
+        )
+    )
+    assert reasons == ["month_mismatch: paper only 2027-01; replay only 2028-01"]
+
+
+def test_forward_check_with_a_missing_month_inside_the_range_is_invalid() -> None:
+    rows = [row for row in _monthly([0.01] * 13) if row[0] != "2027-06"]
+    reasons = _invalid(
+        _forward_record(paper_monthly_net_excess=rows, replay_monthly_net_excess=rows)
+    )
+    assert reasons == [
+        "months_not_consecutive: paper 2027-06",
+        "months_not_consecutive: replay 2027-06",
+    ]
+
+
+@pytest.mark.parametrize(
+    "key",
+    [
+        "2027-13",
+        "2027-00",
+        "2027-1",
+        "27-01",
+        "2027/01",
+        "2027-01-31",
+        "",
+        "\u0662\u0660\u0662\u0667-01",
+    ],
+)
+def test_forward_check_with_a_malformed_month_key_is_invalid(key: str) -> None:
+    rows = _monthly([0.01] * 12)
+    rows[0] = (key, 0.01)
+    reasons = _invalid(
+        _forward_record(paper_monthly_net_excess=rows, replay_monthly_net_excess=rows)
+    )
+    assert f"malformed_month: paper {key!r}" in reasons
+    assert f"malformed_month: replay {key!r}" in reasons
+
+
+def test_forward_check_with_a_month_on_two_ledger_rows_is_invalid() -> None:
+    protocol = _load("protocol")
+    replay = _monthly([0.01] * 12)
+    for duplicate_value in [0.01, 0.5]:
+        paper = [*replay, ("2027-03", duplicate_value)]
+        verdict = evaluate_portfolio_forward_check(
+            _forward_record(paper_monthly_net_excess=paper, replay_monthly_net_excess=replay),
+            protocol,
+        )
+        assert verdict.status == "invalid"
+        assert verdict.reasons == ["duplicate_month: paper 2027-03"]
 
 
 def test_shorts_and_options_are_disabled_by_protocol_ceiling() -> None:

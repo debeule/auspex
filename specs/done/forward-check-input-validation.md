@@ -1,6 +1,6 @@
 # Forward-check input validation
 
-**Status:** ready
+**Status:** done
 **Branch:** `feature/forward-check-input-validation`
 
 ---
@@ -57,3 +57,13 @@ cd services/backtesting && uv run ruff check . && uv run mypy src
 ```
 
 Expected: the 9 new tests pass alongside the existing ones; no failures.
+
+## Result
+
+All 9 required tests pass, alongside the existing forward-check tests rewritten to month-carrying records and one new finite control (`test_portfolio_forward_check_fails_on_net_excess_below_the_in_sample_bound`): 60 tests in `test_preregistered_protocol.py`, 371 backtesting unit tests.
+
+Red run before the implementation: all forward-check tests failed with `TypeError: unsupported operand type(s) for -: 'tuple' and 'tuple'` (the function still took bare floats), the shifted-months test with `ValueError: paper and replay must cover the same months`.
+
+Mutation check: disabling each validation in turn (non-finite returns, non-finite in-sample values, negative standard error, duplicate month, consecutive months, month mismatch, malformed key, ASCII-only digits) turns at least one test red.
+
+`uv run ruff check .` and `uv run mypy src` report 5 and 29 errors on `develop` before this change, none in `protocol.py` or its tests; CI does not lint or type-check this service. Both files touched here are clean.

@@ -90,6 +90,7 @@ Requests to SEC are paced at 5 per second with `SEC_USER_AGENT`, Federal Registe
 - `EvaluationProtocol(config_dir=..., registry_path=...).admit(hypothesis_id)` is the gate before any evaluation reads returns: it refuses a family with no registered budget, a family over budget once every registered hypothesis is counted, a role the family does not hold (the registry and catalyst families hold diagnostics only), and shorts or options above the protocol's instrument ceilings.
 - `check_promotable()` refuses filters, diagnostics and descriptive hypotheses.
 - `forward_check_branch()` gives the event or portfolio forward check; `evaluate_portfolio_forward_check()` and `is_data_gap()` apply the portfolio branch per capital tier.
+- `PortfolioForwardRecord` takes paper and replay returns as `(YYYY-MM, value)` ledger rows. `evaluate_portfolio_forward_check()` returns `invalid` before any comparison when a return or in-sample value is NaN or infinite, the standard error is negative, or the months are malformed, duplicated, missing inside the range or not the same in both ledgers; `reasons` names each problem and its months. `invalid` is a data problem, not a kill.
 - `quarterly_trade_date()` and `select_component_variant()` apply H9's registered trade-date rule and component fallback.
 
 ## SEC ownership panels

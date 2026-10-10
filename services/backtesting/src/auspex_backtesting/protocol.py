@@ -7,6 +7,8 @@ portfolio hypothesis trades by.
 
 from __future__ import annotations
 
+import math
+import re
 from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import dataclass, field
 from datetime import date, datetime, timedelta
@@ -90,10 +92,14 @@ def forward_check_branch(
 
 @dataclass(frozen=True)
 class PortfolioForwardRecord:
-    """One capital tier's paper ledger against its backtest replay over the same months."""
+    """One capital tier's paper ledger against its backtest replay over the same months.
 
-    paper_monthly_net_excess: Sequence[float]
-    replay_monthly_net_excess: Sequence[float]
+    Monthly returns are `(YYYY-MM, net excess return)` rows exactly as each ledger produced
+    them, so a month the ledger wrote twice reaches the check as two rows.
+    """
+
+    paper_monthly_net_excess: Sequence[tuple[str, float]]
+    replay_monthly_net_excess: Sequence[tuple[str, float]]
     ledger_gap_sessions: Sequence[date]
     in_sample_mean_annual_net_excess: float
     in_sample_standard_error_annual: float
@@ -101,7 +107,9 @@ class PortfolioForwardRecord:
 
 @dataclass(frozen=True)
 class ForwardCheckVerdict:
-    status: Literal["insufficient", "pass", "fail"]
+    """`invalid` means the record could not be evaluated: a data problem, not a kill."""
+
+    status: Literal["invalid", "insufficient", "pass", "fail"]
     reasons: list[str] = field(default_factory=list)
 
 
@@ -110,17 +118,18 @@ def evaluate_portfolio_forward_check(
 ) -> ForwardCheckVerdict:
     """Apply the protocol's portfolio forward-check branch to one capital tier."""
     branch = next(k for k in protocol["kill_criteria"] if k["id"] == "forward_check")["portfolio"]
-    paper = list(record.paper_monthly_net_excess)
-    replay = list(record.replay_monthly_net_excess)
-    if len(paper) != len(replay):
-        raise ValueError("paper and replay must cover the same months")
+    problems = _forward_record_problems(record)
+    if problems:
+        return ForwardCheckVerdict("invalid", problems)
+    paper = dict(record.paper_monthly_net_excess)
+    replay = dict(record.replay_monthly_net_excess)
     if len(paper) < branch["min_months"]:
         return ForwardCheckVerdict("insufficient")
 
     reasons: list[str] = []
     if len(record.ledger_gap_sessions) > branch["max_ledger_gaps"]:
         reasons.append("ledger_gap")
-    tracking = _annualised_mean([p - r for p, r in zip(paper, replay, strict=True)])
+    tracking = _annualised_mean([paper[month] - replay[month] for month in paper])
     if abs(tracking) > branch["max_abs_tracking_difference_per_year"]:
         reasons.append("tracking_difference")
     bound = (
@@ -128,9 +137,61 @@ def evaluate_portfolio_forward_check(
         - branch["min_net_excess_standard_errors_below_in_sample_mean"]
         * record.in_sample_standard_error_annual
     )
-    if _annualised_mean(paper) < bound:
+    if _annualised_mean(list(paper.values())) < bound:
         reasons.append("net_excess_below_bound")
     return ForwardCheckVerdict("fail" if reasons else "pass", reasons)
+
+
+_MONTH_KEY = re.compile(r"[0-9]{4}-(0[1-9]|1[0-2])")
+
+
+def _forward_record_problems(record: PortfolioForwardRecord) -> list[str]:
+    problems: list[str] = []
+    for name in ("in_sample_mean_annual_net_excess", "in_sample_standard_error_annual"):
+        if not math.isfinite(getattr(record, name)):
+            problems.append(f"non_finite_in_sample: {name}")
+    if math.isfinite(record.in_sample_standard_error_annual) and (
+        record.in_sample_standard_error_annual < 0
+    ):
+        problems.append("negative_standard_error")
+
+    ledgers = {
+        "paper": list(record.paper_monthly_net_excess),
+        "replay": list(record.replay_monthly_net_excess),
+    }
+    for ledger, rows in ledgers.items():
+        non_finite = [month for month, value in rows if not math.isfinite(value)]
+        if non_finite:
+            problems.append(f"non_finite_return: {ledger} {', '.join(map(str, non_finite))}")
+        malformed = [m for m, _ in rows if not (isinstance(m, str) and _MONTH_KEY.fullmatch(m))]
+        problems.extend(f"malformed_month: {ledger} {month!r}" for month in malformed)
+        months = [month for month, _ in rows if month not in malformed]
+        duplicated = sorted({month for month in months if months.count(month) > 1})
+        if duplicated:
+            problems.append(f"duplicate_month: {ledger} {', '.join(duplicated)}")
+        missing = _missing_months(set(months))
+        if missing:
+            problems.append(f"months_not_consecutive: {ledger} {', '.join(missing)}")
+
+    paper_months = {month for month, _ in ledgers["paper"]}
+    replay_months = {month for month, _ in ledgers["replay"]}
+    if paper_months != replay_months:
+        paper_only = ", ".join(sorted(map(str, paper_months - replay_months))) or "none"
+        replay_only = ", ".join(sorted(map(str, replay_months - paper_months))) or "none"
+        problems.append(f"month_mismatch: paper only {paper_only}; replay only {replay_only}")
+    return problems
+
+
+def _missing_months(months: set[str]) -> list[str]:
+    """Months absent between the earliest and latest of `months` (all `YYYY-MM`)."""
+    if not months:
+        return []
+    indices = {int(month[:4]) * 12 + int(month[5:]) - 1 for month in months}
+    return [
+        f"{index // 12:04d}-{index % 12 + 1:02d}"
+        for index in range(min(indices), max(indices) + 1)
+        if index not in indices
+    ]
 
 
 def is_data_gap(
