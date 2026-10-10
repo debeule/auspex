@@ -258,6 +258,7 @@ services:
     labels:
       co.elastic.logs/enabled: "true"
     mem_limit: ${BACKUP_MEM_LIMIT}
+    logging: *logging
 
   # Restores one dated backup into empty stores; refuses any store that holds data.
   # docker compose --profile restore -f docker/docker-compose.yml --env-file .env run --rm restore --date YYYY-MM-DD
@@ -285,6 +286,7 @@ services:
     labels:
       co.elastic.logs/enabled: "true"
     mem_limit: ${RESTORE_MEM_LIMIT}
+    logging: *logging
 
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:${ELASTIC_VERSION}

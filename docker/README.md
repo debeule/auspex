@@ -48,7 +48,7 @@ Every service has a `mem_limit` from `.env` (`*_MEM_LIMIT`, values in `.env.exam
 | Service | Limit (MB) | Inside it |
 |---|---|---|
 | airflow | 1,536 | one API worker (`AIRFLOW_API_WORKERS`), at most 4 task processes (`AIRFLOW_PARALLELISM`) |
-| price-service | 1,024 | peaks during the monthly universe build |
+| price-service | 896 | peaks during the monthly universe build |
 | elasticsearch | 768 | 512 MB heap |
 | core-hub | 704 | heap 60% of the limit (`CORE_HUB_JAVA_TOOL_OPTIONS`) |
 | kafka | 576 | 384 MB heap (`KAFKA_HEAP_OPTS`) |
@@ -58,6 +58,7 @@ Every service has a `mem_limit` from `.env` (`*_MEM_LIMIT`, values in `.env.exam
 | grafana, dashboard | 256 each | |
 | filebeat, cadvisor | 160 each | |
 | six exporters | 48 each | node, postgres, kafka, elasticsearch, blackbox, statsd |
+| backup | 128 | idle except the nightly 03:00 UTC run; `pg_dump` streams to disk |
 | volume-usage | 32 | |
 | **Total** | **7,680** | 8 GB VM less 512 MB; one-shots (`restart: "no"`) run before the stack is busy and are not counted |
 
