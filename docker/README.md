@@ -11,7 +11,7 @@ Docker Compose stack for the full Auspex infrastructure.
 | `auspex-kafka` | `apache/kafka:4.3.0` | 9092 | Message broker (KRaft, no Zookeeper) |
 | `auspex-postgres` | `postgres:18.6` | 5432 | Application DB + Airflow metadata DB |
 | `auspex-neo4j` | `neo4j:2026.05-community` | 7474 / 7687 | Signal graph |
-| `auspex-minio` | `minio/minio:RELEASE.2025-09-07T16-13-09Z` | 9000 / 9001 | Raw document archive (S3-compatible) |
+| `auspex-minio` | `quay.io/minio/minio:RELEASE.2025-09-07T16-13-09Z` | 9000 / 9001 | S3-compatible object store: raw document archive (`auspex-raw`, written by the scraper) and backtesting data (`auspex-prices`, written by `price-service` and the backtesting jobs) |
 | `auspex-elasticsearch` | `docker.elastic.co/elasticsearch/elasticsearch:8.17.3` | 9200 | Log storage (ECS format) |
 | `auspex-filebeat` | `docker.elastic.co/beats/filebeat:8.17.3` | — | Log shipper; Docker autodiscovery |
 | `auspex-prometheus` | `prom/prometheus:v3.14.0` | 9090 | Metrics scraper and storage |
