@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.neo4j.driver.Session;
 import org.neo4j.driver.Value;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -33,6 +34,9 @@ class CompanyTickerIT extends AbstractIT {
 
     @Autowired
     WebApplicationContext webApplicationContext;
+
+    @org.springframework.beans.factory.annotation.Value("${auspex.api.write-token}")
+    String writeToken;
 
     GraphTestEvents events;
     MockMvc mockMvc;
@@ -85,6 +89,7 @@ class CompanyTickerIT extends AbstractIT {
 
         secTickerCache.replaceEntries(Map.of("SRPT", "SAREPTA THERAPEUTICS, INC."));
         mockMvc.perform(post("/api/v1/watchlist")
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + writeToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {"ticker":"SRPT","company_name":"SAREPTA THERAPEUTICS, INC.","gene_targets":[]}
