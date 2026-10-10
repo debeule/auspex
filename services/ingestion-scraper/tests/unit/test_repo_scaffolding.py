@@ -9,7 +9,6 @@ _CREDENTIAL_VARS = {
     "EPO_OPS_KEY",
     "EPO_OPS_SECRET",
     "NCBI_API_KEY",
-    "OPENFDA_API_KEY",
     "SEC_USER_AGENT",
     "POSTGRES_PASSWORD",
     "AIRFLOW_DB_PASSWORD",
@@ -72,7 +71,6 @@ def test_env_example_covers_all_referenced_vars():
         "EPO_OPS_KEY",
         "EPO_OPS_SECRET",
         "NCBI_API_KEY",
-        "OPENFDA_API_KEY",
         "SEC_USER_AGENT",
         "TZ",
     } - _DYNAMIC_LOOKUP_IGNORE
