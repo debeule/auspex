@@ -15,8 +15,8 @@ Verified current as of **2026-08-15**. Anything marked *resolve at install* must
 | Kafka | `apache/kafka:4.3.0` | KRaft, no Zookeeper. |
 | PostgreSQL | `postgres:18.6` | 18 is current; **19 is in beta — do not use.** |
 | Neo4j | `neo4j:2026.05-community` | Neo4j moved to calendar versioning; the 5.x line ended at 5.26 LTS. **See open question 4.** |
-| MinIO | `quay.io/minio/minio:RELEASE.2025-09-07T16-13-09Z` | Compose stack only. quay.io requires auth — not usable in CI without secrets. |
-| LocalStack (testcontainers) | `localstack/localstack:4.9.2` | Integration tests only; CI pulls it through `mirror.gcr.io` (`TESTCONTAINERS_HUB_IMAGE_NAME_PREFIX`). Replaces minio/minio (removed from Docker Hub; quay.io requires auth). **Do not move to calendar-versioned tags (`2026.x`)** — from 2026.03 the image exits with code 55 unless `LOCALSTACK_AUTH_TOKEN` is set. 4.9.2 is the last tag verified to start without a licence (2026-10-07). |
+| MinIO | `quay.io/minio/minio:RELEASE.2025-09-07T16-13-09Z` | The stack's object store (`auspex-raw`, `auspex-prices`). Compose only: quay.io requires auth, so integration tests use LocalStack's S3 API instead. |
+| LocalStack (testcontainers) | `localstack/localstack:4.9.2` | Integration tests only; CI pulls it through `mirror.gcr.io` (`TESTCONTAINERS_HUB_IMAGE_NAME_PREFIX`). S3 stand-in for MinIO in integration tests only (minio/minio left Docker Hub; quay.io requires auth); the stack itself runs MinIO. **Do not move to calendar-versioned tags (`2026.x`)** — from 2026.03 the image exits with code 55 unless `LOCALSTACK_AUTH_TOKEN` is set. 4.9.2 is the last tag verified to start without a licence (2026-10-07). |
 | Airflow | `apache/airflow:3.3.1` | Orchestration (ingestion, price refresh, universe build DAGs). Python 3.14 compatible. |
 | Ollama (host, not a container) | *resolve at install* | Local extraction model server. Record `ollama --version` here when installed (`docs/local-model-runbook.md`). Model weights are pinned by digest in `config/models/registry.yaml`, not here. |
 
