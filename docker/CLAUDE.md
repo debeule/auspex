@@ -27,7 +27,8 @@ not `.DLT`. Verify partition parity whenever adding a topic pair.
 ## Environment
 
 All values from root `.env`; every variable `.env.example` defines is a bare `${VAR}` in
-docker-compose.yml, with the value written once, in `.env.example` (`test_compose_reads_env_example_variables_bare`). Ports are bound to
+docker-compose.yml (or `${VAR:?message}` where an unset value must stop `up`), with the value written once, in
+`.env.example` (`test_compose_gives_no_default_to_env_example_variables`). Ports are bound to
 `127.0.0.1` — local only, intentional; exporters publish none.
 
 ## Monitoring

@@ -152,11 +152,13 @@ def _compose_references() -> list[tuple[str, str]]:
     return _COMPOSE_REFERENCE.findall(compose)
 
 
-def test_compose_reads_env_example_variables_bare():
+def test_compose_gives_no_default_to_env_example_variables():
+    """A `-` or `+` suffix supplies a value; `:?message` only stops `up` when the variable is unset."""
     defined = set(_parse_env_example())
 
-    suffixed = sorted(
-        f"{var}{suffix}" for var, suffix in _compose_references() if var in defined and suffix
+    defaulted = sorted(
+        f"{var}{suffix}" for var, suffix in _compose_references()
+        if var in defined and suffix and not suffix.lstrip(":").startswith("?")
     )
 
-    assert suffixed == []
+    assert defaulted == []

@@ -71,7 +71,7 @@ Python, `services/ingestion-scraper/tests/unit/`:
 - The other tests in `test_dag_factory.py` move with their assertions: the malformed and duplicate `sources.yaml` tests to `test_sources_schema.py`, the rate-limiter tests to a new `test_rate_limited_client.py`, the Airflow database test to `test_repo_scaffolding.py`. Guards item 5.
 - `test_load_sources_config_reads_every_entry` (`test_sources_schema.py`, moved from `test_dag_factory.py` with its current assertions). Imports `load_sources_config` from `auspex_ingest.sources`. Guards item 5.
 - `test_no_module_builds_dags_in_the_scraper_package` (`test_sources_schema.py`). No module under `auspex_ingest` imports `airflow`, and `auspex_ingest.dag_factory` does not import. Guards item 5.
-- `test_compose_reads_env_example_variables_bare` (`test_repo_scaffolding.py`). Every `${VAR…}` reference in `docker/docker-compose.yml` whose name `.env.example` assigns is a bare `${VAR}`: no `:-`, `-`, `:?`, `?`, `:+` or `+` suffix. Guards item 9 against a default coming back in any spelling.
+- `test_compose_gives_no_default_to_env_example_variables` (`test_repo_scaffolding.py`). Every `${VAR…}` reference in `docker/docker-compose.yml` whose name `.env.example` assigns is a bare `${VAR}` or a `${VAR:?message}` that stops `up` when the variable is unset (stack-state persistence uses it for the Airflow secrets); no `:-`, `-`, `:+` or `+` suffix. Guards item 9 against a default coming back in any spelling.
 
 Python, `services/backtesting/tests/unit/`:
 
