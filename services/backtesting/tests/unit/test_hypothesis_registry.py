@@ -3,6 +3,7 @@ from pathlib import Path
 
 import pytest
 
+from auspex_backtesting.evaluation import TrialBudgetExhaustedError
 from auspex_backtesting.hypothesis import (
     HypothesisModifiedError,
     HypothesisNotRegisteredError,
@@ -46,6 +47,11 @@ registered_at: "2026-09-21T00:00:00Z"
 """
 
 
+_PROTOCOL_YAML = (
+    Path(__file__).resolve().parents[4] / "config" / "hypotheses" / "protocol.yaml"
+).read_text(encoding="utf-8")
+
+
 def _dirs(tmp_path: Path) -> tuple[Path, Path, Path]:
     config_dir = tmp_path / "hypotheses"
     config_dir.mkdir()
@@ -53,6 +59,9 @@ def _dirs(tmp_path: Path) -> tuple[Path, Path, Path]:
     trials_dir.mkdir()
     registry_path = tmp_path / "registry.jsonl"
     registry_path.write_text("")
+    register_hypothesis(
+        "protocol", _PROTOCOL_YAML, config_dir=config_dir, registry_path=registry_path
+    )
     return config_dir, registry_path, trials_dir
 
 
@@ -156,4 +165,39 @@ def test_backtest_with_a_universe_logs_events_dropped_outside_it(tmp_path: Path)
 
     assert report.outside_universe == 1
     (line,) = (trials_dir / "h1.jsonl").read_text().splitlines()
-    assert json.loads(line)["result_summary"]["outside_universe"] == 1
+    assert len(json.loads(line)["cells"]) == 6
+
+
+def test_backtest_reserves_its_cells_in_the_trial_ledger_before_reading_returns(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from auspex_backtesting.backtest import runner as runner_module
+
+    config_dir, registry_path, trials_dir = _dirs(tmp_path)
+    register_hypothesis("h1", _H1_YAML, config_dir=config_dir, registry_path=registry_path)
+    lines_at_run: list[int] = []
+    original_run = runner_module.BacktestRunner.run
+
+    def run(self: object, *args: object, **kwargs: object) -> object:
+        lines_at_run.append(len((trials_dir / "h1.jsonl").read_text().splitlines()))
+        return original_run(self, *args, **kwargs)  # type: ignore[arg-type]
+
+    monkeypatch.setattr(runner_module.BacktestRunner, "run", run)
+
+    for _ in range(10):
+        run_backtest(
+            "h1", [], {},
+            config_dir=config_dir,
+            registry_path=registry_path,
+            trials_dir=trials_dir,
+        )
+    assert lines_at_run[0] == 1
+
+    with pytest.raises(TrialBudgetExhaustedError):
+        run_backtest(
+            "h1", [], {},
+            config_dir=config_dir,
+            registry_path=registry_path,
+            trials_dir=trials_dir,
+        )
+    assert len(lines_at_run) == 10

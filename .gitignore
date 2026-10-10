@@ -47,3 +47,6 @@ docker/volumes/
 *.key
 # TypeScript incremental build cache
 *.tsbuildinfo
+
+# Trial ledger lock (the ledgers themselves are committed)
+config/hypotheses/trials/.lock

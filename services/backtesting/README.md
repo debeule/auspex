@@ -93,6 +93,16 @@ Requests to SEC are paced at 5 per second with `SEC_USER_AGENT`, Federal Registe
 - `PortfolioForwardRecord` takes paper and replay returns as `(YYYY-MM, value)` ledger rows. `evaluate_portfolio_forward_check()` returns `invalid` before any comparison when a return or in-sample value is NaN or infinite, the standard error is negative, or the months are malformed, duplicated, missing inside the range or not the same in both ledgers; `reasons` names each problem and its months. `invalid` is a data problem, not a kill.
 - `quarterly_trade_date()` and `select_component_variant()` apply H9's registered trade-date rule and component fallback.
 
+### Event evaluation
+
+`EvaluationProtocol(..., prices=PriceSnapshotStore(minio), costs=TradeCosts(CostModel(spread_estimator=SpreadEstimator(store)), CurrencyConverter(store), position_eur=...)).run(hypothesis_id, events, variant)` evaluates an event hypothesis (`auspex_backtesting.evaluation`). `events` has one row per event of that variant, with `ticker` and `corroborated_at`.
+
+- **Refusals, before anything is recorded:** a modified protocol or hypothesis, a suspended hypothesis, a horizon, delay or variant outside the declared grid, a missing `N_BOOTSTRAP`.
+- **Trial ledger:** the run's cells (each requested horizon at each known-at delay) are reserved in `config/hypotheses/trials/<id>.jsonl` before any price is read, under an exclusive lock on `trials/.lock` together with the family budget check. A run over the family budget raises `TrialBudgetExhaustedError`; a run that fails later still counts. A torn final line is truncated and logged; any other unreadable line raises `TrialLedgerCorruptError` until the file is fixed by hand. `run_backtest()` reserves its raw-return windows the same way.
+- **Holdout:** the last `promotion.holdout_months` of the event date range are not read. `HoldoutGuard.run_holdout()` releases them only for a promotable result on the primary cell.
+- **Per cell:** entry is the session on or after `corroborated_at` plus the delay; horizon `h` is the market-model CAR over sessions `[+1, +h]` against XBI (estimation window `[-250, -30]`, market-adjusted below 120 days), clustered t (wild cluster bootstrap below 30 clusters), independent events, bootstrap CI, each trade's cost components and net EUR P&L, and the deflated Sharpe ratio of net returns against the family trial count.
+- **Result:** the primary cell when evaluated (else the first), every cell in `cells`, kill verdicts (`lagging_signal`, `no_in_sample_effect`, `cost_check`), walk-forward segments (18 months in, 6 out, 30-day embargo) and `holdout_sealed`. `to_report()` gives it as plain data.
+
 ## SEC ownership panels
 
 `auspex_backtesting.ownership` keeps two point-in-time panels from SEC's bulk data for the holdings composite (H9): who holds each universe company (Form 13F) and what its insiders bought and sold (Forms 4 and 5). They are time series joined to a monthly score, so they are stored like prices, not sent through the document pipeline.

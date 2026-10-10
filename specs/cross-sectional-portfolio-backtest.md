@@ -5,7 +5,7 @@
 1. Met in code: `specs/point-in-time-universe.md` (PR #21, #22) — monthly `UniverseSnapshot`s with `exited_on`, `exit_reason` and `price_coverage`. Runs on the stack need its first build.
 2. Met: `specs/done/slow-signal-preregistration.md` — `protocol.yaml` (`portfolio_inference`, `portfolio_kill_criteria`, families, equal-risk default). A portfolio run passes `EvaluationProtocol.admit()` before it reads returns; `quarterly_trade_date()` and `select_component_variant()` apply H9's registered rules.
 3. Soft: `specs/catalyst-date-panel.md` for the catalyst guard modes. The engine and the `none` guard work without it; guard tests use fixture dates.
-4. `specs/evaluation-protocol.md` — `DeflatedSharpe` and `TrialLedger` (`family_trial_count()`, trial logging), which the portfolio verdict (item 9) and the trial logging in item 8 use. That spec builds them without backfill data.
+4. `specs/done/evaluation-protocol.md` — `DeflatedSharpe` and `TrialLedger` (`family_trial_count()`, trial logging), which the portfolio verdict (item 9) and the trial logging in item 8 use. That spec builds them without backfill data.
 5. Before any H9 or H10 run, not before the code: the first universe build on the stack. `config/universe/rules.yaml` already starts in 2014.
 6. Before any run is marked final, not before the code: `specs/research-input-archive.md`. A final run reads the holdout and produces the admissible result, so every universe, ownership and score snapshot it reads must carry an input manifest. A run over snapshots without one (including every build made before that spec is done, which is disposable) can be in-sample only.
 7. Before any H9 run: `specs/holdings-composite-score.md`, which waits for `specs/ownership-share-basis.md`.

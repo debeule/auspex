@@ -198,42 +198,36 @@ def run_backtest(
     windows: tuple[int, ...] = (5, 20, 60),
     universe: UniverseMembership | None = None,
 ) -> BacktestReport:
+    """Raw window returns per corroboration group, after reserving them as trial cells.
+
+    Each window of each variant is one cell in the trial ledger, reserved before any return is
+    read, so a look at raw returns spends the family's budget like an evaluation does.
+    """
+    from auspex_backtesting.evaluation.ledger import TrialLedger
+
+    verify_hypothesis(_PROTOCOL_ID, config_dir=config_dir, registry_path=registry_path)
     verify_hypothesis(hypothesis_id, config_dir=config_dir, registry_path=registry_path)
-    reg = _resolve_registry(registry_path)
-    entry = _last_entry(hypothesis_id, reg)
-    assert entry is not None
-
-    runner = BacktestRunner(windows=windows)
-    report = runner.run(events, price_data, universe)
-
-    _append_trial(hypothesis_id, entry["file_hash"], report, trials_dir=trials_dir)
-    return report
-
-
-def _append_trial(
-    hypothesis_id: str,
-    file_hash: str,
-    report: BacktestReport,
-    *,
-    trials_dir: Path | None = None,
-) -> None:
-    tdir = _resolve_trials_dir(trials_dir)
-    tdir.mkdir(parents=True, exist_ok=True)
-    trial_file = tdir / f"{hypothesis_id}.jsonl"
-    record = {
-        "run_id": str(uuid.uuid4()),
-        "hypothesis_id": hypothesis_id,
-        "file_hash": file_hash,
-        "started_at": datetime.now(UTC).isoformat(),
-        "result_summary": {
-            "results_count": len(report.results),
-            "entity_only_groups": len(report.entity_only.groups) if report.entity_only else 0,
-            "full_groups": len(report.full.groups) if report.full else 0,
-            "outside_universe": report.outside_universe,
-        },
+    protocol = load_hypothesis(_PROTOCOL_ID, config_dir)
+    hypothesis = load_hypothesis(hypothesis_id, config_dir)
+    base = config_dir if config_dir is not None else Path("config/hypotheses")
+    registered = {
+        path.stem: load_hypothesis(path.stem, config_dir)
+        for path in sorted(base.glob("*.yaml"))
+        if path.stem != _PROTOCOL_ID
     }
-    with trial_file.open("a", encoding="utf-8") as fh:
-        fh.write(json.dumps(record) + "\n")
+    cells = [
+        {
+            "window_days": w,
+            "known_at_delay_days": hypothesis.get("entry_timing_days"),
+            "variant": variant,
+        }
+        for w in windows
+        for variant in ("entity-only", "full")
+    ]
+    TrialLedger(_resolve_trials_dir(trials_dir), protocol, registered).reserve(
+        hypothesis_id, cells, run_id=str(uuid.uuid4())
+    )
+    return BacktestRunner(windows=windows).run(events, price_data, universe)
 
 
 def _hypothesis_path(hypothesis_id: str, config_dir: Path | None) -> Path:

@@ -1,6 +1,6 @@
 # Evaluation Protocol
 
-**Status:** ready
+**Status:** done
 **Blocked by:** none for the code and its required tests. Both code prerequisites are done: `specs/done/market-simulation.md` (`CostModel`, `CurrencyConverter`) and `specs/done/performance-metrics.md` (entity-only variant). Only the end-to-end run under "Definition of done" waits on `specs/historical-backfill.md`; it is recorded later and is not a merge condition.
 
 **Branch:** `feature/evaluation-protocol`
@@ -117,7 +117,7 @@ In `tests/unit/test_evaluation_protocol.py`:
 - `test_bootstrap_ci_width_narrows_with_larger_sample` — CI width at n=200 is narrower than at n=20 for the same distribution
 - `test_walk_forward_splitter_produces_correct_segment_count` — 24-month event range, in_sample=18, oos=6 → 1 segment (slides by OOS window; 1 complete non-overlapping segment)
 - `test_walk_forward_splitter_respects_embargo` — embargo_days=30; no event within 30 days of the split boundary appears in either in_sample or oos
-- `test_deflated_sharpe_is_lower_than_sharpe_for_multiple_trials` — `compute(sr=1.5, n_obs=100, n_trials=32)` < 1.5; `compute(sr=1.5, n_obs=100, n_trials=1)` is closer to 1.5
+- `test_deflated_sharpe_is_lower_than_sharpe_for_multiple_trials` — `compute(sr=1.5, n_obs=100, n_trials=32)` < 1.5; at a per-observation Sharpe of 0.15, `n_trials=1` is closer to 1.5 than `n_trials=32` (at 1.5 both round to 1.0; see `DECISIONS.md`)
 - `test_holdout_raises_error_before_promotion` — `HoldoutGuard.run_holdout()` raises `HoldoutSealedError` when `is_promotable(result) = False`
 - `test_evaluation_result_includes_variant_field` — `EvaluationResult.variant` is `'entity-only'` when run with entity-only variant; `'full'` otherwise
 - `test_report_lists_cost_components_per_trade` — each trade in the report carries `RoundTripCost.components()` (commission, spread, tob, fx_fee, borrow_fee); the cost model is built with a `SpreadEstimator` so spreads are per ticker
@@ -129,7 +129,7 @@ In `tests/unit/test_evaluation_protocol.py`:
 cd services/backtesting && uv run pytest tests/unit/test_evaluation_protocol.py -q
 ```
 
-Expected: 26 passed.
+Expected: 27 passed. (`test_evaluation_details.py` covers the behaviours beyond this list.)
 
 Then, once the historical backfill exists (a later session; not a merge condition): the first `EvaluationProtocol.run()` on real backfill data is H3 (its `run_order` is 1), recorded in DECISIONS.md with the pre and post CARs, n_events, n_independent_events, inference method and the `lagging_signal` verdict. Promotable hypotheses run only after H3 and only once re-registered with `status: pre-registered`; each such run is recorded with n_events, mean_abnormal_return, clustered t_stat, deflated_sharpe, n_trials, variant, known_at_delay_days, kill verdicts and holdout_sealed status.
 
