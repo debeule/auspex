@@ -57,6 +57,7 @@ curl http://localhost:8080/api/v1/signals/BEAM
 | Backtesting: unit tests | `cd services/backtesting && uv run pytest tests/unit -q` |
 | Backtesting: integration tests (Docker) | `cd services/backtesting && uv run pytest tests/integration -q` |
 | Strategy: lint, types, unit tests | `cd services/strategy && uv run ruff check . && uv run mypy src && uv run pytest tests/unit -q` |
+| Kill switch: stop new intents (all, or `--strategy <name>`; `--reset` to lift) | `cd services/strategy && MINIO_ENDPOINT=localhost:9000 MINIO_ACCESS_KEY=... MINIO_SECRET_KEY=... uv run python -m auspex_strategy kill --reason "<why>"` |
 | Backup: lint, types, unit tests | `cd services/backup && uv run ruff check . && uv run mypy src && uv run pytest tests/unit -q` |
 | Restore a nightly backup into empty stores | `docker compose --profile restore -f docker/docker-compose.yml --env-file .env run --rm restore --date YYYY-MM-DD` (`docs/backup-restore.md`) |
 | Dashboard: lint, types, tests | `cd services/dashboard && npm ci && npm run lint && npx tsc --noEmit && npm run test:ci` |

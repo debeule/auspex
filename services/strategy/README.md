@@ -9,6 +9,7 @@ Strategy plugins (`auspex_strategy`) and the runtime that runs them.
 | Install | `uv sync` |
 | Unit tests | `uv run pytest tests/unit -q` |
 | Lint + types | `uv run ruff check . && uv run mypy src` |
+| Kill switch | `uv run python -m auspex_strategy kill [--strategy <name>] [--reason <why>] [--reset]` (needs `MINIO_ENDPOINT`, `MINIO_ACCESS_KEY`, `MINIO_SECRET_KEY`; no Docker) |
 | Image | `docker build -f services/strategy/Dockerfile -t auspex-strategy services` (from the repo root; the image installs `services/backtesting` from source) |
 
 ## Runtime (`auspex_strategy.runtime`)
@@ -23,7 +24,7 @@ Strategy plugins (`auspex_strategy`) and the runtime that runs them.
 | `LatencyTracer` | Records corroboration-to-intent latency; warns at startup when the median exceeds a strategy's known-at delay. |
 | `PaperBroker` / `VirtualBook` | Fills approved intents at the next session's open (`FillModel`), exits on the holding rule or stop (`FillModel.stop_exit_price`), charges `CostModel` costs, converts P&L with `CurrencyConverter`. |
 | `RiskManager` | `review(intents)` returns one `RiskDecision` per intent: status (`APPROVED`, `REJECTED`, `PAUSED`), every check run (`RiskCheckRecord`), sizing and netting. |
-| `PassThroughRiskManager` | Approves every intent at `PASS_THROUGH_POSITION_EUR`; no risk checks, so its decisions cannot be traced. |
+| `PassThroughRiskManager` | Approves every intent at `PASS_THROUGH_POSITION_EUR`; no risk checks, so its decisions cannot be traced. The streaming runtime still uses it until books are valued (`PortfolioRiskReview` below then takes its place). A killed strategy's intents are dropped before risk. |
 | `FunnelCounter` | Counts, per strategy version and mode, the events `decide()` ran on, the intents it produced and the intents risk approved. |
 
 ## Decision traces (`auspex_strategy.trace`)
@@ -40,6 +41,20 @@ Only backtests are traced so far: paper and live need participant documents, tic
 
 The known-at delay of each strategy comes from its registered hypothesis file (`primary_cell.known_at_delay_days`).
 
+## Risk (`auspex_strategy.risk`)
+
+Every limit is an `.env` variable (`.env.example`, "Risk limits"); `RiskLimits.from_env` fails naming the variable when one is missing or looser than `config/hypotheses/protocol.yaml` `sizing` (the protocol file must match its registered hash). Shorts are rejected while the protocol's `instruments.shorts_enabled` is false.
+
+| Component | What it does |
+|---|---|
+| `KellySizer` | Quarter Kelly (`KELLY_FRACTION`) on a win probability shrunk toward 0.5, from the strategy's closed trades; `FALLBACK_POSITION_PCT` below `MIN_TRADES_FOR_KELLY`; capped at `MAX_POSITION_PCT` per name. |
+| Position limits | Per-strategy position count, one position per theme across strategies (`config/themes.yaml`; an unmapped ticker is rejected), the per-name cap across strategies, gross and net exposure. |
+| `BinaryEventGuard` | No entry within `CATALYST_GUARD_DAYS` of a known catalyst, exit at the last close before one, unless the strategy declares that type in `trades_catalyst_types` (never for shorts). Catalysts from the catalyst date panel (`PanelCatalysts`: PDUFA, AdCom); readouts have no source yet. |
+| `ShortGuard` | Borrow fee, short interest and days-to-cover ceilings on entry; hard stop and EUR loss cap as exit intents. |
+| `DrawdownAndFlowLimits` | Daily loss limit (blocks the rest of the day), turnover ceiling, and a drawdown past `MAX_DRAWDOWN_PCT` turns the global kill switch on. |
+| `KillSwitch` | Global or per-strategy flag in MinIO; set and reset from the command line. Open positions keep their own exits. |
+| `RiskManager` | `evaluate(intent, book, market)` runs drawdown, kill switch, sizing, position limits, catalyst guard, short guard, loss and turnover; the first failure rejects. `ApprovalDecision.checks` lists every check that ran. |
+
 ## State in MinIO (bucket `auspex-strategy`)
 
 | Key | Content |
@@ -50,6 +65,9 @@ The known-at delay of each strategy comes from its registered hypothesis file (`
 | `strategy/latency/distribution.jsonl` | Corroboration-to-intent latency per intent, with strategy and version |
 | `strategy/checkpoints/auspex-strategy-runtime/<topic>.json` | Next offset per partition |
 | `strategy/traces/<strategy>/<mode>/traces.jsonl` | Decision traces (`backtest`, `paper`, `live`) |
+| `strategy/killswitch/global.json`, `strategy/killswitch/<strategy>.json` | Kill switch flags |
+| `strategy/killswitch/events.jsonl` | Every trigger and reset: reason, time, who |
+| `strategy/risk/catalyst_holds.jsonl` | Entries and holds through a catalyst type the strategy declares |
 
 ## Strategy metrics (`auspex_strategy.metrics`)
 

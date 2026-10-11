@@ -51,7 +51,7 @@ In `services/strategy/src/auspex_strategy/paper/`:
 ## Out of scope
 
 - Real orders or broker connectivity (live trading, session 3).
-- Risk checks and sizing beyond the pass-through stub `strategy-runtime` already allows (`specs/portfolio-and-risk.md`).
+- Risk checks and sizing beyond the pass-through stub `strategy-runtime` already allows (`specs/done/portfolio-and-risk.md`).
 - The full `TraceRecord` and `TraceValidator` (`specs/decision-trace.md`); the ledger's `intent` rows carry the chain of custody needed now.
 - Changing hypotheses, kill criteria or the evaluation statistics (pre-registration work and `specs/done/evaluation-protocol.md`).
 - Intraday marks.

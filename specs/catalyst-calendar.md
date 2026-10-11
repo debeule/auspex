@@ -17,7 +17,7 @@ A PDUFA date is the FDA's target action date for an application; advisory commit
 There is no free machine-readable FDA feed of PDUFA dates; companies disclose them in press releases, 10-Qs and 10-Ks, and revise them (a major amendment typically extends the date by three months). Advisory committee meetings are published in the Federal Register (separate spec, `specs/fda-advisory-committee-connector.md`, which writes into this calendar).
 
 What exists or is specified:
-- `specs/portfolio-and-risk.md` `BinaryEventGuard` reads a manually maintained `config/catalysts/upcoming.yaml` and lists a "catalyst calendar auto-feed" as out of scope. This spec is that feed.
+- `specs/done/portfolio-and-risk.md` `BinaryEventGuard` reads a `CatalystSource`: today the catalyst date panel (PDUFA, AdCom), with no source for readout dates (`DECISIONS.md` 2026-10-11). Switching it to this calendar, readout dates included, is the follow-up once this spec is done.
 - core-hub is the sole writer to Postgres (Invariant 2); Flyway scripts create the schema on an empty database.
 - The extraction schema is a Pydantic model mirrored field-for-field by a Java record, with a generated contract fixture (Invariant 7).
 

@@ -17,7 +17,7 @@ This draft gathers, in one place on the spec index, pre-live work that today exi
 What exists or is specified:
 - `services/strategy`: strategy `status` runs `research` → `paper` → `live-confirm` → `live-auto`. `VirtualBook` with a `mode=live` book (`specs/done/strategy-runtime.md`).
 - `specs/forward-paper-trading.md`: paper ledger per capital tier, `PortfolioRebalance` intents, tracking check.
-- `specs/portfolio-and-risk.md`: kill switches and exposure limits, written for event strategies.
+- `specs/done/portfolio-and-risk.md`: kill switches and exposure limits, written for event strategies.
 - Cost model with IBKR commission schedules and Belgian TOB (`specs/done/cross-sectional-portfolio-backtest.md`, `specs/done/realistic-cost-model.md`).
 
 ## What this builds (to be scoped)

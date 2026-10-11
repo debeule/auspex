@@ -1,0 +1,14 @@
+# Correlated themes for the risk layer's one-position-per-theme ceiling
+# (config/hypotheses/protocol.yaml, sizing.max_positions_per_theme).
+# Format: tickers: {<ticker>: <theme>}. A ticker not listed here cannot be traded: the risk
+# layer rejects it (THEME_UNMAPPED) rather than treat it as uncorrelated.
+tickers:
+  # The watched small-cap biotechs share sector (XBI) risk, so they count as one theme.
+  SRPT: small_cap_biotech
+  SPRB: small_cap_biotech
+  BEAM: small_cap_biotech
+  CRSP: small_cap_biotech
+  CAPR: small_cap_biotech
+  ABVX: small_cap_biotech
+  RCKT: small_cap_biotech
+  QURE: small_cap_biotech

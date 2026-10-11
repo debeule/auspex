@@ -5,6 +5,7 @@ from datetime import date, datetime, timedelta
 from auspex_strategy.abc import AsOfContext
 from auspex_strategy.errors import AsOfViolationError
 from auspex_strategy.models import CorroborationRecord, InputSource, SignalRecord
+from auspex_strategy.risk.catalysts import KnownCatalyst
 
 
 class StubAsOfContext(AsOfContext):
@@ -94,3 +95,17 @@ class FakeInputHealthClient:
 
     def fetch(self) -> dict[InputSource, bool]:
         return dict(self.health)
+
+
+class StaticCatalysts:
+    """A fixed list of known catalysts, filtered the way `CatalystSource.between` promises."""
+
+    def __init__(self, catalysts: list[KnownCatalyst]) -> None:
+        self._catalysts = list(catalysts)
+
+    def between(self, ticker: str, start: date, end: date, as_of: datetime) -> list[KnownCatalyst]:
+        return [
+            c for c in self._catalysts
+            if c.ticker == ticker and c.known_at <= as_of
+            and c.period_start <= end and c.period_end >= start
+        ]

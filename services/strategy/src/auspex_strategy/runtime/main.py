@@ -28,6 +28,7 @@ from minio import Minio
 
 from auspex_strategy.metrics import MetricsApi, MetricsService
 from auspex_strategy.registry import StrategyRegistry
+from auspex_strategy.risk.kill_switch import KillSwitch
 from auspex_strategy.runtime.broker import PaperBroker
 from auspex_strategy.runtime.context import SnapshotPrices
 from auspex_strategy.runtime.funnel import FunnelCounter
@@ -156,6 +157,7 @@ def main(env: Mapping[str, str] = os.environ) -> None:
         funnel=FunnelCounter(objects),
         price_close=SnapshotPrices(prices).close,
         is_trading_day=calendar.is_trading_day,
+        kill_switch=KillSwitch(objects),
     )
     log.info("running %d strategies: %s", len(slots), ", ".join(s.name for s in slots) or "none")
     for delay in sorted({s.known_at_delay_days for s in slots}):

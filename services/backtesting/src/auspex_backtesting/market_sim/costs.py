@@ -126,6 +126,11 @@ class CostModel:
         self._params = params or CostParameters.from_env()
         self._spread_estimator = spread_estimator
 
+    def borrow_fee_annual_pct(self, ticker: str) -> float:
+        """Annual borrow fee for shorting `ticker`, in percent. One flat rate for every ticker:
+        no per-ticker borrow data is loaded."""
+        return self._params.borrow_fee_annual_pct
+
     def round_trip_cost_usd(
         self,
         ticker: str,

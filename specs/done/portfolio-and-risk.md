@@ -1,8 +1,8 @@
 # Portfolio and Risk
 
-**Status:** blocked
+**Status:** done
 **Blocked by:**
-1. `specs/done/strategy-runtime.md` — `TradeIntent` flow and `VirtualBook` must exist
+1. Met: `specs/done/strategy-runtime.md` — `TradeIntent` flow and `VirtualBook` must exist
 2. Met: `specs/done/market-simulation.md` — `CostModel`, `CurrencyConverter`, `PositionSizer` required
 
 **Branch:** `feature/portfolio-and-risk`
@@ -13,7 +13,7 @@
 
 The strategy runtime generates `TradeIntent`s from strategy decision functions. Before any intent becomes a real or virtual fill, it passes through the risk layer. This spec builds that layer: position sizing, exposure limits, short-specific guards, loss limits, and kill switches.
 
-**Which strategies this covers.** Sizing, exposure limits and the binary-event guard here are written for event strategies. Portfolio hypotheses (`evaluation: portfolio`, such as H9) are sized by `EqualRiskSizer` and guarded by `CatalystGuard` in `specs/done/cross-sectional-portfolio-backtest.md`, and forward paper trading reuses those. `KillSwitch` and the loss limits apply to every strategy. Before building, check `BinaryEventGuard`'s source: `config/catalysts/upcoming.yaml` is a hand-maintained file, which root `CLAUDE.md` ("Where work can run") rules out. The point-in-time catalyst date panel (`specs/catalyst-date-panel.md`) supplies PDUFA and AdCom dates. Readout dates have no automated source yet, so log the choice in `DECISIONS.md`.
+**Which strategies this covers.** Sizing, exposure limits and the binary-event guard here are written for event strategies. Portfolio hypotheses (`evaluation: portfolio`, such as H9) are sized by `EqualRiskSizer` and guarded by `CatalystGuard` in `specs/done/cross-sectional-portfolio-backtest.md`, and forward paper trading reuses those. `KillSwitch` and the loss limits apply to every strategy. `BinaryEventGuard` reads a `CatalystSource`: in production the point-in-time catalyst date panel (`specs/catalyst-date-panel.md`, PDUFA and AdCom dates). A hand-maintained catalyst file is ruled out by root `CLAUDE.md` ("Where work can run"); readout dates have no automated source yet (`DECISIONS.md` 2026-10-11).
 
 Every limit is a configurable parameter with a test that verifies it is read from `.env`, not hardcoded. No defaults in source code — startup fails with a descriptive message if a required limit is absent from `.env`. See `.env.example`.
 
@@ -43,7 +43,7 @@ Every limit is a configurable parameter with a test that verifies it is read fro
 
 **`BinaryEventGuard`**
 - `CATALYST_GUARD_DAYS` from `.env` (default 3): if a ticker has a known scheduled catalyst within this many calendar days, no new position is opened in that ticker.
-- Catalyst calendar is sourced from `config/catalysts/upcoming.yaml` — a manually maintained file (machine-readable feed deferred to session 3). An absent or empty file disables the guard with a startup WARNING.
+- Catalysts come from a `CatalystSource`; `PanelCatalysts` reads the catalyst date panel by CIK. A ticker the source cannot answer for is rejected (`CATALYST_UNKNOWN`). Readouts are not guarded until they have an automated source.
 - **Shorts**: the guard is mandatory for shorts and cannot be overridden per strategy.
 - **Longs**: a strategy may enter or hold through a catalyst only when its parameters declare that catalyst's type in `trades_catalyst_types` (for example a strategy whose event is the readout itself). There is no blanket override. Every such entry or hold is recorded in the decision trace.
 - Existing positions: when a catalyst is known within `CATALYST_GUARD_DAYS` of an open position in that ticker, and the owning strategy does not trade that catalyst type, the guard emits an exit intent at the last close before the catalyst date. This applies whether the catalyst was known at entry or appeared later.
@@ -51,7 +51,8 @@ Every limit is a configurable parameter with a test that verifies it is read fro
 
 **`ShortGuard`**
 - `MAX_BORROW_FEE_ANNUAL_PCT` from `.env` — short intents rejected if `CostModel.borrow_fee_annual_pct` for the ticker exceeds this.
-- `MAX_SHORT_INTEREST_PCT` from `.env` — short intents rejected if short interest as a percentage of float exceeds this. Data source: configurable; default is the value in `config/short_interest/<ticker>.json` (manually updated; auto-feed deferred to session 3). Absent file → guard disabled for that ticker, WARNING at startup.
+- `MAX_SHORT_INTEREST_PCT` from `.env` — short intents rejected if short interest as a percentage of shares outstanding exceeds this. Source: `ShortInterestStore` (FINRA), the period published by the day before. No data for the ticker → these checks are skipped with a WARNING.
+- Shorts are rejected outright (`SHORTS_DISABLED`) while `protocol.yaml` `instruments.shorts_enabled` is false.
 - `MAX_DAYS_TO_COVER` from `.env` — short intents rejected if days-to-cover exceeds this.
 - `SHORT_HARD_STOP_PCT` from `.env` — per-trade hard stop-loss for short positions; auto-closes if price moves against by this percentage.
 - `MAX_LOSS_PER_SHORT_EUR` from `.env` — absolute EUR loss cap per short position before forced closure.
@@ -75,7 +76,7 @@ Every limit is a configurable parameter with a test that verifies it is read fro
 
 ## Out of scope
 
-Order execution and broker connectivity (session 3). Live price feed (risks use current price from `FillModel`'s most recent Parquet data for the trade day). CGT calculation (post-trade accounting). Catalyst calendar auto-feed (catalyst-calendar spec provides `GET /api/v1/catalysts?as_of=`; switching `BinaryEventGuard` to it is a follow-up once that spec is done). Short interest data auto-feed (short-interest-snapshots spec provides `ShortInterestStore.as_of()`).
+Order execution and broker connectivity (session 3). Live price feed (risks use current price from `FillModel`'s most recent Parquet data for the trade day). CGT calculation (post-trade accounting). Readout dates (catalyst-calendar spec). Plugging `RiskManager` into the runtime's `review()` and executing exit intents (with forward paper trading, which values the books; `DECISIONS.md` 2026-10-11).
 
 ## Constraints
 
@@ -99,7 +100,7 @@ In `tests/unit/test_portfolio_and_risk.py`:
 - `test_kelly_falls_back_below_minimum_trade_count` — fewer than `MIN_TRADES_FOR_KELLY` closed trades; sizing uses `FALLBACK_POSITION_PCT` instead of history-derived Kelly
 - `test_gross_exposure_limit_rejects_intent_at_ceiling` — book at `MAX_GROSS_EXPOSURE`; new long intent → `ApprovalDecision.approved = False, check_name = "GROSS_EXPOSURE"`
 - `test_net_exposure_limit_rejects_directional_excess` — net long at `MAX_NET_EXPOSURE`; another long intent → rejected
-- `test_binary_event_guard_blocks_entry_within_catalyst_window` — catalyst in `config/catalysts/upcoming.yaml` for ticker SRPT within `CATALYST_GUARD_DAYS`; SRPT long intent → rejected with `check_name = "CATALYST_GUARD"`
+- `test_binary_event_guard_blocks_entry_within_catalyst_window` — catalyst known to the catalyst source for ticker SRPT within `CATALYST_GUARD_DAYS`; SRPT long intent → rejected with `check_name = "CATALYST_GUARD"`
 - `test_short_guard_blocks_entry_above_borrow_fee_cap` — `CostModel` returns borrow fee above `MAX_BORROW_FEE_ANNUAL_PCT`; short intent → rejected
 - `test_daily_loss_limit_blocks_all_intents_when_breached` — day P&L below `DAILY_LOSS_LIMIT_EUR`; any intent → rejected with `check_name = "DAILY_LOSS_LIMIT"`
 - `test_drawdown_limit_triggers_global_kill_switch` — drawdown exceeds `MAX_DRAWDOWN_PCT`; `KillSwitch.is_active()` returns True; all subsequent intents rejected
@@ -116,7 +117,6 @@ cd services/strategy && uv run pytest tests/unit/test_portfolio_and_risk.py -q
 Expected: 18 passed.
 
 Then:
-- `config/catalysts/upcoming.yaml` exists (may be empty) with format documented in the file, including the `type` field.
 - `config/themes.yaml` maps every watched ticker to a theme.
 - `.env.example` documents all 15+ limit variables with recommended starting values.
 - `python -m auspex_strategy kill --help` prints usage.

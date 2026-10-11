@@ -35,6 +35,10 @@ class SourceMessage:
     value: bytes | None
 
 
+class KillSwitchCheck(Protocol):
+    def is_active(self, strategy_name: str | None = None) -> bool: ...
+
+
 class EventSource(Protocol):
     def poll(self, timeout_seconds: float) -> SourceMessage | None: ...
 
@@ -65,7 +69,8 @@ class StreamingRuntime:
 
     `research` strategies never run here. Each `decide()` is isolated (`IsolatedDecider`);
     paused strategies are skipped; intents from the same event are checked for overlap, passed
-    to risk together, and approved ones go to the strategy's forward book.
+    to risk together, and approved ones go to the strategy's forward book. While a kill switch
+    covers a strategy, its intents are dropped before risk sees them.
     """
 
     def __init__(
@@ -83,6 +88,7 @@ class StreamingRuntime:
         ticker_allowed: TickerCheck | None = None,
         price_close: PriceReader | None = None,
         is_trading_day: TradingDayCheck | None = None,
+        kill_switch: KillSwitchCheck | None = None,
     ) -> None:
         self.slots = [s for s in slots if s.at_least("paper")]
         self._broker = broker
@@ -94,6 +100,7 @@ class StreamingRuntime:
         self._funnel = funnel
         self._price_close = price_close
         self._is_trading_day = is_trading_day
+        self._kill_switch = kill_switch
         self._decider = IsolatedDecider(
             self.slots, timeout_seconds=timeout_seconds, ticker_allowed=ticker_allowed
         )
@@ -151,7 +158,14 @@ class StreamingRuntime:
             if self._latency is not None:
                 for intent in intents:
                     self._latency.record(signal, intent, decided_at[name])
-        to_review = [i for name, p in produced.items() if modes[name] is not None for i in p]
+        to_review: list[TradeIntent] = []
+        for name, intents in produced.items():
+            if modes[name] is None:
+                continue
+            if self._kill_switch is not None and self._kill_switch.is_active(name):
+                log.warning("kill switch on for %s; %d intents dropped", name, len(intents))
+                continue
+            to_review.extend(intents)
         for decision in self._risk.review(to_review) if to_review else []:
             name = decision.intent.strategy_name
             if decision.status is ApprovalStatus.APPROVED:
