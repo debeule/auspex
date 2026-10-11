@@ -24,6 +24,13 @@ class MarketCalendar:
                 return candidate
         raise ValueError(f"no {self._exchange} session within {_SEARCH_HORIZON_DAYS} days of {d}")
 
+    def session_open(self, d: date) -> datetime:
+        """When the session on `d` opens, in UTC."""
+        try:
+            return _opens_in_year(self._exchange, d.year)[d]
+        except KeyError:
+            raise ValueError(f"{d} is not a {self._exchange} session") from None
+
     def session_close(self, d: date) -> datetime:
         """When the session on `d` closes, in UTC; early closes included."""
         try:
@@ -56,4 +63,13 @@ def _closes_in_year(exchange: str, year: int) -> dict[date, datetime]:
     return {
         ts.date(): close.to_pydatetime().astimezone(UTC)
         for ts, close in schedule["market_close"].items()
+    }
+
+
+@cache
+def _opens_in_year(exchange: str, year: int) -> dict[date, datetime]:
+    schedule = mcal.get_calendar(exchange).schedule(date(year, 1, 1), date(year, 12, 31))
+    return {
+        ts.date(): opened.to_pydatetime().astimezone(UTC)
+        for ts, opened in schedule["market_open"].items()
     }

@@ -1,6 +1,6 @@
 # Cross-Sectional Portfolio Backtest
 
-**Status:** blocked
+**Status:** done
 **Blocked by:**
 1. Met in code: `specs/point-in-time-universe.md` (PR #21, #22) — monthly `UniverseSnapshot`s with `exited_on`, `exit_reason` and `price_coverage`. Runs on the stack need its first build.
 2. Met: `specs/done/slow-signal-preregistration.md` — `protocol.yaml` (`portfolio_inference`, `portfolio_kill_criteria`, families, equal-risk default). A portfolio run passes `EvaluationProtocol.admit()` before it reads returns; `quarterly_trade_date()` and `select_component_variant()` apply H9's registered rules.

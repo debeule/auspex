@@ -239,9 +239,6 @@ def test_cost_parameters_read_new_settings_from_env():
     assert params.fx_fee_rate == 0.0005
     assert params.min_half_spread_bps == 3.5
     assert params.spread_bps == 40.0
-    defaults = CostParameters.from_env({})
-    assert defaults.fx_fee_rate == 0.0003
-    assert defaults.min_half_spread_bps == 2.0
 
 
 def test_volume_cap_reads_fraction_from_env(monkeypatch):

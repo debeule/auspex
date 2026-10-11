@@ -64,8 +64,12 @@ Everything here needs a person before the blocked step can proceed. [`SETUP.md`]
 | `PROMOTION_T_THRESHOLD` | `.env` | Minimum t-statistic for promotion. Default: `3.0` (Harvey, Liu & Zhu 2016). |
 | `PROMOTION_DEFLATED_SHARPE_THRESHOLD` | `.env` | Minimum deflated Sharpe for promotion. Default: `0.95` (Bailey & López de Prado 2014). |
 | `SPREAD_BPS` | `.env` | Flat half-spread in basis points per leg, used only when `CostModel` has no `SpreadEstimator`. Default: `50`. Backtests should pass a `SpreadEstimator` for per-ticker spreads. |
-| `MIN_HALF_SPREAD_BPS` | `.env` | Floor on the estimated per-ticker half-spread, basis points per leg. Default: `2.0`. |
-| `FX_FEE_RATE` | `.env` | IBKR EUR/USD conversion fee per leg, fraction of notional. Default: `0.0003`. |
+| `MIN_HALF_SPREAD_BPS` | `.env` | Floor on the estimated per-ticker half-spread, basis points per leg. Default: `10` (small-cap biotech). |
+| `FX_FEE_RATE` | `.env` | EUR/USD conversion fee per leg, fraction of notional. Default: `0`, for an account that holds USD and converts on deposit. |
+| `IBKR_PRICING` | `.env` | IBKR commission schedule, `fixed` or `tiered`. Default: `fixed`. Tiered is cheaper where the fixed $1 minimum binds (the €10k tier). |
+| `IBKR_TIERED_RATE_PER_SHARE` / `IBKR_TIERED_MIN_COMMISSION` / `IBKR_TIERED_PASS_THROUGH_PER_SHARE` | `.env` | Tiered schedule: $0.0035 a share, $0.35 minimum, plus about $0.0032 a share of exchange and clearing fees. |
+| `IBKR_MAX_COMMISSION_RATE` | `.env` | IBKR's commission cap as a fraction of trade value. Default: `0.01`. A portfolio backtest skips a new position below the minimum commission over this cap. |
+| `PAPER_CAPITAL_TIERS_EUR` | `.env` | Capital tiers portfolio backtests and paper trading are costed at. Default: `10000,50000,250000`. |
 | `MAX_ADV_FRACTION` | `.env` | Largest order as a fraction of 20-session average daily volume. Default: `0.01`. |
 | `BORROW_FEE_ANNUAL_PCT` | `.env` | Annualised borrow fee for short positions. Default: `3.0`. Update with IBKR actual rates per ticker. |
 | `IBKR_RATE_PER_SHARE` | `.env` | IBKR commission per share (USD). Default: `0.005`. |

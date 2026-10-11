@@ -33,7 +33,7 @@ In `services/backtesting/src/auspex_backtesting/scores/holdings_composite.py`:
 
 ## Out of scope
 
-- Portfolio construction, costs, evaluation (`specs/cross-sectional-portfolio-backtest.md`).
+- Portfolio construction, costs, evaluation (`specs/done/cross-sectional-portfolio-backtest.md`).
 - Any LLM input. Gene-target or mechanism peer momentum (report 1's suggested use of corroboration as an input) is a later, separately registered variant.
 - Re-weighting components after seeing results.
 

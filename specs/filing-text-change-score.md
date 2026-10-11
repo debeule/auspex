@@ -35,7 +35,7 @@ In `services/backtesting/src/auspex_backtesting/filings/`:
 
 - Items 3 and 7 (Legal Proceedings, MD&A): a later, separately registered variant if Item 1A shows anything.
 - LLM labelling of what changed (report 3 suggests it as optional; it adds a category, not the core signal).
-- Portfolio construction and evaluation (`specs/cross-sectional-portfolio-backtest.md`).
+- Portfolio construction and evaluation (`specs/done/cross-sectional-portfolio-backtest.md`).
 - Non-US filers (20-F, 40-F).
 
 ## Constraints

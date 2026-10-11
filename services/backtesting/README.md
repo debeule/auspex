@@ -103,6 +103,27 @@ Requests to SEC are paced at 5 per second with `SEC_USER_AGENT`, Federal Registe
 - **Per cell:** entry is the session on or after `corroborated_at` plus the delay; horizon `h` is the market-model CAR over sessions `[+1, +h]` against XBI (estimation window `[-250, -30]`, market-adjusted below 120 days), clustered t (wild cluster bootstrap below 30 clusters), independent events, bootstrap CI, each trade's cost components and net EUR P&L, and the deflated Sharpe ratio of net returns against the family trial count.
 - **Result:** the primary cell when evaluated (else the first), every cell in `cells`, kill verdicts (`lagging_signal`, `no_in_sample_effect`, `cost_check`), walk-forward segments (18 months in, 6 out, 30-day embargo) and `holdout_sealed`. `to_report()` gives it as plain data.
 
+### Portfolio backtest
+
+`auspex_backtesting.portfolio` backtests score hypotheses (`evaluation: portfolio`) as a traded, long-only basket.
+
+**Score snapshots** are the contract every score writes: one Parquet per score and rebalance date, `scores/{hypothesis_id}/{version}/{yyyy-mm-dd}.parquet` in `auspex-prices`, with `cik`, `ticker`, `score` (higher ranks higher), `known_at_max` (UTC, the latest time any input of the row became known) and any component columns. `ScoreStore.write()` refuses an existing snapshot, and `ScoreSnapshot.validate()` refuses a row known at or after the rebalance session's open; the engine validates every snapshot it reads.
+
+**`PortfolioBacktest.run(rule, universe_version, tier_eur, start, end)`**:
+- A `PortfolioRule` (`PortfolioRule.from_hypothesis(hypothesis, cell, score)` for a trial-grid cell) selects `top_n` with hold bands (buy at rank `enter_rank` or better, keep while at `exit_rank` or better; equal ranks are a hard cut), `top_quintile` or `exclude_bottom_quintile`, ties broken by CIK. Cadence is `monthly` (first NYSE session of each month), `quarterly_after_13f` or `semi_annual_after_13f` (`quarterly_trade_date()`; Q2 and Q4 only for semi-annual). An optional exclusion score's bottom quintile is neither bought nor kept.
+- On each decision date the month's universe snapshot is ranked on the latest score snapshot dated on or before it; orders fill at the open of the next session through `FillModel`, sells first, buys within the cash left.
+- `EqualRiskSizer` weights by 1 / trailing 60-session volatility from sessions before the decision date, capped at the protocol's `max_position_pct`; what the caps leave is cash earning nothing, never spread above the cap. Fewer than `min_names` raises `InsufficientNamesError`.
+- `CatalystGuard` modes: `none`, `skip_entry` (no new buy with a binary due before the next fill), `exit_and_reenter` (sell at the close before the binary, buy back at the open after it while still before the next fill), `exit_low_score_only` (the same, only for held names outside the entry band). Each decision reports names checked, clear, with a binary, without any catalyst data (counted, never clear), skipped and exited, and universe members without catalyst data.
+- Each order is costed by `CostModel.leg_cost_usd()` at the tier's size. A new position below `CostModel.min_ticket_usd()` (minimum commission over IBKR's 1% commission cap) is skipped and counted.
+- A held name whose prices stop is closed at its last close; a `delisted` or `deregistered` exit whose prices stop before the session before `exited_on` is booked at -30% and its month flagged.
+
+**`PortfolioResult`** has per month gross and net return, cost, turnover, names held, cash share, XBI and universe equal-weight returns and the excess over each (also against the equal-weight scaled to the invested share), plus cost by component, yearly cost drag (average round-trip cost times round trips a year), average holding period overall and per name, returns inside ±5 sessions of a known day-precision binary versus other days, rolling 12-month beta to XBI, the worst name-month, the share of net P&L from the top 5% of name-months, delisting-bound months, skipped tickets, unpriced member-months and the top-minus-bottom score quintile returns.
+
+**`PortfolioEvaluation.run(hypothesis_id, cell, rule, universe_version, tiers_eur, final=...)`** admits the hypothesis, reserves the cell in the family ledger, runs every tier over the in-sample years and applies `PortfolioVerdict` at the smallest tier:
+- In-sample kill criteria from `protocol.yaml` `portfolio_kill_criteria`: `no_in_sample_spread` (Newey-West t of the quintile spread at the registered lag, and the top quintile's net excess over the universe equal-weight from a `top_quintile` run of the same rule), `turnover_cost` and `survivorship` (unpriced member-month share; the result is `not_usable`).
+- Deflated Sharpe of the monthly net excess over the declared benchmark with the family trial count, and its Newey-West t. Only the primary cell of a promotable hypothesis can pass; filters and diagnostics are `not_promotable`.
+- On a final run whose in-sample verdict passed, the holdout years are read once (`HoldoutRecord`, one file per hypothesis use created exclusively) and `holdout_check` gives `promoted` or `killed`. A final run is refused before anything is reserved or read when the holdout was read already, or when any universe or score snapshot it would read has no input manifest (`InputsNotPinnedError`); until input manifests exist (`specs/research-input-archive.md`) the default `NoInputManifests` refuses every final run.
+
 ## SEC ownership panels
 
 `auspex_backtesting.ownership` keeps two point-in-time panels from SEC's bulk data for the holdings composite (H9): who holds each universe company (Form 13F) and what its insiders bought and sold (Forms 4 and 5). They are time series joined to a monthly score, so they are stored like prices, not sent through the document pipeline.
@@ -159,6 +180,7 @@ FINRA's data covers exchange-listed stocks only from June 2021 (earlier files ar
 | `scripts/register_hypothesis.py` | Register a hypothesis file in the pre-registration ledger |
 | `scripts/fetch_ownership.py` | Backfill and extend the SEC ownership panels and print their coverage |
 | `scripts/fetch_short_interest.py` | Backfill and extend FINRA short interest for the universe's tickers and print coverage: first available settlement date, periods FINRA returned nothing for, gaps, tickers never reported. Needs the universe built first |
+| `scripts/run_portfolio_backtest.py` | Run a registered portfolio hypothesis's cell (default its primary cell) at every tier in `PAPER_CAPITAL_TIERS_EUR`, reserve the cell in the trial ledger and write the report and verdict as JSON (`--final` reads the holdout once) |
 
 ## Commands
 
