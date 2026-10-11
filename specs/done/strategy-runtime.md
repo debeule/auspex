@@ -33,6 +33,7 @@ Invariant 2 (core-hub sole writer to application DB) constrains where state is p
 
 **`VirtualBook`**
 - One instance per strategy per mode (paper/live-confirm/live-auto). Backed to MinIO as append-only Parquet (`strategy/books/<strategy_name>/<mode>/trades.parquet`).
+- Every row carries `strategy_version`, the version whose intent placed the order; its `open`, `rejected` and `close` rows inherit it, so a position opened before a version bump stays with the version that opened it.
 - On receiving a filled intent (from `FillModel`): appends an open position row.
 - On exit trigger (holding_rule fires or stop-loss reached; a stop fills via `FillModel.stop_exit_price`, worst price of the day on a binary event day): appends a closed position row with entry price, exit price, shares, costs (from `CostModel`), P&L in USD and EUR.
 - `VirtualBook.snapshot()` → current open positions and closed trade history (read from Parquet).
@@ -51,7 +52,7 @@ Invariant 2 (core-hub sole writer to application DB) constrains where state is p
 
 **`LatencyTracer`**
 - Extracts `published_at` (= `corroborated_at` = max published_date of participants), `ingested_at` (from the CorroboratedSignal's `first_detected_at`), and `intent_time` (now at the point `decide()` returns).
-- Appends to MinIO JSONL (`strategy/latency/distribution.jsonl`): `{corroborated_at, ingested_at, intent_time, latency_corroboration_to_intent_ms}`.
+- Appends to MinIO JSONL (`strategy/latency/distribution.jsonl`): `{strategy, strategy_version, intent_id, corroborated_at, ingested_at, intent_time, latency_corroboration_to_intent_ms}`.
 - This distribution feeds back into the evaluation-protocol's `KNOWN_AT_DELAY_DAYS` sensitivity analysis. If median latency exceeds `KNOWN_AT_DELAY_DAYS × 24h`, flag at startup.
 
 ### Trigger model and placement

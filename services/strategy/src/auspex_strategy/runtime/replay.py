@@ -16,6 +16,7 @@ from auspex_strategy.runtime.book import BookMode, VirtualBook
 from auspex_strategy.runtime.broker import PaperBroker
 from auspex_strategy.runtime.context import BacktestAsOfContext, PriceReader, TradingDayCheck
 from auspex_strategy.runtime.engine import IsolatedDecider, as_of_for
+from auspex_strategy.runtime.funnel import FunnelCounter
 from auspex_strategy.runtime.overlap import OverlapDetector
 from auspex_strategy.runtime.risk import RiskManager
 from auspex_strategy.runtime.slots import StrategySlot
@@ -47,6 +48,7 @@ class BacktestReplayRunner:
         signals: Sequence[SignalRecord] = (),
         price_close: PriceReader | None = None,
         is_trading_day: TradingDayCheck | None = None,
+        funnel: FunnelCounter | None = None,
     ) -> None:
         self._slots = [s for s in slots if s.at_least("research")]
         self._broker = broker
@@ -54,6 +56,7 @@ class BacktestReplayRunner:
         self._signals = signals
         self._price_close = price_close
         self._is_trading_day = is_trading_day
+        self._funnel = funnel
         self._overlap = OverlapDetector()
 
     def run(self, records: Sequence[CorroborationRecord]) -> BacktestResult:
@@ -90,13 +93,25 @@ class BacktestReplayRunner:
                     produced[slot.name] = result
             self._overlap.flag(produced)
 
+            approved_counts: dict[str, int] = {}
             for name, produced_intents in produced.items():
                 intents[name].extend(produced_intents)
                 if name not in books:
                     continue
-                for approved in self._risk.review(produced_intents):
+                approved_intents = self._risk.review(produced_intents)
+                approved_counts[name] = len(approved_intents)
+                for approved in approved_intents:
                     entry = self._broker.submit(approved, BookMode.BACKTEST)
                     settled_through = max(settled_through or entry, entry)
+            if self._funnel is not None:
+                for slot in self._slots:
+                    self._funnel.record(
+                        slot.name,
+                        slot.entry.version,
+                        BookMode.BACKTEST,
+                        intents=len(produced.get(slot.name, [])),
+                        passed_risk=approved_counts.get(slot.name, 0),
+                    )
             if settled_through is not None:
                 self._broker.settle(settled_through)
 

@@ -12,6 +12,7 @@ from auspex_strategy.runtime.book import (
 from auspex_strategy.runtime.broker import PaperBroker
 from auspex_strategy.runtime.context import BacktestAsOfContext, LiveAsOfContext
 from auspex_strategy.runtime.events import CorroboratedSignal
+from auspex_strategy.runtime.funnel import FunnelCounter, FunnelCounts
 from auspex_strategy.runtime.health import (
     HttpInputHealthClient,
     InputHealthClient,
@@ -44,6 +45,8 @@ __all__ = [
     "ClosedTrade",
     "CorroboratedSignal",
     "EventSource",
+    "FunnelCounter",
+    "FunnelCounts",
     "HealthEndpoint",
     "HttpInputHealthClient",
     "InputHealthClient",

@@ -37,6 +37,7 @@ _SCHEMA = pa.schema([
     ("kind", pa.string()),
     ("recorded_at", pa.string()),
     ("strategy_name", pa.string()),
+    ("strategy_version", pa.string()),
     ("mode", pa.string()),
     ("order_id", pa.string()),
     ("position_id", pa.string()),
@@ -64,6 +65,7 @@ _SCHEMA = pa.schema([
 class PendingOrder:
     order_id: str
     intent_id: str
+    strategy_version: str
     ticker: str
     direction: Direction
     holding_rule: HoldingRule
@@ -76,6 +78,7 @@ class OpenPosition:
     position_id: str
     order_id: str
     intent_id: str
+    strategy_version: str
     ticker: str
     direction: Direction
     holding_rule: HoldingRule
@@ -86,7 +89,12 @@ class OpenPosition:
 
 @dataclass(frozen=True)
 class ClosedTrade:
+    """`strategy_version` is the version whose intent opened the position; `capital_eur` is
+    what the risk layer allocated to it."""
+
     position_id: str
+    strategy_version: str
+    capital_eur: float
     ticker: str
     direction: Direction
     shares: int
@@ -115,7 +123,9 @@ class VirtualBook:
 
     Rows are never rewritten or removed: an order row, then an `open` row once it fills (or a
     `rejected` row), then a `close` row. A correction is a new offsetting row with
-    `is_correction` set.
+    `is_correction` set. Every row carries the version of the strategy whose intent placed the
+    order, so a position opened under one version and closed after a version bump still
+    belongs to the version that opened it.
     """
 
     def __init__(self, store: ObjectStore, strategy_name: str, mode: BookMode) -> None:
@@ -131,6 +141,7 @@ class VirtualBook:
             "kind": "order",
             "order_id": order_id,
             "intent_id": str(intent.intent_id),
+            "strategy_version": intent.strategy_version,
             "ticker": intent.ticker,
             "direction": intent.direction.value,
             "holding_kind": kind,
@@ -141,7 +152,12 @@ class VirtualBook:
         return order_id
 
     def reject_order(self, order: PendingOrder, reason: str) -> None:
-        self._append({"kind": "rejected", "order_id": order.order_id, "reason": reason})
+        self._append({
+            "kind": "rejected",
+            "order_id": order.order_id,
+            "strategy_version": order.strategy_version,
+            "reason": reason,
+        })
 
     def open_position(self, order: PendingOrder, shares: int, entry_price: float) -> str:
         position_id = str(uuid4())
@@ -151,6 +167,7 @@ class VirtualBook:
             "order_id": order.order_id,
             "position_id": position_id,
             "intent_id": order.intent_id,
+            "strategy_version": order.strategy_version,
             "ticker": order.ticker,
             "direction": order.direction.value,
             "holding_kind": kind,
@@ -179,6 +196,7 @@ class VirtualBook:
             "order_id": position.order_id,
             "position_id": position.position_id,
             "intent_id": position.intent_id,
+            "strategy_version": position.strategy_version,
             "ticker": position.ticker,
             "direction": position.direction.value,
             "shares": position.shares,
@@ -193,6 +211,8 @@ class VirtualBook:
         })
         return ClosedTrade(
             position_id=position.position_id,
+            strategy_version=position.strategy_version,
+            capital_eur=self._capital(position.order_id),
             ticker=position.ticker,
             direction=position.direction,
             shares=position.shares,
@@ -208,6 +228,7 @@ class VirtualBook:
 
     def snapshot(self) -> BookSnapshot:
         rows = self._rows()
+        capital = {r["order_id"]: r["capital_eur"] for r in rows if r["kind"] == "order"}
         settled = {r["order_id"] for r in rows if r["kind"] in {"open", "rejected"}}
         closed = {r["position_id"] for r in rows if r["kind"] == "close"}
         return BookSnapshot(
@@ -217,7 +238,9 @@ class VirtualBook:
             open_positions=[
                 _open(r) for r in rows if r["kind"] == "open" and r["position_id"] not in closed
             ],
-            closed_trades=[_closed(r) for r in rows if r["kind"] == "close"],
+            closed_trades=[
+                _closed(r, capital[r["order_id"]]) for r in rows if r["kind"] == "close"
+            ],
         )
 
     def open_positions(self) -> list[OpenPosition]:
@@ -225,6 +248,13 @@ class VirtualBook:
 
     def closed_trades(self) -> list[ClosedTrade]:
         return self.snapshot().closed_trades
+
+    def _capital(self, order_id: str) -> float:
+        capital: float = next(
+            r["capital_eur"] for r in self._rows()
+            if r["kind"] == "order" and r["order_id"] == order_id
+        )
+        return capital
 
     def _rows(self) -> list[dict[str, Any]]:
         data = self._store.get(self.key)
@@ -273,6 +303,7 @@ def _pending(row: dict[str, Any]) -> PendingOrder:
     return PendingOrder(
         order_id=row["order_id"],
         intent_id=row["intent_id"],
+        strategy_version=row["strategy_version"],
         ticker=row["ticker"],
         direction=Direction(row["direction"]),
         holding_rule=_holding_rule(row),
@@ -286,6 +317,7 @@ def _open(row: dict[str, Any]) -> OpenPosition:
         position_id=row["position_id"],
         order_id=row["order_id"],
         intent_id=row["intent_id"],
+        strategy_version=row["strategy_version"],
         ticker=row["ticker"],
         direction=Direction(row["direction"]),
         holding_rule=_holding_rule(row),
@@ -295,9 +327,11 @@ def _open(row: dict[str, Any]) -> OpenPosition:
     )
 
 
-def _closed(row: dict[str, Any]) -> ClosedTrade:
+def _closed(row: dict[str, Any], capital_eur: float) -> ClosedTrade:
     return ClosedTrade(
         position_id=row["position_id"],
+        strategy_version=row["strategy_version"],
+        capital_eur=capital_eur,
         ticker=row["ticker"],
         direction=Direction(row["direction"]),
         shares=row["shares"],

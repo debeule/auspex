@@ -26,7 +26,7 @@ Planned writers and stores:
 
 ## Out of scope
 
-- Computing any statistic in the dashboard or the BFF. The API is the computation boundary (as `specs/strategy-metrics.md` already states).
+- Computing any statistic in the dashboard or the BFF. The API is the computation boundary (as `specs/done/strategy-metrics.md` already states).
 - Editing hypotheses or strategies (locked; `specs/ingestion-config-ui.md` shows them read-only).
 - Live trading controls.
 

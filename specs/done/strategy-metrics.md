@@ -1,10 +1,13 @@
 # Strategy Metrics
 
-**Status:** blocked
+**Status:** done
 **Blocked by:**
-1. Met: `specs/done/strategy-framework.md` — `VirtualBook`, strategy registry, and version tracking must exist
-2. Met: `specs/done/hypothesis-registry.md` — trial count (for deflated Sharpe) is read from `config/hypotheses/trials/`
-3. `specs/done/evaluation-protocol.md` — `DeflatedSharpe.compute()` and `BootstrapCI` are imported from there
+1. Met: `specs/done/strategy-framework.md` — strategy registry and version tracking must exist
+2. Met: `specs/done/strategy-runtime.md` — `VirtualBook`, `LatencyTracer` and the runtime's HTTP server
+3. Met: `specs/done/hypothesis-registry.md` — trial count (for deflated Sharpe) is read from `config/hypotheses/trials/`
+4. Met: `specs/done/evaluation-protocol.md` — `DeflatedSharpe.compute()` and `BootstrapCI` are imported from there
+
+Reasons for the choices this spec now states (version on book rows, funnel counters, the deflated Sharpe's input, drawdown base, where the API is served): `DECISIONS.md`, 2026-10-11 strategy metrics.
 
 **Branch:** `feature/strategy-metrics`
 
@@ -21,7 +24,7 @@ The strategy runtime (previous spec) maintains per-strategy virtual books in Min
 ### `services/strategy/src/auspex_strategy/metrics/`
 
 **`ActivityFunnel`**
-Per strategy version and mode, from the runtime's event counters:
+Per strategy version and mode. The first three come from the runtime's `FunnelCounter` (`strategy/funnel/<strategy>/<mode>.json`, counts per version), the last two from the book:
 - `inputs_seen` — corroboration events processed
 - `intents` — `TradeIntent`s produced by `decide()`
 - `passed_risk` — intents approved by `RiskManager`
@@ -29,22 +32,22 @@ Per strategy version and mode, from the runtime's event counters:
 - `closed` — positions closed with realised P&L
 
 **`TradeMetrics`**
-Computed from `VirtualBook.closed_trades()`:
+Computed from `VirtualBook.closed_trades()` filtered to the version's `strategy_version` (every book row carries the version whose intent placed the order):
 - `hit_rate` — fraction of closed trades with `net_pnl_eur > 0`
 - `avg_win_eur`, `avg_loss_eur` — mean P&L of winning and losing trades
 - `expectancy_eur` — `hit_rate × avg_win_eur − (1 − hit_rate) × |avg_loss_eur|`
 - `avg_holding_days`, `trades_per_year`
 - All reported with `n` (trade count) and a `bootstrap_ci_95` from `BootstrapCI`.
-- If `n < MIN_TRADES_FOR_METRICS` (from `.env`, default 20): `InsufficientTradeDataError` raised. The API still returns the metric object but with `insufficient_data: true` and null values for all statistics. Never silently return a number over an insufficient sample.
+- If `n < MIN_TRADES_FOR_METRICS` (required in `.env`; 20 in `.env.example`): `InsufficientTradeDataError` raised. The API still returns the metric object but with `insufficient_data: true` and null values for all statistics. Never silently return a number over an insufficient sample.
 
 **`ReturnMetrics`**
-- `mean_abnormal_return` (vs XBI, using `AbnormalReturnCalculator` from evaluation-protocol)
+- `mean_abnormal_return` (vs XBI, using `AbnormalReturnCalculator` from evaluation-protocol): per trade, the market-model CAR over `[+1, +h]` with `h` the sessions from entry to exit (`[+1, +1]` for a same-session exit), in the trade's direction, minus round-trip costs as a fraction of the entry notional
 - `cumulative_abnormal_return_series` — one data point per closed trade in time order
-- `sharpe` — annualised Sharpe of trade-level abnormal returns
-- `deflated_sharpe` — `DeflatedSharpe.compute(sharpe, n_obs=n_closed, n_trials=trial_count_from_registry)`
-  - `trial_count` = `TrialLedger.family_trial_count()` from the evaluation-protocol spec: cells evaluated across every promotable hypothesis on the corpus, per the registered `config/hypotheses/protocol.yaml`
+- `sharpe` — Sharpe of trade-level abnormal returns, annualised by trades per year
+- `deflated_sharpe` — a probability: `DeflatedSharpe.compute(per_trade_sharpe, n_obs=n_closed, n_trials=trial_count, skewness, kurtosis)`, where `per_trade_sharpe` is mean over standard deviation of the per-trade abnormal returns (not annualised; the deflated Sharpe is defined per observation) and skewness and kurtosis are of the same returns
+  - `trial_count` = the trial ledger's count for the family of the hypothesis's promotable use (`TrialLedger.observed_trial_count()`, the lock-free read for a read-only config mount), at least 1: cells evaluated across every promotable hypothesis on the corpus, per the registered `config/hypotheses/protocol.yaml`
   - This is the honest guard: every cell evaluated on any promotable hypothesis increments the trial count and deflates the reported Sharpe
-- `max_drawdown_pct` — maximum peak-to-trough drawdown of the cumulative P&L curve
+- `max_drawdown_pct` — largest fall of `capital + cumulative net P&L (EUR)` from its running peak, in percent, with `capital` the largest allocation one position received
 - `bootstrap_ci_95` on `mean_abnormal_return` from `BootstrapCI`
 - All with `n` alongside
 
@@ -54,14 +57,15 @@ Computed from `VirtualBook.closed_trades()`:
 - If `is_inside_backtest_ci = False`: flag `paper_tracking_deviation = True` in the `StrategyMetricsSummary`
 
 **`CorrelationMatrix`**
-- `compute(strategy_versions: list[str]) → pd.DataFrame` — pairwise Pearson correlation of trade-level abnormal returns across all active strategy versions
+- `compute(returns_by_version: Mapping[str, list[(close_date, abnormal_return)]], min_trades) → pd.DataFrame`, keyed `<strategy>@<version>` — pairwise Pearson correlation of trade-level abnormal returns across all active strategy versions
 - Aligned on trade close dates; missing dates treated as 0 abnormal return
 - Only includes strategy versions with at least `MIN_TRADES_FOR_METRICS` closed trades
 
 **`LatencyMetrics`**
 - Reads `strategy/latency/distribution.jsonl` from MinIO
 - Reports `p50`, `p95`, `p99` of `latency_corroboration_to_intent_ms`
-- Includes a count of how many signals had latency > `KNOWN_AT_DELAY_DAYS × 24 × 3600 × 1000` ms (i.e., where the actual observed delay exceeded the modelled delay)
+- Per strategy version (latency lines carry `strategy_version`)
+- Includes a count of how many signals had latency > `known_at_delay_days × 24 × 3600 × 1000` ms, the delay from the strategy's registered hypothesis (i.e., where the actual observed delay exceeded the modelled delay)
 
 **`StrategyMetricsSummary`** — top-level object returned by the API:
 ```
@@ -82,7 +86,7 @@ Computed from `VirtualBook.closed_trades()`:
 `GET /api/v1/metrics/strategies/<name>/<version>` — single strategy version.
 `GET /api/v1/metrics/correlation` — returns `CorrelationMatrix`.
 
-The metrics API is served by the strategy service (Flask or the existing scraper HTTP API pattern), not core-hub. It reads MinIO only.
+The metrics API is served on the strategy runtime's HTTP server (port 8003), not core-hub. `/strategies/<name>/<version>` returns one summary per mode the version has a book in (404 if none); `/correlation` takes `?mode=` (default `paper`). It reads MinIO only.
 
 ## Out of scope
 
