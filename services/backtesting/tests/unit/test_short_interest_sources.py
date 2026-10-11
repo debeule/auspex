@@ -11,6 +11,7 @@ from typing import Any, Self
 import pandas as pd
 import pytest
 from ownership_fakes import FakeMinio
+from short_interest_fakes import FixedShares
 
 from auspex_backtesting.ownership import ShareCountPanel
 from auspex_backtesting.short_interest import (
@@ -18,9 +19,10 @@ from auspex_backtesting.short_interest import (
     FinraCalendar,
     FinraClient,
     ShortInterestFetcher,
+    ShortInterestRecord,
     ShortInterestStore,
 )
-from auspex_backtesting.short_interest.job import ShortInterestConfig, UniverseShareCounts
+from auspex_backtesting.short_interest.job import ShortInterestConfig, UniverseShareBasis
 from auspex_backtesting.universe.model import UniverseMember
 
 _CALENDAR_CSV = Path(__file__).resolve().parents[4] / "config" / "short_interest" / "finra_calendar.csv"
@@ -175,21 +177,46 @@ def _member(cik: str, ticker: str | None) -> UniverseMember:
     )
 
 
-def test_share_counts_by_ticker_go_through_the_universe_company_and_skip_reused_tickers() -> None:
+def test_share_basis_by_ticker_goes_through_the_universe_company_and_skips_reused_tickers() -> None:
     counts = ShareCountPanel(pd.DataFrame([
         {"cik": "1", "value": 10e6, "end": date(2024, 12, 31), "filed": date(2025, 2, 1)},
         {"cik": "2", "value": 20e6, "end": date(2024, 12, 31), "filed": date(2025, 2, 1)},
         {"cik": "3", "value": 30e6, "end": date(2024, 12, 31), "filed": date(2025, 2, 1)},
     ]))
-    shares = UniverseShareCounts(
+    splits = RecordedSplits()
+    shares = UniverseShareBasis(
         [_member("1", "acme"), _member("2", "REUSED"), _member("3", "REUSED"), _member("4", None)],
         counts,
+        splits,
     )
 
-    assert shares.shares_outstanding("ACME", date(2025, 3, 1)) == 10e6
-    assert shares.shares_outstanding("ACME", date(2025, 2, 1)) is None
-    assert shares.shares_outstanding("REUSED", date(2025, 3, 1)) is None
-    assert shares.shares_outstanding("NONE", date(2025, 3, 1)) is None
+    count = shares.share_count("ACME", date(2025, 3, 1))
+    assert count is not None and count.value == 10e6 and count.end == date(2024, 12, 31)
+    assert shares.share_count("ACME", date(2025, 2, 1)) is None
+    assert shares.share_count("REUSED", date(2025, 3, 1)) is None
+    assert shares.share_count("NONE", date(2025, 3, 1)) is None
+
+    assert shares.factor("acme", date(2025, 1, 1), date(2025, 3, 1)) == 0.5
+    assert splits.asked == [("1", date(2025, 1, 1), date(2025, 3, 1))]
+    assert shares.factor("REUSED", date(2025, 1, 1), date(2025, 3, 1)) is None
+    assert shares.missing_reason("REUSED", date(2025, 1, 1), date(2025, 3, 1)) == (
+        "ticker_history_uncertain"
+    )
+    assert shares.missing_reason("ACME", date(2025, 1, 1), date(2025, 3, 1)) is None
+
+
+class RecordedSplits:
+    """A factor of 0.5 for every CIK, recording what was asked."""
+
+    def __init__(self) -> None:
+        self.asked: list[tuple[str, date, date]] = []
+
+    def factor(self, cik: str, after: date, through: date) -> float | None:
+        self.asked.append((cik, after, through))
+        return 0.5
+
+    def missing_reason(self, cik: str, after: date, through: date) -> None:
+        return None
 
 
 # --- coverage ----------------------------------------------------------------------------------
@@ -213,3 +240,118 @@ def test_coverage_lists_a_period_missing_between_stored_ones_as_a_gap() -> None:
     assert report.gaps == [feb_14]
     assert report.unavailable_periods == [feb_14]
     assert (report.first_available_settlement_date, report.last_settlement_date) == (jan_31, feb_28)
+
+
+# --- split basis -------------------------------------------------------------------------------
+
+
+def _split_store() -> ShortInterestStore:
+    store = ShortInterestStore(FakeMinio())  # type: ignore[arg-type]
+    jan_15, jan_31 = date(2025, 1, 15), date(2025, 1, 31)
+    store.append("ACME", [
+        ShortInterestRecord.from_counts(
+            "ACME", jan_15, date(2025, 1, 24), short_interest_shares=1_000_000,
+            average_daily_volume=250_000,
+        ),
+        ShortInterestRecord.from_counts(
+            "ACME", jan_31, date(2025, 2, 11), short_interest_shares=150_000,
+            average_daily_volume=25_000,
+        ),
+    ])
+    return store
+
+
+def test_pct_of_shares_restates_short_interest_and_share_count_to_one_basis() -> None:
+    # 20M shares counted on 2024-12-31, then a 1-for-10 reverse split on 2025-01-20: the
+    # 2025-01-31 short interest of 150k is on the post-split basis, the count is not.
+    basis = FixedShares(
+        {"ACME": 20_000_000}, splits=[("ACME", date(2025, 1, 20), 0.1)],
+        filed=date(2025, 2, 1),
+    )
+
+    features = _split_store().features("ACME", date(2025, 2, 11), basis)
+
+    assert features is not None
+    assert features.short_interest_pct_of_shares == pytest.approx(7.5)
+
+
+def test_pct_of_shares_restates_a_short_count_settled_before_a_split_published_after_it() -> None:
+    # Short interest of 1.5M settles 2025-01-31, the 1-for-10 split is on 2025-02-05, FINRA
+    # publishes on 2025-02-11 and the 2M count is taken after the split.
+    store = ShortInterestStore(FakeMinio())  # type: ignore[arg-type]
+    store.append("ACME", [ShortInterestRecord.from_counts(
+        "ACME", date(2025, 1, 31), date(2025, 2, 11), short_interest_shares=1_500_000,
+        average_daily_volume=100_000,
+    )])
+    basis = FixedShares(
+        {"ACME": 2_000_000}, splits=[("ACME", date(2025, 2, 5), 0.1)],
+        counted_on=date(2025, 2, 10),
+    )
+
+    features = store.features("ACME", date(2025, 2, 11), basis)
+
+    assert features is not None
+    assert features.short_interest_pct_of_shares == pytest.approx(7.5)
+
+
+
+def test_pct_of_shares_is_missing_when_either_count_has_no_known_split_factor() -> None:
+    store = _split_store()
+    # The count is from 2024-12-31 and the short count from 2025-01-31; each interval to the
+    # read date is unknown in turn.
+    short_unknown = FixedShares(
+        {"ACME": 2_000_000}, unknown_splits=["ACME"], unknown_after=date(2025, 1, 1)
+    )
+    count_unknown = FixedShares(
+        {"ACME": 2_000_000}, unknown_splits=["ACME"], unknown_before=date(2025, 1, 1)
+    )
+
+    for basis in (short_unknown, count_unknown):
+        features = store.features("ACME", date(2025, 2, 11), basis)
+        assert features is not None
+        assert features.short_interest_pct_of_shares is None
+        assert features.short_interest_pct_missing == "split_history_unavailable"
+
+
+def test_change_since_previous_restates_the_previous_period_across_a_split() -> None:
+    basis = FixedShares({"ACME": 20_000_000}, splits=[("ACME", date(2025, 1, 20), 0.1)])
+
+    features = _split_store().features("ACME", date(2025, 2, 11), basis)
+
+    # 1,000,000 before the 1-for-10 split is 100,000 after it.
+    assert features is not None
+    assert features.change_since_previous_shares == 50_000
+    assert features.change_since_previous_missing is None
+
+
+def test_pct_and_change_are_missing_with_the_reason_when_the_split_basis_is_unknown() -> None:
+    basis = FixedShares({"ACME": 20_000_000}, unknown_splits=["ACME"])
+
+    features = _split_store().features("ACME", date(2025, 2, 11), basis)
+
+    assert features is not None
+    assert features.short_interest_pct_of_shares is None
+    assert features.short_interest_pct_missing == "split_history_unavailable"
+    assert features.change_since_previous_shares is None
+    assert features.change_since_previous_missing == "split_history_unavailable"
+    # Days to cover divides two counts FINRA reports on the same basis; it needs no factor.
+    assert features.record.days_to_cover == pytest.approx(6.0)
+
+
+def test_change_since_previous_is_missing_when_either_period_is_unreported() -> None:
+    store = ShortInterestStore(FakeMinio())  # type: ignore[arg-type]
+    store.append("ACME", [
+        ShortInterestRecord.absent("ACME", date(2025, 1, 15), date(2025, 1, 24)),
+        ShortInterestRecord.from_counts(
+            "ACME", date(2025, 1, 31), date(2025, 2, 11), short_interest_shares=10,
+            average_daily_volume=5,
+        ),
+    ])
+
+    features = store.features("ACME", date(2025, 2, 11), None)
+    first = store.features("ACME", date(2025, 1, 24), FixedShares({"ACME": 1_000}))
+
+    assert features is not None and features.change_since_previous_missing == "not_reported"
+    assert first is not None and first.change_since_previous_missing == "not_reported"
+    assert first.short_interest_pct_of_shares is None
+    assert first.short_interest_pct_missing == "not_reported"

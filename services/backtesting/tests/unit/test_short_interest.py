@@ -4,6 +4,7 @@ from typing import Any
 
 import pytest
 from ownership_fakes import FakeMinio
+from short_interest_fakes import FixedShares
 
 from auspex_backtesting.short_interest import (
     FinraCalendar,
@@ -47,14 +48,6 @@ def _record(
     return ShortInterestRecord.from_counts(
         "ACME", settlement, publication, short_interest_shares=short, average_daily_volume=adv
     )
-
-
-class FixedShares:
-    def __init__(self, shares: Mapping[str, float]) -> None:
-        self.shares = shares
-
-    def shares_outstanding(self, ticker: str, as_of: date) -> float | None:
-        return self.shares.get(ticker)
 
 
 def _store() -> tuple[ShortInterestStore, FakeMinio]:
@@ -153,6 +146,10 @@ def test_short_interest_pct_of_shares_is_null_when_shares_outstanding_unknown() 
     assert without_source is not None and without_source.short_interest_pct_of_shares is None
     assert known is not None and known.short_interest_pct_of_shares == pytest.approx(7.5)
     assert known.change_since_previous_shares == 500_000
+    assert unknown.short_interest_pct_missing == "no_share_count"
+    # Without split factors a change across periods cannot be ruled free of a split.
+    assert without_source.change_since_previous_shares is None
+    assert known.short_interest_pct_missing is None
 
 
 def test_fetcher_stores_publication_date_from_the_finra_calendar_not_settlement_date() -> None:

@@ -15,8 +15,15 @@ import pyarrow.parquet as pq
 from minio import Minio
 from minio.error import S3Error
 
+from auspex_backtesting.ownership.reference import FactorMissing
 from auspex_backtesting.prices.snapshot_store import PRICES_BUCKET
-from auspex_backtesting.short_interest.model import ShortInterestFeatures, ShortInterestRecord
+from auspex_backtesting.short_interest.model import (
+    ChangeMissing,
+    PctMissing,
+    ShortInterestFeatures,
+    ShortInterestRecord,
+)
+from auspex_backtesting.universe.model import ShareCount
 
 PREFIX = "short_interest/"
 
@@ -35,8 +42,16 @@ class PeriodExistsError(Exception):
     """A settlement period is stored once per ticker; this one already is."""
 
 
-class SharesOutstandingByTicker(Protocol):
-    def shares_outstanding(self, ticker: str, as_of: date) -> float | None: ...
+class TickerShareBasis(Protocol):
+    """Share counts and split factors by ticker, as `ownership.reference` gives them by CIK:
+    shares counted on `after` times `factor(ticker, after, through)` are shares on `through`'s
+    basis, and a None factor comes with `missing_reason`."""
+
+    def share_count(self, ticker: str, as_of: date) -> ShareCount | None: ...
+
+    def factor(self, ticker: str, after: date, through: date) -> float | None: ...
+
+    def missing_reason(self, ticker: str, after: date, through: date) -> FactorMissing | None: ...
 
 
 class ShortInterestStore:
@@ -96,27 +111,21 @@ class ShortInterestStore:
         return known[-1] if known else None
 
     def features(
-        self, ticker: str, as_of: date, shares: SharesOutstandingByTicker | None
+        self, ticker: str, as_of: date, basis: TickerShareBasis | None
     ) -> ShortInterestFeatures | None:
+        """Short interest is counted on its settlement date and a share count on its `end`;
+        both are restated to `as_of`'s basis before they are divided, so a split in between
+        does not distort the share. The change since the previous period restates the
+        previous count to the current settlement date's basis. Without `basis`, no split can
+        be ruled out and both figures are missing."""
         known = [r for r in self.records(ticker) if r.publication_date <= as_of]
         if not known:
             return None
         current = known[-1]
         previous = known[-2] if len(known) > 1 else None
-        outstanding = shares.shares_outstanding(ticker, as_of) if shares is not None else None
-        pct = (
-            100.0 * current.short_interest_shares / outstanding
-            if current.short_interest_shares is not None and outstanding
-            else None
-        )
-        change = (
-            current.short_interest_shares - previous.short_interest_shares
-            if previous is not None
-            and current.short_interest_shares is not None
-            and previous.short_interest_shares is not None
-            else None
-        )
-        return ShortInterestFeatures(current, pct, change)
+        pct, pct_missing = _pct_of_shares(current, as_of, basis)
+        change, change_missing = _change(current, previous, basis)
+        return ShortInterestFeatures(current, pct, pct_missing, change, change_missing)
 
     def tickers(self) -> list[str]:
         objects = self._minio.list_objects(self._bucket, prefix=PREFIX)
@@ -158,3 +167,54 @@ def _record(row: dict[str, object]) -> ShortInterestRecord:
         None if days is None or pd.isna(days) else float(days),  # type: ignore[arg-type]
     )
 
+
+
+def _pct_of_shares(
+    current: ShortInterestRecord, as_of: date, basis: TickerShareBasis | None
+) -> tuple[float | None, PctMissing | None]:
+    if current.short_interest_shares is None:
+        return None, "not_reported"
+    count = basis.share_count(current.ticker, as_of) if basis is not None else None
+    if basis is None or count is None or not count.value:
+        return None, "no_share_count"
+    short_factor = _factor(basis, current.ticker, current.settlement_date, as_of)
+    if isinstance(short_factor, str):
+        return None, short_factor
+    count_factor = _factor(basis, current.ticker, count.end, as_of)
+    if isinstance(count_factor, str):
+        return None, count_factor
+    return (
+        100.0 * current.short_interest_shares * short_factor / (count.value * count_factor),
+        None,
+    )
+
+
+def _change(
+    current: ShortInterestRecord,
+    previous: ShortInterestRecord | None,
+    basis: TickerShareBasis | None,
+) -> tuple[float | None, ChangeMissing | None]:
+    if (
+        previous is None
+        or current.short_interest_shares is None
+        or previous.short_interest_shares is None
+    ):
+        return None, "not_reported"
+    if basis is None:
+        return None, "split_history_unavailable"
+    factor = _factor(basis, current.ticker, previous.settlement_date, current.settlement_date)
+    if isinstance(factor, str):
+        return None, factor
+    return current.short_interest_shares - previous.short_interest_shares * factor, None
+
+
+def _factor(
+    basis: TickerShareBasis, ticker: str, after: date, through: date
+) -> float | FactorMissing:
+    factor = basis.factor(ticker, after, through)
+    if factor is not None:
+        return factor
+    reason = basis.missing_reason(ticker, after, through)
+    if reason is None:
+        raise ValueError(f"split factor for {ticker} is missing without a reason")
+    return reason

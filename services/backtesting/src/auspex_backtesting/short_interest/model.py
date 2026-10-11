@@ -1,5 +1,11 @@
 from dataclasses import dataclass
 from datetime import date
+from typing import Literal
+
+from auspex_backtesting.ownership.reference import FactorMissing
+
+PctMissing = Literal["not_reported", "no_share_count"] | FactorMissing
+ChangeMissing = Literal["not_reported"] | FactorMissing
 
 
 @dataclass(frozen=True)
@@ -44,7 +50,12 @@ class ShortInterestRecord:
 
 @dataclass(frozen=True)
 class ShortInterestFeatures:
+    """The latest published record and two figures derived from it, both on the share basis of
+    the date asked about. A figure that cannot be put on that basis is None, with the reason."""
+
     record: ShortInterestRecord
     # Percent (0-100) of shares outstanding known on the date asked about.
     short_interest_pct_of_shares: float | None
-    change_since_previous_shares: int | None
+    short_interest_pct_missing: PctMissing | None
+    change_since_previous_shares: float | None
+    change_since_previous_missing: ChangeMissing | None

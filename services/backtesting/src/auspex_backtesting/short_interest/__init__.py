@@ -8,8 +8,8 @@ from auspex_backtesting.short_interest.finra_client import (
 from auspex_backtesting.short_interest.model import ShortInterestFeatures, ShortInterestRecord
 from auspex_backtesting.short_interest.store import (
     PeriodExistsError,
-    SharesOutstandingByTicker,
     ShortInterestStore,
+    TickerShareBasis,
 )
 
 __all__ = [
@@ -19,10 +19,10 @@ __all__ = [
     "FinraClient",
     "PeriodExistsError",
     "SettlementPeriod",
-    "SharesOutstandingByTicker",
     "ShortInterestFeatures",
     "ShortInterestFetcher",
     "ShortInterestRecord",
     "ShortInterestSource",
     "ShortInterestStore",
+    "TickerShareBasis",
 ]
