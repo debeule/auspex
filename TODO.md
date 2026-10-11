@@ -159,4 +159,3 @@ Each line links to a self-contained spec in `specs/`. Open the spec and read it 
 | 2026-10-10 | Evaluation protocol | Done — 27 spec tests + 9 detail tests green (385 backtesting unit); DeflatedSharpe and TrialLedger ready for the portfolio verdict | No |
 | 2026-10-10 | Short interest snapshots | Code done — 9 required + 11 supporting tests, mutation-checked; FINRA needs a credential and covers listed stocks from June 2021; first fetch on the Mac (first-run step 3c) | Yes (FINRA credential) |
 | 2026-10-10 | Strategy runtime | Done — 9 spec tests (red: `ModuleNotFoundError: auspex_strategy.runtime`) + 15 component tests green; container, compose, CI | No |
-| 2026-10-10 | Strategy runtime | Done — 9 spec tests (red: `ModuleNotFoundError: auspex_strategy.runtime`) + 16 component tests green; container, compose, CI | No |
