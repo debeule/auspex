@@ -15,9 +15,9 @@ The strategy runtime generates `TradeIntent`s from strategy decision functions. 
 
 **Which strategies this covers.** Sizing, exposure limits and the binary-event guard here are written for event strategies. Portfolio hypotheses (`evaluation: portfolio`, such as H9) are sized by `EqualRiskSizer` and guarded by `CatalystGuard` in `specs/done/cross-sectional-portfolio-backtest.md`, and forward paper trading reuses those. `KillSwitch` and the loss limits apply to every strategy. `BinaryEventGuard` reads a `CatalystSource`: in production the point-in-time catalyst date panel (`specs/catalyst-date-panel.md`, PDUFA and AdCom dates). A hand-maintained catalyst file is ruled out by root `CLAUDE.md` ("Where work can run"); readout dates have no automated source yet (`DECISIONS.md` 2026-10-11).
 
-Every limit is a configurable parameter with a test that verifies it is read from `.env`, not hardcoded. No defaults in source code — startup fails with a descriptive message if a required limit is absent from `.env`. See `.env.example`.
+Every limit is a configurable parameter with a test that verifies it is read from `.env`, not hardcoded. No defaults in source code — startup fails with a descriptive message if a required limit is absent from `.env`. See `.env.example`. Units: `*_PCT` limits on capital are fractions (0.03 is 3%); `MAX_BORROW_FEE_ANNUAL_PCT`, `MAX_SHORT_INTEREST_PCT` and `SHORT_HARD_STOP_PCT` are percentages (3.0 is 3%), the units of their sources.
 
-**Pre-registered sizing ceilings.** `config/hypotheses/protocol.yaml` (registered 2026-10-07, before the backfill) fixes a `sizing` section: Kelly multiplier at most 0.25 (quarter Kelly), at most 5% of capital per name, at most one open position per correlated theme, and no holding through a known binary event unless the strategy trades that event type. Few, correlated, fat-tailed bets make full Kelly ruinous. The `.env` limits below may be set tighter than these ceilings, never looser: at startup the risk layer verifies the protocol file's hash with the hypothesis registry and fails, naming the variable, when an `.env` value exceeds its ceiling.
+**Pre-registered sizing ceilings.** `config/hypotheses/protocol.yaml` (registered 2026-10-07, before the backfill) fixes a `sizing` section: Kelly multiplier at most 0.25 (quarter Kelly), at most 5% of capital per name, at most one open position per correlated theme, and no holding through a known binary event unless the strategy trades that event type. Few, correlated, fat-tailed bets make full Kelly ruinous. The `.env` limits below may be set tighter than these ceilings, never looser: at startup the risk layer verifies the protocol file's hash with the hypothesis registry and fails, naming the variable, when an `.env` value exceeds its ceiling. `MIN_TRADES_FOR_KELLY` may not go below `sizing.min_trades_for_kelly`. While `instruments.shorts_enabled` is false, every short intent is rejected (`SHORTS_DISABLED`).
 
 ## What this builds
 
@@ -30,7 +30,7 @@ Every limit is a configurable parameter with a test that verifies it is read fro
 - Fractional Kelly: the sized fraction is `KELLY_FRACTION × f(p_shrunk, b)`, with `KELLY_FRACTION` from `.env` (recommended 0.25) and at most `sizing.max_kelly_fraction` (0.25).
 - Cap: the sized amount is capped at `MAX_POSITION_PCT × total_capital_eur` (`MAX_POSITION_PCT` from `.env`, recommended 0.03, at most `sizing.max_position_pct` = 0.05).
 - Final integer shares via `PositionSizer.size_shares()` from market-simulation spec. Raises `PositionTooSmallError` if result is 0.
-- When trade history is below `MIN_TRADES_FOR_KELLY` (from `.env`, default 20), falls back to `FALLBACK_POSITION_PCT × total_capital_eur` so early-stage strategies can still size without a Kelly estimate.
+- When trade history is below `MIN_TRADES_FOR_KELLY` (from `.env`, recommended 20, at least `sizing.min_trades_for_kelly` = 20), falls back to `FALLBACK_POSITION_PCT × total_capital_eur` so early-stage strategies can still size without a Kelly estimate.
 
 **`PositionLimits`**
 - Evaluated per intent against current book state.
@@ -42,15 +42,15 @@ Every limit is a configurable parameter with a test that verifies it is read fro
 - All from `.env`.
 
 **`BinaryEventGuard`**
-- `CATALYST_GUARD_DAYS` from `.env` (default 3): if a ticker has a known scheduled catalyst within this many calendar days, no new position is opened in that ticker.
+- `CATALYST_GUARD_DAYS` from `.env` (recommended 3): if a ticker has a known scheduled catalyst within this many calendar days, no new position is opened in that ticker.
 - Catalysts come from a `CatalystSource`; `PanelCatalysts` reads the catalyst date panel by CIK. A ticker the source cannot answer for is rejected (`CATALYST_UNKNOWN`). Readouts are not guarded until they have an automated source.
 - **Shorts**: the guard is mandatory for shorts and cannot be overridden per strategy.
-- **Longs**: a strategy may enter or hold through a catalyst only when its parameters declare that catalyst's type in `trades_catalyst_types` (for example a strategy whose event is the readout itself). There is no blanket override. Every such entry or hold is recorded in the decision trace.
+- **Longs**: a strategy may enter or hold through a catalyst only when its parameters declare that catalyst's type in `trades_catalyst_types` (for example a strategy whose event is the readout itself). There is no blanket override. Every such entry or hold is appended to `strategy/risk/catalyst_holds.jsonl`, which the decision trace reads.
 - Existing positions: when a catalyst is known within `CATALYST_GUARD_DAYS` of an open position in that ticker, and the owning strategy does not trade that catalyst type, the guard emits an exit intent at the last close before the catalyst date. This applies whether the catalyst was known at entry or appeared later.
 - Catalyst entries carry a `type` field (`readout`, `pdufa`, `adcom`, `other`).
 
 **`ShortGuard`**
-- `MAX_BORROW_FEE_ANNUAL_PCT` from `.env` — short intents rejected if `CostModel.borrow_fee_annual_pct` for the ticker exceeds this.
+- `MAX_BORROW_FEE_ANNUAL_PCT` from `.env` — short intents rejected if `CostModel.borrow_fee_annual_pct(ticker)` exceeds this (one flat `BORROW_FEE_ANNUAL_PCT` for every ticker; no per-ticker borrow data).
 - `MAX_SHORT_INTEREST_PCT` from `.env` — short intents rejected if short interest as a percentage of shares outstanding exceeds this. Source: `ShortInterestStore` (FINRA), the period published by the day before. No data for the ticker → these checks are skipped with a WARNING.
 - Shorts are rejected outright (`SHORTS_DISABLED`) while `protocol.yaml` `instruments.shorts_enabled` is false.
 - `MAX_DAYS_TO_COVER` from `.env` — short intents rejected if days-to-cover exceeds this.
@@ -65,13 +65,15 @@ Every limit is a configurable parameter with a test that verifies it is read fro
 **`KillSwitch`**
 - `KillSwitch.trigger(reason, strategy_name=None)` — global if `strategy_name` is None; per-strategy otherwise.
 - Effect: no new intents pass risk for the affected scope; open positions are NOT force-closed (position wind-down is the strategy's configured `exit_conditions`).
-- State stored as a flag file in MinIO (`strategy/killswitch/global.json` or `strategy/killswitch/<strategy_name>.json`). The runtime checks this file at the start of each event processing loop.
+- State stored as a flag file in MinIO (`strategy/killswitch/global.json` or `strategy/killswitch/<strategy_name>.json`). `StreamingRuntime` checks it for each strategy before risk and drops a killed strategy's intents.
 - CLI: `python -m auspex_strategy kill` (global) or `python -m auspex_strategy kill --strategy <name>`. Every trigger is recorded with `{reason, triggered_at, triggered_by}` in MinIO JSONL.
 - Reset: `python -m auspex_strategy kill --reset [--strategy <name>]`. Also recorded.
 
 **`RiskManager`**
 - `RiskManager.evaluate(intent, book_state, market_state) → ApprovalDecision`
-- Runs checks in order: `KillSwitch → PositionLimits → BinaryEventGuard → ShortGuard (if SHORT) → DrawdownAndFlowLimits`. First failure short-circuits and returns a rejected `ApprovalDecision` with the check name and inputs.
+- Runs checks in order: drawdown (so a breach turns the global kill switch on even when a later check would reject the intent) `→ KillSwitch → sizing (KellySizer) → PositionLimits → BinaryEventGuard → ShortGuard (if SHORT) → daily loss and turnover`. First failure short-circuits and returns a rejected `ApprovalDecision` with the check name and inputs.
+- `ApprovalDecision.checks` lists every check that ran, in order, as `(check_name, inputs_snapshot, passed)`, for the decision trace.
+- `catalyst_exits(book, as_of)` and `short_exits(book, market)` return exit intents; nothing executes them until the risk layer is plugged into the runtime (out of scope below).
 - An `ApprovalDecision` carries: `approved: bool`, `check_name` (first failure), `check_inputs` (the values that triggered the rejection), `sizing_result` (if approved), `adjusted_shares` (if capped by PositionLimits).
 
 ## Out of scope
@@ -95,7 +97,7 @@ In `tests/unit/test_portfolio_and_risk.py`:
 - `test_second_position_in_same_theme_is_rejected` — open SRPT long from strategy A; BEAM long from strategy B, same theme in `config/themes.yaml` → rejected with `check_name = "THEME_LIMIT"`
 - `test_ticker_without_theme_is_rejected` — intent for a ticker absent from `config/themes.yaml` → rejected with `check_name = "THEME_UNMAPPED"`
 - `test_open_position_is_exited_before_known_catalyst` — open SRPT long, `readout` catalyst added 2 days ahead, strategy does not declare `readout` → exit intent dated the last close before the catalyst
-- `test_strategy_trading_the_catalyst_type_may_hold_through_it` — same setup, strategy declares `trades_catalyst_types: [readout]` → no exit intent; the hold is recorded in the decision trace
+- `test_strategy_trading_the_catalyst_type_may_hold_through_it` — same setup, strategy declares `trades_catalyst_types: [readout]` → no exit intent; the hold is recorded in `strategy/risk/catalyst_holds.jsonl`
 - `test_kelly_sizer_caps_at_max_position_pct` — full Kelly exceeds `MAX_POSITION_PCT × capital`; result equals `floor(MAX_POSITION_PCT × capital / fx / price)`
 - `test_kelly_falls_back_below_minimum_trade_count` — fewer than `MIN_TRADES_FOR_KELLY` closed trades; sizing uses `FALLBACK_POSITION_PCT` instead of history-derived Kelly
 - `test_gross_exposure_limit_rejects_intent_at_ceiling` — book at `MAX_GROSS_EXPOSURE`; new long intent → `ApprovalDecision.approved = False, check_name = "GROSS_EXPOSURE"`
