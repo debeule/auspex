@@ -1,11 +1,12 @@
 import json
 import time
-from datetime import date
+from datetime import UTC, date, datetime
 from pathlib import Path
 
 import pytest
 
 from auspex_strategy.errors import PriceLookAheadError
+from auspex_strategy.metrics import MetricsApi
 from auspex_strategy.models import InputSource, StopLossPct
 from auspex_strategy.registry import RegistryEntry
 from auspex_strategy.runtime import (
@@ -13,6 +14,7 @@ from auspex_strategy.runtime import (
     BacktestReplayRunner,
     BookMode,
     CorroboratedSignal,
+    FunnelCounter,
     InputHealthMonitor,
     LatencyTracer,
     OffsetCheckpoint,
@@ -23,15 +25,19 @@ from auspex_strategy.runtime import (
     VirtualBook,
     known_at_delay_days,
 )
+from auspex_strategy.runtime.http import HealthEndpoint
+from auspex_strategy.runtime.main import load_registry, metrics_service
 from auspex_strategy.strategies.h1_structural_convergence import StructuralConvergenceStrategy
 from auspex_strategy.testing import FakeInputHealthClient, InMemoryObjectStore
 
 from .runtime_fakes import (
     FixedClock,
     broker,
+    crash,
     flat_bars,
     long_on_trigger,
     ohlcv,
+    price_store,
     record,
     signal,
     slot,
@@ -171,6 +177,36 @@ def test_replay_of_ten_events_fills_a_virtual_book() -> None:
     assert len(result.intents["structural_convergence"]) == 10
     assert result.failure_counts == {"structural_convergence": 0}
     assert len(result.books["structural_convergence"].snapshot().open_positions) == 10
+
+
+def test_funnel_counts_decisions_intents_and_approvals_per_version() -> None:
+    class ApprovesNone:
+        def review(self, intents):
+            return []
+
+    objects = InMemoryObjectStore()
+    funnel = FunnelCounter(objects)
+    slots = [
+        slot("trades", "paper", long_on_trigger()),
+        slot("crashes", "paper", crash),
+    ]
+    _streaming(slots, objects, funnel=funnel).process(signal("SMN1", _CORROBORATED_AT))
+    _streaming(slots, objects, funnel=funnel).process(signal("DMD", _CORROBORATED_AT))
+    StreamingRuntime(
+        slots,
+        broker=broker(objects, _SNAPSHOTS),
+        risk=ApprovesNone(),
+        ticker_for=lambda entity_key: "SRPT",
+        clock=FixedClock(utc(2026, 3, 10, 22, 0)),
+        timeout_seconds=5.0,
+        funnel=funnel,
+    ).process(signal("CFTR", _CORROBORATED_AT))
+
+    trades = funnel.counts("trades", "1.0", BookMode.PAPER)
+    assert (trades.inputs_seen, trades.intents, trades.passed_risk) == (3, 3, 2)
+    crashes = funnel.counts("crashes", "1.0", BookMode.PAPER)
+    assert (crashes.inputs_seen, crashes.intents, crashes.passed_risk) == (3, 0, 0)
+    assert funnel.versions("trades", BookMode.BACKTEST) == set()
 
 
 def test_corroborated_signal_reads_core_hub_wire_format() -> None:
@@ -344,3 +380,26 @@ def test_runtime_writes_to_the_bucket_the_stack_creates() -> None:
     from auspex_strategy.runtime import STRATEGY_BUCKET
 
     assert STRATEGY_BUCKET in stack_buckets("auspex-raw")
+
+
+def test_metrics_route_is_served_from_the_registered_config() -> None:
+    config_dir = _REPO_ROOT / "config"
+    objects = InMemoryObjectStore()
+    service = metrics_service(
+        config_dir,
+        load_registry(config_dir),
+        objects,  # type: ignore[arg-type]
+        price_store({}),
+        lambda: datetime(2026, 10, 11, tzinfo=UTC),
+        {"MIN_TRADES_FOR_METRICS": "20"},
+    )
+    endpoint = HealthEndpoint(_streaming([], objects), MetricsApi(service).handle)
+
+    status, _, body = endpoint.handle("/api/v1/metrics/strategies")
+    assert (status, json.loads(body)) == (200, [])
+    status, _, body = endpoint.handle("/api/v1/metrics/correlation?mode=backtest")
+    assert (status, json.loads(body)) == (
+        200, {"mode": "backtest", "strategy_versions": [], "matrix": []}
+    )
+    assert endpoint.handle("/api/v1/metrics/correlation?mode=nonsense")[0] == 400
+    assert endpoint.handle("/health?verbose=1")[0] == 200

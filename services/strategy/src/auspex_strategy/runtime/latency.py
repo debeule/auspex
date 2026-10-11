@@ -28,6 +28,7 @@ class LatencyTracer:
         gap = intent_time - signal.corroborated_at
         append_line(self._store, LATENCY_KEY, json.dumps({
             "strategy": intent.strategy_name,
+            "strategy_version": intent.strategy_version,
             "intent_id": str(intent.intent_id),
             "corroborated_at": signal.corroborated_at.isoformat(),
             "ingested_at": signal.first_detected_at.isoformat(),

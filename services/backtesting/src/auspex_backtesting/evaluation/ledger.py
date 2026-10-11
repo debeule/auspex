@@ -67,6 +67,17 @@ class TrialLedger:
         with self._locked():
             return self._count(self._read_all(), family)
 
+    def observed_trial_count(self, family: str) -> int:
+        """`family_trial_count` for a reader that cannot write to `trials/`, such as a service
+        with the config mounted read-only: no lock, and a final line still being written is
+        skipped rather than truncated. A run reserving at the same moment may be missed."""
+        entries: list[tuple[Path, dict[str, Any]]] = []
+        for path in sorted(self._dir.glob("*.jsonl")):
+            data = path.read_bytes()
+            complete = data[: data.rfind(b"\n") + 1]
+            entries.extend((path, entry) for entry in _parse_ledger(path, complete))
+        return self._count(entries, family)
+
     def remaining_budget(self, family: str) -> int:
         return self._budget(family) - self.family_trial_count(family)
 
@@ -166,6 +177,10 @@ def _read_ledger(path: Path) -> list[dict[str, Any]]:
         )
         os.truncate(path, keep)
         data = data[:keep]
+    return _parse_ledger(path, data)
+
+
+def _parse_ledger(path: Path, data: bytes) -> list[dict[str, Any]]:
     entries = []
     for number, raw in enumerate(data.splitlines(), start=1):
         if not raw.strip():

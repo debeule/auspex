@@ -298,6 +298,26 @@ def test_torn_final_ledger_line_is_dropped_and_counted_nowhere(tmp_path: Path) -
     assert ledger.family_trial_count("event_backfill") == 12
 
 
+def test_read_only_count_skips_a_line_in_flight_and_leaves_the_file_alone(
+    tmp_path: Path,
+) -> None:
+    trials_dir = tmp_path / "trials"
+    ledger = trial_ledger(trials_dir)
+    ledger.reserve("h1", ledger_cells(8), run_id="complete")
+    ledger.reserve("h4", ledger_cells(2), run_id="other hypothesis")
+    with (trials_dir / "h1.jsonl").open("ab") as fh:
+        fh.write(b'{"run_id": "writing", "hypothesis_id": "h1", "cells": [{"holding_pe')
+    before = (trials_dir / "h1.jsonl").read_bytes()
+    (trials_dir / ".lock").unlink()
+    trials_dir.chmod(0o555)
+    try:
+        assert ledger.observed_trial_count("event_backfill") == 10
+    finally:
+        trials_dir.chmod(0o755)
+    assert (trials_dir / "h1.jsonl").read_bytes() == before
+    assert not (trials_dir / ".lock").exists()
+
+
 def test_unparseable_complete_ledger_line_refuses_reservations(tmp_path: Path) -> None:
     trials_dir = tmp_path / "trials"
     ledger = trial_ledger(trials_dir)
