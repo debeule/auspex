@@ -4,6 +4,7 @@ import time
 from collections.abc import Sequence
 from dataclasses import dataclass, field
 from datetime import date, datetime
+from typing import TYPE_CHECKING
 
 from auspex_strategy.models import (
     CorroborationRecord,
@@ -18,8 +19,11 @@ from auspex_strategy.runtime.context import BacktestAsOfContext, PriceReader, Tr
 from auspex_strategy.runtime.engine import IsolatedDecider, as_of_for
 from auspex_strategy.runtime.funnel import FunnelCounter
 from auspex_strategy.runtime.overlap import OverlapDetector
-from auspex_strategy.runtime.risk import RiskManager
+from auspex_strategy.runtime.risk import ApprovalStatus, RiskManager
 from auspex_strategy.runtime.slots import StrategySlot
+
+if TYPE_CHECKING:
+    from auspex_strategy.trace.tracer import DecisionTracer
 
 
 @dataclass
@@ -36,15 +40,17 @@ class BacktestResult:
 
 class BacktestReplayRunner:
     """Replays corroborations in `corroborated_at` order through every `research`-or-above
-    strategy. `paper`-or-above strategies trade into `backtest` books; `research` ones only
-    produce intents."""
+    strategy. Intents of `paper`-or-above strategies go to risk together per event; with a
+    broker the approved ones trade into `backtest` books, and with a tracer every decision is
+    traced. `research` strategies only produce intents."""
 
     def __init__(
         self,
         slots: Sequence[StrategySlot],
         *,
-        broker: PaperBroker,
+        broker: PaperBroker | None,
         risk: RiskManager,
+        tracer: DecisionTracer | None = None,
         signals: Sequence[SignalRecord] = (),
         price_close: PriceReader | None = None,
         is_trading_day: TradingDayCheck | None = None,
@@ -53,6 +59,7 @@ class BacktestReplayRunner:
         self._slots = [s for s in slots if s.at_least("research")]
         self._broker = broker
         self._risk = risk
+        self._tracer = tracer
         self._signals = signals
         self._price_close = price_close
         self._is_trading_day = is_trading_day
@@ -64,10 +71,11 @@ class BacktestReplayRunner:
         decider = IsolatedDecider(self._slots, timeout_seconds=None)
         intents: dict[str, list[TradeIntent]] = {s.name: [] for s in self._slots}
         decide_seconds = {s.name: 0.0 for s in self._slots}
-        books = {
-            s.name: self._broker.book(s.name, BookMode.BACKTEST)
-            for s in self._slots if s.at_least("paper")
-        }
+        traded = {s.name: s for s in self._slots if s.at_least("paper")}
+        books = (
+            {name: self._broker.book(name, BookMode.BACKTEST) for name in traded}
+            if self._broker is not None else {}
+        )
         as_ofs: list[datetime] = []
         settled_through: date | None = None
         started = time.monotonic()
@@ -96,12 +104,16 @@ class BacktestReplayRunner:
             approved_counts: dict[str, int] = {}
             for name, produced_intents in produced.items():
                 intents[name].extend(produced_intents)
-                if name not in books:
-                    continue
-                approved_intents = self._risk.review(produced_intents)
-                approved_counts[name] = len(approved_intents)
-                for approved in approved_intents:
-                    entry = self._broker.submit(approved, BookMode.BACKTEST)
+            to_review = [i for name, p in produced.items() if name in traded for i in p]
+            decisions = self._risk.review(to_review) if to_review else []
+            for decision in decisions:
+                if decision.status is ApprovalStatus.APPROVED:
+                    name = decision.intent.strategy_name
+                    approved_counts[name] = approved_counts.get(name, 0) + 1
+                if self._tracer is not None:
+                    self._tracer.record(record, decision, traded[decision.intent.strategy_name])
+                if self._broker is not None and decision.submits:
+                    entry = self._broker.submit(decision.as_approved(), BookMode.BACKTEST)
                     settled_through = max(settled_through or entry, entry)
             if self._funnel is not None:
                 for slot in self._slots:
@@ -112,7 +124,7 @@ class BacktestReplayRunner:
                         intents=len(produced.get(slot.name, [])),
                         passed_risk=approved_counts.get(slot.name, 0),
                     )
-            if settled_through is not None:
+            if self._broker is not None and settled_through is not None:
                 self._broker.settle(settled_through)
 
         return BacktestResult(

@@ -15,15 +15,28 @@ Strategy plugins (`auspex_strategy`) and the runtime that runs them.
 
 | Component | What it does |
 |---|---|
-| `BacktestReplayRunner` | Replays corroborations in time order through `research`-or-above strategies; `paper`-or-above ones trade into `backtest` books. Returns a `BacktestResult` (intents per strategy, books, timing). |
+| `BacktestReplayRunner` | Replays corroborations in time order through `research`-or-above strategies; each event's `paper`-or-above intents go to risk together, and approved ones trade into `backtest` books (no fills when `broker=None`). With a `DecisionTracer`, every risk decision is traced. Returns a `BacktestResult` (intents per strategy, books, timing). |
 | `StreamingRuntime` | Consumes `auspex.signals.corroborated` (group `auspex-strategy-runtime`) and runs `paper`-or-above strategies; checkpoints the offset to MinIO after each event. |
-| `IsolatedDecider` | Wraps every `decide()`: a crash, a call past `STRATEGY_TIMEOUT_SECONDS` or an invalid intent is counted per strategy and never reaches another strategy. |
+| `IsolatedDecider` | Wraps every `decide()`: a crash, a call past `STRATEGY_TIMEOUT_SECONDS` or an invalid intent is counted per strategy and never reaches another strategy. Names valid intents deterministically (strategy, version, corroboration, `as_of`, position), so a replay reproduces `intent_id`s. |
 | `InputHealthMonitor` | Polls core-hub's `/api/v1/health/inputs` every `HEALTH_CHECK_INTERVAL_SECONDS`; pauses strategies that declare an unhealthy input. No answer counts as unhealthy. |
 | `OverlapDetector` | Marks intents from different strategies on the same event, ticker and direction (`rationale.overlap_with`). |
 | `LatencyTracer` | Records corroboration-to-intent latency; warns at startup when the median exceeds a strategy's known-at delay. |
 | `PaperBroker` / `VirtualBook` | Fills approved intents at the next session's open (`FillModel`), exits on the holding rule or stop (`FillModel.stop_exit_price`), charges `CostModel` costs, converts P&L with `CurrencyConverter`. |
-| `PassThroughRiskManager` | Approves every intent at `PASS_THROUGH_POSITION_EUR`; no risk checks. |
+| `RiskManager` | `review(intents)` returns one `RiskDecision` per intent: status (`APPROVED`, `REJECTED`, `PAUSED`), every check run (`RiskCheckRecord`), sizing and netting. |
+| `PassThroughRiskManager` | Approves every intent at `PASS_THROUGH_POSITION_EUR`; no risk checks, so its decisions cannot be traced. |
 | `FunnelCounter` | Counts, per strategy version and mode, the events `decide()` ran on, the intents it produced and the intents risk approved. |
+
+## Decision traces (`auspex_strategy.trace`)
+
+| Component | What it does |
+|---|---|
+| `TraceRecord` | Frozen record of one intent's chain: participant documents (`DocumentRecord`: raw object key, extraction), corroboration key, strategy and code hash, rationale, risk checks and outcome, netting, sizing, and execution and P&L fields (empty until fills are traced). |
+| `TraceValidator` | One rule set for backtest, paper and live: raises `TraceIncompleteError` naming each missing field. |
+| `TraceStore` | Appends validated traces as JSONL; never rewrites a line. `read(strategy, mode, since=)`. |
+| `DecisionTracer` | Builds a trace from a corroboration, a `RiskDecision` and the slot; looks up participant documents by `event_id`. |
+| `TraceReplayer` | Replays archived events through one strategy and a risk stub; every field but `trace_id`, `approved_at` and `fill_time` matches the original. |
+
+Only backtests are traced so far: paper and live need participant documents, ticker and source types from core-hub and a risk layer that runs checks (DECISIONS.md 2026-10-11).
 
 The known-at delay of each strategy comes from its registered hypothesis file (`primary_cell.known_at_delay_days`).
 
@@ -36,6 +49,7 @@ The known-at delay of each strategy comes from its registered hypothesis file (`
 | `strategy/health/pauses.jsonl` | Pause start and end per strategy |
 | `strategy/latency/distribution.jsonl` | Corroboration-to-intent latency per intent, with strategy and version |
 | `strategy/checkpoints/auspex-strategy-runtime/<topic>.json` | Next offset per partition |
+| `strategy/traces/<strategy>/<mode>/traces.jsonl` | Decision traces (`backtest`, `paper`, `live`) |
 
 ## Strategy metrics (`auspex_strategy.metrics`)
 

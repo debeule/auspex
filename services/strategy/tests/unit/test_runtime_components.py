@@ -365,7 +365,7 @@ def test_settle_never_fills_an_order_before_its_entry_session() -> None:
         [slot("early", "research", long_on_trigger())], broker=paper, risk=_RISK
     )
     [intent] = runner.run([record("SMN1", _CORROBORATED_AT)]).intents["early"]
-    paper.submit(_RISK.review([intent])[0], BookMode.PAPER)
+    paper.submit(_RISK.review([intent])[0].as_approved(), BookMode.PAPER)
 
     paper.settle(through=date(2026, 3, 6))
 

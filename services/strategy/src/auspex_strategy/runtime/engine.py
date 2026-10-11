@@ -4,15 +4,19 @@ import logging
 import threading
 from collections.abc import Callable, Sequence
 from datetime import datetime, timedelta
+from uuid import UUID, uuid5
 
 from auspex_strategy.abc import AsOfContext
-from auspex_strategy.models import TradeIntent, Trigger
+from auspex_strategy.models import CorroborationRecord, TradeIntent, Trigger
 from auspex_strategy.runtime.slots import StrategySlot
 
 log = logging.getLogger(__name__)
 
 ContextFactory = Callable[[StrategySlot, datetime], AsOfContext]
 TickerCheck = Callable[[str], bool]
+
+# Fixed forever: changing it renames every intent and breaks trace replay against old traces.
+_INTENT_NAMESPACE = UUID("6f1d3c2a-8a4e-5b7f-9c31-2e64d0a9b815")
 
 
 class InvalidIntentError(Exception):
@@ -29,7 +33,7 @@ class IsolatedDecider:
     A crash, a call running past the timeout, or output that is not a valid intent for that
     strategy is logged at ERROR, counted in `failure_counts`, and discards that strategy's
     output for the event. A timed-out call keeps running in its daemon thread; it cannot be
-    killed, but its result is never used.
+    killed, but its result is never used. Valid intents get their ids from `name_intents`.
     """
 
     def __init__(
@@ -49,6 +53,7 @@ class IsolatedDecider:
         try:
             intents = self._call(slot, context, trigger)
             self._validate(slot, intents)
+            name_intents(slot, context.as_of, trigger, intents)
         except Exception:
             self.failure_counts[slot.name] = self.failure_counts.get(slot.name, 0) + 1
             log.exception("strategy %s failed on as_of=%s", slot.name, context.as_of.isoformat())
@@ -91,3 +96,23 @@ class IsolatedDecider:
 
 def as_of_for(slot: StrategySlot, corroborated_at: datetime) -> datetime:
     return corroborated_at + timedelta(days=slot.known_at_delay_days)
+
+
+def name_intents(
+    slot: StrategySlot, as_of: datetime, trigger: Trigger, intents: list[TradeIntent]
+) -> None:
+    """Give each intent an id derived from the strategy, the corroboration and its position in
+    the output, so replaying the same events names the same intents and traces compare equal."""
+    record = trigger.payload
+    if not isinstance(record, CorroborationRecord):
+        return
+    for i, intent in enumerate(intents):
+        intent.intent_id = uuid5(_INTENT_NAMESPACE, "|".join((
+            slot.name,
+            slot.entry.version,
+            record.entity_key,
+            record.participants_hash,
+            record.corroborated_at.isoformat(),
+            as_of.isoformat(),
+            str(i),
+        )))

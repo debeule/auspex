@@ -1,9 +1,6 @@
 # Decision Trace
 
-**Status:** blocked
-**Blocked by:**
-1. Met: `specs/done/strategy-framework.md` — `TradeIntent`, `IntentRationale`, and `ApprovalDecision` must be defined
-2. `specs/done/strategy-runtime.md` — runtime populates the trace as events flow through the pipeline
+**Status:** done
 
 **Branch:** `feature/decision-trace`
 
@@ -17,6 +14,8 @@ The decision trace is a complete, immutable record of every decision path from r
 
 `corroboration_id` as a surrogate key is also flagged — see DECISIONS.md 2026-09-20.
 
+A corroboration has two or more participant documents, so the raw-document and extraction chain is one `DocumentRecord` per participant, not a single `event_id` (DECISIONS.md 2026-10-11). The risk layer reports every check it ran through `RiskDecision` in `auspex_strategy/runtime/risk.py`; `PassThroughRiskManager` runs none, so its decisions cannot be traced until the risk layer (portfolio-and-risk) replaces it.
+
 ## What this builds
 
 ### `services/strategy/src/auspex_strategy/trace/`
@@ -29,16 +28,8 @@ class TraceRecord:
     trace_id: UUID           # generated at trace creation
     mode: TraceMode          # BACKTEST | PAPER | LIVE
 
-    # Raw document chain
-    raw_object_key: str      # MinIO key; enough to re-fetch and re-extract
-
-    # Extraction chain
-    event_id: UUID
-    extraction_id: UUID
-    extraction_model: str
-    prompt_version: str
-    prefilter_version: str
-    extracted_at: datetime | None   # nullable until extraction-backend adds this field
+    # Raw document and extraction chain, one entry per participant event
+    documents: tuple[DocumentRecord, ...]
 
     # Corroboration chain
     entity_key: str
@@ -98,7 +89,21 @@ class TraceRecord:
     estimated_tax_eur: float | None  # 0.0 until session 3 adds tax computation
 ```
 
-**`RiskCheckRecord`** — within `risk_checks`:
+**`DocumentRecord`** — within `documents`:
+```python
+@dataclass(frozen=True)
+class DocumentRecord:
+    event_id: str
+    raw_object_key: str | None      # MinIO key; enough to re-fetch and re-extract
+    extraction_id: UUID | None
+    extraction_model: str | None
+    prompt_version: str | None
+    prefilter_version: str | None
+    extracted_at: datetime | None   # nullable until extraction-backend adds this field
+```
+Fields are None only when the document lookup had no record for the event; such a trace fails validation.
+
+**`RiskCheckRecord`** — within `risk_checks` (defined with `RiskDecision` in `runtime/risk.py`):
 ```python
 @dataclass(frozen=True)
 class RiskCheckRecord:
@@ -108,16 +113,23 @@ class RiskCheckRecord:
 ```
 
 **`TraceStore`**
-- Append-only JSONL storage in MinIO: `strategy/traces/<strategy_name>/<mode>/traces.jsonl`
-- `TraceStore.append(record: TraceRecord)` — serialises to JSON line; never edits existing lines
-- `TraceStore.read(strategy_name, mode, since=None) → Iterator[TraceRecord]`
+- Append-only JSONL storage in MinIO (bucket `auspex-strategy`): `strategy/traces/<strategy_name>/<mode>/traces.jsonl`
+- `TraceStore.append(record: TraceRecord)` — validates, then serialises to one JSON line; never edits existing lines
+- `TraceStore.read(strategy_name, mode, since=None) → Iterator[TraceRecord]` — `since` filters on `as_of`
+
+**`DecisionTracer`**
+- Built with a sink (usually `TraceStore.append`), a lookup from participant `event_id` to `DocumentRecord`, and the mode.
+- `BacktestReplayRunner(..., tracer=...)` sends each event's `paper`-or-above intents to risk together and traces every `RiskDecision`. `research` strategies only produce intents and are not traced. `broker` may be `None` for a replay without fills.
+- The runtime names each intent deterministically (`name_intents`: strategy, version, corroboration key, `as_of`, position in the output), so a replay produces the same `intent_id`s, overlap and netting references.
 
 **`TraceValidator`**
 - `TraceValidator.validate(record: TraceRecord) → None` — raises `TraceIncompleteError(missing_fields)` if:
-  - Any of `raw_object_key, event_id, extraction_id, entity_key, corroborated_at, strategy_name, strategy_version, strategy_code_hash, hypothesis_id, as_of, intent_id` is null or empty
+  - `documents` is empty, or any document's `event_id, raw_object_key, extraction_id` is null or empty (named `documents[i].<field>`)
+  - Any of `entity_key, participants_hash, corroborated_at, strategy_name, strategy_version, strategy_code_hash, hypothesis_id, as_of, intent_id` is null or empty
   - `risk_checks` is empty (at minimum the kill-switch check must always run)
   - `final_approval = APPROVED` but `shares_proposed` is null
   - `final_approval = REJECTED` but `rejection_reason` is null
+  - `final_approval = PAUSED` but `pause_reason` is null
 
 **`TraceReplayer`**
 - `TraceReplayer.replay(events: list[CorroborationRecord], strategy, risk_manager_stub) → list[TraceRecord]`
@@ -134,7 +146,7 @@ Every `TradeIntent` produced by `decide()` gets a `TraceRecord`, regardless of w
 
 ## Out of scope
 
-UI for trace exploration (session 3). Tax computation beyond the placeholder field. Broker order traces (execution chain fields remain null until session 3). Trace deletion or editing.
+UI for trace exploration (session 3). Wiring traces into `StreamingRuntime` (paper and live): the live channel has no participant documents, ticker or source types yet, and the pass-through risk stub runs no checks (DECISIONS.md 2026-10-10 and 2026-10-11). Tax computation beyond the placeholder field. Broker order traces (execution chain fields remain null until session 3). Trace deletion or editing.
 
 ## Constraints
 
@@ -149,7 +161,7 @@ UI for trace exploration (session 3). Tax computation beyond the placeholder fie
 In `tests/unit/test_decision_trace.py`:
 
 - `test_every_intent_gets_a_trace_record` — process three intents (one approved, one rejected, one paused) through a synthetic pipeline; `TraceStore` contains exactly three records; all pass `TraceValidator`
-- `test_trace_with_missing_extraction_id_fails_validation` — construct `TraceRecord` with `extraction_id = None`; `TraceValidator.validate()` raises `TraceIncompleteError` naming `extraction_id`
+- `test_trace_with_missing_extraction_id_fails_validation` — construct `TraceRecord` whose first document has `extraction_id = None`; `TraceValidator.validate()` raises `TraceIncompleteError` naming `documents[0].extraction_id`
 - `test_trace_with_approved_approval_but_null_shares_fails_validation` — `final_approval = APPROVED, shares_proposed = None`; validation raises
 - `test_replaying_backtest_produces_identical_non_time_fields` — replay same 5-event sequence twice; for each trace pair, all fields except `trace_id`, `approved_at`, `fill_time` are equal
 - `test_rejected_intent_trace_has_rejection_reason` — intent rejected by `GROSS_EXPOSURE` check; `TraceRecord.rejection_reason` is non-empty; `rejection_check_name = "GROSS_EXPOSURE"`

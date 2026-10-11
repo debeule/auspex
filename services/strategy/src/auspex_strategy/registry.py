@@ -111,6 +111,13 @@ def _verify_hypothesis(hypothesis_id: str, registry_path: Path) -> None:
         raise HypothesisNotRegisteredError(hypothesis_id)
 
 
+def module_code_hash(module_name: str) -> str | None:
+    """SHA-256 of the source file that defines a strategy; None if the module has no file."""
+    spec = importlib.util.find_spec(module_name)
+    module_file = Path(spec.origin) if spec and spec.origin else None
+    return _sha256_file(module_file) if module_file else None
+
+
 def _sha256_file(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
@@ -126,9 +133,7 @@ def _check_version(
     parameters_file: Path | None,
     versions_dir: Path,
 ) -> None:
-    spec = importlib.util.find_spec(module_name)
-    module_file: Path | None = Path(spec.origin) if spec and spec.origin else None
-    code_hash = _sha256_file(module_file) if module_file else None
+    code_hash = module_code_hash(module_name)
     params_hash = (
         _sha256_file(parameters_file)
         if parameters_file is not None and parameters_file.exists() else None

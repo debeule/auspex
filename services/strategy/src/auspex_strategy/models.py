@@ -110,6 +110,8 @@ class CorroborationRecord:
     source_count: int
     source_types: frozenset[str]
     participant_event_ids: tuple[str, ...]
+    # With `entity_key`, the corroboration's natural key; empty where the source did not carry it.
+    participants_hash: str = ""
 
 
 @dataclass(frozen=True)

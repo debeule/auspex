@@ -95,7 +95,7 @@ In `tests/unit/test_strategy_runtime.py`:
 - `test_intents_from_same_event_by_two_strategies_are_flagged_as_overlap` — two strategies both produce a LONG SRPT intent triggered by the same corroboration record; both intents have `rationale.overlap_with` populated with each other's `intent_id`
 - `test_latency_trace_records_corroboration_to_intent_gap` — mock event with known `corroborated_at` and `first_detected_at`; `intent_time` captured; `LatencyTracer` entry contains all three timestamps and the computed gap
 - `test_virtual_book_pnl_matches_market_simulation` — synthetic position opened at price A, closed at price B, N shares; `VirtualBook.closed_trades()` net P&L equals `FillModel` + `CostModel` calculation for same inputs
-- `test_backtest_replay_is_deterministic` — replay same event sequence twice with identical strategy and context; intents are equal (fields, not `intent_id`s)
+- `test_backtest_replay_is_deterministic` — replay same event sequence twice with identical strategy and context; intents are equal, `intent_id`s included (the runtime names intents deterministically so decision traces replay)
 - `test_health_reports_per_strategy_failure_counts_and_pause_state` — one strategy crashed once and one paused by `InputHealthMonitor`; `/health` and `/metrics` both report them
 
 ## Definition of done

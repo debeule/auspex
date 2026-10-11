@@ -240,7 +240,7 @@ def test_backtest_replay_is_deterministic() -> None:
 
     assert len(first) == len(second) == 5
     assert all(a.matches(b) and a.rationale == b.rationale for a, b in zip(first, second))
-    assert {a.intent_id for a in first}.isdisjoint({b.intent_id for b in second})
+    assert [a.intent_id for a in first] == [b.intent_id for b in second]
 
 
 def test_health_reports_per_strategy_failure_counts_and_pause_state() -> None:

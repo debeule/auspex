@@ -16,7 +16,7 @@ from auspex_strategy.runtime.funnel import FunnelCounter
 from auspex_strategy.runtime.health import InputHealthMonitor
 from auspex_strategy.runtime.latency import LatencyTracer
 from auspex_strategy.runtime.overlap import OverlapDetector
-from auspex_strategy.runtime.risk import RiskManager
+from auspex_strategy.runtime.risk import ApprovalStatus, RiskManager
 from auspex_strategy.runtime.slots import StrategySlot
 from auspex_strategy.runtime.store import ObjectStore
 
@@ -65,7 +65,7 @@ class StreamingRuntime:
 
     `research` strategies never run here. Each `decide()` is isolated (`IsolatedDecider`);
     paused strategies are skipped; intents from the same event are checked for overlap, passed
-    to risk, and approved ones go to the strategy's forward book.
+    to risk together, and approved ones go to the strategy's forward book.
     """
 
     def __init__(
@@ -120,6 +120,7 @@ class StreamingRuntime:
             source_count=signal.distinct_source_count,
             source_types=frozenset(),
             participant_event_ids=signal.participant_event_ids,
+            participants_hash=signal.participants_hash,
         )
         self._history.append(record)
         trigger = Trigger(SubscriptionType.CORROBORATION_NEW, payload=record)
@@ -145,17 +146,19 @@ class StreamingRuntime:
         self._overlap.flag(produced)
 
         approved_counts: dict[str, int] = {}
+        modes = {s.name: s.live_mode for s in self.slots}
         for name, intents in produced.items():
             if self._latency is not None:
                 for intent in intents:
                     self._latency.record(signal, intent, decided_at[name])
-            mode = next(s.live_mode for s in self.slots if s.name == name)
-            if mode is None:
-                continue
-            approved_intents = self._risk.review(intents)
-            approved_counts[name] = len(approved_intents)
-            for approved in approved_intents:
-                self._broker.submit(approved, mode)
+        to_review = [i for name, p in produced.items() if modes[name] is not None for i in p]
+        for decision in self._risk.review(to_review) if to_review else []:
+            name = decision.intent.strategy_name
+            if decision.status is ApprovalStatus.APPROVED:
+                approved_counts[name] = approved_counts.get(name, 0) + 1
+            mode = modes[name]
+            if decision.submits and mode is not None:
+                self._broker.submit(decision.as_approved(), mode)
         if self._funnel is not None:
             for slot in decided:
                 if slot.live_mode is not None:

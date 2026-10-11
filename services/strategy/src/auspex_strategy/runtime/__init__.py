@@ -22,7 +22,14 @@ from auspex_strategy.runtime.http import HealthEndpoint
 from auspex_strategy.runtime.latency import LatencyTracer
 from auspex_strategy.runtime.overlap import OverlapDetector
 from auspex_strategy.runtime.replay import BacktestReplayRunner, BacktestResult
-from auspex_strategy.runtime.risk import ApprovedIntent, PassThroughRiskManager, RiskManager
+from auspex_strategy.runtime.risk import (
+    ApprovalStatus,
+    ApprovedIntent,
+    PassThroughRiskManager,
+    RiskCheckRecord,
+    RiskDecision,
+    RiskManager,
+)
 from auspex_strategy.runtime.slots import StrategySlot, known_at_delay_days
 from auspex_strategy.runtime.store import STRATEGY_BUCKET, MinioObjectStore, ObjectStore
 from auspex_strategy.runtime.streaming import (
@@ -36,6 +43,7 @@ from auspex_strategy.runtime.streaming import (
 __all__ = [
     "CONSUMER_GROUP",
     "STRATEGY_BUCKET",
+    "ApprovalStatus",
     "ApprovedIntent",
     "BacktestAsOfContext",
     "BacktestReplayRunner",
@@ -61,6 +69,8 @@ __all__ = [
     "PaperBroker",
     "PassThroughRiskManager",
     "PendingOrder",
+    "RiskCheckRecord",
+    "RiskDecision",
     "RiskManager",
     "SourceMessage",
     "StrategySlot",
