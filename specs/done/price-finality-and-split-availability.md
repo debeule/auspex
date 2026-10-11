@@ -32,7 +32,7 @@ No price snapshot, split history or universe month has been built yet (the first
 
 - Versioned or content-addressed price snapshots (append-only stays the storage model).
 - Corporate actions other than splits (dividends, spin-offs, ticker changes).
-- Normalizing ownership ratios to a common share basis (`specs/ownership-share-basis.md`).
+- Normalizing ownership ratios to a common share basis (`specs/done/ownership-share-basis.md`).
 - Any change to universe rules, thresholds or the H9/H10 registrations.
 
 ## Constraints

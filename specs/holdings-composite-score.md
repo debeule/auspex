@@ -3,7 +3,7 @@
 **Status:** blocked
 **Blocked by:**
 1. `specs/sec-ownership-datasets.md` — specialist ownership and net insider buying readers.
-1a. `specs/ownership-share-basis.md` — `specialist_ownership` on one split basis, missing where the basis is unknown. No score snapshot is written from the unnormalized ratio.
+1a. Met: `specs/done/ownership-share-basis.md` — `specialist_ownership` on one split basis, missing where the basis is unknown. No score snapshot is written from the unnormalized ratio.
 2. `specs/short-interest-snapshots.md` — `ShortInterestStore.as_of()` and the first available settlement date.
 3. Met in code: `specs/point-in-time-universe.md` (PR #21, #22) — monthly universe snapshots and `MarketCapEstimator`. Runs on the stack need its first build.
 4. Met: `specs/done/slow-signal-preregistration.md` — H9 registered (components, floors, variants, two-component fallback rule).

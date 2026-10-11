@@ -7,7 +7,7 @@ from typing import Any, Self
 
 import pandas as pd
 import pytest
-from ownership_fakes import FakeMinio, FakeSec, FixedMarketCaps, make_zip, tsv
+from ownership_fakes import FakeMinio, FakeSec, FixedMarketCaps, NoSplits, make_zip, tsv
 
 from auspex_backtesting.ownership import (
     DatasetFile,
@@ -85,6 +85,7 @@ def _holdings_panel(
         pd.DataFrame(holdings),
         classifier,
         shares or _shares((10_000_000, date(2023, 11, 1))),
+        NoSplits(),
     )
 
 

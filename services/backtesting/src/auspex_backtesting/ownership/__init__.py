@@ -3,7 +3,11 @@ from auspex_backtesting.ownership.form13f import Form13FDatasetStore, Form13FRep
 from auspex_backtesting.ownership.insider import InsiderTransactionStore
 from auspex_backtesting.ownership.issuers import Issuer, IssuerDirectory, read_issuer_directory
 from auspex_backtesting.ownership.panels import Disagreement, HoldingsPanel, InsiderPanel
-from auspex_backtesting.ownership.reference import ShareCountPanel, UniverseMarketCaps
+from auspex_backtesting.ownership.reference import (
+    ShareCountPanel,
+    UniverseMarketCaps,
+    UniverseSplitFactors,
+)
 from auspex_backtesting.ownership.sec_client import SecBlockedError, SecClient, SecNotFoundError
 from auspex_backtesting.ownership.specialists import SpecialistClassifier
 from auspex_backtesting.ownership.store import OwnershipStore, PanelExistsError
@@ -26,6 +30,7 @@ __all__ = [
     "ShareCountPanel",
     "SpecialistClassifier",
     "UniverseMarketCaps",
+    "UniverseSplitFactors",
     "list_dataset_files",
     "read_issuer_directory",
 ]

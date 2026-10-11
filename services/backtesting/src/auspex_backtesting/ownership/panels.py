@@ -23,11 +23,19 @@ from auspex_backtesting.ownership.insider import (
     by_label,
     concat,
 )
-from auspex_backtesting.ownership.reference import MarketCaps, ShareCountPanel, SharesOutstanding
+from auspex_backtesting.ownership.reference import (
+    FactorMissing,
+    MarketCaps,
+    ShareCountPanel,
+    ShareCounts,
+    SplitFactors,
+)
 from auspex_backtesting.ownership.specialists import SpecialistClassifier, report_accessions
 from auspex_backtesting.ownership.store import OwnershipStore
 
 log = logging.getLogger("auspex_backtesting.ownership")
+
+OwnershipMissing = Literal["no_share_count", "multiple_share_classes"] | FactorMissing
 
 # Insiders buying into their own company's financing is not an information signal.
 _OFFERING_PROXIMITY = timedelta(days=2)
@@ -39,18 +47,21 @@ class HoldingsPanel:
         filings: pd.DataFrame,
         holdings: pd.DataFrame,
         classifier: SpecialistClassifier,
-        shares: SharesOutstanding,
+        shares: ShareCounts,
+        splits: SplitFactors,
     ) -> None:
         self._filings = filings
         self._holdings = holdings
         self._classifier = classifier
         self._shares = shares
-        self._held: dict[pd.Timestamp, pd.Series] = {}
+        self._splits = splits
+        self._held: dict[pd.Timestamp, pd.DataFrame] = {}
 
     @classmethod
     def load(
         cls,
         store: OwnershipStore,
+        splits: SplitFactors,
         *,
         config_dir: Path | None = None,
         registry_path: Path | None = None,
@@ -59,29 +70,68 @@ class HoldingsPanel:
         classifier = SpecialistClassifier.from_hypothesis(
             filings, config_dir=config_dir, registry_path=registry_path
         )
-        return cls(filings, holdings, classifier, ShareCountPanel.load(store))
+        return cls(filings, holdings, classifier, ShareCountPanel.load(store), splits)
 
     def specialist_ownership(self, issuer_cik: str, as_of: date | datetime) -> float | None:
         """Shares of `issuer_cik` held by specialist filers in each one's latest report
-        accepted before `as_of`, over shares outstanding as known on `as_of`. None when no
-        share count was filed before `as_of`."""
-        moment = instant(as_of)
-        outstanding = self._shares.shares_outstanding(issuer_cik, moment.date())
-        if not outstanding:
-            return None
-        return float(self._specialist_shares(moment).get(issuer_cik, 0.0)) / outstanding
+        accepted before `as_of`, over shares outstanding as known on `as_of`, both restated to
+        `as_of`'s share basis: each report from its `period_of_report`, the count from its
+        `end`. None when the basis is unknown; `specialist_ownership_reason` says why."""
+        result = self._read(issuer_cik, instant(as_of))
+        return None if isinstance(result, str) else result
 
-    def _specialist_shares(self, moment: pd.Timestamp) -> pd.Series:
+    def specialist_ownership_reason(
+        self, issuer_cik: str, as_of: date | datetime
+    ) -> OwnershipMissing | None:
+        result = self._read(issuer_cik, instant(as_of))
+        return result if isinstance(result, str) else None
+
+    def _read(self, issuer_cik: str, moment: pd.Timestamp) -> float | OwnershipMissing:
+        through = moment.date()
+        count = self._shares.share_count(issuer_cik, through)
+        if count is None or not count.value:
+            return "no_share_count"
+        held = self._specialist_holdings(moment)
+        held = held[held["issuer_cik"] == issuer_cik]
+        if held.empty:
+            return 0.0
+        # The cover page totals one class; holdings under several CUSIPs may count others.
+        if held["cusip"].nunique() > 1:
+            return "multiple_share_classes"
+        count_factor = self._factor(issuer_cik, count.end, through)
+        if isinstance(count_factor, str):
+            return count_factor
+        restated = 0.0
+        for period, shares in held.groupby("period_of_report")["shares"].sum().items():
+            factor = self._factor(issuer_cik, pd.Timestamp(period).date(), through)
+            if isinstance(factor, str):
+                return factor
+            restated += float(shares) * factor
+        return restated / (count.value * count_factor)
+
+    def _factor(self, cik: str, after: date, through: date) -> float | FactorMissing:
+        factor = self._splits.factor(cik, after, through)
+        if factor is not None:
+            return factor
+        reason = self._splits.missing_reason(cik, after, through)
+        if reason is None:
+            raise ValueError(f"split factor for {cik} is missing without a reason")
+        return reason
+
+    def _specialist_holdings(self, moment: pd.Timestamp) -> pd.DataFrame:
+        """issuer_cik, cusip, shares and the period they were counted on, for every holding
+        in each specialist's latest report accepted before `moment`."""
         if moment in self._held:
             return self._held[moment]
         specialists = self._classifier.specialists(moment.to_pydatetime())
         reports = report_accessions(self._filings, moment)
         reports = reports[reports["filer_cik"].isin(specialists)]
         latest_period = reports.groupby("filer_cik")["period_of_report"].transform("max")
-        accessions = reports.loc[reports["period_of_report"] == latest_period, "accession_number"]
-        held = (
-            self._holdings[self._holdings["accession_number"].isin(set(accessions))]
-            .groupby("issuer_cik")["shares"].sum()
+        latest = reports.loc[
+            reports["period_of_report"] == latest_period, ["accession_number", "period_of_report"]
+        ]
+        held = self._holdings[["accession_number", "issuer_cik", "cusip", "shares"]].merge(
+            latest, on="accession_number"
         )
         self._held[moment] = held
         return held

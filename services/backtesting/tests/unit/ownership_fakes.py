@@ -63,6 +63,16 @@ class FixedMarketCaps:
         return self.caps.get(cik)
 
 
+class NoSplits:
+    """Split factors for issuers whose split histories are known to hold no splits."""
+
+    def factor(self, cik: str, after: date, through: date) -> float | None:
+        return 1.0
+
+    def missing_reason(self, cik: str, after: date, through: date) -> None:
+        return None
+
+
 def tsv(rows: Iterable[Mapping[str, object]]) -> bytes:
     rows = list(rows)
     header = list(rows[0])

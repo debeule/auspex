@@ -1,7 +1,7 @@
 # Ownership share basis
 
-**Status:** blocked
-**Blocked by:** price-finality-and-split-availability (the three-state `SplitHistory`)
+**Status:** done
+**Blocked by:** none (price-finality-and-split-availability is done)
 **Branch:** `feature/ownership-share-basis`
 
 ---
@@ -57,6 +57,10 @@ Unit (`services/backtesting/tests/unit/test_ownership_parsing.py`):
 - `test_holdings_under_two_share_classes_are_missing` — specialists hold the CIK under two CUSIPs: reason `multiple_share_classes`
 - `test_issuer_held_by_no_specialist_reads_zero` — control: share count known, no holder, `0.0`
 
+Added while implementing, for mutants the list above let through:
+- `test_share_count_dated_before_the_split_is_restated` — the count's own restatement (every listed case had the count after the split)
+- `test_ticker_differing_between_months_is_missing` — two `current` tickers inside one interval: reason `ticker_history_uncertain`
+
 ## Definition of done
 
 ```bash
@@ -64,7 +68,7 @@ cd services/backtesting && uv run pytest tests/unit -q
 cd services/backtesting && uv run ruff check . && uv run mypy src
 ```
 
-Expected: the 13 tests above pass with the rest of the unit suite; no failures.
+Expected: the 15 tests above pass with the rest of the unit suite; no failures.
 
 ## Notes
 

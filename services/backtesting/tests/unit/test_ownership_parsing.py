@@ -1,5 +1,6 @@
 import json
 import urllib.error
+from dataclasses import replace
 from datetime import UTC, date, datetime
 from pathlib import Path
 from typing import Any, Self
@@ -10,6 +11,7 @@ from ownership_fakes import (
     FakeMinio,
     FakeSec,
     FixedMarketCaps,
+    NoSplits,
     h9_with_thresholds,
     make_zip,
     register_h9,
@@ -35,6 +37,7 @@ from auspex_backtesting.ownership import (
     ShareCountPanel,
     SpecialistClassifier,
     UniverseMarketCaps,
+    UniverseSplitFactors,
     list_dataset_files,
     read_issuer_directory,
 )
@@ -53,6 +56,7 @@ from auspex_backtesting.ownership.job import (
 )
 from auspex_backtesting.ownership.panels import HoldingsPanel
 from auspex_backtesting.ownership.specialists import SpecialistThresholdsError, report_accessions
+from auspex_backtesting.prices.splits import SplitHistory
 from auspex_backtesting.universe import UniverseMember, UniverseSnapshot, UniverseStore
 
 ISSUER = "0000001001"
@@ -306,14 +310,15 @@ def test_specialist_holding_comes_from_its_latest_report_only() -> None:
     ])
     # Sold out in Q1: the Q1 report lists another issuer only.
     holdings = pd.DataFrame([
-        {"accession_number": "Q4", "issuer_cik": ISSUER, "shares": 1_000_000.0},
-        {"accession_number": "Q1", "issuer_cik": OTHER, "shares": 5.0},
+        {"accession_number": "Q4", "issuer_cik": ISSUER, "cusip": "02079K107",
+         "shares": 1_000_000.0},
+        {"accession_number": "Q1", "issuer_cik": OTHER, "cusip": "99999X101", "shares": 5.0},
     ])
     classifier = SpecialistClassifier(filings, healthcare_share=0.5, min_aum_usd=0.5)
     shares = ShareCountPanel(pd.DataFrame([
         {"cik": ISSUER, "value": 10e6, "end": date(2023, 1, 1), "filed": date(2023, 1, 1)}
     ]))
-    panel = HoldingsPanel(filings, holdings, classifier, shares)
+    panel = HoldingsPanel(filings, holdings, classifier, shares, NoSplits())
 
     assert panel.specialist_ownership(ISSUER, date(2024, 4, 1)) == pytest.approx(0.1)
     assert panel.specialist_ownership(ISSUER, date(2024, 6, 1)) == 0.0
@@ -327,15 +332,17 @@ def test_holdings_of_filers_that_are_not_specialists_do_not_count() -> None:
          "period_of_report": date(2023, 12, 31), "healthcare_value_usd": 0.1},
     ])
     holdings = pd.DataFrame([
-        {"accession_number": "S", "issuer_cik": ISSUER, "shares": 1_000_000.0},
-        {"accession_number": "G", "issuer_cik": ISSUER, "shares": 4_000_000.0},
+        {"accession_number": "S", "issuer_cik": ISSUER, "cusip": "02079K107",
+         "shares": 1_000_000.0},
+        {"accession_number": "G", "issuer_cik": ISSUER, "cusip": "02079K107",
+         "shares": 4_000_000.0},
     ])
     classifier = SpecialistClassifier(filings, healthcare_share=0.5, min_aum_usd=0.5)
     shares = ShareCountPanel(pd.DataFrame([
         {"cik": ISSUER, "value": 10e6, "end": date(2023, 1, 1), "filed": date(2023, 1, 1)}
     ]))
 
-    panel = HoldingsPanel(filings, holdings, classifier, shares)
+    panel = HoldingsPanel(filings, holdings, classifier, shares, NoSplits())
 
     assert panel.specialist_ownership(ISSUER, date(2024, 3, 1)) == pytest.approx(0.1)
 
@@ -797,7 +804,9 @@ def test_backfill_stores_every_panel_once_and_reports_coverage(tmp_path: Path) -
     specialists = store.read(specialists_key("01mar2024-31may2024"))
     assert specialists is not None
     assert specialists[0]["is_specialist"].tolist() == [True]
-    holdings = HoldingsPanel.load(store, config_dir=tmp_path, registry_path=registry)
+    holdings = HoldingsPanel.load(
+        store, NoSplits(), config_dir=tmp_path, registry_path=registry
+    )
     assert holdings.specialist_ownership(ISSUER, date(2024, 6, 1)) == pytest.approx(0.1)
     insider = InsiderPanel.load(store, FixedMarketCaps({ISSUER: 100e6}))
     assert insider.transactions(ISSUER, date(2024, 9, 1))["offering_participation"].tolist() == [True]
@@ -829,3 +838,244 @@ def test_config_reads_urls_and_history_start_from_the_environment() -> None:
 
     assert OwnershipConfig.from_env(env) == OwnershipConfig("a", "b", "c", "d", "e", "f", "g",
                                                             date(2013, 1, 1))
+
+
+# --- share basis -------------------------------------------------------------------------------
+
+_SPLIT_DAY = date(2024, 4, 15)
+_MONTHS = [f"2023-{m:02d}" for m in range(10, 13)] + [f"2024-{m:02d}" for m in range(1, 10)]
+
+
+class _SplitHistories:
+    def __init__(self, histories: dict[str, SplitHistory]) -> None:
+        self._histories = histories
+
+    def ensure(self, ticker: str, through: date) -> SplitHistory:
+        return self._histories.get(ticker, _unavailable())
+
+
+def _unavailable() -> SplitHistory:
+    return SplitHistory("unavailable", pd.Series(dtype=float), None)
+
+
+def _history(
+    splits: dict[date, float], covered_through: date = date(2026, 1, 1)
+) -> SplitHistory:
+    ratios = pd.Series(
+        list(splits.values()),
+        index=pd.DatetimeIndex([pd.Timestamp(d, tz="UTC") for d in splits]),
+        dtype=float,
+    )
+    return SplitHistory("available" if splits else "confirmed_empty", ratios, covered_through)
+
+
+def _snapshots(
+    *, ticker: str = "ALPH", absent_from: str | None = None, **member: Any
+) -> list[UniverseSnapshot]:
+    base = replace(_member(ISSUER), ticker=ticker, **member)
+    return [
+        UniverseSnapshot(1, month, date.fromisoformat(f"{month}-01"),
+                         () if month == absent_from else (base,))
+        for month in _MONTHS
+    ]
+
+
+def _specialist_report(
+    accession: str, filer: str, period: date, accepted: date
+) -> dict[str, Any]:
+    return {**_filing(accession, accepted), "filer_cik": filer, "period_of_report": period}
+
+
+def _held(accession: str, shares: float, cusip: str = "02079K107") -> dict[str, Any]:
+    return {"accession_number": accession, "issuer_cik": ISSUER, "cusip": cusip, "shares": shares}
+
+
+def _basis_panel(
+    holdings: list[dict[str, Any]],
+    count: tuple[float, date, date],
+    history: SplitHistory,
+    *,
+    filings: list[dict[str, Any]] | None = None,
+    snapshots: list[UniverseSnapshot] | None = None,
+) -> HoldingsPanel:
+    filings = filings or [_specialist_report("Q1", "F", date(2024, 3, 31), date(2024, 5, 10))]
+    frame = pd.DataFrame(filings)
+    value, end, filed = count
+    shares = ShareCountPanel(pd.DataFrame([
+        {"cik": ISSUER, "value": value, "end": end, "filed": filed}
+    ]))
+    factors = UniverseSplitFactors(
+        snapshots if snapshots is not None else _snapshots(),
+        _SplitHistories({"ALPH": history, "NEWT": history}),
+    )
+    return HoldingsPanel(
+        frame, pd.DataFrame(holdings),
+        SpecialistClassifier(frame, healthcare_share=0.5, min_aum_usd=0.5), shares, factors,
+    )
+
+
+_READ_ON = date(2024, 5, 20)
+_COUNT_AFTER_SPLIT = date(2024, 4, 20), date(2024, 4, 25)
+
+
+def test_specialist_ownership_is_unchanged_by_a_reverse_split_before_the_share_count() -> None:
+    panel = _basis_panel(
+        [_held("Q1", 1_000_000)], (1_000_000, *_COUNT_AFTER_SPLIT), _history({_SPLIT_DAY: 0.1})
+    )
+
+    assert panel.specialist_ownership(ISSUER, _READ_ON) == pytest.approx(0.10)
+
+
+def test_specialist_ownership_is_unchanged_by_a_forward_split_before_the_share_count() -> None:
+    panel = _basis_panel(
+        [_held("Q1", 1_000_000)], (20_000_000, *_COUNT_AFTER_SPLIT), _history({_SPLIT_DAY: 2.0})
+    )
+
+    assert panel.specialist_ownership(ISSUER, _READ_ON) == pytest.approx(0.10)
+
+
+def test_specialist_ownership_without_splits_is_the_raw_ratio() -> None:
+    panel = _basis_panel(
+        [_held("Q1", 1_000_000)], (10_000_000, *_COUNT_AFTER_SPLIT), _history({})
+    )
+
+    assert panel.specialist_ownership(ISSUER, _READ_ON) == pytest.approx(0.10)
+    assert panel.specialist_ownership_reason(ISSUER, _READ_ON) is None
+
+
+def test_filers_on_different_report_periods_are_each_restated_from_their_own_period() -> None:
+    filings = [
+        _specialist_report("A", "EARLY", date(2024, 3, 31), date(2024, 5, 10)),
+        _specialist_report("B", "LATE", date(2024, 6, 30), date(2024, 8, 10)),
+    ]
+    # EARLY's last report predates the 1:10 split, LATE's follows it.
+    panel = _basis_panel(
+        [_held("A", 1_000_000), _held("B", 100_000)],
+        (1_000_000, date(2024, 6, 30), date(2024, 8, 5)),
+        _history({_SPLIT_DAY: 0.1}),
+        filings=filings,
+    )
+
+    assert panel.specialist_ownership(ISSUER, date(2024, 8, 20)) == pytest.approx(0.20)
+
+
+def test_split_after_as_of_is_not_applied() -> None:
+    history = _history({date(2024, 5, 25): 0.1})
+    panel = _basis_panel(
+        [_held("Q1", 1_000_000)], (10_000_000, date(2024, 3, 31), date(2024, 4, 25)), history
+    )
+    factors = UniverseSplitFactors(_snapshots(), _SplitHistories({"ALPH": history}))
+
+    assert panel.specialist_ownership(ISSUER, _READ_ON) == pytest.approx(0.10)
+    assert factors.factor(ISSUER, date(2024, 3, 31), _READ_ON) == 1.0
+    assert factors.factor(ISSUER, date(2024, 3, 31), date(2024, 5, 25)) == pytest.approx(0.1)
+    # Shares counted on the split day are already on its basis.
+    assert factors.factor(ISSUER, date(2024, 5, 25), date(2024, 6, 1)) == 1.0
+
+
+def test_unavailable_split_history_makes_specialist_ownership_missing() -> None:
+    panel = _basis_panel(
+        [_held("Q1", 1_000_000)], (1_000_000, *_COUNT_AFTER_SPLIT), _unavailable()
+    )
+
+    assert panel.specialist_ownership(ISSUER, _READ_ON) is None
+    assert panel.specialist_ownership_reason(ISSUER, _READ_ON) == "split_history_unavailable"
+
+
+def test_ticker_change_inside_the_interval_with_continuous_prices_is_restated() -> None:
+    # The provider carries the issuer's whole price series under its current symbol NEWT,
+    # through the change from its old one, so NEWT's split history is the issuer's.
+    panel = _basis_panel(
+        [_held("Q1", 1_000_000)], (1_000_000, *_COUNT_AFTER_SPLIT), _history({_SPLIT_DAY: 0.1}),
+        snapshots=_snapshots(ticker="NEWT"),
+    )
+
+    assert panel.specialist_ownership(ISSUER, _READ_ON) == pytest.approx(0.10)
+
+
+def test_old_filing_ticker_makes_specialist_ownership_missing() -> None:
+    panel = _basis_panel(
+        [_held("Q1", 1_000_000)], (1_000_000, *_COUNT_AFTER_SPLIT), _history({_SPLIT_DAY: 0.1}),
+        snapshots=_snapshots(ticker_source="filing"),
+    )
+
+    assert panel.specialist_ownership(ISSUER, _READ_ON) is None
+    assert panel.specialist_ownership_reason(ISSUER, _READ_ON) == "ticker_history_uncertain"
+
+
+def test_reused_ticker_makes_specialist_ownership_missing() -> None:
+    panel = _basis_panel(
+        [_held("Q1", 1_000_000)], (1_000_000, *_COUNT_AFTER_SPLIT), _history({_SPLIT_DAY: 0.1}),
+        snapshots=_snapshots(
+            price_coverage="none", coverage_note="ALPH trades long after the CIK's exit"
+        ),
+    )
+
+    assert panel.specialist_ownership(ISSUER, _READ_ON) is None
+    assert panel.specialist_ownership_reason(ISSUER, _READ_ON) == "ticker_history_uncertain"
+
+
+def test_member_absent_from_a_month_in_the_interval_is_missing() -> None:
+    panel = _basis_panel(
+        [_held("Q1", 1_000_000)], (1_000_000, *_COUNT_AFTER_SPLIT), _history({_SPLIT_DAY: 0.1}),
+        snapshots=_snapshots(absent_from="2024-04"),
+    )
+
+    assert panel.specialist_ownership(ISSUER, _READ_ON) is None
+    assert panel.specialist_ownership_reason(ISSUER, _READ_ON) == "ticker_history_uncertain"
+
+
+def test_split_history_covering_less_than_as_of_is_missing() -> None:
+    panel = _basis_panel(
+        [_held("Q1", 1_000_000)], (1_000_000, *_COUNT_AFTER_SPLIT),
+        _history({_SPLIT_DAY: 0.1}, covered_through=date(2024, 5, 1)),
+    )
+
+    assert panel.specialist_ownership(ISSUER, _READ_ON) is None
+    assert panel.specialist_ownership_reason(ISSUER, _READ_ON) == "split_history_unavailable"
+
+
+def test_holdings_under_two_share_classes_are_missing() -> None:
+    panel = _basis_panel(
+        [_held("Q1", 1_000_000), _held("Q1", 500_000, cusip="02079K305")],
+        (10_000_000, *_COUNT_AFTER_SPLIT), _history({}),
+    )
+
+    assert panel.specialist_ownership(ISSUER, _READ_ON) is None
+    assert panel.specialist_ownership_reason(ISSUER, _READ_ON) == "multiple_share_classes"
+
+
+def test_issuer_held_by_no_specialist_reads_zero() -> None:
+    panel = _basis_panel(
+        [{**_held("Q1", 5.0), "issuer_cik": OTHER}], (10_000_000, *_COUNT_AFTER_SPLIT),
+        _history({}),
+    )
+
+    assert panel.specialist_ownership(ISSUER, _READ_ON) == 0.0
+    assert panel.specialist_ownership_reason(ISSUER, _READ_ON) is None
+
+
+def test_share_count_dated_before_the_split_is_restated() -> None:
+    panel = _basis_panel(
+        [_held("Q1", 1_000_000)], (10_000_000, date(2024, 3, 31), date(2024, 4, 10)),
+        _history({_SPLIT_DAY: 2.0}),
+    )
+
+    assert panel.specialist_ownership(ISSUER, _READ_ON) == pytest.approx(0.10)
+
+
+def test_ticker_differing_between_months_is_missing() -> None:
+    snapshots = _snapshots()
+    snapshots[-1] = UniverseSnapshot(
+        1, snapshots[-1].month, snapshots[-1].rebalance_date,
+        (replace(_member(ISSUER), ticker="NEWT"),),
+    )
+    panel = _basis_panel(
+        [_held("Q1", 1_000_000)], (1_000_000, *_COUNT_AFTER_SPLIT), _history({_SPLIT_DAY: 0.1}),
+        snapshots=snapshots,
+    )
+
+    assert panel.specialist_ownership(ISSUER, date(2024, 9, 20)) is None
+    assert panel.specialist_ownership_reason(ISSUER, date(2024, 9, 20)) == (
+        "ticker_history_uncertain"
+    )
