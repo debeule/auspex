@@ -49,17 +49,19 @@ Every service has a `mem_limit` from `.env` (`*_MEM_LIMIT`, values in `.env.exam
 | Service | Limit (MB) | Inside it |
 |---|---|---|
 | airflow | 1,536 | one API worker (`AIRFLOW_API_WORKERS`), at most 4 task processes (`AIRFLOW_PARALLELISM`) |
-| price-service | 736 | peaks during the monthly universe build |
+| price-service | 896 | peaks during the monthly universe build |
 | elasticsearch | 768 | 512 MB heap |
 | core-hub | 704 | heap 60% of the limit (`CORE_HUB_JAVA_TOOL_OPTIONS`) |
 | kafka | 576 | 384 MB heap (`KAFKA_HEAP_OPTS`) |
 | neo4j | 512 | 256 MB heap (`NEO4J_HEAP_SIZE`) + 128 MB page cache (`NEO4J_PAGECACHE_SIZE`), at most 75% of the limit |
 | postgres, ingestion-scraper | 384 each | |
-| minio, prometheus | 320 each | |
-| grafana, dashboard | 256 each | |
-| filebeat, cadvisor | 160 each | |
-| six exporters | 48 each | node, postgres, kafka, elasticsearch, blackbox, statsd |
+| prometheus | 320 | |
+| minio | 272 | |
+| dashboard | 256 | |
+| grafana | 208 | |
 | strategy-runtime | 160 | one Kafka consumer; books read and written one Parquet object at a time |
+| filebeat, cadvisor | 128 each | |
+| six exporters | 48 each | node, postgres, kafka, elasticsearch, blackbox, statsd |
 | backup | 128 | idle except the nightly 03:00 UTC run; `pg_dump` streams to disk |
 | volume-usage | 32 | |
 | **Total** | **7,680** | 8 GB VM less 512 MB; one-shots (`restart: "no"`) run before the stack is busy and are not counted |

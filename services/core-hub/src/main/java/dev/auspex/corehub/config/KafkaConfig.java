@@ -190,6 +190,11 @@ class KafkaConfig {
 
     @Bean
     KafkaTemplate<Object, Object> dltWireJsonKafkaTemplate(ObjectMapper objectMapper) {
+        return wireJsonTemplate(objectMapper);
+    }
+
+    /** Snake_case JSON with ISO-8601 timestamps and no type header (Invariant 7). */
+    private KafkaTemplate<Object, Object> wireJsonTemplate(ObjectMapper objectMapper) {
         JsonSerializer<Object> valueSerializer = new JsonSerializer<>(objectMapper);
         valueSerializer.setAddTypeInfo(false);
         ProducerFactory<Object, Object> factory = new DefaultKafkaProducerFactory<>(
@@ -251,20 +256,10 @@ class KafkaConfig {
         return new KafkaTemplate<>(dltBytesProducerFactory);
     }
 
+    /** Publishes {@code auspex.signals.corroborated}, which the Python strategy runtime reads. */
     @Bean
-    ProducerFactory<Object, Object> dltJsonProducerFactory() {
-        return new DefaultKafkaProducerFactory<>(Map.of(
-                BOOTSTRAP_SERVERS_CONFIG, bootstrapServers,
-                KEY_SERIALIZER_CLASS_CONFIG,   StringSerializer.class,
-                VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class
-        ));
-    }
-
-    @Bean
-    KafkaTemplate<Object, Object> corroboratedKafkaTemplate(
-            @Qualifier("dltJsonProducerFactory") ProducerFactory<Object, Object> dltJsonProducerFactory
-    ) {
-        return new KafkaTemplate<>(dltJsonProducerFactory);
+    KafkaTemplate<Object, Object> corroboratedKafkaTemplate(ObjectMapper objectMapper) {
+        return wireJsonTemplate(objectMapper);
     }
 
     private Map<String, Object> consumerProps(String groupId) {

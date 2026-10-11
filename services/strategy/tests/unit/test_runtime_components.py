@@ -173,8 +173,9 @@ def test_replay_of_ten_events_fills_a_virtual_book() -> None:
     assert len(result.books["structural_convergence"].snapshot().open_positions) == 10
 
 
-def test_corroborated_signal_reads_snake_and_camel_case_wire_formats() -> None:
-    snake = json.dumps({
+def test_corroborated_signal_reads_core_hub_wire_format() -> None:
+    # The shape core-hub's CorroboratedWireFormatTest pins: snake_case, ISO-8601 instants.
+    payload = json.dumps({
         "entity_key": "SMN1:Gene",
         "participants_hash": "abc",
         "participant_event_ids": ["e1", "e2"],
@@ -182,22 +183,30 @@ def test_corroborated_signal_reads_snake_and_camel_case_wire_formats() -> None:
         "corroborated_at": "2026-03-05T14:00:00Z",
         "first_detected_at": "2026-03-05T20:00:00.250Z",
     }).encode()
-    camel = (
-        b'{"entityKey": "SMN1:Gene", "participantsHash": "abc",'
-        b' "participantEventIds": ["e1", "e2"], "distinctSourceCount": 2,'
-        b' "corroboratedAt": 1772719200.000000000, "firstDetectedAt": 1772740800.250000000}'
+
+    assert CorroboratedSignal.from_json(payload) == CorroboratedSignal(
+        entity_key="SMN1:Gene",
+        participants_hash="abc",
+        participant_event_ids=("e1", "e2"),
+        distinct_source_count=2,
+        corroborated_at=utc(2026, 3, 5, 14, 0),
+        first_detected_at=utc(2026, 3, 5, 20, 0, 0, 250_000),
     )
 
-    assert CorroboratedSignal.from_json(snake) == CorroboratedSignal.from_json(camel) == (
-        CorroboratedSignal(
-            entity_key="SMN1:Gene",
-            participants_hash="abc",
-            participant_event_ids=("e1", "e2"),
-            distinct_source_count=2,
-            corroborated_at=utc(2026, 3, 5, 14, 0),
-            first_detected_at=utc(2026, 3, 5, 20, 0, 0, 250_000),
-        )
-    )
+
+def test_corroborated_signal_refuses_camel_case_and_epoch_timestamps() -> None:
+    camel = b'{"entityKey": "SMN1:Gene", "participantsHash": "abc", "participantEventIds": [],' \
+        b' "distinctSourceCount": 2, "corroboratedAt": 1772719200.0, "firstDetectedAt": 1772719200.0}'
+    epoch = json.dumps({
+        "entity_key": "SMN1:Gene", "participants_hash": "abc", "participant_event_ids": [],
+        "distinct_source_count": 2, "corroborated_at": 1772719200.0,
+        "first_detected_at": 1772719200.0,
+    }).encode()
+
+    with pytest.raises(KeyError):
+        CorroboratedSignal.from_json(camel)
+    with pytest.raises(TypeError):
+        CorroboratedSignal.from_json(epoch)
 
 
 def test_consume_checkpoints_each_event_and_skips_unreadable_ones() -> None:
