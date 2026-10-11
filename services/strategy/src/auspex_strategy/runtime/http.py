@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import json
 import threading
-from collections.abc import Iterator
+from collections.abc import Callable, Iterator
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 from prometheus_client import CollectorRegistry, generate_latest
@@ -40,15 +40,23 @@ class _RuntimeCollector(Collector):
         yield rejected
 
 
-class HealthEndpoint:
-    """`/health` (liveness plus per-strategy failures and pauses) and `/metrics`."""
+Route = Callable[[str], tuple[int, str, bytes]]
 
-    def __init__(self, runtime: StreamingRuntime) -> None:
+
+class HealthEndpoint:
+    """`/health` (liveness plus per-strategy failures and pauses) and `/metrics`. Paths under
+    `/api/v1/metrics` go to `strategy_metrics`, with their query string."""
+
+    def __init__(self, runtime: StreamingRuntime, strategy_metrics: Route | None = None) -> None:
         self._runtime = runtime
+        self._strategy_metrics = strategy_metrics
         self._registry = CollectorRegistry()
         self._registry.register(_RuntimeCollector(runtime))
 
-    def handle(self, path: str) -> tuple[int, str, bytes]:
+    def handle(self, target: str) -> tuple[int, str, bytes]:
+        path = target.split("?", 1)[0]
+        if self._strategy_metrics is not None and path.startswith("/api/v1/metrics/"):
+            return self._strategy_metrics(target)
         if path == "/health":
             counts = self._runtime.failure_counts
             body = {
@@ -70,7 +78,7 @@ class HealthEndpoint:
 def serve(endpoint: HealthEndpoint, port: int) -> ThreadingHTTPServer:
     class Handler(BaseHTTPRequestHandler):
         def do_GET(self) -> None:
-            status, content_type, body = endpoint.handle(self.path.split("?", 1)[0])
+            status, content_type, body = endpoint.handle(self.path)
             self.send_response(status)
             self.send_header("Content-Type", content_type)
             self.send_header("Content-Length", str(len(body)))

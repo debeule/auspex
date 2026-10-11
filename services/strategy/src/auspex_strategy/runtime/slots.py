@@ -47,7 +47,11 @@ class StrategySlot:
 def known_at_delay_days(hypothesis_id: str, hypotheses_dir: Path) -> int:
     """The delay a strategy's hypothesis was registered with: its primary cell's, or the only
     value it lists."""
-    hypothesis: dict[str, Any] = load_hypothesis(hypothesis_id, hypotheses_dir)
+    return known_at_delay_from(load_hypothesis(hypothesis_id, hypotheses_dir))
+
+
+def known_at_delay_from(hypothesis: dict[str, Any]) -> int:
+    hypothesis_id = hypothesis.get("id")
     primary = hypothesis.get("primary_cell") or {}
     if "known_at_delay_days" in primary:
         return int(primary["known_at_delay_days"])

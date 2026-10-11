@@ -177,6 +177,7 @@ def test_latency_trace_records_corroboration_to_intent_gap() -> None:
     [entry] = [json.loads(line) for line in objects.lines("strategy/latency/distribution.jsonl")]
     assert entry == {
         "strategy": "traced",
+        "strategy_version": "1.0",
         "intent_id": str(produced["traced"][0].intent_id),
         "corroborated_at": "2026-03-05T14:00:00+00:00",
         "ingested_at": "2026-03-05T20:00:00+00:00",

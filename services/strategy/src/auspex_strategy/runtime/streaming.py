@@ -12,6 +12,7 @@ from auspex_strategy.runtime.broker import PaperBroker
 from auspex_strategy.runtime.context import LiveAsOfContext, PriceReader, TradingDayCheck
 from auspex_strategy.runtime.engine import IsolatedDecider, TickerCheck, as_of_for
 from auspex_strategy.runtime.events import CorroboratedSignal
+from auspex_strategy.runtime.funnel import FunnelCounter
 from auspex_strategy.runtime.health import InputHealthMonitor
 from auspex_strategy.runtime.latency import LatencyTracer
 from auspex_strategy.runtime.overlap import OverlapDetector
@@ -78,6 +79,7 @@ class StreamingRuntime:
         timeout_seconds: float,
         health: InputHealthMonitor | None = None,
         latency: LatencyTracer | None = None,
+        funnel: FunnelCounter | None = None,
         ticker_allowed: TickerCheck | None = None,
         price_close: PriceReader | None = None,
         is_trading_day: TradingDayCheck | None = None,
@@ -89,6 +91,7 @@ class StreamingRuntime:
         self._clock = clock
         self._health = health
         self._latency = latency
+        self._funnel = funnel
         self._price_close = price_close
         self._is_trading_day = is_trading_day
         self._decider = IsolatedDecider(
@@ -123,6 +126,7 @@ class StreamingRuntime:
 
         produced: dict[str, list[TradeIntent]] = {}
         decided_at: dict[str, datetime] = {}
+        decided: list[StrategySlot] = []
         for slot in self.slots:
             if self.is_paused(slot.name):
                 continue
@@ -135,10 +139,12 @@ class StreamingRuntime:
             )
             intents = self._decider.decide(slot, context, trigger)
             decided_at[slot.name] = self._clock()
+            decided.append(slot)
             if intents:
                 produced[slot.name] = intents
         self._overlap.flag(produced)
 
+        approved_counts: dict[str, int] = {}
         for name, intents in produced.items():
             if self._latency is not None:
                 for intent in intents:
@@ -146,8 +152,20 @@ class StreamingRuntime:
             mode = next(s.live_mode for s in self.slots if s.name == name)
             if mode is None:
                 continue
-            for approved in self._risk.review(intents):
+            approved_intents = self._risk.review(intents)
+            approved_counts[name] = len(approved_intents)
+            for approved in approved_intents:
                 self._broker.submit(approved, mode)
+        if self._funnel is not None:
+            for slot in decided:
+                if slot.live_mode is not None:
+                    self._funnel.record(
+                        slot.name,
+                        slot.entry.version,
+                        slot.live_mode,
+                        intents=len(produced.get(slot.name, [])),
+                        passed_risk=approved_counts.get(slot.name, 0),
+                    )
         self._broker.settle(self._clock().date())
         return produced
 

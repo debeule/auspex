@@ -1,10 +1,13 @@
 # Strategy Metrics
 
-**Status:** blocked
+**Status:** done
 **Blocked by:**
-1. Met: `specs/done/strategy-framework.md` — `VirtualBook`, strategy registry, and version tracking must exist
-2. Met: `specs/done/hypothesis-registry.md` — trial count (for deflated Sharpe) is read from `config/hypotheses/trials/`
-3. `specs/done/evaluation-protocol.md` — `DeflatedSharpe.compute()` and `BootstrapCI` are imported from there
+1. Met: `specs/done/strategy-framework.md` — strategy registry and version tracking must exist
+2. Met: `specs/done/strategy-runtime.md` — `VirtualBook`, `LatencyTracer` and the runtime's HTTP server
+3. Met: `specs/done/hypothesis-registry.md` — trial count (for deflated Sharpe) is read from `config/hypotheses/trials/`
+4. Met: `specs/done/evaluation-protocol.md` — `DeflatedSharpe.compute()` and `BootstrapCI` are imported from there
+
+Choices made where this spec was open (version on book rows, funnel counters, the deflated Sharpe's input, drawdown base, where the API is served): `DECISIONS.md`, 2026-10-11 strategy metrics.
 
 **Branch:** `feature/strategy-metrics`
 

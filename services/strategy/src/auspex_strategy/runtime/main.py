@@ -9,12 +9,12 @@ import logging
 import os
 import signal
 import time
-from collections.abc import Mapping
+from collections.abc import Callable, Mapping
 from datetime import UTC, datetime
 from pathlib import Path
 from types import FrameType
 
-from auspex_backtesting.hypothesis import verify_hypothesis
+from auspex_backtesting.hypothesis import load_hypothesis, verify_hypothesis
 from auspex_backtesting.market_sim import (
     CostModel,
     CurrencyConverter,
@@ -22,12 +22,15 @@ from auspex_backtesting.market_sim import (
     MarketCalendar,
     PriceSnapshotStore,
 )
+from auspex_backtesting.protocol import EvaluationProtocol
 from confluent_kafka import Consumer, KafkaError, TopicPartition
 from minio import Minio
 
+from auspex_strategy.metrics import MetricsApi, MetricsService
 from auspex_strategy.registry import StrategyRegistry
 from auspex_strategy.runtime.broker import PaperBroker
 from auspex_strategy.runtime.context import SnapshotPrices
+from auspex_strategy.runtime.funnel import FunnelCounter
 from auspex_strategy.runtime.health import HttpInputHealthClient, InputHealthMonitor
 from auspex_strategy.runtime.http import HealthEndpoint, serve
 from auspex_strategy.runtime.latency import LatencyTracer
@@ -86,12 +89,15 @@ class KafkaEventSource:
         self._consumer.close()
 
 
-def load_slots(config_dir: Path) -> list[StrategySlot]:
-    hypotheses = config_dir / "hypotheses"
-    registry = StrategyRegistry.load(
+def load_registry(config_dir: Path) -> StrategyRegistry:
+    return StrategyRegistry.load(
         config_dir / "strategies" / "registry.yaml",
-        hypothesis_registry_path=hypotheses / "registry.jsonl",
+        hypothesis_registry_path=config_dir / "hypotheses" / "registry.jsonl",
     )
+
+
+def load_slots(config_dir: Path, registry: StrategyRegistry) -> list[StrategySlot]:
+    hypotheses = config_dir / "hypotheses"
     slots = []
     for entry in registry.all():
         probe = StrategySlot(entry=entry, known_at_delay_days=0)
@@ -127,7 +133,9 @@ def main(env: Mapping[str, str] = os.environ) -> None:
         fx=CurrencyConverter(prices),
         calendar=calendar,
     )
-    slots = load_slots(Path(env["STRATEGY_CONFIG_DIR"]))
+    config_dir = Path(env["STRATEGY_CONFIG_DIR"])
+    registry = load_registry(config_dir)
+    slots = load_slots(config_dir, registry)
     clock = lambda: datetime.now(UTC)
     monitor = InputHealthMonitor(
         HttpInputHealthClient(env["HEALTH_CHECK_BASE_URL"], timeout_seconds=5.0),
@@ -145,6 +153,7 @@ def main(env: Mapping[str, str] = os.environ) -> None:
         timeout_seconds=float(env["STRATEGY_TIMEOUT_SECONDS"]),
         health=monitor,
         latency=latency,
+        funnel=FunnelCounter(objects),
         price_close=SnapshotPrices(prices).close,
         is_trading_day=calendar.is_trading_day,
     )
@@ -154,7 +163,8 @@ def main(env: Mapping[str, str] = os.environ) -> None:
             log.warning("median corroboration-to-intent latency exceeds the %d-day known-at delay",
                         delay)
 
-    serve(HealthEndpoint(runtime), int(env["STRATEGY_RUNTIME_PORT"]))
+    metrics = metrics_service(config_dir, registry, objects, prices, clock, env)
+    serve(HealthEndpoint(runtime, MetricsApi(metrics).handle), int(env["STRATEGY_RUNTIME_PORT"]))
     topic = env["KAFKA_CORROBORATED_TOPIC"]
     checkpoint = OffsetCheckpoint(objects, topic)
     source = KafkaEventSource(env["KAFKA_BOOTSTRAP_SERVERS"], topic, checkpoint)
@@ -176,6 +186,34 @@ def main(env: Mapping[str, str] = os.environ) -> None:
             runtime.consume(source, checkpoint)
     finally:
         source.close()
+
+
+def metrics_service(
+    config_dir: Path,
+    registry: StrategyRegistry,
+    objects: MinioObjectStore,
+    prices: PriceSnapshotStore,
+    clock: Callable[[], datetime],
+    env: Mapping[str, str],
+) -> MetricsService:
+    hypotheses_dir = config_dir / "hypotheses"
+    protocol = EvaluationProtocol(
+        config_dir=hypotheses_dir, registry_path=hypotheses_dir / "registry.jsonl"
+    )
+    return MetricsService(
+        objects,
+        prices,
+        registry,
+        protocol=protocol.protocol,
+        hypotheses={
+            entry.hypothesis_id: load_hypothesis(entry.hypothesis_id, hypotheses_dir)
+            for entry in registry.all()
+        },
+        ledger=protocol.ledger(),
+        min_trades=int(env["MIN_TRADES_FOR_METRICS"]),
+        clock=clock,
+        versions_dir=config_dir / "strategies" / "versions",
+    )
 
 
 if __name__ == "__main__":
