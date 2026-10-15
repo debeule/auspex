@@ -86,6 +86,22 @@ class HoldingsPanel:
         result = self._read(issuer_cik, instant(as_of))
         return result if isinstance(result, str) else None
 
+    def specialist_ownership_known_at(
+        self, issuer_cik: str, as_of: date | datetime
+    ) -> pd.Timestamp | None:
+        """The latest acceptance among the inputs of `specialist_ownership`: every specialist
+        report it reads, whether or not it holds the issuer (a zero depends on them all), and
+        the share count. None when no share count was filed before `as_of`."""
+        moment = instant(as_of)
+        count = self._shares.share_count(issuer_cik, moment.date())
+        if count is None:
+            return None
+        known = latest_acceptance(count.filed)
+        held = self._specialist_holdings(moment)
+        if len(held):
+            known = max(known, held["filing_accepted_at"].max())
+        return known
+
     def _read(self, issuer_cik: str, moment: pd.Timestamp) -> float | OwnershipMissing:
         through = moment.date()
         count = self._shares.share_count(issuer_cik, through)
@@ -119,8 +135,9 @@ class HoldingsPanel:
         return reason
 
     def _specialist_holdings(self, moment: pd.Timestamp) -> pd.DataFrame:
-        """issuer_cik, cusip, shares and the period they were counted on, for every holding
-        in each specialist's latest report accepted before `moment`."""
+        """issuer_cik, cusip, shares, the period they were counted on and the filing's
+        acceptance, for every holding in each specialist's latest report accepted before
+        `moment`."""
         if moment in self._held:
             return self._held[moment]
         specialists = self._classifier.specialists(moment.to_pydatetime())
@@ -129,7 +146,7 @@ class HoldingsPanel:
         latest_period = reports.groupby("filer_cik")["period_of_report"].transform("max")
         latest = reports.loc[
             reports["period_of_report"] == latest_period, ["accession_number", "period_of_report"]
-        ]
+        ].merge(self._filings[["accession_number", "filing_accepted_at"]], on="accession_number")
         held = self._holdings[["accession_number", "issuer_cik", "cusip", "shares"]].merge(
             latest, on="accession_number"
         )
@@ -227,15 +244,26 @@ class InsiderPanel:
         market_cap = self._market_caps.market_cap_usd(issuer_cik, moment.date())
         if not market_cap:
             return None
+        counted = self._counted(issuer_cik, moment, days)
+        value = counted["shares"].fillna(0.0) * counted["price"].fillna(0.0)
+        signed = value.where(counted["transaction_code"] == "P", -value)
+        return float(signed.sum()) / market_cap
+
+    def net_insider_buying_known_at(
+        self, issuer_cik: str, as_of: date | datetime, days: int = 90
+    ) -> pd.Timestamp | None:
+        """The latest acceptance among the transactions `net_insider_buying` counts; None
+        when it counts none."""
+        counted = self._counted(issuer_cik, instant(as_of), days)
+        return None if counted.empty else pd.Timestamp(counted["filing_accepted_at"].max())
+
+    def _counted(self, issuer_cik: str, moment: pd.Timestamp, days: int) -> pd.DataFrame:
         rows = self.transactions(issuer_cik, moment.to_pydatetime(), days)
-        counted = rows[
+        return rows[
             rows["transaction_code"].isin(["P", "S"])
             & ~rows["is_10b5_1"].astype(bool)
             & ~rows["offering_participation"].astype(bool)
         ]
-        value = counted["shares"].fillna(0.0) * counted["price"].fillna(0.0)
-        signed = value.where(counted["transaction_code"] == "P", -value)
-        return float(signed.sum()) / market_cap
 
     def disagreements(self) -> list[Disagreement]:
         """Filings where a stored quarterly data set and the daily Form 4 rows differ, for

@@ -232,6 +232,30 @@ Then draw 20 random archived filings from the biotech run (`filings/item1a/` obj
 
 Record in `DECISIONS.md` a VERIFIED entry: per universe, filings found, sections by status, missing by reason, members scored per year (min/median/max of `scored / members`), and for `us_small_mid` the universe coverage split 2014–2018 vs 2019+ (the survivorship threat in the spec's notes); plus the hand-check hit rate with the seed. Move `specs/filing-text-change-score.md` to `specs/done/`, set its status to `done` and update its `TODO.md` row. Commit: `filing text change panel first build: coverage, hand check, spec done`.
 
+### 3e. H9 holdings composite score
+
+Precondition: steps 3 and 3b passed, step 3c ran or is recorded as not run, and `services/backtesting/src/auspex_backtesting/scores/` is on `develop`; otherwise record "not run" with the reason and skip. It reads only MinIO (and Yahoo for a split history not stored yet), so it may run while SEC steps are paused.
+
+```bash
+cd services/backtesting
+uv run --env-file ../../.env python scripts/compute_holdings_scores.py > /tmp/h9-scores.json; echo "exit $?"
+uv run --env-file ../../.env python scripts/compute_holdings_scores.py --no-floor > /tmp/h9-scores-no-floor.json; echo "exit $?"
+jq '{score, variant, snapshots_written, snapshots_already_stored}' /tmp/h9-scores.json /tmp/h9-scores-no-floor.json
+jq -r '.months[] | [.month, .members, .below_floor, .scored, .left_out, (.specialist_missing | tostring)] | @tsv' /tmp/h9-scores.json
+jq '.component_rank_correlations' /tmp/h9-scores.json
+uv run pytest tests/unit/test_holdings_composite.py -q --strict-markers
+cd ../..
+```
+
+A crash naming a missing snapshot or panel means a step it depends on did not store it: record a FLAG with the traceback and skip.
+
+**Check:**
+- Both runs exit 0 with `variant` `two_component` (short interest starts after 2014; `three_component` here is a FLAG: check the stored first settlement date) and one snapshot per universe month whose rebalance date has passed.
+- From 2015 on, every month scores at least 15 names under the floor (the basket's buy rank); a month below that is listed in the FLAG below.
+- `test_holdings_composite.py`: 15 passed.
+
+Record in `DECISIONS.md` a VERIFIED entry for "Holdings composite score — first run on the stack machine": the variant; per year (min/median/max over months) members, under the floor, scored and left out; missing ownership reads by reason; the component rank correlation per year; and the months scoring fewer than 15 names as a FLAG (H9's basket cannot fill there). A pair of components correlating above 0.8 in most years is a FLAG too: the composite is then close to one signal. Move `specs/holdings-composite-score.md` to `specs/done/`, set its status to `done` and update its `TODO.md` row. Commit: `holdings composite score first run: coverage, spec done`.
+
 ### 4. Install Ollama and pull the candidates
 
 Can start while step 3 runs: pulls are network-bound. Do not run step 5 until step 3 has finished.
@@ -377,6 +401,7 @@ Checks run on the Mac, each falsifiable and each tied to a step above:
 - `check_backfill_scope_exported_and_non_empty` — step 3
 - `check_catalyst_panel_build_complete_with_hand_checked_precision` — step 3a
 - `check_filing_panel_built_for_both_universes_with_hand_checked_cuts` — step 3d
+- `check_h9_scores_written_for_every_month_with_coverage_recorded` — step 3e
 - `check_phi3_tag_is_the_128k_context_build` — step 4
 - `check_each_candidate_has_a_gate_record_at_prompt_v1_1` — step 5
 - `check_candidate_fits_without_swap_growth_over_1gb` — step 5

@@ -188,6 +188,20 @@ Stored in the `auspex-prices` bucket as `short_interest/{ticker}.parquet`. A fil
 
 FINRA's data covers exchange-listed stocks only from June 2021 (earlier files are OTC only), so `SHORT_INTEREST_HISTORY_START` is 2021-06-01 and H9's in-sample period from 2014 runs its two-component variant by its pre-registered rule. Requests need a FINRA API credential (`FINRA_API_CLIENT_ID`, `FINRA_API_CLIENT_SECRET`).
 
+## Holdings composite score (H9)
+
+`auspex_backtesting.scores.HoldingsCompositeScore` ranks the universe monthly on H9's components, with every parameter read from the registered `config/hypotheses/h9.yaml`. All inputs are read as of the rebalance session's open.
+
+| Component | Read | Missing when |
+|---|---|---|
+| `specialist_13f_ownership` (higher ranks higher) | `HoldingsPanel.specialist_ownership` | the share basis is unknown (counted by reason in the coverage report) |
+| `net_insider_buying` (higher ranks higher) | `InsiderPanel.net_insider_buying` over 90 days; no activity is 0 | the member has no market cap |
+| `days_to_cover` (lower ranks higher) | the ticker's record in FINRA's latest period published before the rebalance day | the ticker is absent from that period or has no record for it; an older period is never carried forward |
+
+Members under H9's floor ($500M market cap, $2M median 20-day dollar volume, from the universe snapshot) are not scored unless the `no_floor` cells are being built. A name needs two components; each component's percentile rank (best 1.0, ties by CIK) is taken among the scored names, and the score is the mean of the name's ranks. `known_at_max` is the latest of the inputs' acceptance times (13F reports read, share count, counted Form 4s) and the end of FINRA's publication day in New York. The variant comes from H9's rule: two components when stored short interest starts after the in-sample start (2014), which it does (June 2021).
+
+Snapshots go to `scores/h9/1/{rebalance date}.parquet` (`1-no_floor` for the no-floor cells), once per date, with each component, its rank, the component count and the variant.
+
 ## Scripts
 
 | Script | Purpose |
@@ -198,6 +212,7 @@ FINRA's data covers exchange-listed stocks only from June 2021 (earlier files ar
 | `scripts/build_catalyst_panel.py` | Build or extend the catalyst panel (`--since`, default 2014-01-01; `--until`, default today) and print its coverage: catalysts per year, members with any catalyst, unmatched advisory committee notices, PDUFA hits by precision. Needs the universe built first |
 | `scripts/register_hypothesis.py` | Register a hypothesis file in the pre-registration ledger |
 | `scripts/fetch_ownership.py` | Backfill and extend the SEC ownership panels and print their coverage |
+| `scripts/compute_holdings_scores.py` | Write the H9 score snapshot for every universe month still missing (`--no-floor` for the no-floor cells) and print coverage: the variant, per month members, under the floor, scored and left out, per year the component rank correlations. Needs the universe, ownership panels and short interest stored |
 | `scripts/fetch_short_interest.py` | Backfill and extend FINRA short interest for the universe's tickers and print coverage: first available settlement date, periods FINRA returned nothing for, gaps, tickers never reported. Needs the universe built first |
 | `scripts/run_portfolio_backtest.py` | Run a registered portfolio hypothesis's cell (default its primary cell) over a universe (`--universe-rules PATH`, default the biotech universe) at every tier in `PAPER_CAPITAL_TIERS_EUR`, reserve the cell in the trial ledger and write the report and verdict as JSON (`--final` reads the holdout once) |
 

@@ -325,6 +325,54 @@ def test_specialist_holding_comes_from_its_latest_report_only() -> None:
     assert panel.specialist_ownership(OTHER, date(2024, 6, 1)) is None
 
 
+def test_specialist_ownership_known_at_is_latest_report_read_or_share_count() -> None:
+    filings = pd.DataFrame([
+        {**_filing("Q4", date(2024, 2, 10)), "period_of_report": date(2023, 12, 31)},
+        {**_filing("Q1", date(2024, 5, 10)), "period_of_report": date(2024, 3, 31)},
+        # A specialist that does not hold the issuer: its report still decides the read.
+        {**_filing("G1", date(2024, 5, 14)), "filer_cik": "G",
+         "period_of_report": date(2024, 3, 31)},
+    ])
+    holdings = pd.DataFrame([
+        {"accession_number": "Q1", "issuer_cik": ISSUER, "cusip": "02079K107",
+         "shares": 1_000_000.0},
+        {"accession_number": "G1", "issuer_cik": OTHER, "cusip": "99999X101", "shares": 5.0},
+    ])
+    classifier = SpecialistClassifier(filings, healthcare_share=0.5, min_aum_usd=0.5)
+    shares = ShareCountPanel(pd.DataFrame([
+        {"cik": ISSUER, "value": 10e6, "end": date(2024, 5, 1), "filed": date(2024, 5, 12)}
+    ]))
+    panel = HoldingsPanel(filings, holdings, classifier, shares, NoSplits())
+
+    assert panel.specialist_ownership_known_at(ISSUER, date(2024, 6, 1)) == latest_acceptance(
+        date(2024, 5, 14)
+    )
+    assert panel.specialist_ownership_known_at(ISSUER, date(2024, 5, 14)) == latest_acceptance(
+        date(2024, 5, 12)
+    )
+    assert panel.specialist_ownership_known_at(ISSUER, date(2024, 5, 12)) is None
+
+
+def test_net_insider_buying_known_at_is_latest_counted_transaction() -> None:
+    def row(accession: str, code: str, filed: date, plan: bool = False) -> dict[str, Any]:
+        return {"accession_number": accession, "issuer_cik": ISSUER, "owner_cik": "",
+                "role": "", "transaction_code": code, "acquired_disposed": "A", "shares": 10.0,
+                "price": 10.0, "transaction_date": filed, "filing_date": filed,
+                "filing_accepted_at": latest_acceptance(filed), "is_10b5_1": plan}
+
+    panel = InsiderPanel(
+        pd.DataFrame([row("P", "P", date(2024, 3, 1)), row("S", "S", date(2024, 3, 10)),
+                      row("PLAN", "S", date(2024, 3, 20), plan=True),
+                      row("GIFT", "G", date(2024, 3, 25))]),
+        pd.DataFrame(), pd.DataFrame(), FixedMarketCaps({ISSUER: 1e6}),
+    )
+
+    assert panel.net_insider_buying_known_at(ISSUER, date(2024, 4, 1)) == latest_acceptance(
+        date(2024, 3, 10)
+    )
+    assert panel.net_insider_buying_known_at(ISSUER, date(2024, 3, 1)) is None
+
+
 def test_holdings_of_filers_that_are_not_specialists_do_not_count() -> None:
     filings = pd.DataFrame([
         {**_filing("S", date(2024, 2, 10)), "period_of_report": date(2023, 12, 31)},
