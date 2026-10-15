@@ -7,7 +7,7 @@ from datetime import date, timedelta
 from typing import Protocol
 
 from auspex_backtesting.market_sim import CostModel
-from auspex_backtesting.short_interest.store import SharesOutstandingByTicker, ShortInterestStore
+from auspex_backtesting.short_interest.store import ShortInterestStore, TickerShareBasis
 
 from auspex_strategy.models import Direction, TradeIntent
 from auspex_strategy.risk.decision import ExitIntent, HeldPosition, MarketState
@@ -35,13 +35,13 @@ class StoreShortInterest:
     `as_of`: FINRA's publication time of day is not known, so the same day is not safe."""
 
     def __init__(
-        self, store: ShortInterestStore, shares: SharesOutstandingByTicker | None
+        self, store: ShortInterestStore, basis: TickerShareBasis | None
     ) -> None:
         self._store = store
-        self._shares = shares
+        self._basis = basis
 
     def view(self, ticker: str, as_of: date) -> ShortInterestView | None:
-        features = self._store.features(ticker, as_of - timedelta(days=1), self._shares)
+        features = self._store.features(ticker, as_of - timedelta(days=1), self._basis)
         if features is None or not features.record.reported:
             return None
         return ShortInterestView(features.short_interest_pct_of_shares,

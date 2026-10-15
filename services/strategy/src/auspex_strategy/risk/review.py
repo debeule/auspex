@@ -45,6 +45,7 @@ def _assumed_fill(intent: TradeIntent, shares: int, market: MarketState) -> Held
         position_id=f"pending-{intent.intent_id}",
         order_id=f"pending-{intent.intent_id}",
         intent_id=str(intent.intent_id),
+        strategy_version=intent.strategy_version,
         ticker=intent.ticker,
         direction=intent.direction,
         holding_rule=intent.holding_rule,

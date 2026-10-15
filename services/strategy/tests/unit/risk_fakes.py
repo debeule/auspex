@@ -105,6 +105,7 @@ def held(
             position_id=f"{strategy}-{ticker}",
             order_id=f"order-{strategy}-{ticker}",
             intent_id=f"intent-{strategy}-{ticker}",
+            strategy_version="1.0",
             ticker=ticker,
             direction=direction,
             holding_rule=FixedDays(20),
@@ -178,6 +179,8 @@ def closed_trades(*, wins: int, losses: int, win_eur: float = 200.0,
     for i, pnl in enumerate([win_eur] * wins + [-loss_eur] * losses):
         trades.append(ClosedTrade(
             position_id=f"p{i}",
+            strategy_version="1.0",
+            capital_eur=200.0,
             ticker="SRPT",
             direction=Direction.LONG,
             shares=10,
