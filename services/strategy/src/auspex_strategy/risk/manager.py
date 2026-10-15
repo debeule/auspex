@@ -14,7 +14,6 @@ from auspex_strategy.risk.decision import (
     BookState,
     ExitIntent,
     MarketState,
-    RiskCheckRecord,
     signed,
 )
 from auspex_strategy.risk.flow import DrawdownAndFlowLimits
@@ -23,6 +22,7 @@ from auspex_strategy.risk.limits import RiskLimits
 from auspex_strategy.risk.shorts import ShortGuard, ShortInterestReader
 from auspex_strategy.risk.sizing import KellyEstimates, KellySizer, SizingResult
 from auspex_strategy.risk.themes import ThemeMap
+from auspex_strategy.runtime.risk import RiskCheckRecord
 from auspex_strategy.runtime.store import ObjectStore
 
 

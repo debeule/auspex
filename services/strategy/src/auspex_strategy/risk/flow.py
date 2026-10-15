@@ -2,9 +2,10 @@ from __future__ import annotations
 
 from datetime import date
 
-from auspex_strategy.risk.decision import MarketState, RiskCheckRecord
+from auspex_strategy.risk.decision import MarketState
 from auspex_strategy.risk.kill_switch import KillSwitch
 from auspex_strategy.risk.limits import RiskLimits
+from auspex_strategy.runtime.risk import RiskCheckRecord
 
 
 class DrawdownAndFlowLimits:

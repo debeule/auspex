@@ -19,12 +19,19 @@ from auspex_strategy.risk import (
     LimitAboveCeilingError,
     LimitMissingError,
     PanelCatalysts,
+    PortfolioRiskReview,
     RiskLimits,
     ShortInterestView,
     StoreShortInterest,
     ThemeMap,
 )
-from auspex_strategy.runtime import MinioObjectStore, StreamingRuntime
+from auspex_strategy.runtime import (
+    ApprovalStatus,
+    BookMode,
+    MinioObjectStore,
+    PassThroughRiskManager,
+    StreamingRuntime,
+)
 from auspex_strategy.testing import InMemoryObjectStore, StaticCatalysts
 
 from .risk_fakes import (
@@ -512,7 +519,7 @@ def test_streaming_runtime_drops_intents_of_a_killed_strategy() -> None:
     runtime = StreamingRuntime(
         [slot("killed", "paper", long_on_trigger()), slot("running", "paper", long_on_trigger())],
         broker=paper,
-        risk=_PassThrough(),
+        risk=PassThroughRiskManager(10_000.0),
         ticker_for=lambda entity_key: "SRPT",
         clock=FixedClock(utc(2026, 3, 10, 22, 0)),
         timeout_seconds=5.0,
@@ -521,15 +528,8 @@ def test_streaming_runtime_drops_intents_of_a_killed_strategy() -> None:
 
     runtime.process(signal("e-1", utc(2026, 3, 5, 14, 0)))
 
-    from auspex_strategy.runtime import BookMode
     assert paper.book("killed", BookMode.PAPER).snapshot().is_empty()
     assert not paper.book("running", BookMode.PAPER).snapshot().is_empty()
-
-
-class _PassThrough:
-    def review(self, intents: list[object]) -> list[object]:
-        from auspex_strategy.runtime import ApprovedIntent
-        return [ApprovedIntent(i, 10_000.0) for i in intents]  # type: ignore[arg-type]
 
 
 def test_cost_model_reports_its_borrow_fee() -> None:
@@ -575,3 +575,46 @@ def test_open_short_is_exited_before_a_catalyst_its_strategy_trades() -> None:
     exits = risk.catalyst_exits(book, AS_OF)
 
     assert [(e.ticker, e.exit_on) for e in exits] == [("SRPT", date(2026, 3, 10))]
+
+
+# The runtime's review() over the risk manager
+
+
+def test_review_maps_decisions_to_the_runtime_form() -> None:
+    risk = manager()
+    risk.kill_switch.trigger("test", strategy_name="strategy_b")
+    review = PortfolioRiskReview(risk, lambda: (BookState(), market()))
+
+    approved, paused, rejected = review.review(
+        [intent("SRPT"), intent("BEAM", strategy="strategy_b"), intent("ZZZZ")])
+
+    assert approved.status is ApprovalStatus.APPROVED
+    assert approved.shares_proposed == 50
+    # 50 shares at $25 and 0.8 EUR/USD.
+    assert approved.capital_eur == pytest.approx(1_000.0)
+    assert approved.approved_by == "auto"
+    assert approved.kelly_inputs is not None and approved.kelly_inputs["n_trades"] == 0
+    assert paused.status is ApprovalStatus.PAUSED
+    assert paused.pause_reason is not None and "KILL_SWITCH" in paused.pause_reason
+    assert rejected.status is ApprovalStatus.REJECTED
+    assert rejected.rejection_check_name == "PRICE_UNAVAILABLE"
+    assert [c.check_name for c in approved.checks][:2] == ["MAX_DRAWDOWN", "KILL_SWITCH"]
+
+
+def test_review_counts_earlier_approvals_of_the_same_event() -> None:
+    review = PortfolioRiskReview(manager(), lambda: (BookState(), market()))
+
+    first, second = review.review([intent("SRPT"), intent("BEAM", strategy="strategy_b")])
+
+    assert first.status is ApprovalStatus.APPROVED
+    assert second.rejection_check_name == "THEME_LIMIT"
+
+
+def test_review_adds_earlier_approvals_to_turnover() -> None:
+    risk = manager(limits=limits(DAILY_TURNOVER_CEILING_PCT=0.015, MAX_POSITIONS_PER_THEME=1))
+    review = PortfolioRiskReview(risk, lambda: (BookState(), market()))
+
+    first, second = review.review([intent("SRPT"), intent("OTHR", strategy="strategy_b")])
+
+    assert first.status is ApprovalStatus.APPROVED
+    assert second.rejection_check_name == "DAILY_TURNOVER"

@@ -13,12 +13,12 @@ from auspex_strategy.risk.decision import (
     ExitIntent,
     HeldPosition,
     MarketState,
-    RiskCheckRecord,
 )
 from auspex_strategy.risk.flow import DrawdownAndFlowLimits
 from auspex_strategy.risk.kill_switch import KillSwitch
 from auspex_strategy.risk.limits import LimitAboveCeilingError, LimitMissingError, RiskLimits
 from auspex_strategy.risk.manager import RiskManager
+from auspex_strategy.risk.review import PortfolioRiskReview
 from auspex_strategy.risk.shorts import (
     ShortGuard,
     ShortInterestReader,
@@ -44,7 +44,7 @@ __all__ = [
     "LimitMissingError",
     "MarketState",
     "PanelCatalysts",
-    "RiskCheckRecord",
+    "PortfolioRiskReview",
     "RiskLimits",
     "RiskManager",
     "ShortGuard",

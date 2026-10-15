@@ -10,8 +10,9 @@ from auspex_backtesting.market_sim import CostModel
 from auspex_backtesting.short_interest.store import SharesOutstandingByTicker, ShortInterestStore
 
 from auspex_strategy.models import Direction, TradeIntent
-from auspex_strategy.risk.decision import ExitIntent, HeldPosition, MarketState, RiskCheckRecord
+from auspex_strategy.risk.decision import ExitIntent, HeldPosition, MarketState
 from auspex_strategy.risk.limits import RiskLimits
+from auspex_strategy.runtime.risk import RiskCheckRecord
 
 log = logging.getLogger(__name__)
 

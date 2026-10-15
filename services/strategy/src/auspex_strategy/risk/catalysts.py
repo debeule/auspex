@@ -10,8 +10,9 @@ from typing import Protocol
 from auspex_backtesting.market_sim import MarketCalendar
 
 from auspex_strategy.models import Direction, TradeIntent
-from auspex_strategy.risk.decision import ExitIntent, RiskCheckRecord
+from auspex_strategy.risk.decision import ExitIntent
 from auspex_strategy.risk.limits import RiskLimits
+from auspex_strategy.runtime.risk import RiskCheckRecord
 from auspex_strategy.runtime.store import ObjectStore, append_line
 
 log = logging.getLogger(__name__)

@@ -23,7 +23,7 @@ Strategy plugins (`auspex_strategy`) and the runtime that runs them.
 | `OverlapDetector` | Marks intents from different strategies on the same event, ticker and direction (`rationale.overlap_with`). |
 | `LatencyTracer` | Records corroboration-to-intent latency; warns at startup when the median exceeds a strategy's known-at delay. |
 | `PaperBroker` / `VirtualBook` | Fills approved intents at the next session's open (`FillModel`), exits on the holding rule or stop (`FillModel.stop_exit_price`), charges `CostModel` costs, converts P&L with `CurrencyConverter`. |
-| `RiskManager` | `review(intents)` returns one `RiskDecision` per intent: status (`APPROVED`, `REJECTED`, `PAUSED`), every check run (`RiskCheckRecord`), sizing and netting. |
+| `RiskManager` (protocol) | `review(intents)` returns one `RiskDecision` per intent: status (`APPROVED`, `REJECTED`, `PAUSED`), every check run (`RiskCheckRecord`), sizing and netting. |
 | `PassThroughRiskManager` | Approves every intent at `PASS_THROUGH_POSITION_EUR`; no risk checks, so its decisions cannot be traced. The streaming runtime still uses it until books are valued (`PortfolioRiskReview` below then takes its place). A killed strategy's intents are dropped before risk. |
 | `FunnelCounter` | Counts, per strategy version and mode, the events `decide()` ran on, the intents it produced and the intents risk approved. |
 
@@ -53,7 +53,8 @@ Every limit is an `.env` variable (`.env.example`, "Risk limits"); `RiskLimits.f
 | `ShortGuard` | Borrow fee, short interest and days-to-cover ceilings on entry; hard stop and EUR loss cap as exit intents. |
 | `DrawdownAndFlowLimits` | Daily loss limit (blocks the rest of the day), turnover ceiling, and a drawdown past `MAX_DRAWDOWN_PCT` turns the global kill switch on. |
 | `KillSwitch` | Global or per-strategy flag in MinIO; set and reset from the command line. Open positions keep their own exits. |
-| `RiskManager` | `evaluate(intent, book, market)` runs drawdown, kill switch, sizing, position limits, catalyst guard, short guard, loss and turnover; the first failure rejects. `ApprovalDecision.checks` lists every check that ran. |
+| `risk.RiskManager` | `evaluate(intent, book, market)` runs drawdown, kill switch, sizing, position limits, catalyst guard, short guard, loss and turnover; the first failure rejects. `ApprovalDecision.checks` lists every check that ran. |
+| `PortfolioRiskReview` | The runtime's `review()` over `RiskManager.evaluate`: one `RiskDecision` per intent (kill switch, drawdown and daily loss are `PAUSED`), each approval counted toward the next intent's limits. Needs a reader for the book and market state. |
 
 ## State in MinIO (bucket `auspex-strategy`)
 

@@ -5,16 +5,13 @@ from dataclasses import dataclass, field
 from datetime import date, datetime
 from typing import Any
 
-from auspex_strategy.models import Direction
+from auspex_strategy.models import Direction, TradeIntent
 from auspex_strategy.risk.sizing import SizingResult
 from auspex_strategy.runtime.book import ClosedTrade, OpenPosition
+from auspex_strategy.runtime.risk import ApprovalStatus, RiskCheckRecord, RiskDecision
 
-
-@dataclass(frozen=True)
-class RiskCheckRecord:
-    check_name: str
-    inputs_snapshot: dict[str, Any]
-    passed: bool
+# Checks that gate a whole strategy or book rather than judge the intent itself.
+_PAUSING_CHECKS = frozenset({"MAX_DRAWDOWN", "KILL_SWITCH", "DAILY_LOSS_LIMIT"})
 
 
 @dataclass(frozen=True)
@@ -35,6 +32,29 @@ class ApprovalDecision:
         if not self.approved or self.sizing_result is None:
             return None
         return self.adjusted_shares if self.adjusted_shares is not None else self.sizing_result.shares
+
+    def to_risk_decision(self, intent: TradeIntent, market: MarketState) -> RiskDecision:
+        """The runtime's form of this decision: approved with the capital its shares cost at
+        `market`'s price, paused when a strategy- or book-wide gate stopped it, else rejected."""
+        sizing = self.sizing_result
+        kelly = (
+            {"p": sizing.estimates.p, "b": sizing.estimates.b,
+             "n_trades": float(sizing.estimates.n_trades), "fraction": sizing.fraction}
+            if sizing is not None else None
+        )
+        if self.approved and self.shares is not None:
+            return RiskDecision(
+                intent, ApprovalStatus.APPROVED, self.checks,
+                capital_eur=market.value_eur(intent.ticker, self.shares),
+                shares_proposed=self.shares, kelly_inputs=kelly, approved_by="auto",
+            )
+        reason = f"{self.check_name}: {self.check_inputs}"
+        if self.check_name in _PAUSING_CHECKS:
+            return RiskDecision(intent, ApprovalStatus.PAUSED, self.checks,
+                                kelly_inputs=kelly, pause_reason=reason)
+        return RiskDecision(intent, ApprovalStatus.REJECTED, self.checks,
+                            shares_proposed=sizing.shares if sizing else None,
+                            kelly_inputs=kelly, rejection_reason=reason)
 
 
 @dataclass(frozen=True)

@@ -78,7 +78,7 @@ Every limit is a configurable parameter with a test that verifies it is read fro
 
 ## Out of scope
 
-Order execution and broker connectivity (session 3). Live price feed (risks use current price from `FillModel`'s most recent Parquet data for the trade day). CGT calculation (post-trade accounting). Readout dates (catalyst-calendar spec). Plugging `RiskManager` into the runtime's `review()` and executing exit intents (with forward paper trading, which values the books; `DECISIONS.md` 2026-10-11).
+Order execution and broker connectivity (session 3). Live price feed (risks use current price from `FillModel`'s most recent Parquet data for the trade day). CGT calculation (post-trade accounting). Readout dates (catalyst-calendar spec). Supplying the book and market state `PortfolioRiskReview` (the runtime's `review()` over `RiskManager.evaluate`) reads in the streaming runtime, and executing exit intents (with forward paper trading, which values the books; `DECISIONS.md` 2026-10-11).
 
 ## Constraints
 
