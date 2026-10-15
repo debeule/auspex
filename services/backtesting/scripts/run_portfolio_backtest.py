@@ -47,7 +47,7 @@ from auspex_backtesting.universe.store import UniverseStore
 _CONFIG_DIR = Path(__file__).resolve().parents[3] / "config" / "hypotheses"
 
 
-def main() -> None:
+def main(argv: list[str] | None = None) -> None:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("hypothesis_id")
     parser.add_argument("--use", help="the use to run, for a hypothesis with several")
@@ -61,11 +61,17 @@ def main() -> None:
     )
     parser.add_argument("--final", action="store_true")
     parser.add_argument("--out-dir", type=Path, default=Path("reports/portfolio"))
-    args = parser.parse_args()
+    parser.add_argument(
+        "--config-dir",
+        type=Path,
+        default=_CONFIG_DIR,
+        help="registered hypotheses, trial ledger and holdout record",
+    )
+    args = parser.parse_args(argv)
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
 
     protocol = EvaluationProtocol(
-        config_dir=_CONFIG_DIR, registry_path=_CONFIG_DIR / "registry.jsonl"
+        config_dir=args.config_dir, registry_path=args.config_dir / "registry.jsonl"
     )
     hypothesis = protocol.admit(args.hypothesis_id)
     view = next(v for v in hypothesis_views(hypothesis) if v.get("use") == args.use)
@@ -96,7 +102,7 @@ def main() -> None:
     )
     tiers = [float(t) for t in os.environ["PAPER_CAPITAL_TIERS_EUR"].split(",")]
     evaluation = PortfolioEvaluation(
-        protocol, engine, NoInputManifests(), HoldoutRecord(_CONFIG_DIR / "holdout")
+        protocol, engine, NoInputManifests(), HoldoutRecord(args.config_dir / "holdout")
     )
     report = evaluation.run(
         args.hypothesis_id, cell, rule, args.universe_version, tiers, use=args.use, final=args.final

@@ -461,7 +461,7 @@ class PortfolioBacktest:
 
         base_first = self._previous_session(sessions[0])
         months = self._month_rows(month_rows, base_first, book, universe_version, listings)
-        member_months, unpriced = self._member_months(month_rows, universe_version)
+        member_months, unpriced = self._member_months(month_rows, book, universe_version)
         quintiles = self._quintiles(rule, month_rows, book, universe_version, listings)
         return self._result(
             rule,
@@ -826,7 +826,7 @@ class PortfolioBacktest:
         return tuple(out)
 
     def _member_months(
-        self, rows: list[dict[str, object]], universe_version: int
+        self, rows: list[dict[str, object]], book: _PriceBook, universe_version: int
     ) -> tuple[int, int]:
         total = unpriced = 0
         for row in rows:
@@ -835,9 +835,7 @@ class PortfolioBacktest:
             unpriced += sum(
                 1
                 for m in snapshot.members
-                if m.ticker is None
-                or m.price_coverage == "none"
-                or self._store.load(m.ticker) is None
+                if m.ticker is None or m.price_coverage == "none" or book.get(m.ticker) is None
             )
         return total, unpriced
 
