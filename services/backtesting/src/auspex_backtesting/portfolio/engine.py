@@ -48,6 +48,7 @@ class MissingInputSnapshotError(LookupError):
 
 class UniverseSource(Protocol):
     def read(self, rules_version: int, month: str) -> UniverseSnapshot | None: ...
+    def snapshot_key(self, rules_version: int, month: str) -> str: ...
     def read_listings(self, rules_version: int) -> tuple[list[UniverseMember], date] | None: ...
 
 
@@ -308,7 +309,7 @@ class PortfolioBacktest:
         """Every universe and score snapshot a run over `[start, end]` reads, as object keys."""
         decisions = rule.decision_dates(start, end, self._calendar)
         months = _months_between(start, end) | {d.strftime("%Y-%m") for d in decisions}
-        keys = {f"universe/{universe_version}/{m}.parquet" for m in months}
+        keys = {self._universe.snapshot_key(universe_version, m) for m in months}
         for ref in (rule.score, rule.exclusion):
             if ref is None:
                 continue

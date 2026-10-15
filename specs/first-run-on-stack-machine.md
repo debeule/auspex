@@ -18,6 +18,7 @@ Everything the cloud sessions could build and test is merged into `develop`. Wha
 | Price history reaching back to 2013 | `DECISIONS.md` 2026-10-08 FLAG "universe window" and CHOICE "price history from 2013" | snapshots only grow forward, so this must be set before the first `up` |
 | Historical backfill dry run | `specs/historical-backfill.md`, draft PR #8 | needs the stack, the gated model and its latency record |
 | First SEC ownership backfill (13F, insider, offerings) and its coverage | `specs/sec-ownership-datasets.md`, `DECISIONS.md` 2026-10-09 PENDING "first backfill on the stack machine" | the data sets are on `sec.gov` |
+| First filing-text panel (biotech and `us_small_mid`), the broad universe's first build, a 20-filing hand check of the Item 1A cuts | `specs/filing-text-change-score.md` (code done, blocked only on this) | the filings are on `sec.gov` |
 
 Machine facts: Docker Desktop is capped at **8 GB** (`SETUP.md` step 2), which leaves about 10–12 GB for the model. Ollama runs natively on the host because Docker on macOS has no Metal access; containers reach it at `host.docker.internal:11434`, host scripts at `localhost:11434`.
 
@@ -129,7 +130,7 @@ cd services/backtesting && uv run pytest tests/unit/test_universe.py -q --strict
 - The DAG run is `success`. A `failed` run with HTTP 409 naming `PRICE_HISTORY_START` means `.env` sets it later than 2013-11-17; that cannot be fixed without deleting stored price history, so record a FLAG and stop this step. A `failed` run whose log shows HTTP 502 naming a `sec.gov` URL means a bulk URL is wrong: find the current location on SEC's "Bulk data" page, put it in `.env` only (and in `.env.example`, which holds no secrets), restart the price service, trigger again, and record old and new URL in `DECISIONS.md`. A 403 means `SEC_USER_AGENT` is missing or rejected. A price-service log line "SEC refused ... no further index lookups" means SEC rate-limited the filing index reads: the build still succeeds, with more unresolved tickers; record the count.
 - `rules_version` is `1`; `already_stored` equals the number of months from 2014-01 to the current month; `coverage` lists members, delisted count and members with partial or no price history.
 - `config/universe/backfill_scope.yaml` exists and is non-empty, with CIKs, tickers and names, and its `window.start` is `2024-01`.
-- `test_universe.py`: 52 passed.
+- `test_universe.py`: 58 passed.
 
 Then, per the point-in-time universe spec's definition of done:
 - `DECISIONS.md`: VERIFIED entry closing the 2026-10-08 PENDING, with the URLs that worked, members per month (min, median, max), delisted and acquired counts, price coverage (complete, partial, none) and the unresolved-ticker count, each also split into 2014–2018 and 2019 onward (free sources keep few delisted names from before 2019, and the protocol's `survivorship` kill criterion reads this).
@@ -206,6 +207,30 @@ A `FINRA_*` key printing `0`: the two URLs copy from `.env.example`; the credent
 - `test_short_interest.py`: 9 passed.
 
 Record in `DECISIONS.md` a VERIFIED entry closing the 2026-10-10 PENDING "Short interest snapshots — first fetch on the stack machine": the first available settlement date (and whether it is near 2021-06 or only a rolling year back, which needs the archive-file follow-up named there), the count and range of unavailable periods, any gaps, and the share of tickers never reported. Compare the newest period's publication date with FINRA's schedule page; a mismatch is a FLAG. Move `specs/short-interest-snapshots.md` to `specs/done/`, set its status to `done` and update its `TODO.md` row. Commit: `short interest first fetch: coverage, spec done`.
+
+### 3d. Filing text change panel (H10), biotech then broad universe
+
+Precondition: step 3 passed and `services/backtesting/src/auspex_backtesting/filings/` is on `develop`; otherwise record "not run" with the reason and skip. Run it after steps 3a and 3b, not alongside either (SEC's limit is shared). It reads one quarterly index per quarter from mid-2012 (or the copy step 3a kept), then two documents per member 10-K and 10-Q, at 5 requests per second: a few thousand filings a year for the biotech universe, tens of thousands for the broad one, so expect many hours for the second. Each cut section is kept in MinIO; a run SEC stops (exit 1, `"complete": false`) continues where it left off. The broad universe (`config/universe/us_small_mid.yaml`, every SIC code) is built first by its own `build_universe.py` run, which fetches price history for every listed US company: expect it to take longer than step 3.
+
+```bash
+cd services/backtesting
+caffeinate -i uv run --env-file ../../.env python scripts/build_filing_panel.py --rules ../../config/universe/rules.yaml > /tmp/filings-biotech.json; echo "exit $?"
+caffeinate -i uv run --env-file ../../.env python scripts/build_universe.py --rules ../../config/universe/us_small_mid.yaml > /tmp/universe-us-small-mid.json; echo "exit $?"
+caffeinate -i uv run --env-file ../../.env python scripts/build_filing_panel.py --rules ../../config/universe/us_small_mid.yaml > /tmp/filings-us-small-mid.json; echo "exit $?"
+for f in /tmp/filings-biotech.json /tmp/filings-us-small-mid.json; do jq '{complete, filings_found, amendments_not_cut, sections, missing_by_reason, scores, unscored, snapshots_written}' "$f"; jq -r '.months[] | [.month, .members, .scored, .left_out] | @tsv' "$f" | awk 'NR % 12 == 1'; done
+jq '{built: (.built | length), coverage}' /tmp/universe-us-small-mid.json
+uv run pytest tests/unit/test_filing_text_change.py -q --strict-markers
+cd ../..
+```
+
+Then draw 20 random archived filings from the biotech run (`filings/item1a/` objects, fixed seed, seed recorded), half with `status` `cut`, and open each filing on EDGAR: the cut text starts at the real Item 1A heading and stops at the next item, a `no_change_statement` really says only that, and a `section_missing` reason is right.
+
+**Check:**
+- Each exit code 0 and `complete` is `true` (run again until it is); `sections.cut` is most of `filings_found` minus `amendments_not_cut`. A `missing_by_reason` dominated by `no_item_1a_heading` or `no_end_heading` means real headings differ from the fixture rules: FLAG with three example accessions and stop this step; the fix goes through a cloud session.
+- `test_filing_text_change.py`: 13 passed.
+- Hand-check hit rate (correct / 20) is at least 0.9. Below that, FLAG with the wrong filings and stop; no score may be read before the rules are fixed.
+
+Record in `DECISIONS.md` a VERIFIED entry: per universe, filings found, sections by status, missing by reason, members scored per year (min/median/max of `scored / members`), and for `us_small_mid` the universe coverage split 2014–2018 vs 2019+ (the survivorship threat in the spec's notes); plus the hand-check hit rate with the seed. Move `specs/filing-text-change-score.md` to `specs/done/`, set its status to `done` and update its `TODO.md` row. Commit: `filing text change panel first build: coverage, hand check, spec done`.
 
 ### 4. Install Ollama and pull the candidates
 
@@ -351,6 +376,7 @@ Checks run on the Mac, each falsifiable and each tied to a step above:
 - `check_short_interest_fetched_with_first_settlement_date_recorded` — step 3c
 - `check_backfill_scope_exported_and_non_empty` — step 3
 - `check_catalyst_panel_build_complete_with_hand_checked_precision` — step 3a
+- `check_filing_panel_built_for_both_universes_with_hand_checked_cuts` — step 3d
 - `check_phi3_tag_is_the_128k_context_build` — step 4
 - `check_each_candidate_has_a_gate_record_at_prompt_v1_1` — step 5
 - `check_candidate_fits_without_swap_growth_over_1gb` — step 5
@@ -374,7 +400,7 @@ grep -c -E 'Local model — (CHOICE|FLAG)' DECISIONS.md                         
 grep -E '^\| Ollama' VERSIONS.md | grep -v 'resolve at install' && echo ollama-pinned
 ```
 
-Expected: 13 passed; 52 passed; `scope-ok`; `universe-spec-done`; `catalyst-spec-done` (or step 3a recorded as not run or flagged); `6`; a count of 1 or more; `ollama-pinned`. The PR into `develop` is open with CI green.
+Expected: 13 passed; 58 passed; `scope-ok`; `universe-spec-done`; `catalyst-spec-done` (or step 3a recorded as not run or flagged); `6`; a count of 1 or more; `ollama-pinned`. The PR into `develop` is open with CI green.
 
 ## Notes
 

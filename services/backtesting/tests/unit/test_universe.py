@@ -8,9 +8,11 @@ from unittest.mock import MagicMock
 import pandas as pd
 import pytest
 from minio.error import S3Error
+from portfolio_support import monthly_rule, world
 
 from auspex_backtesting.backtest.membership import UniverseMembership
 from auspex_backtesting.backtest.runner import BacktestEvent, BacktestRunner, WindowReturn
+from auspex_backtesting.hypothesis import load_hypothesis
 from auspex_backtesting.market_sim import (
     MissingPriceDataError,
     PriceDataAbsentError,
@@ -143,10 +145,11 @@ def _builder(
     *,
     as_of: date = date(2024, 9, 30),
     splits: dict[str, pd.Series] | None = None,
+    rules: UniverseRules = _RULES,
 ) -> UniverseBuilder:
     default_shares = {c.cik: [_shares("2023-11-10", 20_000_000)] for c in companies}
     return UniverseBuilder(
-        _RULES,
+        rules,
         companies,
         shares if shares is not None else default_shares,
         _Prices(bars, splits),
@@ -178,6 +181,9 @@ class _FakeMinio:
         response = MagicMock()
         response.read.return_value = self.objects[key]
         return response
+
+    def list_objects(self, bucket: str, prefix: str = "", **_: object) -> list[MagicMock]:
+        return [MagicMock(object_name=k) for k in sorted(self.objects) if k.startswith(prefix)]
 
 
 # --- admission rules -------------------------------------------------------------------------
@@ -647,6 +653,133 @@ def test_snapshot_month_whose_rebalance_is_after_as_of_is_refused() -> None:
     builder.build("2024-03")
     with pytest.raises(ValueError, match="2024-04"):
         builder.build("2024-04")
+
+
+# --- several universes -------------------------------------------------------------------------
+
+_BROAD_YAML = """\
+version: 1
+sic_codes: []
+exchanges: [NYSE, Nasdaq, NYSE American]
+min_market_cap_usd: 50000000
+max_market_cap_usd: 1000000000
+min_median_dollar_volume_usd: 500000
+liquidity_sessions: 20
+rebalance: monthly
+window:
+  start: 2024-01-01
+  end: null
+"""
+
+
+def test_two_universe_rules_files_build_and_snapshot_independently(tmp_path: Path) -> None:
+    (tmp_path / "rules.yaml").write_text(_RULES_YAML, encoding="utf-8")
+    (tmp_path / "broad.yaml").write_text(_BROAD_YAML, encoding="utf-8")
+    minio = _FakeMinio()
+    biotech_store = UniverseStore.for_rules_file(minio, tmp_path / "rules.yaml")
+    broad_store = UniverseStore.for_rules_file(minio, tmp_path / "broad.yaml")
+    biotech_rules = biotech_store.lock_rules(tmp_path / "rules.yaml")
+    broad_rules = broad_store.lock_rules(tmp_path / "broad.yaml")
+    drugs = _company("0000000001", tickers=("DRUG",))
+    banks = _company("0000000002", sic="6022", tickers=("BANK",))
+    bars = {t: _bars("2023-12-01", "2024-09-30") for t in ("DRUG", "BANK")}
+
+    biotech_store.write(_builder([drugs, banks], bars, rules=biotech_rules).build("2024-03"))
+    broad_store.write(_builder([drugs, banks], bars, rules=broad_rules).build("2024-03"))
+
+    assert sorted(minio.objects) == [
+        "universe/1/2024-03.parquet",
+        "universe/1/rules.yaml",
+        "universe/broad/1/2024-03.parquet",
+        "universe/broad/1/rules.yaml",
+    ]
+    biotech, broad = biotech_store.read(1, "2024-03"), broad_store.read(1, "2024-03")
+    assert biotech is not None and broad is not None
+    assert [m.cik for m in biotech.members] == ["0000000001"]
+    assert [m.cik for m in broad.members] == ["0000000001", "0000000002"]
+    assert biotech_store.months(1) == ["2024-03"]
+    assert broad_store.months(1) == ["2024-03"]
+    with pytest.raises(ValueError, match="broad.yaml"):
+        biotech_store.lock_rules(tmp_path / "broad.yaml")
+
+
+def test_biotech_rules_file_keeps_its_existing_snapshot_prefix(tmp_path: Path) -> None:
+    path = tmp_path / "rules.yaml"
+    path.write_text(_RULES_YAML, encoding="utf-8")
+    minio = _FakeMinio()
+    store = UniverseStore.for_rules_file(minio, path)
+
+    store.lock_rules(path)
+    store.write(_builder([_company()], {"ALPH": _bars("2023-12-01", "2024-09-30")}).build("2024-03"))
+
+    assert minio.puts == ["universe/1/rules.yaml", "universe/1/2024-03.parquet"]
+    assert UniverseStore(minio).read(1, "2024-03") == store.read(1, "2024-03")
+
+
+def test_empty_sic_list_admits_every_sic_code(tmp_path: Path) -> None:
+    path = tmp_path / "broad.yaml"
+    path.write_text(_BROAD_YAML, encoding="utf-8")
+    rules = load_rules(path)
+    companies = [
+        _company(f"000000000{i}", sic=sic, tickers=(f"T{i}",))
+        for i, sic in enumerate(("2836", "3841", "6022", "7372"), start=1)
+    ]
+    bars = {f"T{i}": _bars("2023-12-01", "2024-09-30") for i in range(1, 5)}
+
+    snapshot = _builder(companies, bars, rules=rules).build("2024-03")
+
+    assert rules.sic_codes == frozenset()
+    assert sorted(_members(snapshot)) == [c.cik for c in companies]
+
+
+def test_market_cap_ceiling_excludes_larger_members(tmp_path: Path) -> None:
+    path = tmp_path / "broad.yaml"
+    path.write_text(_BROAD_YAML, encoding="utf-8")
+    rules = load_rules(path)
+    mid = _company("0000000001", tickers=("MIDC",))
+    large = _company("0000000002", tickers=("LRGC",))
+    shares = {
+        mid.cik: [_shares("2024-02-10", 100_000_000)],  # 100M x $10 = $1.0B, at the ceiling
+        large.cik: [_shares("2024-02-10", 100_000_001)],
+    }
+    bars = {t: _bars("2023-12-01", "2024-09-30", close=10.0) for t in ("MIDC", "LRGC")}
+
+    snapshot = _builder([mid, large], bars, shares, rules=rules).build("2024-03")
+
+    assert rules.max_market_cap_usd == 1_000_000_000.0
+    assert sorted(_members(snapshot)) == [mid.cik]
+    assert _RULES.max_market_cap_usd is None
+
+
+def test_us_small_mid_rules_are_the_universe_h10_registered() -> None:
+    config = Path(__file__).resolve().parents[4] / "config"
+    rules = load_rules(config / "universe" / "us_small_mid.yaml")
+    biotech = load_rules(config / "universe" / "rules.yaml")
+    h10 = load_hypothesis("h10", config / "hypotheses")
+    registered = next(u for u in h10["uses"] if u["id"] == "broad_small_mid")["universe"]
+
+    assert registered["source"] == "us_small_mid"
+    assert rules.sic_codes == frozenset()
+    assert rules.min_market_cap_usd == registered["min_market_cap_usd"]
+    assert rules.max_market_cap_usd == registered["max_market_cap_usd"]
+    assert rules.min_median_dollar_volume_usd == registered["min_median_dollar_volume_20d_usd"]
+    assert rules.liquidity_sessions == 20
+    assert (rules.exchanges, rules.window_start, rules.window_end) == (
+        biotech.exchanges, biotech.window_start, biotech.window_end
+    )
+
+
+def test_portfolio_run_reads_universe_snapshots_under_its_store_prefix() -> None:
+    w = world(3)
+    w.universe.prefix = "universe/broad/"
+
+    keys = w.engine().input_keys(monthly_rule(), 1, date(2020, 1, 1), date(2020, 3, 31))
+
+    universe_keys = [k for k in keys if k.startswith("universe/")]
+    assert universe_keys == [f"universe/broad/1/2020-0{m}.parquet" for m in (1, 2, 3)]
+    assert UniverseStore(_FakeMinio(), universe="broad").snapshot_key(1, "2017-01") == (
+        "universe/broad/1/2017-01.parquet"
+    )
 
 
 

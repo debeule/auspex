@@ -19,6 +19,13 @@ from auspex_backtesting.catalysts import (
     PressReleaseCatalystExtractor,
 )
 from auspex_backtesting.catalysts.job import CatalystPanelBuild, universe_members
+from auspex_backtesting.filings import (
+    FilingIndex,
+    FilingPanelBuild,
+    FilingSectionArchive,
+    score_version,
+)
+from auspex_backtesting.portfolio.scores import ScoreStore
 from auspex_backtesting.price_metrics import PriceRefreshMetrics, UniverseMonthCollector
 from auspex_backtesting.prices.price_refresher import (
     PriceDataUnavailableError,
@@ -98,11 +105,12 @@ def create_app(
 def stored_universe_months() -> list[str]:
     """Months stored under the configured rules version; empty before the first build."""
     try:
-        rules_version = load_rules(Path(os.environ["UNIVERSE_RULES_PATH"])).version
+        rules_path = Path(os.environ["UNIVERSE_RULES_PATH"])
     except KeyError as exc:
         # Not configured (tests, a bare run): the metric is left out, as for an unreadable store.
         raise OSError("UNIVERSE_RULES_PATH is not set") from exc
-    return UniverseStore(_minio_from_env()).months(rules_version)
+    rules_version = load_rules(rules_path).version
+    return UniverseStore.for_rules_file(_minio_from_env(), rules_path).months(rules_version)
 
 
 def refresher_from_env() -> PriceRefresher:
@@ -111,11 +119,14 @@ def refresher_from_env() -> PriceRefresher:
     )
 
 
-def universe_job_from_env() -> UniverseBuildJob:
+def universe_job_from_env(rules_path: Path | None = None) -> UniverseBuildJob:
+    """The build of the universe in `rules_path`, by default the one `UNIVERSE_RULES_PATH`
+    names."""
     client = _minio_from_env()
+    rules_path = rules_path or Path(os.environ["UNIVERSE_RULES_PATH"])
     return UniverseBuildJob(
-        UniverseStore(client),
-        Path(os.environ["UNIVERSE_RULES_PATH"]),
+        UniverseStore.for_rules_file(client, rules_path),
+        rules_path,
         SecBulkSource(
             os.environ["SEC_SUBMISSIONS_BULK_URL"],
             os.environ["SEC_COMPANYFACTS_BULK_URL"],
@@ -153,6 +164,25 @@ def catalyst_build_from_env() -> CatalystPanelBuild:
             cache,
         ),
         lambda: universe_members(store, rules_version),
+    )
+
+
+def filing_panel_build_from_env(
+    rules_path: Path, hypothesis_id: str, hypothesis_version: int
+) -> FilingPanelBuild:
+    """The filing-text panel over the universe in `rules_path`, written as score snapshots of
+    `hypothesis_id`."""
+    client = _minio_from_env()
+    sec = HttpSource(os.environ["SEC_USER_AGENT"], _SEC_INTERVAL_S)
+    universe = UniverseStore.for_rules_file(client, rules_path)
+    return FilingPanelBuild(
+        FilingIndex(client, os.environ["SEC_FULL_INDEX_URL"], sec, DocumentCache(client)),
+        FilingSectionArchive(client, os.environ["SEC_ARCHIVES_URL"], sec),
+        universe,
+        load_rules(rules_path).version,
+        ScoreStore(client),
+        hypothesis_id,
+        score_version(hypothesis_version, universe.universe),
     )
 
 

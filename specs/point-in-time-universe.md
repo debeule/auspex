@@ -115,7 +115,7 @@ In `services/backtesting/tests/unit/test_universe.py`:
 cd services/backtesting && uv run pytest tests/unit/test_universe.py -q --strict-markers
 ```
 
-Expected: 52 passed (the 23 required tests among them).
+Expected: 58 passed (the 23 required tests among them).
 
 Then:
 - The universe built from 2014-01 on the stack machine (`specs/first-run-on-stack-machine.md` step 3); member count per month, delisted count, and price coverage report recorded in `DECISIONS.md`.

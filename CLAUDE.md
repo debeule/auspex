@@ -88,6 +88,7 @@ This is not hypothetical: v1 of this plan contained a test (`test_dag_task_only_
 | Java: forked-TZ execution | `cd services/core-hub && ./gradlew timezoneCheck` |
 | Java: force re-run (defeat up-to-date) | `cd services/core-hub && ./gradlew test --rerun-tasks` |
 | Backtesting: unit tests | `cd services/backtesting && uv run pytest tests/unit -q` |
+| Backtesting: integration tests (Docker) | `cd services/backtesting && uv run pytest tests/integration -q` |
 | Backup: lint, types, unit tests | `cd services/backup && uv run ruff check . && uv run mypy src && uv run pytest tests/unit -q` |
 | Restore a nightly backup into empty stores | `docker compose --profile restore -f docker/docker-compose.yml --env-file .env run --rm restore --date YYYY-MM-DD` (`docs/backup-restore.md`) |
 | Dashboard: lint, types, tests | `cd services/dashboard && npm ci && npm run lint && npx tsc --noEmit && npm run test:ci` |

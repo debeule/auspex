@@ -8,9 +8,10 @@ import yaml  # type: ignore[import-untyped]
 
 @dataclass(frozen=True)
 class UniverseRules:
-    """Admission rules for the point-in-time universe, read from `config/universe/rules.yaml`.
+    """Admission rules for one point-in-time universe, read from its file in `config/universe/`.
 
-    Dollar floors are in USD. `window_end` of None means the window runs to the current month.
+    Dollar bounds are in USD. An empty `sic_codes` admits every SIC code; `max_market_cap_usd`
+    of None sets no ceiling. `window_end` of None means the window runs to the current month.
     """
 
     version: int
@@ -21,6 +22,10 @@ class UniverseRules:
     liquidity_sessions: int
     window_start: date
     window_end: date | None
+    max_market_cap_usd: float | None = None
+
+    def admits_sic(self, sic: str) -> bool:
+        return not self.sic_codes or sic in self.sic_codes
 
 
 def load_rules(path: Path) -> UniverseRules:
@@ -34,13 +39,16 @@ def parse_rules(text: str) -> UniverseRules:
     window = raw["window"]
     return UniverseRules(
         version=int(raw["version"]),
-        sic_codes=frozenset(str(s) for s in raw["sic_codes"]),
+        sic_codes=frozenset(str(s) for s in raw["sic_codes"] or ()),
         exchanges=frozenset(str(e) for e in raw["exchanges"]),
         min_market_cap_usd=float(raw["min_market_cap_usd"]),
         min_median_dollar_volume_usd=float(raw["min_median_dollar_volume_usd"]),
         liquidity_sessions=int(raw["liquidity_sessions"]),
         window_start=_as_date(window["start"]),
         window_end=_as_date(window["end"]) if window.get("end") is not None else None,
+        max_market_cap_usd=(
+            float(raw["max_market_cap_usd"]) if raw.get("max_market_cap_usd") is not None else None
+        ),
     )
 
 

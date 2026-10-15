@@ -90,7 +90,7 @@ class UniverseBuilder:
         self._as_of = as_of
         self._shares = shares
         self._prices = prices
-        eligible = sorted((c for c in companies if c.sic in rules.sic_codes), key=lambda c: c.cik)
+        eligible = sorted((c for c in companies if rules.admits_sic(c.sic)), key=lambda c: c.cik)
         self._companies = [
             (c, ListingHistory.from_record(c, rules.exchanges)) for c in eligible
         ]
@@ -178,6 +178,9 @@ class UniverseBuilder:
         # A rule that cannot be evaluated for lack of data does not exclude: dropping such names
         # would remove exactly the delisted companies the universe exists to keep.
         if cap is not None and cap < self._rules.min_market_cap_usd:
+            return None
+        ceiling = self._rules.max_market_cap_usd
+        if cap is not None and ceiling is not None and cap > ceiling:
             return None
         if liquidity is not None and liquidity < self._rules.min_median_dollar_volume_usd:
             return None

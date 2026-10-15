@@ -104,6 +104,7 @@ class Universe:
         self.members = list(members)
         self.months = list(months)
         self.excluded: dict[str, set[str]] = {}
+        self.prefix = "universe/"
 
     def read(self, rules_version: int, month: str) -> UniverseSnapshot | None:
         if month not in self.months:
@@ -115,6 +116,9 @@ class Universe:
 
     def read_listings(self, rules_version: int) -> tuple[list[UniverseMember], date]:
         return self.members, date(2023, 3, 31)
+
+    def snapshot_key(self, rules_version: int, month: str) -> str:
+        return f"{self.prefix}{rules_version}/{month}.parquet"
 
 
 class Scores:

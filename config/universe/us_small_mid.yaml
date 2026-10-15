@@ -1,0 +1,14 @@
+# US small and mid caps across every industry, for the broad filing-text test (H10's
+# broad_small_mid use). Same exchanges and window as rules.yaml; the market-cap band and the
+# liquidity floor are the ones H10 registered for this universe.
+version: 1
+sic_codes: []                         # empty: every SIC code
+exchanges: [NYSE, Nasdaq, NYSE American, NYSE MKT]
+min_market_cap_usd: 500000000         # USD at the rebalance session
+max_market_cap_usd: 10000000000
+min_median_dollar_volume_usd: 2000000 # USD, median close x volume
+liquidity_sessions: 20
+rebalance: monthly
+window:
+  start: 2014-01-01
+  end: null

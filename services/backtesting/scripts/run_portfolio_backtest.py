@@ -11,9 +11,13 @@ Usage:
     uv run python scripts/run_portfolio_backtest.py h9 --score-version 1 --universe-version 1 \\
         --cell cadence=quarterly_top15 --cell catalyst_guard=none --cell floor=floor \\
         --filter-score h10:1
+    uv run python scripts/run_portfolio_backtest.py h10 --use broad_small_mid \\
+        --score-version 1-us_small_mid --universe-version 1 \\
+        --universe-rules ../../config/universe/us_small_mid.yaml
 
-Run from services/backtesting with the MinIO, cost and PAPER_CAPITAL_TIERS_EUR variables of
-.env.example set. Writes `<hypothesis>-<run id>.json` (report) and `...-verdict.json` under
+`--universe-rules` names the universe the run trades (default the biotech universe,
+config/universe/rules.yaml). Run from services/backtesting with the MinIO, cost and
+PAPER_CAPITAL_TIERS_EUR variables of .env.example set. Writes `<hypothesis>-<run id>.json` (report) and `...-verdict.json` under
 `--out-dir`, and prints the verdict. Record a final verdict in DECISIONS.md.
 """
 
@@ -45,6 +49,7 @@ from auspex_backtesting.protocol import EvaluationProtocol
 from auspex_backtesting.universe.store import UniverseStore
 
 _CONFIG_DIR = Path(__file__).resolve().parents[3] / "config" / "hypotheses"
+_DEFAULT_UNIVERSE = _CONFIG_DIR.parent / "universe" / "rules.yaml"
 
 
 def main(argv: list[str] | None = None) -> None:
@@ -53,6 +58,7 @@ def main(argv: list[str] | None = None) -> None:
     parser.add_argument("--use", help="the use to run, for a hypothesis with several")
     parser.add_argument("--score-version", required=True)
     parser.add_argument("--universe-version", type=int, required=True)
+    parser.add_argument("--universe-rules", type=Path, default=_DEFAULT_UNIVERSE, metavar="PATH")
     parser.add_argument("--cell", action="append", default=[], metavar="AXIS=VALUE")
     parser.add_argument(
         "--filter-score",
@@ -90,7 +96,7 @@ def main(argv: list[str] | None = None) -> None:
     sizing = protocol.protocol["sizing"]
     engine = PortfolioBacktest(
         prices=prices,
-        universe=UniverseStore(client),
+        universe=UniverseStore.for_rules_file(client, args.universe_rules),
         scores=ScoreStore(client),
         cost_model=CostModel(CostParameters.from_env(), SpreadEstimator(prices)),
         sizer=EqualRiskSizer(float(sizing["max_position_pct"]), int(sizing["min_names"])),

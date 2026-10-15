@@ -1,6 +1,6 @@
 # backtesting
 
-Price snapshots, the point-in-time stock universe, SEC ownership panels, market simulation and the backtest runner (`auspex_backtesting`).
+Price snapshots, the point-in-time stock universes, SEC ownership panels, the filing-text change score, market simulation and the backtest runner (`auspex_backtesting`).
 
 ## Point-in-time universe
 
@@ -14,11 +14,15 @@ Price snapshots, the point-in-time stock universe, SEC ownership panels, market 
 | Liquidity | median close × volume over the 20 sessions before the rebalance ≥ $500k |
 | Window | from 2014-01, monthly, to the current month |
 
-One universe serves every study: the slow-signal study reads it from 2014, the event backfill from `BACKFILL_SCOPE_START`. The build refuses a `PRICE_HISTORY_START` later than 45 days before the window (HTTP 409).
+This biotech universe serves every biotech study: the slow-signal study reads it from 2014, the event backfill from `BACKFILL_SCOPE_START`. The build refuses a `PRICE_HISTORY_START` later than 45 days before the window (HTTP 409).
 
 Inputs are SEC's nightly bulk archives (filer submissions and XBRL company facts, two downloads instead of per-company requests) and the price snapshots in `auspex-prices`, fetched from Yahoo, then Stooq. Listing spans come from exchange registrations, delisting notices and deregistrations. A delisted company's ticker comes from its inline XBRL report name (2019 on) or, before that, from the XBRL instance named in its last report's filing index (one request per such company, paced under SEC's limit, `SEC_ARCHIVES_URL`); `DECISIONS.md` (2026-10-08, point-in-time universe) records how each edge case is decided.
 
-Stored in the `auspex-prices` bucket under `universe/{rules_version}/`:
+### Other universes
+
+Each universe has one rules file in `config/universe/`, and nothing in the code names one. `us_small_mid.yaml` is US small and mid caps in every industry (an empty `sic_codes` admits every SIC code; `max_market_cap_usd` is an optional ceiling) for the broad filing-text test: the same exchanges and window as the biotech universe, market cap $500M to $10B and a $2M liquidity floor, the bounds H10 registered for it. `scripts/build_universe.py --rules ../../config/universe/us_small_mid.yaml` builds it; the DAG builds only the biotech universe. Its first build downloads prices for every listed US company.
+
+Stored in the `auspex-prices` bucket under `universe/{rules_version}/` for `rules.yaml`, and `universe/{universe_id}/{rules_version}/` for any other `<universe_id>.yaml`:
 
 | Object | Written |
 |---|---|
@@ -64,6 +68,17 @@ Stored in the `auspex-prices` bucket:
 `CatalystPanel(minio).as_of(cik, at)` gives the upcoming catalysts known at `at`: per catalyst (rows of a company sharing an application number or product name), the latest row disclosed by then. `binaries_between(cik, start, end, as_of)` gives those whose period overlaps a window, for the catalyst guard. Both take a timezone-aware time.
 
 Requests to SEC are paced at 5 per second with `SEC_USER_AGENT`, Federal Register at 1 per second. A 403 or 429 ends the run without retrying, since retrying extends an SEC block; running again continues from the stored documents. Coverage is partial by nature: not every company names its PDUFA date in an 8-K, and the build's coverage report counts members with no catalyst data.
+
+## Filing text change score
+
+`auspex_backtesting.filings` scores H10 ("lazy prices"): how much a filer's 10-K or 10-Q Risk Factors section (Item 1A) changed from the same filing a year earlier. No LLM.
+
+1. **`FilingIndex`**: every 10-K, 10-K405, 10-KT and 10-Q (amendments included) of a quarter from EDGAR's `master.idx` (`SEC_FULL_INDEX_URL`), stored once per finished quarter as `filings/index/{yyyy}-q{q}.json`. A quarterly index the catalyst panel already keeps is read from its copy.
+2. **`FilingSectionArchive`**: for each original filing (amendments are counted, not cut) of a filer that is a universe member in the 17 months from its filing month, the filing index page (acceptance time, period of report, primary document by type) and the primary document; Item 1A is cut by heading rules and kept as `filings/item1a/{cik}/{accession}.json.gz` with `status` `cut`, `no_change_statement` (a 10-Q that only says nothing changed) or `section_missing` with its reason (`no_item_1a_heading`, `no_end_heading`, `not_provided`, `no_acceptance_time`, `no_period_of_report`, `no_primary_document`, `filing_index_not_found`, `primary_document_not_found`). Neither page is kept; every filing is fetched once.
+3. **`TextChangeScore`**: each filing against the same form family's filing whose period of report is a year earlier (±45 days) and that was accepted before it. Change = 1 − cosine similarity of term frequencies (lowercase letter tokens, no stemming), Jaccard similarity alongside; a `no_change_statement` scores 0. Known at the later filing's acceptance time.
+4. **`RiskFactorChangeScore.compute(rebalance_date)`**: each universe member's latest score accepted before the session's open and within 120 days, as a `ScoreSnapshot` with `score` = −change (least change ranks highest) plus `change, jaccard, accession, form, comparison_accession`; members without one are left out and counted.
+
+Snapshots go to `scores/h10/{version}/` for the biotech universe and `scores/h10/{version}-{universe_id}/` for another (`1-us_small_mid`). `scripts/build_filing_panel.py` runs all four steps and writes a snapshot for each universe month that has none once its rebalance day has passed. SEC requests are paced at 5 per second with `SEC_USER_AGENT`; a refusal stops the run before scoring, and the next run continues from what was archived.
 
 ## Price snapshots
 
@@ -178,12 +193,13 @@ FINRA's data covers exchange-listed stocks only from June 2021 (earlier files ar
 | Script | Purpose |
 |---|---|
 | `scripts/fetch_prices.py` | Snapshot prices for tickers outside the watchlist, once |
-| `scripts/build_universe.py` | Run a universe build outside the schedule, or `--export-backfill-scope PATH` to copy the backfill scope out of MinIO |
+| `scripts/build_universe.py` | Run a universe build outside the schedule (`--rules PATH` for a universe other than `UNIVERSE_RULES_PATH`'s), or `--export-backfill-scope PATH` to copy the backfill scope out of MinIO |
+| `scripts/build_filing_panel.py` | Build or extend the H10 filing-text panel over a universe (`--rules PATH`, default `UNIVERSE_RULES_PATH`) and print coverage: filings found, sections cut, missing by reason, members scored per month. Needs that universe built first |
 | `scripts/build_catalyst_panel.py` | Build or extend the catalyst panel (`--since`, default 2014-01-01; `--until`, default today) and print its coverage: catalysts per year, members with any catalyst, unmatched advisory committee notices, PDUFA hits by precision. Needs the universe built first |
 | `scripts/register_hypothesis.py` | Register a hypothesis file in the pre-registration ledger |
 | `scripts/fetch_ownership.py` | Backfill and extend the SEC ownership panels and print their coverage |
 | `scripts/fetch_short_interest.py` | Backfill and extend FINRA short interest for the universe's tickers and print coverage: first available settlement date, periods FINRA returned nothing for, gaps, tickers never reported. Needs the universe built first |
-| `scripts/run_portfolio_backtest.py` | Run a registered portfolio hypothesis's cell (default its primary cell) at every tier in `PAPER_CAPITAL_TIERS_EUR`, reserve the cell in the trial ledger and write the report and verdict as JSON (`--final` reads the holdout once) |
+| `scripts/run_portfolio_backtest.py` | Run a registered portfolio hypothesis's cell (default its primary cell) over a universe (`--universe-rules PATH`, default the biotech universe) at every tier in `PAPER_CAPITAL_TIERS_EUR`, reserve the cell in the trial ledger and write the report and verdict as JSON (`--final` reads the holdout once) |
 
 ## Commands
 
@@ -191,4 +207,5 @@ FINRA's data covers exchange-listed stocks only from June 2021 (earlier files ar
 |---|---|
 | Install | `uv sync` |
 | Unit tests | `uv run pytest tests/unit -q` |
+| Integration tests (Docker; LocalStack S3) | `uv run pytest tests/integration -q` |
 | Lint | `uv run ruff check .` |

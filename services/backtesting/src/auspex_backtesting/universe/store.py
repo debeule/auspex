@@ -1,4 +1,8 @@
-"""Universe snapshots in MinIO, under `universe/{rules_version}/` in the prices bucket.
+"""Universe snapshots in MinIO, in the prices bucket.
+
+Each universe has one rules file in `config/universe/`. The universe in `rules.yaml` is stored
+under `universe/{rules_version}/`; one in `<universe_id>.yaml` under
+`universe/{universe_id}/{rules_version}/`.
 
 `{yyyy-mm}.parquet` holds a month's members and is written once. `listings.parquet` is every
 listing span as the latest build knows it, exits included, and is replaced on every build. `rules.yaml` is the rules file
@@ -50,16 +54,44 @@ class RulesVersionError(Exception):
     """The rules file differs from the one its version was first built with."""
 
 
+_DEFAULT_RULES_FILE = "rules.yaml"
+
+
+def universe_id(rules_path: Path) -> str | None:
+    """The universe a rules file defines: None for `rules.yaml`, else the file's stem."""
+    if rules_path.name == _DEFAULT_RULES_FILE:
+        return None
+    if rules_path.stem.isdigit():
+        raise ValueError(f"{rules_path}: a universe id must not look like a rules version")
+    return rules_path.stem
+
+
 class UniverseStore:
-    def __init__(self, minio_client: Minio, bucket: str = PRICES_BUCKET) -> None:
+    def __init__(
+        self, minio_client: Minio, bucket: str = PRICES_BUCKET, *, universe: str | None = None
+    ) -> None:
         self._minio = minio_client
         self._bucket = bucket
+        self._root = "universe/" if universe is None else f"universe/{universe}/"
+        self._universe = universe
+
+    @classmethod
+    def for_rules_file(
+        cls, minio_client: Minio, rules_path: Path, bucket: str = PRICES_BUCKET
+    ) -> UniverseStore:
+        return cls(minio_client, bucket, universe=universe_id(rules_path))
+
+    @property
+    def universe(self) -> str | None:
+        return self._universe
 
     def lock_rules(self, path: Path) -> UniverseRules:
         """Parses the rules file and pins it to its version on first use."""
+        if universe_id(path) != self._universe:
+            raise ValueError(f"{path} defines another universe than this store holds")
         content = path.read_bytes()
         rules = parse_rules(content.decode("utf-8"))
-        key = f"{_prefix(rules.version)}rules.yaml"
+        key = f"{self._prefix(rules.version)}rules.yaml"
         stored = self._get(key)
         if stored is None:
             self._put(key, content, "application/yaml")
@@ -72,7 +104,7 @@ class UniverseStore:
 
     def exists(self, rules_version: int, month: str) -> bool:
         try:
-            self._minio.stat_object(self._bucket, _snapshot_key(rules_version, month))
+            self._minio.stat_object(self._bucket, self.snapshot_key(rules_version, month))
         except S3Error as exc:
             if exc.code == "NoSuchKey":
                 return False
@@ -85,7 +117,7 @@ class UniverseStore:
                 f"universe {snapshot.month} under rules version {snapshot.rules_version}"
             )
         self._put(
-            _snapshot_key(snapshot.rules_version, snapshot.month),
+            self.snapshot_key(snapshot.rules_version, snapshot.month),
             _parquet(snapshot.members, {
                 "rules_version": str(snapshot.rules_version),
                 "month": snapshot.month,
@@ -98,13 +130,13 @@ class UniverseStore:
         self, rules_version: int, rows: list[UniverseMember], as_of: date
     ) -> None:
         self._put(
-            f"{_prefix(rules_version)}listings.parquet",
+            f"{self._prefix(rules_version)}listings.parquet",
             _parquet(rows, {"as_of": as_of.isoformat()}),
             "application/octet-stream",
         )
 
     def read_listings(self, rules_version: int) -> tuple[list[UniverseMember], date] | None:
-        data = self._get(f"{_prefix(rules_version)}listings.parquet")
+        data = self._get(f"{self._prefix(rules_version)}listings.parquet")
         if data is None:
             return None
         rows, meta = _rows(data)
@@ -114,12 +146,12 @@ class UniverseStore:
         """Months with a stored snapshot under `rules_version`, in order."""
         names = (
             o.object_name.rsplit("/", 1)[-1]
-            for o in self._minio.list_objects(self._bucket, prefix=_prefix(rules_version))
+            for o in self._minio.list_objects(self._bucket, prefix=self._prefix(rules_version))
         )
         return sorted(m.group(1) for n in names if (m := _MONTH_KEY.fullmatch(n or "")))
 
     def read(self, rules_version: int, month: str) -> UniverseSnapshot | None:
-        data = self._get(_snapshot_key(rules_version, month))
+        data = self._get(self.snapshot_key(rules_version, month))
         if data is None:
             return None
         members, meta = _rows(data)
@@ -133,10 +165,17 @@ class UniverseStore:
     def put_report(self, rules_version: int, name: str, content: bytes, content_type: str) -> None:
         """Writes a derived report (coverage, backfill scope) next to the snapshots; reports
         are regenerated on every build and may be replaced."""
-        self._put(f"{_prefix(rules_version)}{name}", content, content_type)
+        self._put(f"{self._prefix(rules_version)}{name}", content, content_type)
 
     def read_report(self, rules_version: int, name: str) -> bytes | None:
-        return self._get(f"{_prefix(rules_version)}{name}")
+        return self._get(f"{self._prefix(rules_version)}{name}")
+
+    def _prefix(self, rules_version: int) -> str:
+        return f"{self._root}{rules_version}/"
+
+    def snapshot_key(self, rules_version: int, month: str) -> str:
+        """The object key of a month's snapshot in the bucket."""
+        return f"{self._prefix(rules_version)}{month}.parquet"
 
     def _get(self, key: str) -> bytes | None:
         try:
@@ -172,14 +211,6 @@ def _rows(data: bytes) -> tuple[tuple[UniverseMember, ...], dict[str, str]]:
         UniverseMember(**{k: v for k, v in row.items() if k in names}) for row in table.to_pylist()
     )
     return members, meta
-
-
-def _prefix(rules_version: int) -> str:
-    return f"universe/{rules_version}/"
-
-
-def _snapshot_key(rules_version: int, month: str) -> str:
-    return f"{_prefix(rules_version)}{month}.parquet"
 
 
 def _sha256(content: bytes) -> str:

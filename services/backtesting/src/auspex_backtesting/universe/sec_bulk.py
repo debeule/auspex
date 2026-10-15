@@ -36,7 +36,8 @@ def download(url: str, dest: Path, user_agent: str) -> Path:
 
 
 def read_submissions(archive: Path, sic_codes: Collection[str]) -> list[CompanyRecord]:
-    """Every filer whose current SIC code is in `sic_codes`, with its full filing history."""
+    """Every filer whose current SIC code is in `sic_codes` (every filer when it is empty), with
+    its full filing history."""
     with zipfile.ZipFile(archive) as zf:
         overflow: dict[str, list[str]] = defaultdict(list)
         main: list[tuple[str, str]] = []
@@ -51,7 +52,7 @@ def read_submissions(archive: Path, sic_codes: Collection[str]) -> list[CompanyR
             with zf.open(name) as fh:
                 header = fh.read(_HEADER_BYTES)
             sic = _SIC_FIELD.search(header)
-            if sic is None or sic.group(1).decode() not in sic_codes:
+            if sic_codes and (sic is None or sic.group(1).decode() not in sic_codes):
                 continue
             data = json.loads(zf.read(name))
             filings = _filings(data.get("filings", {}).get("recent", {}))

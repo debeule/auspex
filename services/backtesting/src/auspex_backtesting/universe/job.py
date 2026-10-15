@@ -50,7 +50,7 @@ class FilingSource(Protocol):
     def load(
         self, rules: UniverseRules, listed_since: date
     ) -> tuple[Sequence[CompanyRecord], Mapping[str, Sequence[ShareCount]]]:
-        """Filers in the rules' SIC codes with their filing history and share counts; tickers
+        """Filers the rules' SIC codes admit, with their filing history and share counts; tickers
         are resolved as far as possible for companies listed on or after `listed_since`."""
         ...
 
@@ -87,7 +87,9 @@ class SecBulkSource:
                 self._companyfacts_url, Path(tmp) / "companyfacts.zip", self._user_agent
             )
             shares = sec_bulk.read_share_counts(facts, {c.cik for c in companies})
-        log.info("SEC bulk data: %d filers with SIC %s", len(companies), sorted(sic_codes))
+        log.info(
+            "SEC bulk data: %d filers with SIC %s", len(companies), sorted(sic_codes) or "any"
+        )
         return companies, shares
 
 
