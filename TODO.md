@@ -160,6 +160,5 @@ Each line links to a self-contained spec in `specs/`. Open the spec and read it 
 | 2026-10-10 | Short interest snapshots | Code done — 9 required + 11 supporting tests, mutation-checked; FINRA needs a credential and covers listed stocks from June 2021; first fetch on the Mac (first-run step 3c) | Yes (FINRA credential) |
 | 2026-10-10 | Strategy runtime | Done — 9 spec tests (red: `ModuleNotFoundError: auspex_strategy.runtime`) + 15 component tests green; container, compose, CI | No |
 | 2026-10-11 | Cross-sectional portfolio backtest | Done — 40 spec tests green; planted 1%/month edge recovered net of costs | No |
-| 2026-10-11 | Strategy metrics | Done — 8 spec tests (red: `ModuleNotFoundError: auspex_strategy.metrics`) + funnel, route and read-only ledger tests green (48 strategy unit, 426 backtesting unit) | No |
 | 2026-10-11 | Strategy metrics | Done — 8 spec tests (red: `ModuleNotFoundError: auspex_strategy.metrics`) + funnel, route, break-even and read-only ledger tests green, 13 mutations caught (49 strategy unit, 446 backtesting unit) | No |
 | 2026-10-10 | Graph relationship replacement | Done — 6 integration tests; a rewrite replaces the signal's entity edges | No |
