@@ -1239,3 +1239,181 @@ The summary lists every source in `sources.yaml`. A source with a run in the las
 6. **Variant.** `short_interest_start` is the first reported settlement date over all stored tickers; with listed-stock coverage from June 2021 that is after 2014-01-01, so H9 runs `two_component` in every snapshot, recorded in each row's `variant`.
 7. **Return type.** `compute` returns `HoldingsScoredMonth` (the snapshot plus who was left out) rather than a bare `ScoreSnapshot`, so the coverage report needs no second pass; the spec now says so.
 **Why:** each is the reading that keeps every row point-in-time and makes missing data visible rather than filled.
+
+## 2026-10-15 — Living docs — PENDING — raw-pointer contract
+**What:** Two divergences in the raw-pointer contract.
+- Python `publish_raw` sends `RawDocument` with `retrieved_at` plus `raw_object_key`. `RawAuditService.java:47` reads `ingested_at`, which is null, so every raw pointer would dead-letter. `RawAuditIT` uses a hand-written payload, so the tests stay green.
+- Pointers are published only for documents that become signals (`pipeline.py:159`). Requirements §2/§3.7 call for one per archived document.
+**Why it matters:** the living docs must state one approved contract. The defect is latent because nothing has run on the stack yet.
+**Options considered:**
+- A: approve "a pointer for every archived document, field `retrieved_at`". The code is recorded `divergent`, and a fix spec follows.
+- B: approve today's scope (published signals only) and fix only the field name.
+**Action:** default A. Owner to answer; this blocks the living-docs cutover gate.
+
+## 2026-10-15 — Living docs — PENDING — as-of reads hide or raise
+**What:** The `AsOfContext` docstring says a read past as-of raises. The production `_RecordContext` filters at construction (`services/strategy/src/auspex_strategy/runtime/context.py`), so the raise can never happen.
+**Why it matters:** the strategy contract doc must state one behaviour.
+**Options considered:**
+- A: hiding is the approved behaviour; the docstring is fixed later.
+- B: raising is approved, and the code is `divergent`.
+**Action:** default A. Owner to answer; this blocks the cutover gate.
+
+## 2026-10-15 — Living docs — PENDING — restore exception to invariant 2
+**What:** The `restore` profile writes Postgres and Neo4j directly, which invariant 2 reserves to core-hub.
+**Why it matters:** the invariant text must either name the exception or the code is a violation.
+**Options considered:**
+- A: a named exception under INV-2: restore into empty stores only, refused otherwise.
+- B: route restore through core-hub.
+**Action:** default A. Owner to answer; this blocks the cutover gate.
+
+## 2026-10-15 — Living docs — PENDING — invariant 6 wording
+**What:** Invariant 6 says "API keys are Airflow Connections", but the keys are scraper environment variables read from `.env`.
+**Why it matters:** the invariant as written is violated by the current, intended setup.
+**Options considered:**
+- A: reword it to "credentials live in `.env` only, read by the service that uses them".
+- B: move the keys to Airflow Connections (a code change).
+**Action:** default A. Owner to answer; this blocks the cutover gate.
+
+## 2026-10-15 — Living docs — PENDING — initial_lookback value
+**What:** Requirements §0.3 says 90 days; `config/sources.yaml` has 30.
+**Options considered:**
+- A: `sources.yaml` is the authority, and the doc names the file without copying the number.
+- B: change the config to 90.
+**Action:** default A. Not blocking.
+
+## 2026-10-15 — Living docs — PENDING — fda_approval source
+**What:** `connectors/fda_approval.py` is built and tested (11 tests) but has no `sources.yaml` entry, so it never runs. Requirements §6.9 keeps it.
+**Options considered:**
+- A: approve it as a source, recorded `divergent` until a small config spec adds the entry.
+- B: retire it and delete the connector in a separate spec.
+**Action:** default A. Not blocking.
+
+## 2026-10-15 — Living docs — PENDING — spec paths cited by hash-locked hypotheses
+**What:** Hash-locked hypotheses cite active spec paths:
+- `config/hypotheses/h9.yaml` cites `specs/sec-ownership-datasets.md#SpecialistClassifier`;
+- `h11.yaml` cites `specs/clinicaltrials-version-diffs.md`;
+- `h12.yaml` cites `specs/catalyst-date-panel.md`;
+- `test_preregistered_protocol.py:440` asserts the h9 string;
+- the comment in `config/universe/rules.yaml` cites `specs/point-in-time-universe.md`.
+**Why it matters:** moving or editing these breaks registration hashes, and re-registration touches trial bookkeeping.
+**Options considered:**
+- A: freeze the four paths and the `SpecialistClassifier` anchor. The classifier text moves to the research docs, and the frozen anchor keeps a one-line pointer to it (one documented hop). Re-registration is decided per spec when each completes.
+- B: re-register now, pointing at docs IDs.
+- C: keep the classifier text in the spec as an exception to one-owner.
+**Action:** default A. Owner to answer; this blocks the cutover gate.
+
+## 2026-10-15 — Living docs — PENDING — code-done specs blocked on the Mac
+**What:** Six specs have merged code and wait only on a first run on the Mac: point-in-time universe, SEC ownership datasets, short interest snapshots, catalyst date panel, filing text change score and holdings composite score.
+**Options considered:**
+- A: merged behaviour moves into the research docs at cutover. Each spec keeps all required sections, reduced to its remaining Mac acceptance, and cites the IDs.
+- B: the requirements stay in the specs until they are done.
+**Why it matters:** under B, code that runs today has no docs owner.
+**Action:** default A. Owner to answer; this blocks the cutover gate.
+
+## 2026-10-15 — Living docs — PENDING — archive policy for specs/done
+**What:** 16 archived specs were edited after archiving.
+**Options considered:**
+- A: archived specs are frozen. At cutover each gets one banner line ("Archived. Not authoritative …"), and later corrections go to `docs/` or here.
+- B: allow edits.
+**Action:** default A. Not blocking.
+
+## 2026-10-15 — Living docs — PENDING — historical-instrument amendment out of scope
+**What:** The requirements §0.1 historical-instrument amendment is not part of the living-docs rollout. It stays with the live-trading spec.
+**Action:** default as stated. Not blocking.
+
+## 2026-10-15 — Living docs — PENDING — closed sets on the wire
+**What:** It is unclear what happens when an unknown enum value arrives on a Kafka contract.
+**Options considered:**
+- A: approved: it dead-letters. Today's code is recorded `divergent`/`untested`, and a fix spec follows.
+- B: unknown values pass through.
+**Action:** default A. Not blocking.
+
+## 2026-10-15 — Living docs — PENDING — can a DECISIONS entry narrow an invariant
+**What:** Whether a `DECISIONS.md` entry alone may narrow an invariant.
+**Options considered:**
+- A: no. An exception is written under the invariant in the system invariants doc.
+- B: yes.
+**Action:** default A. Not blocking.
+
+## 2026-10-15 — Living docs — PENDING — RunResult counters
+**What:** What each scraper `RunResult` counter counts is not specified anywhere.
+**Action:** default: document current code behaviour as approved, status `untested` where no test exists. Not blocking.
+
+## 2026-10-15 — Living docs — PENDING — trial ledger and holdout as untracked local files
+**What:** The trial ledger and the sealed holdout are untracked local files, which falls short of the protocol's durability intent.
+**Action:** default: recorded `divergent`; durable storage is decided with the research-input-archive spec. Not blocking.
+
+## 2026-10-15 — Living docs — PENDING — fate of docs/requirements.md
+**What:** What `docs/requirements.md` becomes once `docs/` holds the requirements.
+**Options considered:**
+- A: reduce it to a non-normative § → ID index. 53 archived specs and many entries here cite its sections.
+- B: delete it and put the map in `docs/README.md`.
+**Action:** default A. Owner to answer; this blocks the cutover gate.
+
+## 2026-10-15 — Living docs — PENDING — merge freeze around the cutover
+**What:** All merges to `develop` pause from the start of the cutover's reconciliation pass until the cutover merge.
+**Why it matters:** a code-only merge inside that window forces another rebase and gate run.
+**Action:** default yes. Not blocking.
+
+## 2026-10-15 — Living docs — PENDING — agent instruction files
+**What:** How Claude Code and Codex instructions are organised.
+**Options considered:**
+- A: `AGENTS.md` is canonical at each level, and every `CLAUDE.md` is only `@AGENTS.md`. Nothing is imported into `AGENTS.md`, and `TODO.md`/`VERSIONS.md` stop auto-loading.
+- B: `AGENTS.md` only. This needs Claude Code ≥ 2.1.277 and breaks if a `CLAUDE.local.md` appears.
+**Action:** default A. Owner to answer; this blocks the cutover gate.
+
+## 2026-10-15 — Living docs — PENDING — rollout branch model
+**What:** How the eleven rollout specs reach `develop`.
+**Options considered:**
+- A: integration branch `feature/living-docs-integration`:
+  - each part PRs into it, and merges need the owner's word (local rebase and fast-forward);
+  - it is rebased onto `develop` only after all parts have merged;
+  - one cutover PR goes to `develop`, with a `pre-living-docs` tag for a one-PR revert.
+- B: each part merges to `develop`, and the new authority stays dormant until the cutover spec.
+**Action:** default A. Owner to answer; this blocks the cutover gate.
+
+## 2026-10-15 — Living docs — PENDING — docs impact field and Docs unchanged line
+**What:** Two new requirements for changes:
+- every new spec carries a required `Docs impact` field;
+- every PR carries a `Docs unchanged:` line, enforced by CI, when it changes no doc.
+**Action:** default yes. Not blocking.
+
+## 2026-10-15 — Living docs — PENDING — defects found while scoping
+**What:** The living-docs scoping found these defects. The rollout changes no code; each item is recorded in the docs with status `divergent` or `untested`.
+- **C1.** The raw-pointer field mismatch (see "raw-pointer contract").
+- **C5.** Kafka ack mode RECORD is likely not applied.
+- **C6.** `@Valid` on the consumer payload is possibly inactive.
+- **C7.** An unknown enum value is not dead-lettered (see "closed sets on the wire").
+- **C8.** The corroborated event is unversioned, hand-mirrored between Java and Python tests, and at-least-once.
+- **E F3.** The strategy runtime sizes with `PassThroughRiskManager` and has no decision tracer (`services/strategy/src/auspex_strategy/runtime/main.py:150`).
+- **E F4.** `/api/v1/health/inputs` is missing.
+- **E F6.** A runtime restart can duplicate orders.
+- **D F3.** `run_backtest` skips `EvaluationProtocol.admit()`.
+- **H1.** Ingestion CI does not run `uv sync --locked` (`.github/workflows/python.yml:62`), and the backtesting CI job runs no ruff or mypy.
+- **H3.** The ingestion-scraper unit suite has no socket guard (`--disable-socket` is set for backtesting and strategy only), against requirements §13.
+- **H2.** Some `VERSIONS.md` pins are older than the newest release without a recorded reason; there is no pin-age rule.
+- **Ingestion, further gaps:** the canonical processed marker is written before the Kafka flush; a cross-source canonical hit records no source observation; some requirements §11.2 tests are vacuous; the prompt has no data-only statement and there is no production gene vocabulary; re-extraction ignores `skip_prefilter`, the prompt version or model, and the offset; PubMed day-1 dates; source dates live only in `raw_content`; the run summary has no cursor before and after; delivery reports are untested on the real client; there is no `epo_ops` golden document; a PubMed DOI gets no `canonical_id`.
+- **core-hub, further gaps:** a malformed raw payload is retried instead of dead-lettered; empty `@Enable…Repositories` package lists; ArchUnit coverage gaps; a Signal can exist only in the graph after a dead-letter; the watermark test names are stale.
+- **Research and strategy, further gaps:** `scripts/fetch_prices.py` writes without `adjusted_through` or the settle filter; the portfolio grid checks are missing (`portfolio/rules.py:76-110`), the score-version floor axis is unchecked, and `--filter-score` reserves no cells; production `load_registry` passes no `versions_dir` (`runtime/main.py:93-97`); the equal-risk capital allocator is not implemented.
+- **A1.** Several entries in this file are out of date order.
+- **A2.** Some `TODO.md` notes name blockers that are already done.
+- **A3.** `## 2026-10-09 — Guideline setup — CHOICE — merge flow, merge bar and shared-log conflicts written into the repo` says the `TODO.md` session log is dropped. It is still kept and appended; the engineering docs describe it as practised.
+**Why it matters:** C1 would dead-letter every raw pointer on the first stack run.
+**Options considered:**
+- A: separate fix specs after the rollout, with C1 before the first stack run.
+- B: fix them inside the rollout.
+**Action:** default A. The rollout itself changes no application code. `legacy-docs-retirement` rewrites the stale `TODO.md` notes (A2). Not blocking.
+
+## 2026-10-15 — Living docs — PENDING — run_pipeline.py support
+**What:** `services/ingestion-scraper/scripts/run_pipeline.py` runs ingestion without Airflow, which sits uneasily with "no hand-run scripts".
+**Options considered:**
+- A: keep it as a developer tool listed in the scraper README scripts table. It carries no requirement, and the root README stops presenting it as a way to run ingestion.
+- B: delete it in a separate spec.
+**Action:** default A. Not blocking.
+
+## 2026-10-15 — Living docs — PENDING — processing time in as-of decisions
+**What:** Strategies and backtests never use processing time (`ingested_at`, `extracted_at`) in an as-of decision. They use only publication or corroboration time plus the known-at delay.
+**Options considered:**
+- A: add it as invariant 16, a system-wide look-ahead rule.
+- B: write it only as strategy and research requirements.
+**Action:** default A, but a new invariant needs the owner's word. Nothing is written for it until a `CHOICE` exists. Not blocking.
