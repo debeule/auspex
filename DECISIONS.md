@@ -1417,3 +1417,113 @@ The summary lists every source in `sources.yaml`. A source with a run in the las
 - A: add it as invariant 16, a system-wide look-ahead rule.
 - B: write it only as strategy and research requirements.
 **Action:** default A, but a new invariant needs the owner's word. Nothing is written for it until a `CHOICE` exists. Not blocking.
+
+## 2026-10-17 — Living docs — CHOICE — raw-pointer contract
+**Answers:** `2026-10-15 — Living docs — PENDING — raw-pointer contract`.
+**Choice:** option A: approve "a pointer for every archived document, field `retrieved_at`". The code is recorded `divergent`, and a fix spec follows.
+**Source:** the owner, in the living-docs scoping thread on 2026-10-17: "defaults ok" (all 22 Living docs PENDING entries take their recorded default).
+
+## 2026-10-17 — Living docs — CHOICE — as-of reads hide or raise
+**Answers:** `2026-10-15 — Living docs — PENDING — as-of reads hide or raise`.
+**Choice:** option A: hiding is the approved behaviour; the docstring is fixed later.
+**Source:** the owner, in the living-docs scoping thread on 2026-10-17: "defaults ok" (all 22 Living docs PENDING entries take their recorded default).
+
+## 2026-10-17 — Living docs — CHOICE — restore exception to invariant 2
+**Answers:** `2026-10-15 — Living docs — PENDING — restore exception to invariant 2`.
+**Choice:** option A: a named exception under INV-2: restore into empty stores only, refused otherwise.
+**Source:** the owner, in the living-docs scoping thread on 2026-10-17: "defaults ok" (all 22 Living docs PENDING entries take their recorded default).
+
+## 2026-10-17 — Living docs — CHOICE — invariant 6 wording
+**Answers:** `2026-10-15 — Living docs — PENDING — invariant 6 wording`.
+**Choice:** option A: reword it to "credentials live in `.env` only, read by the service that uses them".
+**Source:** the owner, in the living-docs scoping thread on 2026-10-17: "defaults ok" (all 22 Living docs PENDING entries take their recorded default).
+
+## 2026-10-17 — Living docs — CHOICE — initial_lookback value
+**Answers:** `2026-10-15 — Living docs — PENDING — initial_lookback value`.
+**Choice:** option A: `sources.yaml` is the authority, and the doc names the file without copying the number.
+**Source:** the owner, in the living-docs scoping thread on 2026-10-17: "defaults ok" (all 22 Living docs PENDING entries take their recorded default).
+
+## 2026-10-17 — Living docs — CHOICE — fda_approval source
+**Answers:** `2026-10-15 — Living docs — PENDING — fda_approval source`.
+**Choice:** option A: approve it as a source, recorded `divergent` until a small config spec adds the entry.
+**Source:** the owner, in the living-docs scoping thread on 2026-10-17: "defaults ok" (all 22 Living docs PENDING entries take their recorded default).
+
+## 2026-10-17 — Living docs — CHOICE — spec paths cited by hash-locked hypotheses
+**Answers:** `2026-10-15 — Living docs — PENDING — spec paths cited by hash-locked hypotheses`.
+**Choice:** option A: freeze the four paths and the `SpecialistClassifier` anchor. The classifier text moves to the research docs, and the frozen anchor keeps a one-line pointer to it (one documented hop). Re-registration is decided per spec when each completes.
+**Source:** the owner, in the living-docs scoping thread on 2026-10-17: "defaults ok" (all 22 Living docs PENDING entries take their recorded default).
+
+## 2026-10-17 — Living docs — CHOICE — code-done specs blocked on the Mac
+**Answers:** `2026-10-15 — Living docs — PENDING — code-done specs blocked on the Mac`.
+**Choice:** option A: merged behaviour moves into the research docs at cutover. Each spec keeps all required sections, reduced to its remaining Mac acceptance, and cites the IDs.
+**Source:** the owner, in the living-docs scoping thread on 2026-10-17: "defaults ok" (all 22 Living docs PENDING entries take their recorded default).
+
+## 2026-10-17 — Living docs — CHOICE — archive policy for specs/done
+**Answers:** `2026-10-15 — Living docs — PENDING — archive policy for specs/done`.
+**Choice:** option A: archived specs are frozen. At cutover each gets one banner line ("Archived. Not authoritative …"), and later corrections go to `docs/` or here.
+**Source:** the owner, in the living-docs scoping thread on 2026-10-17: "defaults ok" (all 22 Living docs PENDING entries take their recorded default).
+
+## 2026-10-17 — Living docs — CHOICE — historical-instrument amendment out of scope
+**Answers:** `2026-10-15 — Living docs — PENDING — historical-instrument amendment out of scope`.
+**Choice:** the recorded default: the historical-instrument amendment stays with the live-trading spec, outside the rollout.
+**Source:** the owner, in the living-docs scoping thread on 2026-10-17: "defaults ok" (all 22 Living docs PENDING entries take their recorded default).
+
+## 2026-10-17 — Living docs — CHOICE — closed sets on the wire
+**Answers:** `2026-10-15 — Living docs — PENDING — closed sets on the wire`.
+**Choice:** option A: approved: it dead-letters. Today's code is recorded `divergent`/`untested`, and a fix spec follows.
+**Source:** the owner, in the living-docs scoping thread on 2026-10-17: "defaults ok" (all 22 Living docs PENDING entries take their recorded default).
+
+## 2026-10-17 — Living docs — CHOICE — can a DECISIONS entry narrow an invariant
+**Answers:** `2026-10-15 — Living docs — PENDING — can a DECISIONS entry narrow an invariant`.
+**Choice:** option A: no. An exception is written under the invariant in the system invariants doc.
+**Source:** the owner, in the living-docs scoping thread on 2026-10-17: "defaults ok" (all 22 Living docs PENDING entries take their recorded default).
+
+## 2026-10-17 — Living docs — CHOICE — RunResult counters
+**Answers:** `2026-10-15 — Living docs — PENDING — RunResult counters`.
+**Choice:** the recorded default: document current code behaviour as approved, status `untested` where no test exists.
+**Source:** the owner, in the living-docs scoping thread on 2026-10-17: "defaults ok" (all 22 Living docs PENDING entries take their recorded default).
+
+## 2026-10-17 — Living docs — CHOICE — trial ledger and holdout as untracked local files
+**Answers:** `2026-10-15 — Living docs — PENDING — trial ledger and holdout as untracked local files`.
+**Choice:** the recorded default: recorded `divergent`; durable storage is decided with the research-input-archive spec.
+**Source:** the owner, in the living-docs scoping thread on 2026-10-17: "defaults ok" (all 22 Living docs PENDING entries take their recorded default).
+
+## 2026-10-17 — Living docs — CHOICE — fate of docs/requirements.md
+**Answers:** `2026-10-15 — Living docs — PENDING — fate of docs/requirements.md`.
+**Choice:** option A: reduce it to a non-normative § → ID index. 53 archived specs and many entries here cite its sections.
+**Source:** the owner, in the living-docs scoping thread on 2026-10-17: "defaults ok" (all 22 Living docs PENDING entries take their recorded default).
+
+## 2026-10-17 — Living docs — CHOICE — merge freeze around the cutover
+**Answers:** `2026-10-15 — Living docs — PENDING — merge freeze around the cutover`.
+**Choice:** the recorded default: yes.
+**Source:** the owner, in the living-docs scoping thread on 2026-10-17: "defaults ok" (all 22 Living docs PENDING entries take their recorded default).
+
+## 2026-10-17 — Living docs — CHOICE — agent instruction files
+**Answers:** `2026-10-15 — Living docs — PENDING — agent instruction files`.
+**Choice:** option A: `AGENTS.md` is canonical at each level, and every `CLAUDE.md` is only `@AGENTS.md`. Nothing is imported into `AGENTS.md`, and `TODO.md`/`VERSIONS.md` stop auto-loading.
+**Source:** the owner, in the living-docs scoping thread on 2026-10-17: "defaults ok" (all 22 Living docs PENDING entries take their recorded default).
+
+## 2026-10-17 — Living docs — CHOICE — rollout branch model
+**Answers:** `2026-10-15 — Living docs — PENDING — rollout branch model`.
+**Choice:** option A: integration branch `feature/living-docs-integration`. Each part PRs into it and merges on the owner's word; it is rebased onto `develop` only after all parts merge; one cutover PR goes to `develop`, with a `pre-living-docs` tag.
+**Source:** the owner, in the living-docs scoping thread on 2026-10-17: "defaults ok" (all 22 Living docs PENDING entries take their recorded default).
+
+## 2026-10-17 — Living docs — CHOICE — docs impact field and Docs unchanged line
+**Answers:** `2026-10-15 — Living docs — PENDING — docs impact field and Docs unchanged line`.
+**Choice:** the recorded default: yes.
+**Source:** the owner, in the living-docs scoping thread on 2026-10-17: "defaults ok" (all 22 Living docs PENDING entries take their recorded default).
+
+## 2026-10-17 — Living docs — CHOICE — defects found while scoping
+**Answers:** `2026-10-15 — Living docs — PENDING — defects found while scoping`.
+**Choice:** option A: separate fix specs after the rollout, with C1 before the first stack run.
+**Source:** the owner, in the living-docs scoping thread on 2026-10-17: "defaults ok" (all 22 Living docs PENDING entries take their recorded default).
+
+## 2026-10-17 — Living docs — CHOICE — run_pipeline.py support
+**Answers:** `2026-10-15 — Living docs — PENDING — run_pipeline.py support`.
+**Choice:** option A: keep it as a developer tool listed in the scraper README scripts table. It carries no requirement, and the root README stops presenting it as a way to run ingestion.
+**Source:** the owner, in the living-docs scoping thread on 2026-10-17: "defaults ok" (all 22 Living docs PENDING entries take their recorded default).
+
+## 2026-10-17 — Living docs — CHOICE — processing time in as-of decisions
+**Answers:** `2026-10-15 — Living docs — PENDING — processing time in as-of decisions`.
+**Choice:** option A: add it as invariant 16, a system-wide look-ahead rule.
+**Source:** the owner, in the living-docs scoping thread on 2026-10-17: "defaults ok" (all 22 Living docs PENDING entries take their recorded default).
