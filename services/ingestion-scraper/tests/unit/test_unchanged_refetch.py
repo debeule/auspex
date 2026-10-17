@@ -1,4 +1,6 @@
-"""Requirements §7.1 step 3: an unchanged re-fetch skips extraction and publish.
+"""Requirements §7.1 step 3: an unchanged re-fetch skips extraction and the signal publish.
+
+Its raw pointer is still sent: the raw audit records every archived fetch.
 
 "Unchanged" means same (source_type, external_id, content_sha256) already fully processed
 under the same extraction identity (model, prompt, prefilter). A document whose
@@ -84,7 +86,7 @@ def _pipeline(docs, archive, *, extractor=None, producer=None, identity=_IDENTIT
     ), extractor
 
 
-def test_refetch_of_processed_unchanged_document_skips_extraction_and_publish():
+def test_refetch_of_processed_unchanged_document_skips_extraction_and_signal_publish():
     doc = _doc()
     archive = MarkerArchive({("biorxiv", "ext-1", doc.content_sha256, f"{_IDENTITY}|pf1")})
     producer = MagicMock()
@@ -96,7 +98,7 @@ def test_refetch_of_processed_unchanged_document_skips_extraction_and_publish():
     assert archive.puts == 1, "the archive write stays unconditional (Invariant 13)"
     extractor.extract.assert_not_called()
     producer.publish_signal.assert_not_called()
-    producer.publish_raw.assert_not_called()
+    producer.publish_raw.assert_called_once()
     assert result.prefiltered_out == 1
     assert any(e.get("event") == "unchanged re-fetch skipped" for e in cap)
 

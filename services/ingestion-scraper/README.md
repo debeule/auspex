@@ -8,12 +8,13 @@ Pulls documents from 5 public biotech sources, archives raw content to MinIO (un
 
 1. `fetch_since(cursor)` — connector fetches and maps to `RawDocument`
 2. MinIO archive — unconditional write; returns `(key, is_new)`
-3. Unchanged re-fetch check — when the pipeline has an `extraction_identity` (model + prompt; the live API sets it), a document whose identical content was already fully processed under that identity and prefilter version is skipped (requirements §7.1 step 3). Markers live under `dedup/processed/` and are written only after Kafka delivery is confirmed, so failed documents are retried and a new model re-extracts.
-4. Pre-filter — vocabulary gate; skips LLM cost on irrelevant docs
-5. Canonical dedup check — skips re-extraction when content hash has been seen before
-6. LLM extract — `instructor` + OpenAI returns `ResearchSignalEvent | None`, including the company-level fields (`event_type`, `primary_company`, `program_identifiers`, `trial_ids`; NCT IDs validated)
-7. Normalize — `HgncEntityNormalizer` resolves gene aliases and company tickers
-8. Publish — Kafka `auspex.signals.extracted` (signals only) + `auspex.raw.ingested` (all)
+3. Raw pointer — Kafka `auspex.raw.ingested`, one per newly archived object (`is_new`), before any filter or extraction, so core-hub's `raw_fetch_audit` records every fetch. A failed publish fails the document.
+4. Unchanged re-fetch check — when the pipeline has an `extraction_identity` (model + prompt; the live API sets it), a document whose identical content was already fully processed under that identity and prefilter version is skipped (requirements §7.1 step 3). Markers live under `dedup/processed/` and are written only after Kafka delivery is confirmed, so failed documents are retried and a new model re-extracts.
+5. Pre-filter — vocabulary gate; skips LLM cost on irrelevant docs
+6. Canonical dedup check — skips re-extraction when content hash has been seen before
+7. LLM extract — `instructor` + OpenAI returns `ResearchSignalEvent | None`, including the company-level fields (`event_type`, `primary_company`, `program_identifiers`, `trial_ids`; NCT IDs validated)
+8. Normalize — `HgncEntityNormalizer` resolves gene aliases and company tickers
+9. Publish — Kafka `auspex.signals.extracted` (signals only)
 
 A run sends at most `max_documents_per_run` documents to extraction (documents skipped as already processed don't count) and reports `next_cursor`, the cursor the DAG saves. It is the earliest `published_date` among documents that failed, so they are fetched again; otherwise the latest date processed. A run that stopped at the cap, or whose Kafka delivery could not be confirmed, reports the cursor it was given, and the processed markers carry the next run past what it finished. `/ingest/<source_type>` refuses a second run of a source while one is in progress (HTTP 409).
 

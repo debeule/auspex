@@ -12,6 +12,12 @@ Auto-loaded when working in any service directory.
 The generated file is `services/core-hub/src/test/resources/contract/signal_event_v1.json`.
 **If the Python model changes, regenerate and commit.** Java deserialization tests validate against it.
 
+The raw pointer on `auspex.raw.ingested` has its own generated fixture, `contract/raw_pointer_v1.json`, written from `KafkaProducerClient.publish_raw` output by:
+
+    cd services/ingestion-scraper && uv run pytest tests/unit/test_raw_pointer_contract.py
+
+`RawAuditServiceTest` and the container tests (`TestFixtures.validRawJson()`) read it.
+
 ## Kafka topics (canonical list)
 
 | Topic | Partitions | Produced by | Consumed by |

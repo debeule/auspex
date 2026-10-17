@@ -95,6 +95,7 @@ This is not hypothetical: v1 of this plan contained a test (`test_dag_task_only_
 | Dashboard: build + bundle secret check | `cd services/dashboard && npm run build && npm run test:bundle` |
 | Smoke test | `./verify_pipeline.sh` |
 | Regenerate contract fixture | `cd services/ingestion-scraper && uv run pytest tests/unit/test_contract_fixture.py` |
+| Regenerate raw pointer fixture | `cd services/ingestion-scraper && uv run pytest tests/unit/test_raw_pointer_contract.py` |
 
 **A test run that executes zero tests is a failure, not a pass.** Gradle's `test` task with no test classes succeeds; so does pytest with a wrong path. Always check the reported test count. Set `failOnNoDiscoveredTests = true` on every `Test` task and use `--strict-markers` in pytest.
 

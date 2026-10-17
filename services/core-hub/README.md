@@ -27,7 +27,7 @@ Write order is **Neo4j → Postgres → acknowledge** (ack-mode RECORD). Never c
 
 | Table | Purpose |
 |---|---|
-| `raw_fetch_audit` | Every document fetched, regardless of signal outcome |
+| `raw_fetch_audit` | Every document fetched, regardless of signal outcome. A raw pointer missing `raw_object_key`, `source_type`, `external_id`, `content_sha256` or an offset-carrying `retrieved_at` goes to `auspex.raw.ingested.dlt` without retries |
 | `signal_current` | Latest extracted state per event_id, including the company-level fields |
 | `signal_extraction_history` | Full extraction history per event_id |
 | `source_observation` | One row per (event_id, source_type) |

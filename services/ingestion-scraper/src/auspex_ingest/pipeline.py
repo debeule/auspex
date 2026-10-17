@@ -93,6 +93,10 @@ class IngestionPipeline:
                     result.prefiltered_out += 1
                     continue
 
+                # Every archived document gets its pointer, before any filter or extraction,
+                # so core-hub's raw audit records each fetch whatever its signal outcome.
+                self._producer.publish_raw(doc, key, doc.schema_version)
+
                 if identity is not None and self._archive.has_processed_marker(doc, identity):
                     result.prefiltered_out += 1
                     log.info("unchanged re-fetch skipped", **{"auspex.external_id": doc.external_id})
@@ -156,7 +160,6 @@ class IngestionPipeline:
                     "companies_mentioned": normalized_companies,
                 })
 
-                self._producer.publish_raw(doc, key, doc.schema_version)
                 self._producer.publish_signal(event)
                 result.published += 1
                 completed.append(doc)

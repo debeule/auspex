@@ -102,7 +102,7 @@ Each line links to a self-contained spec in `specs/`. Open the spec and read it 
 | [Agent instruction hierarchy](specs/agent-instruction-hierarchy.md) | `blocked` | Rollout part; `AGENTS.md` canonical at each level, every `CLAUDE.md` = `@AGENTS.md`, budgets; manual Claude + Codex load check on the Mac |
 | [Legacy docs retirement](specs/legacy-docs-retirement.md) | `blocked` | Rollout part; `docs/requirements.md` → § index, READMEs trimmed to links, SETUP and PREREQUISITES fixes, `down -v` guard extended |
 | [Living docs cutover](specs/living-docs-cutover.md) | `blocked` | Last rollout part: freeze, reconcile, apply the owner's decisions, archive banners, final gate, enforcement, PR into develop, `pre-living-docs` tag, ff develop; companions `specs/living-docs-cutover-matrix.md` (migration matrix) and `specs/living-docs-cutover-design.md` (design) |
-| [Raw pointer contract fix](specs/raw-pointer-contract-fix.md) | `ready` | Defect C1, must land before the Mac first run: pointer for every archived document, published right after the archive; core-hub reads `retrieved_at`; malformed pointer dead-letters without retry; generated `raw_pointer_v1.json` fixture; 6 Python + 3 Java unit + 2 IT |
+| [Raw pointer contract fix](specs/done/raw-pointer-contract-fix.md) | `done` | Defect C1 fixed: pointer per archived document right after the archive; core-hub reads `retrieved_at`; `InvalidRawPointerException` dead-letters without retry; generated `raw_pointer_v1.json`; 6 Python + 4 Java unit + 2 IT |
 
 ---
 
@@ -181,3 +181,4 @@ Each line links to a self-contained spec in `specs/`. Open the spec and read it 
 | 2026-10-15 | Holdings composite score | Code done — 12 required tests plus 5 supporting green (red: `ModuleNotFoundError: auspex_backtesting.scores`), 19 mutations caught; first run on the Mac (first-run step 3e) | Yes (stack run) |
 | 2026-10-16 | Living documentation scoping | Scoping session: 11 rollout specs (all blocked on owner decisions), migration matrix of 1,345 rows with all 117 CHOICE headings classified, 22 PENDING decisions in DECISIONS.md; nothing converted | Yes (owner decisions) |
 | 2026-10-17 | Raw pointer contract fix | Scoping session: spec written (`ready`) from the raw-pointer contract CHOICE | No |
+| 2026-10-17 | Raw pointer contract fix | Done — 6 Python + 4 Java unit tests green locally; `RawAuditIT` (2) and `SignalPersistenceIT` proven in CI | No |

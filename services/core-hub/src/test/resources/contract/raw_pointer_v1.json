@@ -1,0 +1,11 @@
+{
+  "schema_version": "1.0",
+  "external_id": "ext-contract-001",
+  "canonical_id": "doi:10.1101/2024.06.01.600001",
+  "source_type": "biorxiv",
+  "source_url": "https://example.com/ext-contract-001",
+  "published_date": "2024-06-15T12:00:00Z",
+  "content_sha256": "f1a3ae62156839de48d368a502301bca4b38fe9a2945488f4f3128eb9b1c96ce",
+  "retrieved_at": "2024-06-15T12:00:00Z",
+  "raw_object_key": "raw/biorxiv/ext-contract-001/20240615T120000Z-f1a3ae62.json"
+}

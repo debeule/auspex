@@ -1,6 +1,6 @@
 # Raw pointer contract fix
 
-**Status:** ready
+**Status:** done
 **Branch:** `feature/raw-pointer-contract-fix`
 
 ---
@@ -80,9 +80,14 @@ Write these first and confirm each fails for the right reason: an `AssertionErro
 - `test_raw_pointer_missing_retrieved_at_is_invalid`: the fixture with `retrieved_at` removed throws `InvalidRawPointerException`, not a `NullPointerException`, and nothing is inserted.
 - `test_raw_pointer_without_offset_is_invalid`: `retrieved_at` of `2024-06-15T12:00:00` (no offset) throws `InvalidRawPointerException`.
 
+**Java unit** (`services/core-hub/src/test/java/dev/auspex/corehub/config/KafkaRetryTest.java`):
+- `invalidRawPointerGoesToTheDltWithoutRetry`: the real `rawErrorHandler` recovers a listener failure caused by `InvalidRawPointerException` on the first delivery. It lets the not-retryable registration be mutation-checked without containers.
+
+**Changed Python test** (`services/ingestion-scraper/tests/unit/test_unchanged_refetch.py`): the unchanged re-fetch test now expects one raw pointer and no signal (renamed `..._skips_extraction_and_signal_publish`), per "Ordering of the pointer" above.
+
 **Java integration** (`services/core-hub/src/integrationTest/java/dev/auspex/corehub/RawAuditIT.java`):
 - `test_raw_listener_writes_audit_row_only`: keeps its assertions, but `validRawJson()` now returns the generated fixture. It also asserts that the row's `retrieved_at` equals the fixture's.
-- `test_invalid_raw_pointer_dead_letters_without_retry`: a pointer without `retrieved_at` appears on `auspex.raw.ingested.dlt` with the `kafka_dlt-exception-fqcn` header naming `InvalidRawPointerException`. It is delivered once, with no retry attempts, which you can check from `CountingDeadLetterRecoverer`'s counter or the absence of retry log lines. No audit row is written.
+- `test_invalid_raw_pointer_dead_letters_without_retry`: a pointer without `retrieved_at` appears on `auspex.raw.ingested.dlt` with the `kafka_dlt-exception-cause-fqcn` header naming `InvalidRawPointerException` (the container wraps the listener's exception in `ListenerExecutionFailedException`, which `kafka_dlt-exception-fqcn` names). It is delivered once, with no retry attempts: the IT spies on `RawAuditService` and verifies one `record` call, since retries all happen before the DLT publish. No audit row is written.
 
 ## Definition of done
 
@@ -94,14 +99,14 @@ cd ../core-hub && ./gradlew test --rerun-tasks --tests '*RawAuditServiceTest' &&
 
 **Expected:**
 - 6 passed in the new Python file, and the full unit suite is green.
-- 3 Java unit tests in `RawAuditServiceTest`, and the Java unit suite is green.
+- 3 Java unit tests in `RawAuditServiceTest`, 1 more in `KafkaRetryTest`, and the Java unit suite is green.
 - `./gradlew integrationTest` with `RawAuditIT` (2 tests) and `SignalPersistenceIT` green is proven in CI. Cloud sessions have no Docker, so the PR says so.
 
 **Mutation-check, and list each in the PR:**
 - Read `ingested_at` again in `RawAuditService` → the generated-fixture unit test and `RawAuditIT` go red.
 - Move `publish_raw` back after extraction → the every-document and ordering tests go red.
 - Drop the `is_new` guard → the existing-object test goes red.
-- Drop the not-retryable registration → the dead-letter IT goes red.
+- Drop the not-retryable registration → `invalidRawPointerGoesToTheDltWithoutRetry` and the dead-letter IT go red.
 - Hand-edit `raw_pointer_v1.json` → the fixture test goes red.
 
 ## Notes

@@ -54,6 +54,12 @@ testing {
 
         register<JvmTestSuite>("integrationTest") {
             useJUnitJupiter()
+            // The generated contract fixtures, so container tests publish what the scraper publishes.
+            sources {
+                resources {
+                    srcDir("src/test/resources")
+                }
+            }
             dependencies {
                 implementation(platform("org.springframework.boot:spring-boot-dependencies:4.1.0"))
                 implementation(project())

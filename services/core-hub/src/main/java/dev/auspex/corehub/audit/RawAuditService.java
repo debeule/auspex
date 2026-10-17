@@ -6,15 +6,14 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.time.OffsetDateTime;
-import java.util.HexFormat;
+import java.time.format.DateTimeParseException;
 
 /**
- * Records every raw Kafka message into raw_fetch_audit.
+ * Records every raw pointer into raw_fetch_audit.
  * Idempotent: ON CONFLICT (raw_object_key) DO NOTHING.
+ * A pointer that is not JSON, lacks a required field, or has a {@code retrieved_at} without an
+ * offset throws {@link InvalidRawPointerException}.
  */
 @Service
 public class RawAuditService {
@@ -39,31 +38,36 @@ public class RawAuditService {
         try {
             node = objectMapper.readTree(payload);
         } catch (Exception e) {
-            throw new IllegalArgumentException("Malformed raw payload", e);
+            throw new InvalidRawPointerException("Raw pointer is not JSON", e);
         }
-        String rawObjectKey = node.get("raw_object_key").asText();
-        String sourceType   = node.get("source_type").asText();
-        String externalId   = node.get("external_id").asText();
-        String ingestedAt   = node.get("ingested_at").asText();
-        String sha256 = node.has("content_sha256")
-                ? node.get("content_sha256").asText()
-                : sha256Hex(payload);
+        if (node == null || !node.isObject()) {
+            throw new InvalidRawPointerException("Raw pointer is not a JSON object");
+        }
+        String rawObjectKey  = required(node, "raw_object_key");
+        String sourceType    = required(node, "source_type");
+        String externalId    = required(node, "external_id");
+        String contentSha256 = required(node, "content_sha256");
+        OffsetDateTime retrievedAt;
+        try {
+            retrievedAt = OffsetDateTime.parse(required(node, "retrieved_at"));
+        } catch (DateTimeParseException e) {
+            throw new InvalidRawPointerException(
+                    "Raw pointer retrieved_at is not an ISO-8601 timestamp with an offset", e);
+        }
 
         jdbcTemplate.update(INSERT_AUDIT,
                 rawObjectKey,
                 sourceType,
                 externalId,
-                sha256,
-                OffsetDateTime.parse(ingestedAt));
+                contentSha256,
+                retrievedAt);
     }
 
-    private static String sha256Hex(String input) {
-        try {
-            byte[] hash = MessageDigest.getInstance("SHA-256")
-                    .digest(input.getBytes(StandardCharsets.UTF_8));
-            return HexFormat.of().formatHex(hash);
-        } catch (NoSuchAlgorithmException e) {
-            throw new IllegalStateException("SHA-256 not available", e);
+    private static String required(JsonNode node, String field) {
+        JsonNode value = node.get(field);
+        if (value == null || !value.isTextual() || value.asText().isBlank()) {
+            throw new InvalidRawPointerException("Raw pointer is missing " + field);
         }
+        return value.asText();
     }
 }

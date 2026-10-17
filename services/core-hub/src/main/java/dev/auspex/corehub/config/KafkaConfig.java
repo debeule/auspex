@@ -1,6 +1,7 @@
 package dev.auspex.corehub.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import dev.auspex.corehub.audit.InvalidRawPointerException;
 import dev.auspex.corehub.kafka.CountingDeadLetterRecoverer;
 import dev.auspex.corehub.kafka.UnknownMajorVersionException;
 import io.micrometer.core.instrument.MeterRegistry;
@@ -140,9 +141,11 @@ class KafkaConfig {
             DeadLetterPublishingRecoverer rawDltRecoverer,
             MeterRegistry meterRegistry
     ) {
-        return deadLetteringErrorHandler(
+        DefaultErrorHandler handler = deadLetteringErrorHandler(
                 new CountingDeadLetterRecoverer(rawDltRecoverer, meterRegistry),
                 retryBackOff(retryInitialMs, retryMultiplier));
+        handler.addNotRetryableExceptions(InvalidRawPointerException.class);
+        return handler;
     }
 
     /**

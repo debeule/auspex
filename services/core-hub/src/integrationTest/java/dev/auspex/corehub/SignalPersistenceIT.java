@@ -68,7 +68,7 @@ class SignalPersistenceIT extends AbstractIT {
             Integer count = jdbcTemplate.queryForObject(
                     "SELECT COUNT(*) FROM raw_fetch_audit WHERE raw_object_key = ?",
                     Integer.class,
-                    "raw/biorxiv/ext-contract-001/20240615T120000Z-abcdef12.json");
+                    validRawField("raw_object_key"));
             assertThat(count).isEqualTo(1);
         });
     }

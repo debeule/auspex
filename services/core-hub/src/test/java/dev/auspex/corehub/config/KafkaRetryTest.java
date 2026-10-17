@@ -1,13 +1,17 @@
 package dev.auspex.corehub.config;
 
+import dev.auspex.corehub.audit.InvalidRawPointerException;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.junit.jupiter.api.Test;
 import org.springframework.kafka.listener.ConsumerRecordRecoverer;
+import org.springframework.kafka.listener.DeadLetterPublishingRecoverer;
 import org.springframework.kafka.listener.DefaultErrorHandler;
 import org.springframework.kafka.listener.ListenerExecutionFailedException;
 import org.springframework.kafka.listener.MessageListenerContainer;
 import org.springframework.kafka.support.serializer.DeserializationException;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.util.backoff.BackOffExecution;
 
 import java.nio.charset.StandardCharsets;
@@ -41,6 +45,25 @@ class KafkaRetryTest {
         var failure = new ListenerExecutionFailedException("listener failed",
                 new DeserializationException("malformed payload", malformed, false,
                         new IllegalArgumentException("unexpected token")));
+
+        boolean handled = handler.handleOne(
+                failure, record, mock(Consumer.class), mock(MessageListenerContainer.class));
+
+        assertThat(handled).isTrue();
+        verify(recoverer, times(1)).accept(eq(record), any());
+    }
+
+    @Test
+    void invalidRawPointerGoesToTheDltWithoutRetry() {
+        DeadLetterPublishingRecoverer recoverer = mock(DeadLetterPublishingRecoverer.class);
+        KafkaConfig config = new KafkaConfig();
+        ReflectionTestUtils.setField(config, "retryInitialMs", 5000L);
+        ReflectionTestUtils.setField(config, "retryMultiplier", 6.0);
+        DefaultErrorHandler handler = config.rawErrorHandler(recoverer, new SimpleMeterRegistry());
+        ConsumerRecord<String, Object> record =
+                new ConsumerRecord<>("auspex.raw.ingested", 0, 7L, "key", "{}");
+        var failure = new ListenerExecutionFailedException("listener failed",
+                new InvalidRawPointerException("Raw pointer is missing retrieved_at"));
 
         boolean handled = handler.handleOne(
                 failure, record, mock(Consumer.class), mock(MessageListenerContainer.class));
