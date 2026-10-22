@@ -1533,3 +1533,34 @@ The summary lists every source in `sources.yaml`. A source with a run in the las
 **Alternatives:** parsed tables plus source hashes only (under 1 GB, but a parser bug cannot be found by rebuilding); every bulk ZIP whole at every build (about 3 GB per download, 40–100 GB a year, mostly bytes no parser reads).
 **Sizes:** 13F data sets from 2013 total 2.9 GB in 54 files, Form 3/4/5 from 2013 0.56 GB in 55 files (SEC listings, 2026-10-17). The bulk pair is estimated at about 1.5 + 1.3 GB compressed, unmeasured because cloud sessions cannot reach sec.gov. `us_small_mid` parses every submissions member. Raw 10-Ks add an estimated 10–15 GB. Year one is about 20–25 GB, later years 6–8 GB; the first run on the stack machine replaces these estimates.
 **Why:** byte-exact rebuilds of everything the builds read, including the Item 1A cut, without keeping bytes no parser reads. The nightly backup mirrors `auspex-prices` to `BACKUP_HOST_DIR`, so the archive takes its size twice on the Mac: about 100 GB after five years, inside the 150 GB the user allows.
+
+## 2026-10-22 — Living docs — PENDING — system ratification batch
+**What:** Rules that `docs/system/` states with no approved source other than code, a README, a nested agent file or a non-invariant section of the root `CLAUDE.md`. Each is written in the docs as approved text with status `pending-decision`, or as a pending scope or exception line under its invariant.
+- **Pending requirements and lines:**
+  - **INV-1, read-only scope line:** reading Postgres or Neo4j is within INV-1, which restricts writes. `services/ingestion-scraper/scripts/sample_corroborations.py` reads both stores (SELECT and MATCH only). This replaces the stricter wording of `services/CLAUDE.md:45` ("No DB access, ever") and `services/ingestion-scraper/CLAUDE.md:19` ("No Postgres, no Neo4j").
+  - **INV-4, exception placement:** the ClinicalTrials.gov watchlist preview (`services/core-hub/src/main/java/dev/auspex/corehub/watchlist/WatchlistService.java`) is approved by `## 2026-09-20 — Watchlist backend — CHOICE — core-hub calls ClinicalTrials.gov directly`; writing it as an exception under INV-4 is what needs approval.
+  - **INV-15, exception:** the scaffolding exemption from test-first (`CLAUDE.md:138`).
+  - **SYS-001:** the project is named Auspex; components keep descriptive names (`CLAUDE.md:31`).
+  - **SYS-002:** the naming-table identifiers are fixed; a rename changes the authority file and the table in one PR (`CLAUDE.md:18-29`).
+  - **SYS-003:** no legacy system; Flyway scripts create the schema on an empty database (`CLAUDE.md:46-47`).
+  - **CON-015:** `directionality` is one of `positive`, `negative`, `neutral` (values only in `services/ingestion-scraper/prompts/extraction/v1.txt:29`).
+  - **CON-033:** a corroborated event is delivered at least once and consumers treat `(entity_key, participants_hash)` as its identity (`ScheduledCorroborationService` sends before the scan's commit).
+- **Partly sourced here** (the row's status follows its tested half, so they are not `pending-decision`):
+  - **CON-030:** consumers read `schema_version` from the record's field, not the header.
+  - **CON-037:** a dead letter's value is the original bytes after a deserialization failure, else snake_case JSON (the DLT template map in `KafkaConfig.java`; `## 2026-08-16 — Step 1.3 — VERIFIED — DeadLetterPublishingRecoverer with Spring Kafka 4.1`), and its header names (`## 2026-08-16 — Step 1.3 — VERIFIED — Spring Kafka 4.1 DLT header names`).
+**Why it matters:** the conversion rule lets no rule enter `docs/` as approved on code alone. Each item above matches today's code; only its approval is missing.
+**Options considered:**
+- A: approve the batch as written.
+- B: reject or reword single items; each rejected item is then retired or rewritten by a follow-up change.
+**Action:** default A. Owner to answer by appending `## <date> — Living docs — CHOICE — system ratification batch`. The cutover's decision-application step then flips the rows above from `pending-decision` to their real status and the pending lines to cite that `CHOICE`. Not blocking.
+
+## 2026-10-22 — Living docs — FLAG — invariant conflicts found while writing the system docs
+**What:** Three places where the code does not meet an invariant as `docs/system/` states it. Each is recorded `divergent` in the docs; no code changes in the rollout.
+- **INV-6 (credential, URL and port defaults in source).** `services/core-hub/src/main/resources/application.yml` (lines 6-8 and 21-27) gives `${VAR:default}` fallbacks for the Postgres URL, user and password, the Neo4j URI, user and password, and the Kafka bootstrap servers; `WatchlistService.java:46` defaults the ClinicalTrials.gov base URL; `services/ingestion-scraper/scripts/sample_corroborations.py:90` defaults the Neo4j URI. `test_no_credential_has_a_source_default` does not look at these files.
+- **INV-11 (strategy runtime has no DLT).** The strategy runtime logs, counts (`auspex_strategy_rejected_events_total`) and skips an unreadable record on `auspex.signals.corroborated`, with no dead letter (`services/strategy/src/auspex_strategy/runtime/streaming.py`; item 5 of `## 2026-10-10 — Strategy runtime — CHOICE — state placement, timing and the pass-through stub`). `## 2026-10-17 — Living docs — CHOICE — can a DECISIONS entry narrow an invariant` says a decision entry alone cannot narrow an invariant, so it is not an exception.
+- **INV-7 / CON-010 (one-sided symmetry check).** The Java test deserializes the generated fixture with unknown properties ignored, so a field the Python model has and the Java record lacks passes silently.
+**Options considered (per item):**
+- INV-6: a fix spec removes the defaults (and extends the scaffolding test to them), or an exception under INV-6 for local-development defaults, with the owner's word.
+- INV-11: a fix spec publishes unreadable corroborated records to `auspex.signals.corroborated.dlt`, or an exception under INV-11 for the runtime's skip-and-count, with the owner's word.
+- CON-010: a fix spec adds a Java test that compares the fixture's key set with the record's components.
+**Action:** owner to choose per item. Until then INV-6, INV-11 and CON-010 stay `divergent`, citing this entry.

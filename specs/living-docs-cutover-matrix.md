@@ -58,15 +58,15 @@ Scoping listed these classes of normative statements whose only home is an archi
 | `## 2026-09-19 — Watchlist & alerts — CHOICE — Entity-key-based watchlist, not ticker-based` | history |  | M-COR-028 |
 | `## 2026-09-19 — Historical backfill — CHOICE — Option A: local model for backfill, API model forward-only` | binding |  | M-EXT-044 |
 | `## 2026-09-19 — CI/CD pipeline — CHOICE — GitHub-hosted runners` | binding |  | M-ENG-127 |
-| `## 2026-09-20 — Watchlist backend — CHOICE — No user_id column; single-user installation, extensible` | binding |  | M-SYS-183,M-HUB-073 |
-| `## 2026-09-20 — Watchlist backend — CHOICE — core-hub calls ClinicalTrials.gov directly` | binding |  | M-INV-035,M-HUB-074 |
+| `## 2026-09-20 — Watchlist backend — CHOICE — No user_id column; single-user installation, extensible` | binding | SYS-004 | M-SYS-183,M-HUB-073 |
+| `## 2026-09-20 — Watchlist backend — CHOICE — core-hub calls ClinicalTrials.gov directly` | binding | INV-4 | M-INV-035,M-HUB-074 |
 | `## 2026-09-20 — Option A hosting — CHOICE — A1 (MacBook) confirmed for Phase 4; A2/A3 deferred` | history |  | M-EXT-045,M-OPS-251 |
 | `## 2026-09-20 — Strategy layer — CHOICE — XBI as primary benchmark` | history |  | M-EVA-060 |
 | `## 2026-09-20 — Strategy layer — CHOICE — Known-at delay default: 1 business day after corroborated_at` | history |  | M-EVA-061 |
 | `## 2026-09-20 — Strategy layer — CHOICE — Holdout: last 3 months sealed` | history |  | M-EVA-062 |
 | `## 2026-09-20 — Strategy layer session 2 — CHOICE — New `services/strategy/` service (not extending backtesting)` | binding |  | M-STR-070 |
 | `## 2026-09-20 — Strategy layer session 2 — CHOICE — MinIO for virtual books and traces; strategy service serves metrics API` | binding |  | M-STR-071 |
-| `## 2026-09-20 — Strategy layer session 2 — CHOICE — Event-driven Kafka consumer for the strategy runtime` | binding |  | M-CON-082,M-STR-072 |
+| `## 2026-09-20 — Strategy layer session 2 — CHOICE — Event-driven Kafka consumer for the strategy runtime` | binding | CON-002 | M-CON-082,M-STR-072 |
 | `## 2026-09-20 — Strategy layer session 2 — CHOICE — Strategies never see ingested_at or extracted_at; InputHealthMonitor handles model downtime` | binding |  | M-STR-073 |
 | `## 2026-09-20 — Strategy layer session 2 — CHOICE — Equal risk budget per promoted strategy; correlation-aware cap` | binding |  | M-STR-074 |
 | `## 2026-09-20 — Strategy layer session 2 — CHOICE — Minimum 20 trades before metrics and Kelly sizing` | binding |  | M-STR-075 |
@@ -86,14 +86,14 @@ Scoping listed these classes of normative statements whose only home is an archi
 | `## 2026-10-07 — Pre-registration — CHOICE — sizing ceilings: quarter Kelly, 5% per name, one position per theme, no hold through binary events` | binding |  | M-EVA-067 |
 | `## 2026-10-07 — EDGAR press-release content — CHOICE — filing index replaces the submissions lookup` | binding |  | M-ING-125 |
 | `## 2026-10-07 — Second-wave specs — CHOICE — structured filings bypass the LLM` | history |  | M-ING-126 |
-| `## 2026-10-07 — Second-wave specs — CHOICE — short interest is a market-data snapshot, not a connector` | binding |  | M-INV-039,M-RES-176 |
+| `## 2026-10-07 — Second-wave specs — CHOICE — short interest is a market-data snapshot, not a connector` | binding | INV-4 | M-INV-039,M-RES-176 |
 | `## 2026-10-07 — Second-wave specs — CHOICE — point-in-time universe scope` | binding |  | M-RES-177 |
 | `## 2026-10-07 — Second-wave specs — CHOICE — paper trading gates capital, run at several sizes` | binding |  | M-EVA-069 |
 | `## 2026-10-07 — Backtest look-ahead fix — CHOICE — one backtest event per corroboration, not per superseding record` | binding |  | M-RES-179 |
 | `## 2026-10-07 — Backtest look-ahead fix — CHOICE — entry and holding-window timing` | binding |  | M-RES-180 |
-| `## 2026-10-07 — Company-level extraction — CHOICE — event taxonomy and identifier fields (schema 1.1)` | binding |  | M-CON-083,M-EXT-047 |
+| `## 2026-10-07 — Company-level extraction — CHOICE — event taxonomy and identifier fields (schema 1.1)` | binding | CON-013 CON-016 | M-CON-083,M-EXT-047 |
 | `## 2026-10-07 — Edge research scoping — CHOICE — edge research synthesis: the alpha path becomes slow monthly scores` | history |  | M-EVA-070 |
-| `## 2026-10-07 — Edge research scoping — CHOICE — ownership and insider data are snapshots, not connectors` | binding |  | M-INV-040,M-RES-181 |
+| `## 2026-10-07 — Edge research scoping — CHOICE — ownership and insider data are snapshots, not connectors` | binding | INV-4 | M-INV-040,M-RES-181 |
 | `## 2026-10-07 — Edge research scoping — CHOICE — deferred items` | history |  | M-EVA-073 |
 | `## 2026-10-08 — Edge research scoping — CHOICE — quarterly banded rotation; catalysts as a guard, not a trigger` | binding |  | M-RES-183 |
 | `## 2026-10-08 — Edge research scoping — CHOICE — two non-LLM panels before the LLM backfill` | binding |  | M-EVA-074 |
@@ -112,7 +112,7 @@ Scoping listed these classes of normative statements whose only home is an archi
 | `## 2026-10-08 — Edge research scoping — CHOICE — build order` | history |  | M-EVA-077 |
 | `## 2026-10-09 — CI — CHOICE — container images off anonymous Docker Hub` | binding |  | M-ENG-131,M-OPS-254 |
 | `## 2026-10-09 — CI — CHOICE — remaining test images through mirror.gcr.io` | history |  | M-ENG-132 |
-| `## 2026-10-09 — Stack backup — CHOICE — nightly backup to a folder on the Mac` | binding |  | M-INV-037,M-OPS-257 |
+| `## 2026-10-09 — Stack backup — CHOICE — nightly backup to a folder on the Mac` | binding | INV-2 | M-INV-037,M-OPS-257 |
 | `## 2026-10-09 — Soak-test readiness — CHOICE — cursor after a run with failed documents` | binding |  | M-ING-128,M-OPS-258 |
 | `## 2026-10-09 — Soak-test readiness — CHOICE — transient Kafka failures pause instead of retrying longer` | binding |  | M-HUB-077 |
 | `## 2026-10-09 — Soak-test readiness — CHOICE — SEC request budget across containers` | binding |  | M-ING-129,M-OPS-259 |
@@ -127,7 +127,7 @@ Scoping listed these classes of normative statements whose only home is an archi
 | `## 2026-10-09 — Infrastructure observability — CHOICE — alert definitions the spec left open` | binding |  | M-OPS-264 |
 | `## 2026-10-09 — Infrastructure observability — CHOICE — monitoring values only in .env.example` | binding |  | M-OPS-265 |
 | `## 2026-10-10 — Infrastructure observability — CHOICE — dashboard memory limit and health probe` | binding |  | M-OPS-266 |
-| `## 2026-10-10 — Single-source cleanup — CHOICE — one version of each pre-rollout artifact` | binding |  | M-ENG-134,M-CON-084,M-STR-084 |
+| `## 2026-10-10 — Single-source cleanup — CHOICE — one version of each pre-rollout artifact` | binding | CON-008 | M-ENG-134,M-CON-084,M-STR-084 |
 | `## 2026-10-09 — Dashboard — CHOICE — Node 24 LTS, actions on Node 24` | history |  | M-ENG-135 |
 | `## 2026-10-09 — CI — CHOICE — one prefix for every test image` | binding |  | M-ENG-136,M-OPS-256 |
 | `## 2026-10-10 — Stack state persistence — CHOICE — required secrets and a writable state volume` | binding |  | M-OPS-267 |
@@ -145,7 +145,7 @@ Scoping listed these classes of normative statements whose only home is an archi
 | `## 2026-10-10 — Pipeline alerting gaps — CHOICE — which sources the daily summary lists` | binding |  | M-OPS-270 |
 | `## 2026-10-10 — Pipeline alerting gaps — CHOICE — Elasticsearch read-only indices from the exporter` | binding |  | M-OPS-271 |
 | `## 2026-10-10 — Pre-launch spec audit — CHOICE — portfolio verdict and the remaining blockers` | binding |  | M-EVA-081 |
-| `## 2026-10-10 — Stack backup — CHOICE — client tools from the server image, memory and restore semantics` | binding |  | M-INV-038,M-OPS-272 |
+| `## 2026-10-10 — Stack backup — CHOICE — client tools from the server image, memory and restore semantics` | binding | INV-2 | M-INV-038,M-OPS-272 |
 | `## 2026-10-10 — Ingestion run reliability — CHOICE — schedule times, extraction cap and task timeout` | binding |  | M-ING-131,M-OPS-273 |
 | `## 2026-10-10 — Ingestion run reliability — CHOICE — rate limiter spaces requests evenly, with no burst` | binding |  | M-ING-132 |
 | `## 2026-10-10 — Ingestion run reliability — CHOICE — a 403 on a filing index also stops the EDGAR run` | binding |  | M-ING-133 |
@@ -156,7 +156,7 @@ Scoping listed these classes of normative statements whose only home is an archi
 | `## 2026-10-10 — Evaluation protocol — CHOICE — how the event evaluation reads the spec` | binding |  | M-EVA-083 |
 | `## 2026-10-10 — Evaluation protocol — CHOICE — the raw-return backtest reserves trial cells too` | binding |  | M-EVA-084 |
 | `## 2026-10-10 — Short interest snapshots — CHOICE — publication dates from FINRA's rule, published rows win` | binding |  | M-RES-195 |
-| `## 2026-10-10 — Strategy runtime — CHOICE — state placement, timing and the pass-through stub` | binding |  | M-INV-041,M-STR-079,M-OPS-275 |
+| `## 2026-10-10 — Strategy runtime — CHOICE — state placement, timing and the pass-through stub` | binding | INV-11 | M-INV-041,M-STR-079,M-OPS-275 |
 | `## 2026-10-11 — Cross-sectional portfolio backtest — CHOICE — how the engine reads the spec` | binding |  | M-RES-196 |
 | `## 2026-10-11 — Strategy metrics — CHOICE — where the spec left the metrics open` | binding |  | M-STR-080 |
 | `## 2026-10-11 — Short interest snapshots — CHOICE — short interest share and change on one split basis` | binding |  | M-RES-197 |
@@ -396,8 +396,8 @@ Row prefixes: `M-INV` invariant rows, `M-CON` contract rows, `M-SYS` everything 
 | M-SYS-006 | `CLAUDE.md:13` | Read DECISIONS before flagging; append when you flag | process | move | `AGENTS.md` Where things are | — | agent-instruction-hierarchy | |  |
 | M-SYS-007 | `CLAUDE.md:14` | SETUP holds only manual steps; new step only if unautomatable | process | move | `AGENTS.md` Hard rules (where work can run) | — | agent-instruction-hierarchy | Also OPS topology (startup data) |  |
 | M-SYS-008 | `CLAUDE.md:16` | Assigned spec is the work, else first ready; update as you go | process | move | `AGENTS.md` Session start | — | agent-instruction-hierarchy | Conflicts with `TODO.md:5`; agents edits that line |  |
-| M-SYS-009 | `CLAUDE.md:19` | Name rationale: no single source is evidence, convergence is | rationale | move | `docs/system/overview.md` Rationale | SYS | living-docs-system-and-contracts | |  |
-| M-SYS-010 | `CLAUDE.md:18,21-29` | Naming identifiers are fixed; do not vary | requirement | ratify | `docs/system/overview.md` (SYS #2) | SYS | living-docs-system-and-contracts | batch |  |
+| M-SYS-009 | `CLAUDE.md:19` | Name rationale: no single source is evidence, convergence is | rationale | move | `docs/system/overview.md` Rationale | SYS | living-docs-system-and-contracts | | docs/system/overview.md#rationale |
+| M-SYS-010 | `CLAUDE.md:18,21-29` | Naming identifiers are fixed; do not vary | requirement | ratify | `docs/system/overview.md` (SYS #2) | SYS | living-docs-system-and-contracts | batch | SYS-002 |
 | M-SYS-011 | `CLAUDE.md:23` | Compose project `auspex` | value | link | overview naming table → `.env.example` `COMPOSE_PROJECT_NAME` | SYS | living-docs-system-and-contracts | Value not restated |  |
 | M-SYS-012 | `CLAUDE.md:24` | Kafka topic names | value | link | overview naming table → `docker/topics.yaml` | SYS | living-docs-system-and-contracts | N5: not restated |  |
 | M-SYS-013 | `CLAUDE.md:25` | Java root package | value | link | overview naming table → `services/core-hub/src/main/java/dev/auspex/corehub/` | SYS | living-docs-system-and-contracts | |  |
@@ -405,30 +405,30 @@ Row prefixes: `M-INV` invariant rows, `M-CON` contract rows, `M-SYS` everything 
 | M-SYS-015 | `CLAUDE.md:27` | Three MinIO buckets and what each holds | value | link | overview naming table → `.env.example` `MINIO_BUCKET`, compose `minio-init`, `BACKUP_BUCKETS` | SYS | living-docs-system-and-contracts | Roles kept, names linked; finding #8 (SETUP/VERSIONS list 2) is legacy's |  |
 | M-SYS-016 | `CLAUDE.md:28` | Postgres databases `auspex`, `airflow` | value | link | overview naming table → `.env.example` `POSTGRES_DB`, `docker/postgres-init/` | SYS | living-docs-system-and-contracts | |  |
 | M-SYS-017 | `CLAUDE.md:29` | Roles `auspex_app`, `airflow` | value | link | overview naming table → `.env.example` `POSTGRES_USER`, `docker/airflow-db-role/` | SYS | living-docs-system-and-contracts | |  |
-| M-SYS-018 | `CLAUDE.md:31` | Service directories descriptive, never themed | requirement | ratify | `docs/system/overview.md` (SYS #1) | SYS | living-docs-system-and-contracts | batch |  |
+| M-SYS-018 | `CLAUDE.md:31` | Service directories descriptive, never themed | requirement | ratify | `docs/system/overview.md` (SYS #1) | SYS | living-docs-system-and-contracts | batch | SYS-001 |
 | M-SYS-019 | `CLAUDE.md:33` | No plan-step references in names, tests, branches, commits | requirement | move | `docs/engineering/conventions.md` item 49; one-line hard rule in `AGENTS.md` | ENG | living-docs-engineering-workflow | engineering ratification batch (source is CLAUDE.md only) |  |
 | M-SYS-020 | `CLAUDE.md:35-36` | "What this is": see README | status-note | link | `AGENTS.md` Where things are | — | agent-instruction-hierarchy | |  |
 | M-SYS-021 | `CLAUDE.md:39-43` | Session start steps 1–5 | process | move | `AGENTS.md` Session start | — | agent-instruction-hierarchy | |  |
 | M-SYS-022 | `CLAUDE.md:44` | Done flow: mark done, move, TODO row, commit, PR | process | move | `docs/engineering/change-workflow.md` (lifecycle); `AGENTS.md` names it | ENG | living-docs-engineering-workflow | |  |
-| M-SYS-023 | `CLAUDE.md:47` | No legacy system; Flyway scripts create schema on empty DB | requirement | ratify | `docs/system/overview.md` (SYS #3) | SYS | living-docs-system-and-contracts | batch |  |
+| M-SYS-023 | `CLAUDE.md:47` | No legacy system; Flyway scripts create schema on empty DB | requirement | ratify | `docs/system/overview.md` (SYS #3) | SYS | living-docs-system-and-contracts | batch | SYS-003 |
 | M-SYS-024 | `CLAUDE.md:50` | Rule that matters most: test can only pass by violating → stop, flag, ask | process | move | `AGENTS.md` Session start (3) | — | agent-instruction-hierarchy | INV-15 refers to it in plain text |  |
 | M-SYS-025 | `CLAUDE.md:52` | `test_dag_task_only_invokes_fetch_since` cautionary story | rationale | move | `docs/engineering/verification.md` Rationale | ENG | living-docs-engineering-workflow | |  |
 | M-SYS-026 | `CLAUDE.md:54` | Never violate an invariant; stop and flag | process | move | `AGENTS.md` Session start (4) | — | agent-instruction-hierarchy | |  |
-| M-INV-001 | `CLAUDE.md:55` | Scraper writes only to MinIO and Kafka | invariant | move | `docs/system/invariants.md#INV-1` | INV | living-docs-system-and-contracts | Scope line: Airflow Variables/local state are writes; read-only note (`sample_corroborations.py`) in batch |  |
-| M-INV-002 | `CLAUDE.md:56` | core-hub sole writer to application DB and Neo4j | invariant | move | `#INV-2` | INV | living-docs-system-and-contracts | Restore exception: PENDING `restore exception to invariant 2` |  |
-| M-INV-003 | `CLAUDE.md:57` | DAG calls `/ingest/<source_type>`; no logic in DAGs or `fetch_since` | invariant | move | `#INV-3` | INV | living-docs-system-and-contracts | |  |
-| M-INV-004 | `CLAUDE.md:58` | New source = connector + `sources.yaml` entry; no source branching | invariant | move | `#INV-4` | INV | living-docs-system-and-contracts | CT.gov exception placed here (batch); snapshot scope note |  |
-| M-INV-005 | `CLAUDE.md:59` | All corroboration behind `CorroborationService` | invariant | move | `#INV-5` | INV | living-docs-system-and-contracts | |  |
-| M-INV-006 | `CLAUDE.md:60` | No credentials/URLs/ports in source; API keys are Airflow Connections | invariant | divergent | `#INV-6` (amended) | INV | living-docs-system-and-contracts | PENDING `invariant 6 wording`; defaults in source → FLAG-INV |  |
-| M-INV-007 | `CLAUDE.md:61` | Model and record identical; snake_case; fixture generated | invariant | move | `#INV-7` | INV | living-docs-system-and-contracts | Raw and corroborated events divergent in CON |  |
-| M-INV-008 | `CLAUDE.md:62` | Synchronous Python; no `async`, no `aiokafka` | invariant | move | `#INV-8` | INV | living-docs-system-and-contracts | |  |
-| M-INV-009 | `CLAUDE.md:63` | UTC everywhere, including MinIO keys | invariant | move | `#INV-9` | INV | living-docs-system-and-contracts | |  |
-| M-INV-010 | `CLAUDE.md:64` | Idempotent writes on each path's declared natural key | invariant | move | `#INV-10` | INV | living-docs-system-and-contracts | Keys: CON #21–27 |  |
-| M-INV-011 | `CLAUDE.md:65` | Nothing dies silently: DLT with headers, never block a partition | invariant | divergent | `#INV-11` | INV | living-docs-system-and-contracts | Strategy runtime skip-and-count, no DLT → FLAG-INV |  |
-| M-INV-012 | `CLAUDE.md:66` | Parameterized queries; ArchUnit + injection tests | invariant | move | `#INV-12` | INV | living-docs-system-and-contracts | ArchUnit covers some packages only (status untested, partial) |  |
-| M-INV-013 | `CLAUDE.md:67` | MinIO archive unconditional, before any other side effect | invariant | move | `#INV-13` | INV | living-docs-system-and-contracts | |  |
-| M-INV-014 | `CLAUDE.md:68` | `event_id` is document identity; never varies | invariant | move | `#INV-14` | INV | living-docs-system-and-contracts | |  |
-| M-INV-015 | `CLAUDE.md:69` | Test-first, subject to the rule above | invariant | move | `#INV-15` | INV | living-docs-system-and-contracts | "Rule above" → `AGENTS.md` (plain text) |  |
+| M-INV-001 | `CLAUDE.md:55` | Scraper writes only to MinIO and Kafka | invariant | move | `docs/system/invariants.md#INV-1` | INV | living-docs-system-and-contracts | Scope line: Airflow Variables/local state are writes; read-only note (`sample_corroborations.py`) in batch | INV-1 |
+| M-INV-002 | `CLAUDE.md:56` | core-hub sole writer to application DB and Neo4j | invariant | move | `#INV-2` | INV | living-docs-system-and-contracts | Restore exception: PENDING `restore exception to invariant 2` | INV-2 |
+| M-INV-003 | `CLAUDE.md:57` | DAG calls `/ingest/<source_type>`; no logic in DAGs or `fetch_since` | invariant | move | `#INV-3` | INV | living-docs-system-and-contracts | | INV-3 |
+| M-INV-004 | `CLAUDE.md:58` | New source = connector + `sources.yaml` entry; no source branching | invariant | move | `#INV-4` | INV | living-docs-system-and-contracts | CT.gov exception placed here (batch); snapshot scope note | INV-4 |
+| M-INV-005 | `CLAUDE.md:59` | All corroboration behind `CorroborationService` | invariant | move | `#INV-5` | INV | living-docs-system-and-contracts | | INV-5 |
+| M-INV-006 | `CLAUDE.md:60` | No credentials/URLs/ports in source; API keys are Airflow Connections | invariant | divergent | `#INV-6` (amended) | INV | living-docs-system-and-contracts | PENDING `invariant 6 wording`; defaults in source → FLAG-INV | INV-6 |
+| M-INV-007 | `CLAUDE.md:61` | Model and record identical; snake_case; fixture generated | invariant | move | `#INV-7` | INV | living-docs-system-and-contracts | Raw and corroborated events divergent in CON | INV-7 |
+| M-INV-008 | `CLAUDE.md:62` | Synchronous Python; no `async`, no `aiokafka` | invariant | move | `#INV-8` | INV | living-docs-system-and-contracts | | INV-8 |
+| M-INV-009 | `CLAUDE.md:63` | UTC everywhere, including MinIO keys | invariant | move | `#INV-9` | INV | living-docs-system-and-contracts | | INV-9 |
+| M-INV-010 | `CLAUDE.md:64` | Idempotent writes on each path's declared natural key | invariant | move | `#INV-10` | INV | living-docs-system-and-contracts | Keys: CON #21–27 | INV-10 |
+| M-INV-011 | `CLAUDE.md:65` | Nothing dies silently: DLT with headers, never block a partition | invariant | divergent | `#INV-11` | INV | living-docs-system-and-contracts | Strategy runtime skip-and-count, no DLT → FLAG-INV | INV-11 |
+| M-INV-012 | `CLAUDE.md:66` | Parameterized queries; ArchUnit + injection tests | invariant | move | `#INV-12` | INV | living-docs-system-and-contracts | ArchUnit covers some packages only (status untested, partial) | INV-12 |
+| M-INV-013 | `CLAUDE.md:67` | MinIO archive unconditional, before any other side effect | invariant | move | `#INV-13` | INV | living-docs-system-and-contracts | | INV-13 |
+| M-INV-014 | `CLAUDE.md:68` | `event_id` is document identity; never varies | invariant | move | `#INV-14` | INV | living-docs-system-and-contracts | | INV-14 |
+| M-INV-015 | `CLAUDE.md:69` | Test-first, subject to the rule above | invariant | move | `#INV-15` | INV | living-docs-system-and-contracts | "Rule above" → `AGENTS.md` (plain text) | INV-15 |
 | M-SYS-027 | `CLAUDE.md:75-78` | Stack up (infra, app), down, down -v commands | command | keep | `README.md` (stack-command owner) | — | legacy-docs-retirement | down -v line must keep "destroys all data" |  |
 | M-SYS-028 | `CLAUDE.md:79-83,97` | Scraper install, unit, one file, full, lint, regenerate fixture | command | move | `services/ingestion-scraper/AGENTS.md` | — | agent-instruction-hierarchy | |  |
 | M-SYS-029 | `CLAUDE.md:84-89` | Gradle test, integrationTest, check, one class, timezoneCheck, rerun | command | move | `services/core-hub/AGENTS.md` | — | agent-instruction-hierarchy | |  |
@@ -441,7 +441,7 @@ Row prefixes: `M-INV` invariant rows, `M-CON` contract rows, `M-SYS` everything 
 | M-SYS-036 | `CLAUDE.md:101` | Gradle `UP-TO-DATE` is not a pass; use `--rerun-tasks` | process | move | `AGENTS.md` Hard rules | — | agent-instruction-hierarchy | Duplicate at `services/core-hub/CLAUDE.md:45` deleted |  |
 | M-SYS-037 | `CLAUDE.md:103-114` | TDD loop steps; right-reason red; container suite at completion | process | move | `docs/engineering/verification.md` | ENG | living-docs-engineering-workflow | |  |
 | M-SYS-038 | `CLAUDE.md:116-135` | Doc-maintenance table; "intentional duplication is fine" | stale | retire | replaced by `docs/engineering/conventions.md` item 40 ("Doc ownership") | — | living-docs-engineering-workflow | Retired, not moved; same source as M-ENG-023 |  |
-| M-SYS-039 | `CLAUDE.md:137` | Scaffolding exemption from test-first | invariant | move | INV-15 exception in `docs/system/invariants.md` | INV | living-docs-system-and-contracts | An exception narrows INV-15, so it lives under it; "pom.xml" is stale (Gradle). Same source as M-ENG-025 |  |
+| M-SYS-039 | `CLAUDE.md:137` | Scaffolding exemption from test-first | invariant | move | INV-15 exception in `docs/system/invariants.md` | INV | living-docs-system-and-contracts | An exception narrows INV-15, so it lives under it; "pom.xml" is stale (Gradle). Same source as M-ENG-025 | INV-15 |
 | M-SYS-040 | `CLAUDE.md:140-144` | Comment rules: intent only, no narration, contracts, stale worse | process | move | `docs/engineering/conventions.md` | ENG | living-docs-engineering-workflow | |  |
 | M-SYS-041 | `CLAUDE.md:145` | Flyway migrations frozen; don't edit applied comments | requirement | move | `docs/core-hub/storage.md` | HUB | living-docs-core-hub | |  |
 | M-SYS-042 | `CLAUDE.md:148-152` | Test file locations and markers per service | process | move | Layout rows of scraper and core-hub `AGENTS.md`; `docs/engineering/verification.md` | ENG | agent-instruction-hierarchy, living-docs-engineering-workflow | |  |
@@ -462,12 +462,12 @@ Row prefixes: `M-INV` invariant rows, `M-CON` contract rows, `M-SYS` everything 
 | M-SYS-057 | `CLAUDE.md:199` | Mac-only work goes into a spec the owner runs there | process | move | `AGENTS.md` Hard rules | — | agent-instruction-hierarchy | Stale path `specs/first-run-on-stack-machine.md` still valid |  |
 | M-SYS-058 | `CLAUDE.md:200` | No hand-run setup/data scripts; one-shot or DAG calling API | requirement | move | `docs/operations/topology.md`; one-line hard rule in `AGENTS.md` | OPS | living-docs-operations, agent-instruction-hierarchy | `## 2026-10-07 — Startup data — CHOICE — data fills itself on up; prices refresh daily` |  |
 | M-SYS-059 | `CLAUDE.md:203` | `ErrorHandlingDeserializer` mandatory | trap | move | `docs/core-hub/consumption.md` Known traps | HUB | living-docs-core-hub | |  |
-| M-SYS-060 | `CLAUDE.md:204` | DLPR default `.DLT` and same partition; resolver returns -1 | trap | move | `docs/system/contracts.md` Known traps (CON #36–37) | CON | living-docs-system-and-contracts | Drop "re-verify": `## 2026-08-16 — Step 1.3 — VERIFIED — DeadLetterPublishingRecoverer with Spring Kafka 4.1` |  |
+| M-SYS-060 | `CLAUDE.md:204` | DLPR default `.DLT` and same partition; resolver returns -1 | trap | move | `docs/system/contracts.md` Known traps (CON #36–37) | CON | living-docs-system-and-contracts | Drop "re-verify": `## 2026-08-16 — Step 1.3 — VERIFIED — DeadLetterPublishingRecoverer with Spring Kafka 4.1` | docs/system/contracts.md#known-traps |
 | M-SYS-061 | `CLAUDE.md:205` | `produce()` async: flush, check delivery reports | trap | move | `docs/ingestion/pipeline.md` Known traps | ING | living-docs-ingestion | |  |
 | M-SYS-062 | `CLAUDE.md:206` | `MERGE {ticker: null}` matches all; MERGE Company on name | trap | move | `docs/core-hub/storage.md` Known traps | HUB | living-docs-core-hub | |  |
 | M-SYS-063 | `CLAUDE.md:207` | Neo4j no decimal; NUMERIC(4,3); double via converter | trap | move | `docs/core-hub/storage.md` Known traps | HUB | living-docs-core-hub | C12: "converter" is an inline `.doubleValue()` |  |
-| M-SYS-064 | `CLAUDE.md:208` | Primitive double cannot be null; BigDecimal + `@NotNull` | trap | move | `docs/system/contracts.md` Known traps (CON #12) | CON | living-docs-system-and-contracts | |  |
-| M-SYS-065 | `CLAUDE.md:209` | `FAIL_ON_UNKNOWN_PROPERTIES=false` on consumer | trap | move | `docs/system/contracts.md` Known traps (CON #30) | CON | living-docs-system-and-contracts | Illustrative core-hub AGENTS lists it as HUB; this fragment owns it under CON |  |
+| M-SYS-064 | `CLAUDE.md:208` | Primitive double cannot be null; BigDecimal + `@NotNull` | trap | move | `docs/system/contracts.md` Known traps (CON #12) | CON | living-docs-system-and-contracts | | docs/system/contracts.md#known-traps |
+| M-SYS-065 | `CLAUDE.md:209` | `FAIL_ON_UNKNOWN_PROPERTIES=false` on consumer | trap | move | `docs/system/contracts.md` Known traps (CON #30) | CON | living-docs-system-and-contracts | Illustrative core-hub AGENTS lists it as HUB; this fragment owns it under CON | docs/system/contracts.md#known-traps |
 | M-SYS-066 | `CLAUDE.md:210` | Patents: filed date is not disclosure; use pre-grant publication | trap | move | `docs/ingestion/connectors.md` Known traps | ING | living-docs-ingestion | |  |
 | M-SYS-067 | `CLAUDE.md:211` | Trials: first-submitted date private; post date public | trap | move | `docs/ingestion/connectors.md` Known traps | ING | living-docs-ingestion | |  |
 | M-SYS-068 | `CLAUDE.md:212` | SEC 10 req/s per IP, User-Agent, filing index, ciks[0], XBRL names | trap | move | `docs/ingestion/connectors.md` Known traps; aggregate budget `docs/operations/topology.md` | ING | living-docs-ingestion, living-docs-operations | Stale path `specs/edgar-efts-fixture-alignment.md` → `specs/done/…` (finding #7) |  |
@@ -493,11 +493,11 @@ Row prefixes: `M-INV` invariant rows, `M-CON` contract rows, `M-SYS` everything 
 | Row | Source | Rule or content (≤ 15 words) | Class | Disposition | Target | NS | Spec | Decision / note | ID |
 |---|---|---|---|---|---|---|---|---|---|
 | M-SYS-085 | `services/CLAUDE.md:3` | Auto-loaded in service directories | status-note | delete | — | — | agent-instruction-hierarchy | |  |
-| M-CON-001 | `services/CLAUDE.md:7-8,12` | Pydantic model generates `signal_event_v1.json` | contract | move | `docs/system/contracts.md` (CON #9) | CON | living-docs-system-and-contracts | |  |
+| M-CON-001 | `services/CLAUDE.md:7-8,12` | Pydantic model generates `signal_event_v1.json` | contract | move | `docs/system/contracts.md` (CON #9) | CON | living-docs-system-and-contracts | | CON-009 |
 | M-SYS-086 | `services/CLAUDE.md:10` | Regenerate fixture command | command | move | `services/ingestion-scraper/AGENTS.md` | — | agent-instruction-hierarchy | |  |
-| M-CON-002 | `services/CLAUDE.md:13` | Python model changes: regenerate and commit | contract | move | `docs/system/contracts.md` (CON #32) | CON | living-docs-system-and-contracts | |  |
-| M-CON-003 | `services/CLAUDE.md:15-22` | Topic table: partitions, producer, consumer | contract | move | CON #2 (roles); values → `docker/topics.yaml` | CON | living-docs-system-and-contracts | Partition numbers not copied; corroborated consumer = strategy-runtime |  |
-| M-CON-004 | `services/CLAUDE.md:24` | Provisioning in `topics.yaml` | contract | move | CON #1 | CON | living-docs-system-and-contracts | |  |
+| M-CON-002 | `services/CLAUDE.md:13` | Python model changes: regenerate and commit | contract | move | `docs/system/contracts.md` (CON #32) | CON | living-docs-system-and-contracts | | CON-031 |
+| M-CON-003 | `services/CLAUDE.md:15-22` | Topic table: partitions, producer, consumer | contract | move | CON #2 (roles); values → `docker/topics.yaml` | CON | living-docs-system-and-contracts | Partition numbers not copied; corroborated consumer = strategy-runtime | CON-002 |
+| M-CON-004 | `services/CLAUDE.md:24` | Provisioning in `topics.yaml` | contract | move | CON #1 | CON | living-docs-system-and-contracts | | CON-001 |
 | M-CON-005 | `services/CLAUDE.md:24` | DLPR publishes same partition; mismatch fails silently | stale | delete | — (CON #37 states -1) | CON | living-docs-system-and-contracts, agent-instruction-hierarchy | Wrong vs `KafkaConfig.java:187-188` (C2/G4) |  |
 | M-SYS-087 | `services/CLAUDE.md:28` | Comment rule lives in root CLAUDE | status-note | link | `services/AGENTS.md` → `docs/engineering/conventions.md` | — | agent-instruction-hierarchy | |  |
 | M-SYS-088 | `services/CLAUDE.md:30-35` | Per-stack comment form table | process | move | `docs/engineering/conventions.md` item 52 | ENG | living-docs-engineering-workflow | `services/AGENTS.md` keeps a one-line pointer (`agent-instruction-hierarchy`) |  |
@@ -532,8 +532,8 @@ Row prefixes: `M-INV` invariant rows, `M-CON` contract rows, `M-SYS` everything 
 | M-SYS-108 | `services/core-hub/CLAUDE.md:45` | `UP-TO-DATE` runs nothing; `--rerun-tasks` | process | delete | dup of M-SYS-036 (`AGENTS.md`) | — | agent-instruction-hierarchy | |  |
 | M-SYS-109 | `services/core-hub/CLAUDE.md:46` | Gradle 9 configuration cache: fix script, don't disable | trap | move | `docs/engineering/conventions.md` Known traps | ENG | living-docs-engineering-workflow | ENG batch |  |
 | M-SYS-110 | `services/core-hub/CLAUDE.md:47` | `ErrorHandlingDeserializer` mandatory | trap | delete | dup of M-SYS-059 | HUB | living-docs-core-hub | |  |
-| M-CON-006 | `services/core-hub/CLAUDE.md:48` | DLT resolver lowercase `.dlt`, partition -1; re-verify | trap | move | CON Known traps (CON #36–37) | CON | living-docs-system-and-contracts | "Re-verify" stale (verified 2026-08-16) |  |
-| M-CON-007 | `services/core-hub/CLAUDE.md:49` | `confidence_score` BigDecimal / NUMERIC(4,3) / double | trap | move | CON Known traps (wire, CON #12); storage half `docs/core-hub/storage.md` | CON | living-docs-system-and-contracts, living-docs-core-hub | |  |
+| M-CON-006 | `services/core-hub/CLAUDE.md:48` | DLT resolver lowercase `.dlt`, partition -1; re-verify | trap | move | CON Known traps (CON #36–37) | CON | living-docs-system-and-contracts | "Re-verify" stale (verified 2026-08-16) | docs/system/contracts.md#known-traps |
+| M-CON-007 | `services/core-hub/CLAUDE.md:49` | `confidence_score` BigDecimal / NUMERIC(4,3) / double | trap | move | CON Known traps (wire, CON #12); storage half `docs/core-hub/storage.md` | CON | living-docs-system-and-contracts, living-docs-core-hub | | docs/system/contracts.md#known-traps |
 | M-CON-008 | `services/core-hub/CLAUDE.md:50` | `FAIL_ON_UNKNOWN_PROPERTIES=false` | trap | delete | dup of M-SYS-065 | CON | living-docs-system-and-contracts | |  |
 | M-SYS-111 | `services/core-hub/CLAUDE.md:51` | MERGE null ticker trap | trap | delete | dup of M-SYS-062 | HUB | living-docs-core-hub | |  |
 | M-SYS-112 | `services/core-hub/CLAUDE.md:52` | Boot 4.1 / Spring Kafka 4.1 differ from 3.x tutorials | trap | move | `docs/engineering/conventions.md` Known traps | ENG | living-docs-engineering-workflow | requirements §1 :32 |  |
@@ -568,11 +568,11 @@ Row prefixes: `M-INV` invariant rows, `M-CON` contract rows, `M-SYS` everything 
 |---|---|---|---|---|---|---|---|---|---|
 | M-SYS-127 | `docker/CLAUDE.md:3` | Auto-loaded in docker/ | status-note | delete | — | — | agent-instruction-hierarchy | |  |
 | M-SYS-128 | `docker/CLAUDE.md:7-11` | Compose up, down, down -v (destroys all data; never a fix) | command | keep | `README.md` (stack commands); `docker/AGENTS.md` names it | — | legacy-docs-retirement, agent-instruction-hierarchy | Test reads this file; after reduction it has no `down -v` line |  |
-| M-CON-010 | `docker/CLAUDE.md:15` | `kafka-init` creates topics from `topics.yaml` on every up | contract | move | CON #1; one-shot detail `docs/operations/topology.md` | CON | living-docs-system-and-contracts, living-docs-operations | |  |
+| M-CON-010 | `docker/CLAUDE.md:15` | `kafka-init` creates topics from `topics.yaml` on every up | contract | move | CON #1; one-shot detail `docs/operations/topology.md` | CON | living-docs-system-and-contracts, living-docs-operations | | CON-001 |
 | M-SYS-129 | `docker/CLAUDE.md:16-17` | `minio-init`, `price-bootstrap` one-shots; no-ops when data exists | requirement | move | `docs/operations/topology.md` | OPS | living-docs-operations | |  |
 | M-SYS-130 | `docker/CLAUDE.md:17` | Wrong partition count fixed per topic, never `down -v` | requirement | move | `docs/operations/topology.md` | OPS | living-docs-operations | |  |
 | M-SYS-131 | `docker/CLAUDE.md:19-20` | Startup data one-shot; current data DAG; no hand-run scripts | requirement | link | M-SYS-058 owner | OPS | living-docs-operations | dup |  |
-| M-CON-011 | `docker/CLAUDE.md:22-25` | DLT partition parity; resolver -1; lowercase `.dlt`; verify on new pair | contract | move | CON #4, #36, #37 | CON | living-docs-system-and-contracts | Correct text (unlike `services/CLAUDE.md:24`) |  |
+| M-CON-011 | `docker/CLAUDE.md:22-25` | DLT partition parity; resolver -1; lowercase `.dlt`; verify on new pair | contract | move | CON #4, #36, #37 | CON | living-docs-system-and-contracts | Correct text (unlike `services/CLAUDE.md:24`) | CON-004 CON-035 CON-036 |
 | M-SYS-132 | `docker/CLAUDE.md:29-31` | Every `.env.example` var a bare `${VAR}` or `${VAR:?}` in compose | requirement | move | `docs/operations/topology.md` | OPS | living-docs-operations | `test_compose_gives_no_default_to_env_example_variables` |  |
 | M-SYS-133 | `docker/CLAUDE.md:31-32` | Ports bound to 127.0.0.1; exporters publish none | requirement | move | `docs/operations/topology.md` | OPS | living-docs-operations | requirements §1 :40 |  |
 | M-SYS-134 | `docker/CLAUDE.md:36-39` | `mem_limit` from `.env`, log label, scrape/probe, 7.5 GB, logging anchor | requirement | move | `docs/operations/topology.md` / `observability.md` | OPS | living-docs-operations | Value (7.5 GB) owned by compose/.env tests |  |
@@ -594,7 +594,7 @@ Row prefixes: `M-INV` invariant rows, `M-CON` contract rows, `M-SYS` everything 
 | M-SYS-145 | §0.3 | 24-month backfill prerequisite; 90-day `initial_lookback` | requirement | divergent | backfill →`living-docs-research/living-docs-strategy-and-dashboard` (`specs/historical-backfill.md`); lookback `docs/ingestion/connectors.md` names `sources.yaml` | ING | living-docs-ingestion, living-docs-research | `sources.yaml` value is 30 (`initial_lookback value`) |  |
 | M-SYS-146 | §0.3 note | Forward-only collection cannot support backtest; backfill needed | rationale | move | →`living-docs-research/living-docs-strategy-and-dashboard` `docs/research/backtesting.md` Rationale | RES | living-docs-research | |  |
 | M-SYS-147 | §0.4 | ≤500 extractions/day; separate backfill budget; pre-filter | requirement | move | `docs/ingestion/extraction.md` | EXT | living-docs-ingestion | |  |
-| M-CON-012 | §0.5 | `gene_targets` is a list | contract | move | CON #8 | CON | living-docs-system-and-contracts | |  |
+| M-CON-012 | §0.5 | `gene_targets` is a list | contract | move | CON #8 | CON | living-docs-system-and-contracts | | CON-008 |
 | M-SYS-148 | §0.6 | Kafka Streams not a requirement | requirement | move | `docs/core-hub/corroboration.md` | COR | living-docs-core-hub | `specs/kafka-streams-correlation.md` draft |  |
 | M-SYS-149 | §0.7 | Tickerless signals stored, corroborated, absent from ticker responses | requirement | move | `docs/core-hub/storage.md` / `http-api.md` | HUB | living-docs-core-hub | |  |
 | M-SYS-150 | §1 :26 | Python 3.14, uv, lock committed, exact pins | requirement | move | `docs/engineering/conventions.md`; values `VERSIONS.md` | ENG | living-docs-engineering-workflow | |  |
@@ -604,70 +604,70 @@ Row prefixes: `M-INV` invariant rows, `M-CON` contract rows, `M-SYS` everything 
 | M-SYS-153 | §1 :32 | Java 25, Boot 4.x, Gradle Kotlin DSL, no Lombok | requirement | move | `docs/engineering/conventions.md`; values `VERSIONS.md` | ENG | living-docs-engineering-workflow | |  |
 | M-SYS-154 | §1 :32 | Spring Kafka 4.1 DLPR re-confirm at Step 1.3 | history | delete | — | — | living-docs-system-and-contracts | Confirmed `## 2026-08-16 — Step 1.3 — VERIFIED — …` |  |
 | M-SYS-155 | §1 :33-34 | core-hub dependencies and test stack incl. ArchUnit | value | link | `gradle/libs.versions.toml` | ENG | living-docs-engineering-workflow | |  |
-| M-CON-013 | §1 :37 | Topics from declarative `topics.yaml`, never producer side effect | contract | move | CON #1 | CON | living-docs-system-and-contracts | |  |
+| M-CON-013 | §1 :37 | Topics from declarative `topics.yaml`, never producer side effect | contract | move | CON #1 | CON | living-docs-system-and-contracts | | CON-001 |
 | M-SYS-156 | §1 :38 | Postgres holds raw audit, signals, history, observations, corroborations, price series | stale | delete | `docs/core-hub/storage.md` lists actual tables | HUB | living-docs-core-hub | "price series" wrong: prices are MinIO Parquet (A C5) |  |
 | M-SYS-157 | §1 :38 | Airflow metadata separate DB, own role, no cross-grants | requirement | move | `docs/operations/topology.md` | OPS | living-docs-operations | §14 settled too |  |
 | M-SYS-158 | §1 :38 | Flyway owns schema; `ddl-auto=validate` | requirement | move | `docs/core-hub/storage.md` | HUB | living-docs-core-hub | |  |
 | M-SYS-159 | §1 :39 | Neo4j constraints via versioned idempotent startup component; `GraphSchema` node | requirement | move | `docs/core-hub/storage.md` | HUB | living-docs-core-hub | |  |
 | M-SYS-160 | §1 :40 | MinIO credentials from `.env`, no defaults; ports on 127.0.0.1 | requirement | move | INV-6 (credentials); `docs/operations/topology.md` (ports) | OPS | living-docs-operations | |  |
-| M-CON-014 | §2 :48 | Raw pointer: fields, `retrieved_at`, no `raw_content`, key `external_id` | contract | divergent | CON #5 | CON | living-docs-system-and-contracts | PENDING `raw-pointer contract`; C1 `RawAuditService.java:47` |  |
-| M-CON-015 | §2 :48, §3.7 | Raw pointer for every archived document | contract | divergent | CON #6 | CON | living-docs-system-and-contracts | PENDING `raw-pointer contract`; `pipeline.py:159` |  |
-| M-CON-016 | §2 :49 | Signals topic carries `ResearchSignalEvent`, key `event_id` | contract | move | CON #2, #3 | CON | living-docs-system-and-contracts | |  |
-| M-CON-017 | §2 :50 | Corroborated topic, key `entity_key`, consumers "notifications" | contract | move | CON #2, #3 | CON | living-docs-system-and-contracts | Consumer corrected to strategy runtime (`## 2026-09-20 — Strategy layer session 2 — CHOICE — Event-driven Kafka consumer …`) |  |
-| M-CON-018 | §2 :51 | Two DLTs, inherited key, manual triage | contract | move | CON #2, #38 | CON | living-docs-system-and-contracts | `topics.yaml` also has `auspex.signals.corroborated.dlt` (no producer) |  |
-| M-CON-019 | §2 :53 | Keys are document identity, never gene target | contract | move | CON #3 (+ Rationale) | CON | living-docs-system-and-contracts | |  |
+| M-CON-014 | §2 :48 | Raw pointer: fields, `retrieved_at`, no `raw_content`, key `external_id` | contract | divergent | CON #5 | CON | living-docs-system-and-contracts | PENDING `raw-pointer contract`; C1 `RawAuditService.java:47` | CON-005 |
+| M-CON-015 | §2 :48, §3.7 | Raw pointer for every archived document | contract | divergent | CON #6 | CON | living-docs-system-and-contracts | PENDING `raw-pointer contract`; `pipeline.py:159` | CON-006 |
+| M-CON-016 | §2 :49 | Signals topic carries `ResearchSignalEvent`, key `event_id` | contract | move | CON #2, #3 | CON | living-docs-system-and-contracts | | CON-002 CON-003 |
+| M-CON-017 | §2 :50 | Corroborated topic, key `entity_key`, consumers "notifications" | contract | move | CON #2, #3 | CON | living-docs-system-and-contracts | Consumer corrected to strategy runtime (`## 2026-09-20 — Strategy layer session 2 — CHOICE — Event-driven Kafka consumer …`) | CON-002 CON-003 |
+| M-CON-018 | §2 :51 | Two DLTs, inherited key, manual triage | contract | move | CON #2, #38 | CON | living-docs-system-and-contracts | `topics.yaml` also has `auspex.signals.corroborated.dlt` (no producer) | CON-002 CON-037 |
+| M-CON-019 | §2 :53 | Keys are document identity, never gene target | contract | move | CON #3 (+ Rationale) | CON | living-docs-system-and-contracts | | CON-003 |
 | M-CON-020 | §2 :55 | 6 partitions, RF 1 | value | link | `docker/topics.yaml` | CON | living-docs-system-and-contracts | Not copied |  |
-| M-CON-021 | §2 :55 | DLT same partition count because Spring uses same partition | contract | move | CON #4 (parity as defence) | CON | living-docs-system-and-contracts | Rationale corrected (C2) |  |
-| M-CON-022 | §2 :57 | Lowercase `.dlt` via custom resolver; partition -1 | contract | move | CON #36, #37 | CON | living-docs-system-and-contracts | |  |
+| M-CON-021 | §2 :55 | DLT same partition count because Spring uses same partition | contract | move | CON #4 (parity as defence) | CON | living-docs-system-and-contracts | Rationale corrected (C2) | CON-004 |
+| M-CON-022 | §2 :57 | Lowercase `.dlt` via custom resolver; partition -1 | contract | move | CON #36, #37 | CON | living-docs-system-and-contracts | | CON-035 CON-036 |
 | M-CON-023 | §2 :59 | Retention per topic | value | link | `docker/topics.yaml` | CON | living-docs-system-and-contracts | Not copied |  |
-| M-INV-025 | §3.1 | Scraper writes only MinIO and Kafka; no cursor exemption | invariant | move | `#INV-1` (+ scope line) | INV | living-docs-system-and-contracts | |  |
-| M-INV-026 | §3.2 | Single database writer | invariant | move | `#INV-2` | INV | living-docs-system-and-contracts | |  |
-| M-INV-027 | §3.3 | No credentials, keys, hosts in source; keys as Airflow Connections | invariant | divergent | `#INV-6` | INV | living-docs-system-and-contracts | PENDING `invariant 6 wording` |  |
+| M-INV-025 | §3.1 | Scraper writes only MinIO and Kafka; no cursor exemption | invariant | move | `#INV-1` (+ scope line) | INV | living-docs-system-and-contracts | | INV-1 |
+| M-INV-026 | §3.2 | Single database writer | invariant | move | `#INV-2` | INV | living-docs-system-and-contracts | | INV-2 |
+| M-INV-027 | §3.3 | No credentials, keys, hosts in source; keys as Airflow Connections | invariant | divergent | `#INV-6` | INV | living-docs-system-and-contracts | PENDING `invariant 6 wording` | INV-6 |
 | M-SYS-161 | §3.3 | Logs never carry credentials or full `raw_content` | requirement | move | `docs/operations/observability.md` (log contract) | OPS | living-docs-operations | Core-hub test only: `LoggingTest.java::test_log_output_does_not_contain_raw_content_field` |  |
-| M-INV-028 | §3.4 | Schema symmetry; snake_case; Python generates fixture | invariant | move | `#INV-7` | INV | living-docs-system-and-contracts | |  |
-| M-CON-024 | §3.4 | Explicit `PropertyNamingStrategies.SNAKE_CASE` | contract | move | CON #8 | CON | living-docs-system-and-contracts | |  |
-| M-INV-029 | §3.5 | Synchronous; concurrency from Airflow task parallelism | invariant | move | `#INV-8` (+ scope line) | INV | living-docs-system-and-contracts | |  |
-| M-INV-030 | §3.6 | Timestamps UTC incl. MinIO keys from UTC value | invariant | move | `#INV-9` | INV | living-docs-system-and-contracts | |  |
-| M-INV-031 | §3.7 | Idempotent writes per declared natural key | invariant | move | `#INV-10` | INV | living-docs-system-and-contracts | |  |
-| M-CON-025 | §3.7 table | `raw_fetch_audit` keyed by MinIO object key, do nothing | contract | move | CON #21 | CON | living-docs-system-and-contracts | |  |
-| M-CON-026 | §3.7 table | `signal_current` keyed by `event_id`, latest extraction wins | contract | move | CON #22 | CON | living-docs-system-and-contracts | First-observation `source_type`: HUB |  |
-| M-CON-027 | §3.7 table | `signal_extraction_history` `(event_id, extraction_id)`, append-only | contract | move | CON #23 | CON | living-docs-system-and-contracts | |  |
-| M-CON-028 | §3.7 table | `source_observation` `(event_id, source_type, external_id)`, append-only | contract | move | CON #24 | CON | living-docs-system-and-contracts | |  |
-| M-CON-029 | §3.7 table | `corroboration` `(entity_key, participants_hash)`, supersession | contract | move | CON #25 | CON | living-docs-system-and-contracts | |  |
-| M-CON-030 | §3.7 table | `(:Signal)` MERGE on `event_id` | contract | move | CON #26 | CON | living-docs-system-and-contracts | |  |
-| M-CON-031 | §3.7 table | Entity nodes MERGE on natural key per §9 | contract | move | CON #27 (links HUB graph model) | CON | living-docs-system-and-contracts | |  |
+| M-INV-028 | §3.4 | Schema symmetry; snake_case; Python generates fixture | invariant | move | `#INV-7` | INV | living-docs-system-and-contracts | | INV-7 |
+| M-CON-024 | §3.4 | Explicit `PropertyNamingStrategies.SNAKE_CASE` | contract | move | CON #8 | CON | living-docs-system-and-contracts | | CON-008 |
+| M-INV-029 | §3.5 | Synchronous; concurrency from Airflow task parallelism | invariant | move | `#INV-8` (+ scope line) | INV | living-docs-system-and-contracts | | INV-8 |
+| M-INV-030 | §3.6 | Timestamps UTC incl. MinIO keys from UTC value | invariant | move | `#INV-9` | INV | living-docs-system-and-contracts | | INV-9 |
+| M-INV-031 | §3.7 | Idempotent writes per declared natural key | invariant | move | `#INV-10` | INV | living-docs-system-and-contracts | | INV-10 |
+| M-CON-025 | §3.7 table | `raw_fetch_audit` keyed by MinIO object key, do nothing | contract | move | CON #21 | CON | living-docs-system-and-contracts | | CON-021 |
+| M-CON-026 | §3.7 table | `signal_current` keyed by `event_id`, latest extraction wins | contract | move | CON #22 | CON | living-docs-system-and-contracts | First-observation `source_type`: HUB | CON-022 |
+| M-CON-027 | §3.7 table | `signal_extraction_history` `(event_id, extraction_id)`, append-only | contract | move | CON #23 | CON | living-docs-system-and-contracts | | CON-023 |
+| M-CON-028 | §3.7 table | `source_observation` `(event_id, source_type, external_id)`, append-only | contract | move | CON #24 | CON | living-docs-system-and-contracts | | CON-024 |
+| M-CON-029 | §3.7 table | `corroboration` `(entity_key, participants_hash)`, supersession | contract | move | CON #25 | CON | living-docs-system-and-contracts | | CON-025 |
+| M-CON-030 | §3.7 table | `(:Signal)` MERGE on `event_id` | contract | move | CON #26 | CON | living-docs-system-and-contracts | | CON-026 |
+| M-CON-031 | §3.7 table | Entity nodes MERGE on natural key per §9 | contract | move | CON #27 (links HUB graph model) | CON | living-docs-system-and-contracts | | CON-027 |
 | M-SYS-162 | §3.8 | Write order Neo4j → Postgres → ack; RECORD; qualified `@Transactional`; ArchUnit | requirement | move | `docs/core-hub/consumption.md` / `storage.md` | HUB | living-docs-core-hub | No INV |  |
 | M-SYS-163 | §3.9 | earliest; one group per listener; small `max.poll.records` | requirement | move | `docs/core-hub/consumption.md` | HUB | living-docs-core-hub | No INV |  |
 | M-CON-032 | §3.10 | Deterministic failures (deserialize, validation, enum, score, major) → DLT immediately | contract | link | `docs/core-hub/consumption.md` | — | living-docs-system-and-contracts | Unknown enum: PENDING `closed sets on the wire`, divergent (C7) |  |
 | M-SYS-164 | §3.10 | Transient: 3 deliveries with back-off, then DLT | requirement | move | `docs/core-hub/consumption.md` | HUB | living-docs-core-hub | |  |
 | M-SYS-165 | §3.10 | `ErrorHandlingDeserializer` wraps both listeners | requirement | move | `docs/core-hub/consumption.md` | HUB | living-docs-core-hub | |  |
-| M-CON-033 | §3.10 | Diagnostic headers on every dead letter | contract | move | CON #38 | CON | living-docs-system-and-contracts | |  |
-| M-INV-032 | §3.10 | Never block a partition | invariant | move | `#INV-11` | INV | living-docs-system-and-contracts | |  |
-| M-INV-033 | §3.11 | Parameterized queries; ArchUnit + injection tests | invariant | move | `#INV-12` | INV | living-docs-system-and-contracts | |  |
+| M-CON-033 | §3.10 | Diagnostic headers on every dead letter | contract | move | CON #38 | CON | living-docs-system-and-contracts | | CON-037 |
+| M-INV-032 | §3.10 | Never block a partition | invariant | move | `#INV-11` | INV | living-docs-system-and-contracts | | INV-11 |
+| M-INV-033 | §3.11 | Parameterized queries; ArchUnit + injection tests | invariant | move | `#INV-12` | INV | living-docs-system-and-contracts | | INV-12 |
 | M-SYS-166 | §3.11 | Controller ticker allowlist regex | requirement | move | `docs/core-hub/http-api.md` | HUB | living-docs-core-hub | Value is code (`SignalController`) |  |
-| M-INV-034 | §3.12 | Nothing dies silently | invariant | move | `#INV-11` | INV | living-docs-system-and-contracts | |  |
+| M-INV-034 | §3.12 | Nothing dies silently | invariant | move | `#INV-11` | INV | living-docs-system-and-contracts | | INV-11 |
 | M-SYS-167 | §3.12 | DLT depth and per-source signal age reported | requirement | move | `docs/core-hub/consumption.md` (health reporter); alerts `docs/operations/observability.md` | HUB | living-docs-core-hub, living-docs-operations | |  |
-| M-CON-034 | §10.1 | `event_id` formula, canonical else `source_type:external_id` | contract | move | CON #18 | CON | living-docs-system-and-contracts | |  |
-| M-CON-035 | §10.1 | `extraction_id` formula | contract | move | CON #19 | CON | living-docs-system-and-contracts | |  |
-| M-CON-036 | §10.1 | `canonical_id` typed prefix; connector supplies it consistently | contract | move | CON #20 | CON | living-docs-system-and-contracts | Prefixes owned by `models.py:6` |  |
+| M-CON-034 | §10.1 | `event_id` formula, canonical else `source_type:external_id` | contract | move | CON #18 | CON | living-docs-system-and-contracts | | CON-018 |
+| M-CON-035 | §10.1 | `extraction_id` formula | contract | move | CON #19 | CON | living-docs-system-and-contracts | | CON-019 |
+| M-CON-036 | §10.1 | `canonical_id` typed prefix; connector supplies it consistently | contract | move | CON #20 | CON | living-docs-system-and-contracts | Prefixes owned by `models.py:6` | CON-020 |
 | M-SYS-168 | §10.1 | `signal_current.source_type` from first observation, never updated | requirement | move | `docs/core-hub/storage.md` | HUB | living-docs-core-hub | |  |
-| M-CON-037 | §10.1 | Near-miss identity formulas and why | rationale | move | CON Rationale | CON | living-docs-system-and-contracts | |  |
-| M-CON-038 | §10.2 | Field list of `ResearchSignalEvent` | contract | move | CON #8 (field list owned by model + fixture) | CON | living-docs-system-and-contracts | Not copied |  |
-| M-CON-039 | §10.2 | `event_type` closed set | contract | move | CON #13 (values owned by `EventType`) | CON | living-docs-system-and-contracts | |  |
-| M-CON-040 | §10.2 | `source_type` enum | contract | move | CON #14 | CON | living-docs-system-and-contracts | |  |
-| M-CON-041 | §10.2 | `directionality` enum | contract | ratify | CON #15 | CON | living-docs-system-and-contracts | Values only in `prompts/extraction/v1.txt:29`; batch |  |
-| M-CON-042 | §10.2 | `trial_ids` `NCT` + 8 digits; `primary_company` nullable | contract | move | CON #16, #8 | CON | living-docs-system-and-contracts | |  |
+| M-CON-037 | §10.1 | Near-miss identity formulas and why | rationale | move | CON Rationale | CON | living-docs-system-and-contracts | | docs/system/contracts.md#rationale |
+| M-CON-038 | §10.2 | Field list of `ResearchSignalEvent` | contract | move | CON #8 (field list owned by model + fixture) | CON | living-docs-system-and-contracts | Not copied | CON-008 |
+| M-CON-039 | §10.2 | `event_type` closed set | contract | move | CON #13 (values owned by `EventType`) | CON | living-docs-system-and-contracts | | CON-013 |
+| M-CON-040 | §10.2 | `source_type` enum | contract | move | CON #14 | CON | living-docs-system-and-contracts | | CON-014 |
+| M-CON-041 | §10.2 | `directionality` enum | contract | ratify | CON #15 | CON | living-docs-system-and-contracts | Values only in `prompts/extraction/v1.txt:29`; batch | CON-015 |
+| M-CON-042 | §10.2 | `trial_ids` `NCT` + 8 digits; `primary_company` nullable | contract | move | CON #16, #8 | CON | living-docs-system-and-contracts | | CON-016 CON-008 |
 | M-CON-043 | §10.2 | Schema version is 1.0 | value | link | `models.py:9` `EVENT_SCHEMA_VERSION` | CON | living-docs-system-and-contracts | Not copied |  |
-| M-CON-044 | §10.2 | `external_id`, `raw_object_key` keep chain of custody; lists rationale | contract | move | CON #8 (+ Rationale) | CON | living-docs-system-and-contracts | |  |
+| M-CON-044 | §10.2 | `external_id`, `raw_object_key` keep chain of custody; lists rationale | contract | move | CON #8 (+ Rationale) | CON | living-docs-system-and-contracts | | CON-008 |
 | M-CON-045 | §10.3 | `confidence_score` 0.0–1.0 inclusive; missing/out of range → DLT, never clamped | contract | link | `docs/core-hub/consumption.md` | — | living-docs-system-and-contracts | C6 unverified listener validation |  |
-| M-CON-046 | §10.3 | Java `BigDecimal` with `@NotNull @DecimalMin @DecimalMax` | contract | move | CON #12 | CON | living-docs-system-and-contracts | |  |
+| M-CON-046 | §10.3 | Java `BigDecimal` with `@NotNull @DecimalMin @DecimalMax` | contract | move | CON #12 | CON | living-docs-system-and-contracts | | CON-012 |
 | M-SYS-169 | §10.3 | `@Valid` explicit on listener payload | requirement | move | `docs/core-hub/consumption.md` | HUB | living-docs-core-hub | C6 |  |
 | M-SYS-170 | §10.3 | Postgres NUMERIC(4,3); Neo4j double | requirement | move | `docs/core-hub/storage.md` | HUB | living-docs-core-hub | |  |
-| M-CON-047 | §10.4 | `major.minor` parsed as integers | contract | move | CON #28 | CON | living-docs-system-and-contracts | |  |
+| M-CON-047 | §10.4 | `major.minor` parsed as integers | contract | move | CON #28 | CON | living-docs-system-and-contracts | | CON-028 |
 | M-CON-048 | §10.4 | Unknown major → DLQ | contract | link | `docs/core-hub/consumption.md` | — | living-docs-system-and-contracts | |  |
-| M-CON-049 | §10.4 | Minor mismatch accepted and logged; `FAIL_ON_UNKNOWN_PROPERTIES=false` | contract | move | CON #30 | CON | living-docs-system-and-contracts | |  |
-| M-CON-050 | §10.4 | Version as UTF-8 header and field | contract | move | CON #31 | CON | living-docs-system-and-contracts | "consumers read the field" half → batch |  |
-| M-CON-051 | §10.4 | Bump updates model, record and fixture in one change | contract | move | CON #32 | CON | living-docs-system-and-contracts | |  |
+| M-CON-049 | §10.4 | Minor mismatch accepted and logged; `FAIL_ON_UNKNOWN_PROPERTIES=false` | contract | move | CON #30 | CON | living-docs-system-and-contracts | | CON-029 |
+| M-CON-050 | §10.4 | Version as UTF-8 header and field | contract | move | CON #31 | CON | living-docs-system-and-contracts | "consumers read the field" half → batch | CON-030 |
+| M-CON-051 | §10.4 | Bump updates model, record and fixture in one change | contract | move | CON #32 | CON | living-docs-system-and-contracts | | CON-031 |
 | M-SYS-171 | §10.4 | Re-extraction is an explicit CLI operation | requirement | move | `docs/ingestion/extraction.md` | EXT | living-docs-ingestion | |  |
 | M-SYS-172 | §14 | Sync-only settled | rationale | link | INV-8 rationale in `docs/system/overview.md` | INV | living-docs-system-and-contracts | |  |
 | M-SYS-173 | §14 | Airflow scheduler, Kafka backbone | rationale | move | `docs/operations/orchestration.md` Rationale | OPS | living-docs-operations | |  |
@@ -676,7 +676,7 @@ Row prefixes: `M-INV` invariant rows, `M-CON` contract rows, `M-SYS` everything 
 | M-SYS-176 | §14 | `confidence_score` 0.0–1.0 float | rationale | link | CON #12 Rationale | CON | living-docs-system-and-contracts | |  |
 | M-SYS-177 | §14 | UTC everywhere | rationale | link | INV-9 | INV | living-docs-system-and-contracts | |  |
 | M-SYS-178 | §14 | Testcontainers over mocks at store boundary | rationale | move | `docs/engineering/verification.md` Rationale | ENG | living-docs-engineering-workflow | |  |
-| M-SYS-179 | §14 | Free-tier-first tooling | rationale | move | `docs/system/overview.md` Rationale | SYS | living-docs-system-and-contracts | |  |
+| M-SYS-179 | §14 | Free-tier-first tooling | rationale | move | `docs/system/overview.md` Rationale | SYS | living-docs-system-and-contracts | | docs/system/overview.md#rationale |
 | M-SYS-180 | §14 | TDD | rationale | link | INV-15 | INV | living-docs-system-and-contracts | |  |
 | M-SYS-181 | §14 heading | "Do not relitigate" | process | move | conflict policy `docs/engineering/change-workflow.md` | ENG | living-docs-engineering-workflow | |  |
 
@@ -685,7 +685,7 @@ Row prefixes: `M-INV` invariant rows, `M-CON` contract rows, `M-SYS` everything 
 | Row | Source | Rule or content (≤ 15 words) | Class | Disposition | Target | NS | Spec | Decision / note | ID |
 |---|---|---|---|---|---|---|---|---|---|
 | M-CON-052 | `docker/topics.yaml:1-3` | Single source for names, partitions, retention; read by kafka-init | value | keep | authority; described by CON #1, authority table in `docs/README.md` | CON | living-docs-system-and-contracts | |  |
-| M-CON-053 | `docker/topics.yaml:4-5` | Source topics 6 partitions RF 1; DLTs mirror, not relying on -1 | contract | move | CON #4 (meaning); numbers stay in file | CON | living-docs-system-and-contracts | |  |
+| M-CON-053 | `docker/topics.yaml:4-5` | Source topics 6 partitions RF 1; DLTs mirror, not relying on -1 | contract | move | CON #4 (meaning); numbers stay in file | CON | living-docs-system-and-contracts | | CON-004 |
 | M-CON-054 | `docker/topics.yaml:7-36` | Six topic entries with partitions and retention | value | keep | authority | CON | living-docs-system-and-contracts | `auspex.signals.corroborated.dlt` has no producer (C9): CON Rationale |  |
 
 ### 8. Models, fixture and wire code (machine authorities)
@@ -695,54 +695,54 @@ Row prefixes: `M-INV` invariant rows, `M-CON` contract rows, `M-SYS` everything 
 | M-CON-055 | `services/ingestion-scraper/src/auspex_ingest/models.py:6` | Canonical id prefixes | value | keep | authority for CON #20 | CON | living-docs-system-and-contracts | Includes `fda:` (`fda_approval source` context) |  |
 | M-CON-056 | `services/ingestion-scraper/src/auspex_ingest/models.py:8-9` | `EVENT_SCHEMA_VERSION` constant | value | keep | authority for CON #28 | CON | living-docs-system-and-contracts | |  |
 | M-CON-057 | `services/ingestion-scraper/src/auspex_ingest/models.py:12-21` | `RawDocument` fields; `raw_content` excluded from dump | value | keep | authority for CON #5 | CON | living-docs-system-and-contracts | |  |
-| M-CON-058 | `services/ingestion-scraper/src/auspex_ingest/models.py:23-33,73-87` | Aware datetimes, UTC-normalised, serialised with `Z` | contract | move | CON #11 | CON | living-docs-system-and-contracts | |  |
+| M-CON-058 | `services/ingestion-scraper/src/auspex_ingest/models.py:23-33,73-87` | Aware datetimes, UTC-normalised, serialised with `Z` | contract | move | CON #11 | CON | living-docs-system-and-contracts | | CON-011 |
 | M-CON-059 | `services/ingestion-scraper/src/auspex_ingest/models.py:45-71` | `ResearchSignalEvent` fields; defaults for company-level fields | value | keep | authority for CON #8 | CON | living-docs-system-and-contracts | Asymmetric nullability noted (Python defaults vs Java `@NotNull`) |  |
-| M-CON-060 | `services/ingestion-scraper/src/auspex_ingest/models.py:64` | `confidence_score` `ge=0.0, le=1.0` | contract | move | CON #12 | CON | living-docs-system-and-contracts | |  |
-| M-CON-061 | `services/ingestion-scraper/src/auspex_ingest/identity.py:4-20` | `compute_event_id`, `compute_extraction_id` | contract | move | CON #18, #19 | CON | living-docs-system-and-contracts | |  |
+| M-CON-060 | `services/ingestion-scraper/src/auspex_ingest/models.py:64` | `confidence_score` `ge=0.0, le=1.0` | contract | move | CON #12 | CON | living-docs-system-and-contracts | | CON-012 |
+| M-CON-061 | `services/ingestion-scraper/src/auspex_ingest/identity.py:4-20` | `compute_event_id`, `compute_extraction_id` | contract | move | CON #18, #19 | CON | living-docs-system-and-contracts | | CON-018 CON-019 |
 | M-CON-062 | `services/ingestion-scraper/src/auspex_ingest/extractor.py:9-23` | `EventType` literal | value | keep | authority for CON #13 | CON | living-docs-system-and-contracts | |  |
-| M-CON-063 | `services/ingestion-scraper/src/auspex_ingest/extractor.py:41-45` | Unknown model label recorded as `other` | contract | move | CON #13 | CON | living-docs-system-and-contracts | `## 2026-10-07 — Company-level extraction — CHOICE — …` item 3 |  |
-| M-CON-064 | `services/ingestion-scraper/prompts/extraction/v1.txt:29` | `directionality` values positive/negative/neutral | contract | ratify | CON #15 | CON | living-docs-system-and-contracts | batch |  |
+| M-CON-063 | `services/ingestion-scraper/src/auspex_ingest/extractor.py:41-45` | Unknown model label recorded as `other` | contract | move | CON #13 | CON | living-docs-system-and-contracts | `## 2026-10-07 — Company-level extraction — CHOICE — …` item 3 | CON-013 |
+| M-CON-064 | `services/ingestion-scraper/prompts/extraction/v1.txt:29` | `directionality` values positive/negative/neutral | contract | ratify | CON #15 | CON | living-docs-system-and-contracts | batch | CON-015 |
 | M-CON-065 | `services/core-hub/src/test/resources/contract/signal_event_v1.json` | Generated signal fixture | value | keep | authority; CON #9 | CON | living-docs-system-and-contracts | |  |
-| M-CON-066 | `services/ingestion-scraper/tests/unit/test_contract_fixture.py:63,85` | Generator; key set equals model fields | contract | move | CON #9 verification | CON | living-docs-system-and-contracts | |  |
+| M-CON-066 | `services/ingestion-scraper/tests/unit/test_contract_fixture.py:63,85` | Generator; key set equals model fields | contract | move | CON #9 verification | CON | living-docs-system-and-contracts | | CON-009 |
 | M-CON-067 | `.github/workflows/python.yml:84-89` | Regenerate fixture, fail on diff | contract | keep | CON #9 `enforced` | CON | living-docs-system-and-contracts | |  |
 | M-CON-068 | `services/core-hub/src/main/java/dev/auspex/corehub/signal/ResearchSignalEvent.java:19-45` | Java record, `BigDecimal` bounded score | value | keep | authority (Java side) for CON #8, #12 | CON | living-docs-system-and-contracts | |  |
-| M-CON-069 | `ResearchSignalEventTest.java` (all) | Java side ignores a field missing from the record | contract | divergent | CON #10 (status `untested`) | CON | living-docs-system-and-contracts | C13 |  |
-| M-CON-070 | `services/ingestion-scraper/src/auspex_ingest/messaging/kafka_producer.py:18-29` | Raw pointer payload, key, header | contract | divergent | CON #5 | CON | living-docs-system-and-contracts | PENDING `raw-pointer contract` |  |
-| M-CON-071 | `services/ingestion-scraper/src/auspex_ingest/messaging/kafka_producer.py:31-38` | Signal payload, key, header | contract | move | CON #3, #31 | CON | living-docs-system-and-contracts | |  |
+| M-CON-069 | `ResearchSignalEventTest.java` (all) | Java side ignores a field missing from the record | contract | divergent | CON #10 (status `untested`) | CON | living-docs-system-and-contracts | C13 | CON-010 |
+| M-CON-070 | `services/ingestion-scraper/src/auspex_ingest/messaging/kafka_producer.py:18-29` | Raw pointer payload, key, header | contract | divergent | CON #5 | CON | living-docs-system-and-contracts | PENDING `raw-pointer contract` | CON-005 |
+| M-CON-071 | `services/ingestion-scraper/src/auspex_ingest/messaging/kafka_producer.py:31-38` | Signal payload, key, header | contract | move | CON #3, #31 | CON | living-docs-system-and-contracts | | CON-003 CON-030 |
 | M-CON-072 | `services/ingestion-scraper/src/auspex_ingest/messaging/kafka_producer.py:40-48` | Flush, fail on undelivered | requirement | link | `docs/ingestion/pipeline.md` | ING | living-docs-ingestion | |  |
-| M-CON-073 | `services/core-hub/src/main/java/dev/auspex/corehub/audit/RawAuditService.java:47` | Reads `ingested_at` | contract | divergent | CON #5 verification row | CON | living-docs-system-and-contracts | C1 |  |
-| M-CON-074 | `services/ingestion-scraper/src/auspex_ingest/pipeline.py:159` | Raw pointer only alongside a published signal | contract | divergent | CON #6 verification row | CON | living-docs-system-and-contracts | PENDING `raw-pointer contract` |  |
-| M-CON-075 | `TestFixtures.java` `validRawJson` | Hand-written raw payload, no raw fixture | contract | divergent | CON #7 | CON | living-docs-system-and-contracts | PENDING `defects found while scoping` |  |
-| M-CON-076 | `services/core-hub/src/main/java/dev/auspex/corehub/corroboration/CorroboratedSignalEvent.java:7-18` | Six fields; snake_case, ISO, no type header | contract | move | CON #33 | CON | living-docs-system-and-contracts | requirements §4.1 |  |
-| M-CON-077 | `strategy/.../runtime/events.py:9-31` | Hand mirror of corroborated event | contract | divergent | CON #35 | CON | living-docs-system-and-contracts | C8; PENDING `defects found while scoping` |  |
-| M-CON-078 | `ScheduledCorroborationService` send-then-commit | At-least-once corroborated delivery | contract | ratify | CON #34 | CON | living-docs-system-and-contracts | batch |  |
-| M-CON-079 | `services/core-hub/src/main/java/dev/auspex/corehub/config/KafkaConfig.java:187-188` | DLT topic `+".dlt"`, partition -1 | contract | move | CON #36, #37 | CON | living-docs-system-and-contracts | |  |
-| M-CON-080 | `KafkaConfig.java` DLT template map | DLT value bytes or snake_case JSON | contract | ratify | CON #38 | CON | living-docs-system-and-contracts | `## 2026-08-16 — Step 1.3 — VERIFIED — …`; batch |  |
-| M-CON-081 | `services/core-hub/src/integrationTest/java/dev/auspex/corehub/KafkaErrorHandlingIT.java:49` | `test_unknown_enum_value_goes_to_dlt` tests unknown major | contract | divergent | CON #17 verification | CON | living-docs-system-and-contracts | C7; PENDING Closed sets on the wire |  |
+| M-CON-073 | `services/core-hub/src/main/java/dev/auspex/corehub/audit/RawAuditService.java:47` | Reads `ingested_at` | contract | divergent | CON #5 verification row | CON | living-docs-system-and-contracts | C1 | CON-005 |
+| M-CON-074 | `services/ingestion-scraper/src/auspex_ingest/pipeline.py:159` | Raw pointer only alongside a published signal | contract | divergent | CON #6 verification row | CON | living-docs-system-and-contracts | PENDING `raw-pointer contract` | CON-006 |
+| M-CON-075 | `TestFixtures.java` `validRawJson` | Hand-written raw payload, no raw fixture | contract | divergent | CON #7 | CON | living-docs-system-and-contracts | PENDING `defects found while scoping` | CON-007 |
+| M-CON-076 | `services/core-hub/src/main/java/dev/auspex/corehub/corroboration/CorroboratedSignalEvent.java:7-18` | Six fields; snake_case, ISO, no type header | contract | move | CON #33 | CON | living-docs-system-and-contracts | requirements §4.1 | CON-032 |
+| M-CON-077 | `strategy/.../runtime/events.py:9-31` | Hand mirror of corroborated event | contract | divergent | CON #35 | CON | living-docs-system-and-contracts | C8; PENDING `defects found while scoping` | CON-034 |
+| M-CON-078 | `ScheduledCorroborationService` send-then-commit | At-least-once corroborated delivery | contract | ratify | CON #34 | CON | living-docs-system-and-contracts | batch | CON-033 |
+| M-CON-079 | `services/core-hub/src/main/java/dev/auspex/corehub/config/KafkaConfig.java:187-188` | DLT topic `+".dlt"`, partition -1 | contract | move | CON #36, #37 | CON | living-docs-system-and-contracts | | CON-035 CON-036 |
+| M-CON-080 | `KafkaConfig.java` DLT template map | DLT value bytes or snake_case JSON | contract | ratify | CON #38 | CON | living-docs-system-and-contracts | `## 2026-08-16 — Step 1.3 — VERIFIED — …`; batch | CON-037 |
+| M-CON-081 | `services/core-hub/src/integrationTest/java/dev/auspex/corehub/KafkaErrorHandlingIT.java:49` | `test_unknown_enum_value_goes_to_dlt` tests unknown major | contract | divergent | CON #17 verification | CON | living-docs-system-and-contracts | C7; PENDING Closed sets on the wire | CON-017 |
 
 ### 9. `DECISIONS.md` entries in this domain (CHOICE classified; VERIFIED/FLAG used as sources)
 
 | Row | Source (heading) | Rule or content (≤ 15 words) | Class | Disposition | Target | NS | Spec | Decision / note | ID |
 |---|---|---|---|---|---|---|---|---|---|
 | M-SYS-182 | `## 2026-08-15 — Step 0.0 — CHOICE` | Log initialised | history | keep | archive | — | living-docs-cutover | history |  |
-| M-SYS-183 | `## 2026-09-20 — Watchlist backend — CHOICE — No user_id column; …` | Single-user installation | requirement | move | SYS #4; schema half `docs/core-hub/storage.md` | SYS | living-docs-system-and-contracts, living-docs-core-hub | **binding** |  |
-| M-INV-035 | `## 2026-09-20 — Watchlist backend — CHOICE — core-hub calls ClinicalTrials.gov directly` | Direct CT.gov call for watchlist preview | invariant | move | Exception under `#INV-4` | INV | living-docs-system-and-contracts | **binding**; placement under INV-4 in batch |  |
-| M-CON-082 | `## 2026-09-20 — Strategy layer session 2 — CHOICE — Event-driven Kafka consumer …` | Strategy runtime consumes corroborated topic; no new topics | contract | move | CON #2; group and checkpoints → STR | CON | living-docs-system-and-contracts, living-docs-strategy-and-dashboard | **binding** |  |
+| M-SYS-183 | `## 2026-09-20 — Watchlist backend — CHOICE — No user_id column; …` | Single-user installation | requirement | move | SYS #4; schema half `docs/core-hub/storage.md` | SYS | living-docs-system-and-contracts, living-docs-core-hub | **binding** | SYS-004 |
+| M-INV-035 | `## 2026-09-20 — Watchlist backend — CHOICE — core-hub calls ClinicalTrials.gov directly` | Direct CT.gov call for watchlist preview | invariant | move | Exception under `#INV-4` | INV | living-docs-system-and-contracts | **binding**; placement under INV-4 in batch | INV-4 |
+| M-CON-082 | `## 2026-09-20 — Strategy layer session 2 — CHOICE — Event-driven Kafka consumer …` | Strategy runtime consumes corroborated topic; no new topics | contract | move | CON #2; group and checkpoints → STR | CON | living-docs-system-and-contracts, living-docs-strategy-and-dashboard | **binding** | CON-002 |
 | M-INV-036 | `## 2026-09-20 — Strategy layer session 2 — CHOICE — Strategies never see ingested_at …` | No processing time in as-of decisions | invariant | link | STR contract requirement (M-STR-059/M-STR-092); a sixteenth invariant only if the owner adopts it | — | living-docs-system-and-contracts | **binding** (via M-STR-073); at-risk class #4; The cutover's decision application writes a sixteenth invariant if the CHOICE on `processing time in as-of decisions` adopts it |  |
-| M-CON-083 | `## 2026-10-07 — Company-level extraction — CHOICE — … (schema 1.1)` | Items 1, 3: direction in `directionality`; unknown → `other`; trial_ids validated | contract | move | CON #13, #16 | CON | living-docs-system-and-contracts | **binding** for items 1–3; "schema 1.1", "prompt v1.1" **history** (superseded by Single-source cleanup); item 4 HUB; item 5 ING |  |
-| M-CON-084 | `## 2026-10-10 — Single-source cleanup — CHOICE — one version of each pre-rollout artifact` | Schema 1.0; company fields required in Java, only `primary_company` nullable | contract | move | CON #8 | CON | living-docs-system-and-contracts | **binding** (event half); other items to their domains |  |
-| M-INV-037 | `## 2026-10-09 — Stack backup — CHOICE — nightly backup to a folder on the Mac` | Backup only reads; restore one-shot refuses non-empty, core-hub stopped | invariant | move | Exception under `#INV-2` | INV | living-docs-system-and-contracts | **binding** (Boundary paragraph); rest OPS |  |
-| M-INV-038 | `## 2026-10-10 — Stack backup — CHOICE — client tools …, memory and restore semantics` | Item 4: definition of "empty" for restore | invariant | move | Exception under `#INV-2` | INV | living-docs-system-and-contracts | **binding** (item 4); items 1–3, 5–6 OPS/history |  |
-| M-INV-039 | `## 2026-10-07 — Second-wave specs — CHOICE — short interest is a market-data snapshot, not a connector` | Snapshots are not sources | invariant | move | Scope note under `#INV-4`; rules →`living-docs-research/living-docs-strategy-and-dashboard` RES | INV | living-docs-system-and-contracts, living-docs-research | **binding** |  |
-| M-INV-040 | `## 2026-10-07 — Edge research scoping — CHOICE — ownership and insider data are snapshots, not connectors` | Snapshots are not sources | invariant | move | Scope note under `#INV-4`; rules →`living-docs-research/living-docs-strategy-and-dashboard` RES | INV | living-docs-system-and-contracts, living-docs-research | **binding** |  |
-| M-INV-041 | `## 2026-10-10 — Strategy runtime — CHOICE — state placement, timing and the pass-through stub` | Item 5: unreadable payload skipped and counted; no runtime DLT | invariant | divergent | `#INV-11` verification (FLAG-INV) | INV | living-docs-system-and-contracts, living-docs-strategy-and-dashboard | **binding** for STR; conflicts with INV-11 → FLAG-INV; item 1 (third bucket) → SYS naming table |  |
+| M-CON-083 | `## 2026-10-07 — Company-level extraction — CHOICE — … (schema 1.1)` | Items 1, 3: direction in `directionality`; unknown → `other`; trial_ids validated | contract | move | CON #13, #16 | CON | living-docs-system-and-contracts | **binding** for items 1–3; "schema 1.1", "prompt v1.1" **history** (superseded by Single-source cleanup); item 4 HUB; item 5 ING | CON-013 CON-016 |
+| M-CON-084 | `## 2026-10-10 — Single-source cleanup — CHOICE — one version of each pre-rollout artifact` | Schema 1.0; company fields required in Java, only `primary_company` nullable | contract | move | CON #8 | CON | living-docs-system-and-contracts | **binding** (event half); other items to their domains | CON-008 |
+| M-INV-037 | `## 2026-10-09 — Stack backup — CHOICE — nightly backup to a folder on the Mac` | Backup only reads; restore one-shot refuses non-empty, core-hub stopped | invariant | move | Exception under `#INV-2` | INV | living-docs-system-and-contracts | **binding** (Boundary paragraph); rest OPS | INV-2 |
+| M-INV-038 | `## 2026-10-10 — Stack backup — CHOICE — client tools …, memory and restore semantics` | Item 4: definition of "empty" for restore | invariant | move | Exception under `#INV-2` | INV | living-docs-system-and-contracts | **binding** (item 4); items 1–3, 5–6 OPS/history | INV-2 |
+| M-INV-039 | `## 2026-10-07 — Second-wave specs — CHOICE — short interest is a market-data snapshot, not a connector` | Snapshots are not sources | invariant | move | Scope note under `#INV-4`; rules →`living-docs-research/living-docs-strategy-and-dashboard` RES | INV | living-docs-system-and-contracts, living-docs-research | **binding** | INV-4 |
+| M-INV-040 | `## 2026-10-07 — Edge research scoping — CHOICE — ownership and insider data are snapshots, not connectors` | Snapshots are not sources | invariant | move | Scope note under `#INV-4`; rules →`living-docs-research/living-docs-strategy-and-dashboard` RES | INV | living-docs-system-and-contracts, living-docs-research | **binding** | INV-4 |
+| M-INV-041 | `## 2026-10-10 — Strategy runtime — CHOICE — state placement, timing and the pass-through stub` | Item 5: unreadable payload skipped and counted; no runtime DLT | invariant | divergent | `#INV-11` verification (FLAG-INV) | INV | living-docs-system-and-contracts, living-docs-strategy-and-dashboard | **binding** for STR; conflicts with INV-11 → FLAG-INV; item 1 (third bucket) → SYS naming table | INV-11 |
 | M-SYS-184 | `## 2026-10-08 — Control-surface scoping — CHOICE — dashboard runs in the stack behind its own server layer` | Browser talks only to dashboard; write token; no CORS | requirement | link | SYS component map; owner `docs/core-hub/http-api.md` (at-risk class #10) | HUB | living-docs-core-hub, living-docs-strategy-and-dashboard | **binding**, owned elsewhere |  |
 | M-SYS-185 | `## 2026-10-09 — Guideline setup — CHOICE — merge flow, merge bar and shared-log conflicts …` | PR flow, owner merges, union driver | process | move | `AGENTS.md` hard rules; ENG change-workflow | ENG | agent-instruction-hierarchy, living-docs-engineering-workflow | **binding** |  |
 | M-SYS-186 | `## 2026-10-07 — Startup data — CHOICE — data fills itself on up; prices refresh daily` | No hand-run data scripts | requirement | move | `docs/operations/topology.md`; `AGENTS.md` hard rule | OPS | living-docs-operations, agent-instruction-hierarchy | **binding** |  |
 | M-SYS-187 | `## 2026-10-10 — Consolidated code, strategy and BV audit — CHOICE — what becomes specs, what does not` | Triage of audit findings into specs | history | keep | archive | — | living-docs-cutover | history |  |
-| M-CON-085 | `## 2026-08-16 — Step 1.3 — VERIFIED — DeadLetterPublishingRecoverer with Spring Kafka 4.1` | Multi-template DLT recoverer; `.dlt` and -1 confirmed | contract | ratify | CON #36–38 Source / Known traps | CON | living-docs-system-and-contracts | VERIFIED, not CHOICE: rows go in batch |  |
-| M-CON-086 | `## 2026-08-16 — Step 1.3 — VERIFIED — Spring Kafka 4.1 DLT header names` | `kafka_dlt-exception-message`, `kafka_dlt-original-topic` | contract | ratify | CON #38 | CON | living-docs-system-and-contracts | batch |  |
-| M-CON-087 | `## 2026-09-20 — Strategy layer session 2 — FLAG — Corroboration surrogate key deferred; …` | Corroboration identity is `(entity_key, participants_hash)` | contract | move | CON #34 (supporting source) | CON | living-docs-system-and-contracts | |  |
+| M-CON-085 | `## 2026-08-16 — Step 1.3 — VERIFIED — DeadLetterPublishingRecoverer with Spring Kafka 4.1` | Multi-template DLT recoverer; `.dlt` and -1 confirmed | contract | ratify | CON #36–38 Source / Known traps | CON | living-docs-system-and-contracts | VERIFIED, not CHOICE: rows go in batch | CON-035 CON-036 CON-037 |
+| M-CON-086 | `## 2026-08-16 — Step 1.3 — VERIFIED — Spring Kafka 4.1 DLT header names` | `kafka_dlt-exception-message`, `kafka_dlt-original-topic` | contract | ratify | CON #38 | CON | living-docs-system-and-contracts | batch | CON-037 |
+| M-CON-087 | `## 2026-09-20 — Strategy layer session 2 — FLAG — Corroboration surrogate key deferred; …` | Corroboration identity is `(entity_key, participants_hash)` | contract | move | CON #34 (supporting source) | CON | living-docs-system-and-contracts | | CON-033 |
 | M-CON-088 | `## 2026-09-20 — Strategy layer session 2 — FLAG — extracted_at missing from ResearchSignalEvent (§10.2)` | No `extracted_at` on the event | status-note | keep | CON Notes; open flag | CON | living-docs-system-and-contracts | Not added by the rollout |  |
 
 ### 10. the at-risk classes at-risk classes in this domain
@@ -751,8 +751,8 @@ Row prefixes: `M-INV` invariant rows, `M-CON` contract rows, `M-SYS` everything 
 |---|---|---|---|---|---|---|---|---|---|
 | M-INV-042 | at-risk class #4 | Strategies/backtests never use `ingested_at`/`extracted_at` for as-of | invariant | link | STR contract requirement (M-STR-059/M-STR-092); a sixteenth invariant only if the owner adopts it | — | living-docs-system-and-contracts | = M-INV-036; The cutover's decision application writes a sixteenth invariant if the CHOICE on `processing time in as-of decisions` adopts it |  |
 | M-SYS-188 | at-risk class #10 | core-hub non-GET needs write token; no CORS | requirement | link | `docs/core-hub/http-api.md`; SYS component map links | HUB | living-docs-core-hub | Owner elsewhere |  |
-| M-SYS-189 | at-risk class #12 | Single-user installation, no `user_id` | requirement | move | SYS #4 + HUB storage | SYS | living-docs-system-and-contracts, living-docs-core-hub | = M-SYS-183 |  |
-| M-INV-043 | at-risk class #13 | core-hub calls ClinicalTrials.gov directly | invariant | move | Exception under `#INV-4` | INV | living-docs-system-and-contracts | = M-INV-035 |  |
+| M-SYS-189 | at-risk class #12 | Single-user installation, no `user_id` | requirement | move | SYS #4 + HUB storage | SYS | living-docs-system-and-contracts, living-docs-core-hub | = M-SYS-183 | SYS-004 |
+| M-INV-043 | at-risk class #13 | core-hub calls ClinicalTrials.gov directly | invariant | move | Exception under `#INV-4` | INV | living-docs-system-and-contracts | = M-INV-035 | INV-4 |
 | M-SYS-190 | at-risk class #18 | Process/ops rules only in CLAUDE.md (scripts, identity, down -v, Flyway, traps) | process | move | rows M-SYS-007, -046…-058, -059…-082, -139, -041 | — | agent-instruction-hierarchy, living-docs-operations, living-docs-engineering-workflow | Every item routed above |  |
 
 ### File-level dispositions
