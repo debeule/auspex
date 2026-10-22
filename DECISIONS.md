@@ -1564,3 +1564,39 @@ The summary lists every source in `sources.yaml`. A source with a run in the las
 - INV-11: a fix spec publishes unreadable corroborated records to `auspex.signals.corroborated.dlt`, or an exception under INV-11 for the runtime's skip-and-count, with the owner's word.
 - CON-010: a fix spec adds a Java test that compares the fixture's key set with the record's components.
 **Action:** owner to choose per item. Until then INV-6, INV-11 and CON-010 stay `divergent`, citing this entry.
+## 2026-10-22 — Living docs — PENDING — engineering ratification batch
+**What:** These engineering requirements in `docs/engineering/` have no approval in requirements §, a `CHOICE` entry, an archived spec or an invariant: their only source is a root `CLAUDE.md` section, `specs/README.md`, `VERSIONS.md`, `TODO.md`, the `DECISIONS.md` header, a service `CLAUDE.md`, a workflow or the rollout design (`specs/living-docs-cutover-design.md`). Each is written with status `pending-decision` and cites this heading. Line numbers are at `feature/living-docs-integration` @ e09eca0.
+- **ENG-001** — a new test is first seen failing for the right reason (Python import, attribute or assertion error; Java compile error accepted, assertion preferred); red output in the PR description. `CLAUDE.md:104-110`.
+- **ENG-002** — a red-green cycle runs the spec's tests, then the unit suite; container suites at spec completion. `CLAUDE.md:111-115`.
+- **ENG-003** — `--strict-markers` with registered markers, `failOnNoDiscoveredTests = true` on every Gradle `Test` task, CI Gradle with `--rerun-tasks`. `CLAUDE.md:100`; `services/core-hub/build.gradle.kts:95,101-102`; `.github/workflows/java.yml:61`.
+- **ENG-012** — docs are not proof: `tested` means a named test exists, CI shows it passes, a mutation check shows it can fail; reviews cite code or execution. design §9.2.
+- **ENG-015** — the `Docs` workflow runs the checker's tests and the checker on every PR into `develop` and every push to it. `.github/workflows/docs.yml`.
+- **ENG-016** — statuses `draft`, `ready`, `blocked`, `hold`, `done`; `hold` lives in `specs/hold/`; `done` moves to `specs/done/` with its `TODO.md` row in the same PR. `CLAUDE.md:44`; `specs/README.md:51-58`.
+- **ENG-017** — a spec is self-contained, one deliverable, named after what it does, `ready` only with the required fields; scoping fills tests and the definition of done. `CLAUDE.md:41`; `specs/README.md:9-13,60`.
+- **ENG-020** — a behaviour change edits its owner doc in the same PR; IDs from `--next`, rewording keeps the ID, a change of meaning retires it. `CLAUDE.md:119`; design §5.2.
+- **ENG-021** — ID format, invariant numbering and in-place amendment, define once, never reuse, retirement entries, a new namespace changes `docs-check.toml` and `docs/README.md` together. design §5.2.
+- **ENG-022** — on an ID collision the later PR renumbers. design §5.2.
+- **ENG-023** — conflict precedence: locked machine authorities, other machine authorities, `docs/`, an active spec for its own work, `DECISIONS.md`, agent files and READMEs, then archives and `TODO.md` notes. design §9.1; requirements §14 heading.
+- **ENG-024** — code that disagrees with `docs/` is marked `divergent` with a `FLAG`; the owner fixes the code or ratifies. design §9.1.
+- **ENG-025** — a behaviour-changing `CHOICE` lands with its doc edit. design §9.1.
+- **ENG-026** — decisions are cited by heading in backticks; register numbers never appear. design §5.5; `specs/README.md` (new section).
+- **ENG-027** — conversion provenance and ratification batches. design §8.5.
+- **ENG-028** — the `## Handoff` section and its seven lines. design §8.3.
+- **ENG-029** — Git Flow branches. `CLAUDE.md:158-164`.
+- **ENG-030**, the `python3 -m tools.docs_check --base origin/develop` step of the merge recipe only (the rest is approved by `## 2026-10-09 — Guideline setup — CHOICE — merge flow, merge bar and shared-log conflicts written into the repo`). design §5.2.
+- **ENG-033** — `DECISIONS.md` is append-only in its header's format; `BLOCKED` stops the work. `DECISIONS.md:3,10,17`.
+- **ENG-034** — `TODO.md` is the spec index and a one-line-per-session log; notes carry status, never rules. `TODO.md:1-5`.
+- **ENG-035** — commit only when the spec's tests pass; secrets, build outputs, virtualenvs, caches and volumes never committed. `CLAUDE.md:192-193`.
+- **ENG-037**, **ENG-038**, **ENG-039** — the PR template record, the review by someone who did not write the change, and the `Last reviewed against` rule. design §10.2.
+- **ENG-040**, **ENG-041**, **ENG-042** — one owner per fact, content by kind, requirements as present-tense testable statements. design §3, §7.2.
+- **ENG-043** to **ENG-046** — the code comment rules. `CLAUDE.md:141-146`.
+- **ENG-047** — a test name is a falsifiable claim. `specs/README.md:39-45`.
+- **ENG-048**, except exact pins and the committed lock file (requirements §1) — `VERSIONS.md` as the single pin list, *resolve at install*, re-verifying version-sensitive claims. `VERSIONS.md:3,102`.
+- **ENG-049** — no plan step in any name. `CLAUDE.md:33`; `specs/README.md:47`.
+- **ENG-050** — the living-doc format. design §5.1.
+- **ENG-051** — a Python service configures logging once, in `create_app()`. `services/ingestion-scraper/CLAUDE.md:36`.
+- **ENG-052** — the comment form per stack. `services/CLAUDE.md:32-40`; `CLAUDE.md:140-146`.
+- **ENG-053**, the plugin and toolchain clauses only (Kotlin DSL, wrapper and version catalog are requirements §1) — no `io.spring.dependency-management`, the Java toolchain set explicitly. `services/core-hub/CLAUDE.md:21-25`.
+**Why it matters:** until approved, these rules are written down but not yet the owner's; the cutover lists every `pending-decision` row.
+**Options considered:** A: approve the batch as written. B: approve it with named items struck or reworded.
+**Action:** default A. When the owner approves, the owner appends `## <date> — Living docs — CHOICE — engineering ratification batch`; the cutover's decision step then flips these rows to their real status and Source. Not blocking.

@@ -1,6 +1,6 @@
 # Living docs: engineering workflow
 
-**Status:** blocked
+**Status:** done
 **Blocked by:** `docs-check-tooling` (merged into `feature/living-docs-integration`). Decisions: `## 2026-10-15 — Living docs — PENDING — rollout branch model`, `## 2026-10-15 — Living docs — PENDING — agent instruction files`, `## 2026-10-15 — Living docs — PENDING — docs impact field and Docs unchanged line`, `## 2026-10-15 — Living docs — PENDING — archive policy for specs/done`. Only the first blocks the start; the others are written as their recommended defaults with status `pending-decision`.
 **Branch:** `feature/living-docs-engineering-workflow` (PR into `feature/living-docs-integration`)
 **Docs impact:** creates `docs/engineering/verification.md`, `docs/engineering/change-workflow.md` and `docs/engineering/conventions.md` (namespace ENG, all new IDs). Changes `specs/README.md`, `specs/_template.md`, `docs-check.toml` (only the `[rollout] planned_domains` line: `engineering` leaves it), `DECISIONS.md` (one appended entry), `TODO.md` (this spec's own row) and `specs/living-docs-cutover-matrix.md` (ENG cells only). Creates `.github/pull_request_template.md`. Root `CLAUDE.md` is not edited here; `agent-instruction-hierarchy` replaces it.

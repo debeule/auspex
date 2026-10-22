@@ -98,7 +98,7 @@ Each line links to a self-contained spec in `specs/`. Open the spec and read it 
 | [Living docs: research](specs/living-docs-research.md) | `blocked` | Rollout part; `docs/research/` (six files); cuts the six code-done specs to their Mac acceptance; hash-cited spec paths stay put |
 | [Living docs: strategy and dashboard](specs/living-docs-strategy-and-dashboard.md) | `blocked` | Rollout part; `docs/strategy/`, `docs/dashboard.md`; edits 7 specs |
 | [Living docs: operations](specs/living-docs-operations.md) | `blocked` | Rollout part; `docs/operations/` (topology, orchestration, observability, backup); edits soak and first-run specs |
-| [Living docs: engineering workflow](specs/living-docs-engineering-workflow.md) | `blocked` | Rollout part; `docs/engineering/`, specs/README + template (Docs impact, hold, Handoff), PR template |
+| [Living docs: engineering workflow](specs/done/living-docs-engineering-workflow.md) | `done` | 54 ENG requirements in `docs/engineering/` (verification, change workflow, conventions); specs/README + template (Docs impact, hold, citing decisions, Handoff); PR template; engineering ratification batch PENDING; matrix ENG cells filled |
 | [Agent instruction hierarchy](specs/agent-instruction-hierarchy.md) | `blocked` | Rollout part; `AGENTS.md` canonical at each level, every `CLAUDE.md` = `@AGENTS.md`, budgets; manual Claude + Codex load check on the Mac |
 | [Legacy docs retirement](specs/legacy-docs-retirement.md) | `blocked` | Rollout part; `docs/requirements.md` → § index, READMEs trimmed to links, SETUP and PREREQUISITES fixes, `down -v` guard extended |
 | [Living docs cutover](specs/living-docs-cutover.md) | `blocked` | Last rollout part: freeze, reconcile, apply the owner's decisions, archive banners, final gate, enforcement, PR into develop, `pre-living-docs` tag, ff develop; companions `specs/living-docs-cutover-matrix.md` (migration matrix) and `specs/living-docs-cutover-design.md` (design) |
@@ -184,3 +184,4 @@ Each line links to a self-contained spec in `specs/`. Open the spec and read it 
 | 2026-10-17 | Raw pointer contract fix | Done — 6 Python + 4 Java unit tests green locally; `RawAuditIT` (2) and `SignalPersistenceIT` proven in CI | No |
 | 2026-10-17 | Docs check tooling | Done — 144 tests green, mutation-checked; report-only docs.yml | No |
 | 2026-10-22 | Living docs: system and contracts | Done — 4 docs written (SYS-001…004, INV-1…15, CON-001…037); check M (INV, SYS, CON, decisions) and checks A–F, K clean; 438 scraper unit green, unchanged | No |
+| 2026-10-22 | Living docs: engineering workflow | Done — ENG-001 to ENG-054, checks A–E, K and M clean on own files, 144 checker tests OK; batch awaits owner approval | No |

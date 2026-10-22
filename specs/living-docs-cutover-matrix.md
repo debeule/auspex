@@ -57,7 +57,7 @@ Scoping listed these classes of normative statements whose only home is an archi
 | `## 2026-09-19 — Watchlist & alerts — CHOICE — Discord webhook transport` | history |  | M-COR-027 |
 | `## 2026-09-19 — Watchlist & alerts — CHOICE — Entity-key-based watchlist, not ticker-based` | history |  | M-COR-028 |
 | `## 2026-09-19 — Historical backfill — CHOICE — Option A: local model for backfill, API model forward-only` | binding |  | M-EXT-044 |
-| `## 2026-09-19 — CI/CD pipeline — CHOICE — GitHub-hosted runners` | binding |  | M-ENG-127 |
+| `## 2026-09-19 — CI/CD pipeline — CHOICE — GitHub-hosted runners` | binding | ENG-013 | M-ENG-127 |
 | `## 2026-09-20 — Watchlist backend — CHOICE — No user_id column; single-user installation, extensible` | binding | SYS-004 | M-SYS-183,M-HUB-073 |
 | `## 2026-09-20 — Watchlist backend — CHOICE — core-hub calls ClinicalTrials.gov directly` | binding | INV-4 | M-INV-035,M-HUB-074 |
 | `## 2026-09-20 — Option A hosting — CHOICE — A1 (MacBook) confirmed for Phase 4; A2/A3 deferred` | history |  | M-EXT-045,M-OPS-251 |
@@ -105,7 +105,7 @@ Scoping listed these classes of normative statements whose only home is an archi
 | `## 2026-10-08 — Control-surface scoping — CHOICE — dashboard runs in the stack behind its own server layer` | binding |  | M-SYS-184,M-HUB-076,M-DSH-037 |
 | `## 2026-10-08 — First run on the stack machine — CHOICE — price history from 2013, set before the first `up`` | history |  | M-RES-186 |
 | `## 2026-10-08 — First run on the stack machine — CHOICE — local model decision rule, fixed before the gate runs` | binding |  | M-EXT-048 |
-| `## 2026-10-09 — Guideline setup — CHOICE — merge flow, merge bar and shared-log conflicts written into the repo` | binding |  | M-ENG-130,M-SYS-185 |
+| `## 2026-10-09 — Guideline setup — CHOICE — merge flow, merge bar and shared-log conflicts written into the repo` | binding | ENG-010 ENG-011 ENG-030 ENG-031 ENG-032 | M-ENG-130,M-SYS-185 |
 | `## 2026-10-09 — Point-in-time universe — CHOICE — one universe from 2014, backfill scope from its own start` | binding |  | M-RES-187 |
 | `## 2026-10-08 — Edge research scoping — CHOICE — direction: both` | history |  | M-EVA-075 |
 | `## 2026-10-08 — Edge research scoping — CHOICE — portfolio paper-trading pass rule` | binding |  | M-EVA-076 |
@@ -129,7 +129,7 @@ Scoping listed these classes of normative statements whose only home is an archi
 | `## 2026-10-10 — Infrastructure observability — CHOICE — dashboard memory limit and health probe` | binding |  | M-OPS-266 |
 | `## 2026-10-10 — Single-source cleanup — CHOICE — one version of each pre-rollout artifact` | binding | CON-008 | M-ENG-134,M-CON-084,M-STR-084 |
 | `## 2026-10-09 — Dashboard — CHOICE — Node 24 LTS, actions on Node 24` | history |  | M-ENG-135 |
-| `## 2026-10-09 — CI — CHOICE — one prefix for every test image` | binding |  | M-ENG-136,M-OPS-256 |
+| `## 2026-10-09 — CI — CHOICE — one prefix for every test image` | binding | ENG-014 | M-ENG-136,M-OPS-256 |
 | `## 2026-10-10 — Stack state persistence — CHOICE — required secrets and a writable state volume` | binding |  | M-OPS-267 |
 | `## 2026-10-09 — Slow-signal pre-registration — CHOICE — one protocol and one version per hypothesis, H9–H12 registered` | binding |  | M-EVA-079 |
 | `## 2026-10-09 — Slow-signal pre-registration — CHOICE — details the spec left open` | binding |  | M-EVA-080 |
@@ -182,49 +182,49 @@ Abbreviations: VER = `docs/engineering/verification.md`, CW = `docs/engineering/
 | M-ENG-004 | CLAUDE.md:16 | Assigned spec is the work; else first `ready`; update spec as items complete | process | keep | AG session start | — | agent-instruction-hierarchy | hard rule (agent session) |  |
 | M-ENG-005 | CLAUDE.md:35-36 | "What this is": see README | status-note | link | AG / README | — | agent-instruction-hierarchy | |  |
 | M-ENG-006 | CLAUDE.md:39-40 | Read TODO, open spec, read in full | process | keep | AG session start | — | agent-instruction-hierarchy | hard rule |  |
-| M-ENG-007 | CLAUDE.md:41 | No ready spec: scope a draft; scoping = tests and DoD only | process | move | CW item 17 (scoping clause) | ENG | living-docs-engineering-workflow | engineering ratification batch |  |
+| M-ENG-007 | CLAUDE.md:41 | No ready spec: scope a draft; scoping = tests and DoD only | process | move | CW item 17 (scoping clause) | ENG | living-docs-engineering-workflow | engineering ratification batch | ENG-017 |
 | M-ENG-008 | CLAUDE.md:42 | Confirm required tests consistent with requirements before writing | process | keep | AG (rule that matters most) | — | agent-instruction-hierarchy | hard rule; §13 ¶1 restates it (M-ENG-061) |  |
 | M-ENG-009 | CLAUDE.md:43 | Work only the current spec | process | keep | AG session start | — | agent-instruction-hierarchy | hard rule |  |
-| M-ENG-010 | CLAUDE.md:44 | Done: mark done, move to specs/done, repoint TODO row, PR | process | move | CW item 16 | ENG | living-docs-engineering-workflow | engineering ratification batch; enforced by check J |  |
+| M-ENG-010 | CLAUDE.md:44 | Done: mark done, move to specs/done, repoint TODO row, PR | process | move | CW item 16 | ENG | living-docs-engineering-workflow | engineering ratification batch; enforced by check J | ENG-016 |
 | M-ENG-011 | CLAUDE.md:50 | Green suite necessary not sufficient; stop, DECISIONS, ask if test violates requirement | process | keep | AG verbatim | — | agent-instruction-hierarchy | design §7.2: AG owns |  |
 | M-ENG-012 | CLAUDE.md:52 | `test_dag_task_only_invokes_fetch_since` anecdote | rationale | keep | AG (one line) or VER Rationale | — | agent-instruction-hierarchy | non-normative |  |
 | M-ENG-013 | CLAUDE.md:73-97 | Service command table (Python, Java, backtesting, backup, dashboard, fixture) | command | link | each SAG `## Commands` | — | agent-instruction-hierarchy | Codex cannot follow links, so commands live in the loaded file |  |
 | M-ENG-014 | CLAUDE.md:75-78,93,96 | Stack commands: compose up/down, `down -v`, restore, smoke | command | link | root README.md (owner) | — | legacy-docs-retirement | `down -v` text guarded by `test_docs_never_offer_down_v_as_a_fix` |  |
 | M-ENG-015 | CLAUDE.md:99 | Zero-tests run is a failure; check reported count | process | keep | AG hard rule | — | agent-instruction-hierarchy | §7.2: no ENG ID |  |
-| M-ENG-016 | CLAUDE.md:99 | `failOnNoDiscoveredTests = true` on every Test task; `--strict-markers` | requirement | ratify | VER item 3 | ENG | living-docs-engineering-workflow | code: `build.gradle.kts:95,101-102`, pyproject addopts; engineering ratification batch |  |
+| M-ENG-016 | CLAUDE.md:99 | `failOnNoDiscoveredTests = true` on every Test task; `--strict-markers` | requirement | ratify | VER item 3 | ENG | living-docs-engineering-workflow | code: `build.gradle.kts:95,101-102`, pyproject addopts; engineering ratification batch | ENG-003 |
 | M-ENG-017 | CLAUDE.md:101 | Gradle UP-TO-DATE is not a pass; prove with `--rerun-tasks` | process | keep | AG hard rule | — | agent-instruction-hierarchy | CI part (`--rerun-tasks` in java.yml) in VER item 3 |  |
-| M-ENG-018 | CLAUDE.md:105-109 | Red for the right reason (Python errors vs Java compile/assertion) | process | ratify | VER item 1 | ENG | living-docs-engineering-workflow | engineering ratification batch |  |
-| M-ENG-019 | CLAUDE.md:109 | Paste failure output into PR description | process | ratify | VER item 1; PR template | ENG | living-docs-engineering-workflow | engineering ratification batch |  |
-| M-ENG-020 | CLAUDE.md:110-114 | Inner loop steps; full container suite at spec completion only | process | ratify | VER item 2 | ENG | living-docs-engineering-workflow | engineering ratification batch |  |
+| M-ENG-018 | CLAUDE.md:105-109 | Red for the right reason (Python errors vs Java compile/assertion) | process | ratify | VER item 1 | ENG | living-docs-engineering-workflow | engineering ratification batch | ENG-001 |
+| M-ENG-019 | CLAUDE.md:109 | Paste failure output into PR description | process | ratify | VER item 1; PR template | ENG | living-docs-engineering-workflow | engineering ratification batch | ENG-001 |
+| M-ENG-020 | CLAUDE.md:110-114 | Inner loop steps; full container suite at spec completion only | process | ratify | VER item 2 | ENG | living-docs-engineering-workflow | engineering ratification batch | ENG-002 |
 | M-ENG-021 | CLAUDE.md:111 | Step 7 "Update docs (see below)" | process | link | CW item 20 | — | living-docs-engineering-workflow | replaced by the owner-doc rule |  |
-| M-ENG-022 | CLAUDE.md:118 | Doc updates are part of the commit | process | move | CW items 19–20 | ENG | living-docs-engineering-workflow | `docs impact field and Docs unchanged line` PENDING heading |  |
+| M-ENG-022 | CLAUDE.md:118 | Doc updates are part of the commit | process | move | CW items 19–20 | ENG | living-docs-engineering-workflow | `docs impact field and Docs unchanged line` PENDING heading | ENG-019 ENG-020 |
 | M-ENG-023 | CLAUDE.md:120-133 | Change-type → README/CLAUDE.md update table | process | retire | replaced by `docs/engineering/conventions.md` item 40 | — | living-docs-engineering-workflow | generator of finding #11 (duplication); retired, not moved |  |
 | M-ENG-024 | CLAUDE.md:135 | Update both CLAUDE.md and README; "intentional duplication is fine" | stale | delete | — | — | living-docs-engineering-workflow | contradicts one-owner rule (CNV item 40) |  |
 | M-ENG-025 | CLAUDE.md:137 | Scaffolding exemption from test-first | invariant | link | INV-15 exception in `docs/system/invariants.md` | INV | living-docs-system-and-contracts | Same source as M-SYS-039, which carries the ID |  |
-| M-ENG-026 | CLAUDE.md:140 | A comment tells what the code cannot; readable cold | requirement | ratify | CNV item 43 | ENG | living-docs-engineering-workflow | engineering ratification batch |  |
+| M-ENG-026 | CLAUDE.md:140 | A comment tells what the code cannot; readable cold | requirement | ratify | CNV item 43 | ENG | living-docs-engineering-workflow | engineering ratification batch | ENG-043 |
 | M-ENG-027 | CLAUDE.md:141 | Javadoc / docstrings / TSDoc per stack; conventions in services/CLAUDE.md | process | link | `services/AGENTS.md` | — | agent-instruction-hierarchy | §7.2 per-stack form stays nested |  |
-| M-ENG-028 | CLAUDE.md:142 | Never in a comment: restatement, narration, plan steps, history… | requirement | ratify | CNV item 44 | ENG | living-docs-engineering-workflow | engineering ratification batch |  |
-| M-ENG-029 | CLAUDE.md:143 | Doc comments on contracts, not everything | requirement | ratify | CNV item 45 | ENG | living-docs-engineering-workflow | engineering ratification batch |  |
-| M-ENG-030 | CLAUDE.md:144 | Stale is worse than missing; fix comments in same commit | requirement | ratify | CNV item 46 | ENG | living-docs-engineering-workflow | engineering ratification batch |  |
+| M-ENG-028 | CLAUDE.md:142 | Never in a comment: restatement, narration, plan steps, history… | requirement | ratify | CNV item 44 | ENG | living-docs-engineering-workflow | engineering ratification batch | ENG-044 |
+| M-ENG-029 | CLAUDE.md:143 | Doc comments on contracts, not everything | requirement | ratify | CNV item 45 | ENG | living-docs-engineering-workflow | engineering ratification batch | ENG-045 |
+| M-ENG-030 | CLAUDE.md:144 | Stale is worse than missing; fix comments in same commit | requirement | ratify | CNV item 46 | ENG | living-docs-engineering-workflow | engineering ratification batch | ENG-046 |
 | M-ENG-031 | CLAUDE.md:145 | Flyway migrations frozen; don't edit comments | requirement | link | HUB (`docs/core-hub/storage.md`) | HUB | living-docs-core-hub | not ENG; CNV links |  |
 | M-ENG-032 | CLAUDE.md:149-152 | Test file layout per service (unit/integration, *Test/*IT) | command | link | SAG `## Layout` | — | agent-instruction-hierarchy | |  |
 | M-ENG-033 | CLAUDE.md:149 | `@pytest.mark.unit (default)` | stale | delete | — | — | living-docs-engineering-workflow | unregistered, unused (`grep mark\.unit` → 0); would fail `--strict-markers` |  |
 | M-ENG-034 | CLAUDE.md:154 | CorroborationServiceContractTest abstract; new impl passes it unmodified | requirement | link | COR (`docs/core-hub/corroboration.md`) | COR | living-docs-core-hub | not ENG |  |
-| M-ENG-035 | CLAUDE.md:158-163 | Git Flow branches: main, develop, feature, release, hotfix | process | ratify | CW item 29 | ENG | living-docs-engineering-workflow | engineering ratification batch |  |
-| M-ENG-036 | CLAUDE.md:161 | One feature branch per spec, name from spec | process | ratify | CW item 29 | ENG | living-docs-engineering-workflow | engineering ratification batch |  |
-| M-ENG-037 | CLAUDE.md:165-169 | Rebase not merge commits; ff-only; no `--no-ff` unless agreed | process | move | CW item 30 | ENG | living-docs-engineering-workflow | Guideline setup CHOICE (binding) |  |
+| M-ENG-035 | CLAUDE.md:158-163 | Git Flow branches: main, develop, feature, release, hotfix | process | ratify | CW item 29 | ENG | living-docs-engineering-workflow | engineering ratification batch | ENG-029 |
+| M-ENG-036 | CLAUDE.md:161 | One feature branch per spec, name from spec | process | ratify | CW item 29 | ENG | living-docs-engineering-workflow | engineering ratification batch | ENG-029 |
+| M-ENG-037 | CLAUDE.md:165-169 | Rebase not merge commits; ff-only; no `--no-ff` unless agreed | process | move | CW item 30 | ENG | living-docs-engineering-workflow | Guideline setup CHOICE (binding) | ENG-030 |
 | M-ENG-038 | CLAUDE.md:172 | Push feature branch, PR into develop; never push develop/main | process | keep | AG hard rule | — | agent-instruction-hierarchy | §7.2 |  |
-| M-ENG-039 | CLAUDE.md:173 | CI green and ready-to-merge before asking | process | move | VER item 10 | ENG | living-docs-engineering-workflow | Guideline setup CHOICE |  |
+| M-ENG-039 | CLAUDE.md:173 | CI green and ready-to-merge before asking | process | move | VER item 10 | ENG | living-docs-engineering-workflow | Guideline setup CHOICE | ENG-010 |
 | M-ENG-040 | CLAUDE.md:174 | Merge only when the owner says so | process | keep | AG hard rule | — | agent-instruction-hierarchy | §7.2 |  |
-| M-ENG-041 | CLAUDE.md:175-179 | Local rebase + ff-only recipe; not GitHub merge button | process | move | CW item 30 (+ `docs_check --base` step) | ENG | living-docs-engineering-workflow | Guideline setup CHOICE; docs_check step in engineering ratification batch |  |
-| M-ENG-042 | CLAUDE.md:180 | main only through release branch on owner's request | process | move | CW item 31 | ENG | living-docs-engineering-workflow | Guideline setup CHOICE |  |
-| M-ENG-043 | CLAUDE.md:182-183 | Every added/altered behaviour has a test | requirement | move | VER item 10 | ENG | living-docs-engineering-workflow | Guideline setup CHOICE |  |
-| M-ENG-044 | CLAUDE.md:184 | Mutation check locally; mutant never own branch; CI-only commit+revert | requirement | move | VER item 11 | ENG | living-docs-engineering-workflow | Guideline setup CHOICE |  |
-| M-ENG-045 | CLAUDE.md:185 | Spec PR: every requirement maps to a named test | requirement | move | VER item 10 | ENG | living-docs-engineering-workflow | Guideline setup CHOICE; reworded to Docs impact IDs |  |
-| M-ENG-046 | CLAUDE.md:186 | PR description lists mutation checks and CI-only runs | process | move | VER item 11; PR template | ENG | living-docs-engineering-workflow | Guideline setup CHOICE |  |
-| M-ENG-047 | CLAUDE.md:188 | Union merge driver; after rebase check order, no duplicates | process | move | CW item 32 | ENG | living-docs-engineering-workflow | Guideline setup CHOICE; J enforces TODO dups |  |
-| M-ENG-048 | CLAUDE.md:191 | Commit only when the spec's tests pass | process | ratify | CW item 35 | ENG | living-docs-engineering-workflow | engineering ratification batch |  |
-| M-ENG-049 | CLAUDE.md:192 | Never commit .env, target/, .venv/, __pycache__/, volumes | value | ratify | CW item 35; list owned by `.gitignore` | ENG | living-docs-engineering-workflow | list not copied |  |
+| M-ENG-041 | CLAUDE.md:175-179 | Local rebase + ff-only recipe; not GitHub merge button | process | move | CW item 30 (+ `docs_check --base` step) | ENG | living-docs-engineering-workflow | Guideline setup CHOICE; docs_check step in engineering ratification batch | ENG-030 |
+| M-ENG-042 | CLAUDE.md:180 | main only through release branch on owner's request | process | move | CW item 31 | ENG | living-docs-engineering-workflow | Guideline setup CHOICE | ENG-031 |
+| M-ENG-043 | CLAUDE.md:182-183 | Every added/altered behaviour has a test | requirement | move | VER item 10 | ENG | living-docs-engineering-workflow | Guideline setup CHOICE | ENG-010 |
+| M-ENG-044 | CLAUDE.md:184 | Mutation check locally; mutant never own branch; CI-only commit+revert | requirement | move | VER item 11 | ENG | living-docs-engineering-workflow | Guideline setup CHOICE | ENG-011 |
+| M-ENG-045 | CLAUDE.md:185 | Spec PR: every requirement maps to a named test | requirement | move | VER item 10 | ENG | living-docs-engineering-workflow | Guideline setup CHOICE; reworded to Docs impact IDs | ENG-010 |
+| M-ENG-046 | CLAUDE.md:186 | PR description lists mutation checks and CI-only runs | process | move | VER item 11; PR template | ENG | living-docs-engineering-workflow | Guideline setup CHOICE | ENG-011 |
+| M-ENG-047 | CLAUDE.md:188 | Union merge driver; after rebase check order, no duplicates | process | move | CW item 32 | ENG | living-docs-engineering-workflow | Guideline setup CHOICE; J enforces TODO dups | ENG-032 |
+| M-ENG-048 | CLAUDE.md:191 | Commit only when the spec's tests pass | process | ratify | CW item 35 | ENG | living-docs-engineering-workflow | engineering ratification batch | ENG-035 |
+| M-ENG-049 | CLAUDE.md:192 | Never commit .env, target/, .venv/, __pycache__/, volumes | value | ratify | CW item 35; list owned by `.gitignore` | ENG | living-docs-engineering-workflow | list not copied | ENG-035 |
 | M-ENG-050 | CLAUDE.md:193 | Claude never author/committer/co-author; no trailers; CI check | process | keep | AG hard rule | — | agent-instruction-hierarchy | enforced by `commit-identity.yml`; at-risk class #18 |  |
 | M-ENG-051 | CLAUDE.md:194 | No Claude footers on GitHub; keep comments rare | process | keep | AG hard rule | — | agent-instruction-hierarchy | PR template carries no footer (`living-docs-engineering-workflow` test) |  |
 | M-ENG-052 | CLAUDE.md:195 | Commit subject: one lowercase line, `subject: detail1, detail2` | process | keep | AG hard rule | — | agent-instruction-hierarchy | |  |
@@ -242,42 +242,42 @@ Abbreviations: VER = `docs/engineering/verification.md`, CW = `docs/engineering/
 | Row | Source (path:line or §) | Rule or content (≤ 15 words) | Class | Disposition | Target | NS | Spec | Decision / note | ID |
 |---|---|---|---|---|---|---|---|---|---|
 | M-ENG-061 | §13 ¶1 (:396) | Tests precede implementation; DoD includes check against requirements | requirement | link | INV-15 (test-first); AG rule that matters most | INV | living-docs-system-and-contracts, agent-instruction-hierarchy | no ENG restatement |  |
-| M-ENG-062 | §13 ¶2 (:398) | pytest unit/integration with `integration` marker | requirement | ratify | VER item 3 | ENG | living-docs-engineering-workflow | source §13; layout to SAG |  |
-| M-ENG-063 | §13 ¶2 (:398) | `--disable-socket` across scraper unit suite | requirement | divergent | VER item 4 | ENG | living-docs-engineering-workflow | FLAG `ingestion-scraper unit suite does not disable sockets` (appended by `living-docs-engineering-workflow`); code `pyproject.toml` |  |
-| M-ENG-064 | §13 ¶2 (:398) | Source APIs stubbed via respx; OpenAI client injected and stubbed | requirement | move | VER item 5 | ENG | living-docs-engineering-workflow | source §13 |  |
-| M-ENG-065 | §13 ¶2 (:398) | Testcontainers for MinIO and Kafka, not manual compose | requirement | move | VER item 6 | ENG | living-docs-engineering-workflow | source §13, §14 |  |
-| M-ENG-066 | §13 ¶2 (:398) | Injected `now()` provider throughout | requirement | move | VER item 5 | ENG | living-docs-engineering-workflow | source §13 |  |
-| M-ENG-067 | §13 ¶3 (:400) | core-hub container tests for round trips, Cypher, DLQ, upsert | requirement | move | VER item 6 | ENG | living-docs-engineering-workflow | source §13 |  |
-| M-ENG-068 | §13 ¶3 (:400) | Plain unit tests (no Spring) for DTO, validation, scoring `[C2]` | requirement | move | VER item 8 | ENG | living-docs-engineering-workflow | source §13 |  |
-| M-ENG-069 | §13 ¶3 (:400) | Static singleton containers, reuse, one context, no DirtiesContext, truncation | requirement | move | VER item 6 | ENG | living-docs-engineering-workflow | source §13 |  |
+| M-ENG-062 | §13 ¶2 (:398) | pytest unit/integration with `integration` marker | requirement | ratify | VER item 3 | ENG | living-docs-engineering-workflow | source §13; layout to SAG | ENG-003 |
+| M-ENG-063 | §13 ¶2 (:398) | `--disable-socket` across scraper unit suite | requirement | divergent | VER item 4 | ENG | living-docs-engineering-workflow | FLAG `ingestion-scraper unit suite does not disable sockets` (appended by `living-docs-engineering-workflow`); code `pyproject.toml` | ENG-004 |
+| M-ENG-064 | §13 ¶2 (:398) | Source APIs stubbed via respx; OpenAI client injected and stubbed | requirement | move | VER item 5 | ENG | living-docs-engineering-workflow | source §13 | ENG-005 |
+| M-ENG-065 | §13 ¶2 (:398) | Testcontainers for MinIO and Kafka, not manual compose | requirement | move | VER item 6 | ENG | living-docs-engineering-workflow | source §13, §14 | ENG-006 |
+| M-ENG-066 | §13 ¶2 (:398) | Injected `now()` provider throughout | requirement | move | VER item 5 | ENG | living-docs-engineering-workflow | source §13 | ENG-005 |
+| M-ENG-067 | §13 ¶3 (:400) | core-hub container tests for round trips, Cypher, DLQ, upsert | requirement | move | VER item 6 | ENG | living-docs-engineering-workflow | source §13 | ENG-006 |
+| M-ENG-068 | §13 ¶3 (:400) | Plain unit tests (no Spring) for DTO, validation, scoring `[C2]` | requirement | move | VER item 8 | ENG | living-docs-engineering-workflow | source §13 | ENG-008 |
+| M-ENG-069 | §13 ¶3 (:400) | Static singleton containers, reuse, one context, no DirtiesContext, truncation | requirement | move | VER item 6 | ENG | living-docs-engineering-workflow | source §13 | ENG-006 |
 | M-ENG-070 | §13 ¶3 (:400) | Phase 1 Java suite under three minutes locally | stale | delete | — | — | living-docs-engineering-workflow | plan-step target; machine-specific; CNV item 44 bans targets in docs of this kind |  |
-| M-ENG-071 | §13 ¶3 (:400) | `Clock` injected; awaitility, never `Thread.sleep` | requirement | move | VER item 5 | ENG | living-docs-engineering-workflow | source §13 |  |
-| M-ENG-072 | §13 ¶3 (:400) | Timezone test as separate `timezoneCheck` task, forked JVM | requirement | move | VER item 7 | ENG | living-docs-engineering-workflow | source §13; supports INV-9 |  |
-| M-ENG-073 | §13 ¶3 (:400) | Container tests in own `integrationTest` source set | requirement | move | VER item 7 | ENG | living-docs-engineering-workflow | source §13 |  |
+| M-ENG-071 | §13 ¶3 (:400) | `Clock` injected; awaitility, never `Thread.sleep` | requirement | move | VER item 5 | ENG | living-docs-engineering-workflow | source §13 | ENG-005 |
+| M-ENG-072 | §13 ¶3 (:400) | Timezone test as separate `timezoneCheck` task, forked JVM | requirement | move | VER item 7 | ENG | living-docs-engineering-workflow | source §13; supports INV-9 | ENG-007 |
+| M-ENG-073 | §13 ¶3 (:400) | Container tests in own `integrationTest` source set | requirement | move | VER item 7 | ENG | living-docs-engineering-workflow | source §13 | ENG-007 |
 | M-ENG-074 | §13 ¶3 (:400) | ArchUnit: no concatenated queries, no unqualified @Transactional, no source branching | requirement | link | INV-12 / INV-4 (`living-docs-system-and-contracts`); HUB | INV | living-docs-system-and-contracts | not ENG |  |
 | M-ENG-075 | §13 ¶4 (:402) | Contract fixture generated by pytest; CI fails if dirty | contract | link | CON (`docs/system/contracts.md`) | CON | living-docs-system-and-contracts | file name stale (`research_signal_event.json` → `signal_event_v1.json`) |  |
 | M-ENG-076 | §13 ¶5 (:404) | Named guards each have a test failing on plausible-wrong impl | requirement | link | each owner domain (ING, EXT, HUB, COR, CON) | — | — | general rule = VER item 10 |  |
-| M-ENG-077 | §13 ¶6 (:406) | `verify_pipeline.sh` is smoke, never correctness authority | requirement | move | VER item 9 | ENG | living-docs-engineering-workflow | source §13 |  |
+| M-ENG-077 | §13 ¶6 (:406) | `verify_pipeline.sh` is smoke, never correctness authority | requirement | move | VER item 9 | ENG | living-docs-engineering-workflow | source §13 | ENG-009 |
 | M-ENG-078 | §14 (:412) | Settled: Testcontainers over mocks at store boundary; TDD | rationale | link | VER item 6 Rationale; INV-15 | — | living-docs-engineering-workflow | §14 becomes Rationale (design §6) |  |
 
 ### `specs/README.md`
 
 | Row | Source (path:line or §) | Rule or content (≤ 15 words) | Class | Disposition | Target | NS | Spec | Decision / note | ID |
 |---|---|---|---|---|---|---|---|---|---|
-| M-ENG-079 | "What a spec must be" — self-contained | Cold session with spec + root CLAUDE.md can start; prerequisites in Blocked by | requirement | ratify | CW item 17; README keeps explanation citing ID | ENG | living-docs-engineering-workflow | "CLAUDE.md" → "AGENTS.md" |  |
-| M-ENG-080 | same — one deliverable | One independently executable unit; >1 session probably two specs | requirement | ratify | CW item 17 | ENG | living-docs-engineering-workflow | engineering ratification batch |  |
-| M-ENG-081 | same — named after what it does | Filename and title describe the deliverable | requirement | ratify | CW item 17 | ENG | living-docs-engineering-workflow | plan-step ban itself: SYS naming (`living-docs-system-and-contracts`) |  |
-| M-ENG-082 | "Required fields" table | Fields required before `ready` | value | keep | README table (meanings); list in `docs-check.toml` `[specs]` | ENG | living-docs-engineering-workflow, docs-check-tooling | CW item 17 cites; check E enforces |  |
-| M-ENG-083 | "Required fields" — (new) | Docs impact field | requirement | move | CW item 18; README field row | ENG | living-docs-engineering-workflow | `docs impact field and Docs unchanged line` PENDING heading |  |
+| M-ENG-079 | "What a spec must be" — self-contained | Cold session with spec + root CLAUDE.md can start; prerequisites in Blocked by | requirement | ratify | CW item 17; README keeps explanation citing ID | ENG | living-docs-engineering-workflow | "CLAUDE.md" → "AGENTS.md" | ENG-017 |
+| M-ENG-080 | same — one deliverable | One independently executable unit; >1 session probably two specs | requirement | ratify | CW item 17 | ENG | living-docs-engineering-workflow | engineering ratification batch | ENG-017 |
+| M-ENG-081 | same — named after what it does | Filename and title describe the deliverable | requirement | ratify | CW item 17 | ENG | living-docs-engineering-workflow | plan-step ban itself: SYS naming (`living-docs-system-and-contracts`) | ENG-017 |
+| M-ENG-082 | "Required fields" table | Fields required before `ready` | value | keep | README table (meanings); list in `docs-check.toml` `[specs]` | ENG | living-docs-engineering-workflow, docs-check-tooling | CW item 17 cites; check E enforces | ENG-017 |
+| M-ENG-083 | "Required fields" — (new) | Docs impact field | requirement | move | CW item 18; README field row | ENG | living-docs-engineering-workflow | `docs impact field and Docs unchanged line` PENDING heading | ENG-018 |
 | M-ENG-084 | "Notes is optional" | Notes optional, encouraged | process | keep | README | — | living-docs-engineering-workflow | |  |
-| M-ENG-085 | "Test naming rules" | Test name is a falsifiable claim named after behaviour | requirement | ratify | CNV item 47; README table kept as examples | ENG | living-docs-engineering-workflow | engineering ratification batch |  |
+| M-ENG-085 | "Test naming rules" | Test name is a falsifiable claim named after behaviour | requirement | ratify | CNV item 47; README table kept as examples | ENG | living-docs-engineering-workflow | engineering ratification batch | ENG-047 |
 | M-ENG-086 | "Test naming rules" | No plan steps, phases, spec filenames in names | requirement | link | `docs/engineering/conventions.md` item 49 | ENG | living-docs-engineering-workflow | Same rule as M-SYS-019 |  |
-| M-ENG-087 | "Statuses" table | draft, ready, blocked, done meanings | requirement | ratify | CW item 16 | ENG | living-docs-engineering-workflow | engineering ratification batch |  |
-| M-ENG-088 | "Statuses" — (missing) | `hold` status used by 4 specs, undefined | stale | ratify | CW item 16; README row added | ENG | living-docs-engineering-workflow | finding F-H9 |  |
-| M-ENG-089 | "Statuses" — done | Move done specs to specs/done; never delete | requirement | ratify | CW item 16; archive frozen CW item 36 | ENG | living-docs-engineering-workflow | `archive policy for specs/done` PENDING heading for frozen part |  |
-| M-ENG-090 | "Statuses" ¶ | Draft → ready in scoping; scoping ≠ implementation | requirement | ratify | CW item 17 | ENG | living-docs-engineering-workflow | dup of M-ENG-007 |  |
-| M-ENG-091 | (new) | Decision citation rule: heading, register number only in parentheses | requirement | move | CW item 26; README section "Citing decisions" | ENG | living-docs-engineering-workflow | engineering ratification batch; check D |  |
-| M-ENG-092 | (new) | Handoff section when a session stops early | requirement | move | CW item 28; README section "Handoff" | ENG | living-docs-engineering-workflow | engineering ratification batch |  |
+| M-ENG-087 | "Statuses" table | draft, ready, blocked, done meanings | requirement | ratify | CW item 16 | ENG | living-docs-engineering-workflow | engineering ratification batch | ENG-016 |
+| M-ENG-088 | "Statuses" — (missing) | `hold` status used by 4 specs, undefined | stale | ratify | CW item 16; README row added | ENG | living-docs-engineering-workflow | finding F-H9 | ENG-016 |
+| M-ENG-089 | "Statuses" — done | Move done specs to specs/done; never delete | requirement | ratify | CW item 16; archive frozen CW item 36 | ENG | living-docs-engineering-workflow | `archive policy for specs/done` PENDING heading for frozen part | ENG-016 ENG-036 |
+| M-ENG-090 | "Statuses" ¶ | Draft → ready in scoping; scoping ≠ implementation | requirement | ratify | CW item 17 | ENG | living-docs-engineering-workflow | dup of M-ENG-007 | ENG-017 |
+| M-ENG-091 | (new) | Decision citation rule: heading, register number only in parentheses | requirement | move | CW item 26; README section "Citing decisions" | ENG | living-docs-engineering-workflow | engineering ratification batch; check D | ENG-026 |
+| M-ENG-092 | (new) | Handoff section when a session stops early | requirement | move | CW item 28; README section "Handoff" | ENG | living-docs-engineering-workflow | engineering ratification batch | ENG-028 |
 | M-ENG-093 | "Template" | Copy `_template.md` | process | keep | README | — | living-docs-engineering-workflow | |  |
 
 ### `specs/_template.md`
@@ -295,16 +295,16 @@ Abbreviations: VER = `docs/engineering/verification.md`, CW = `docs/engineering/
 |---|---|---|---|---|---|---|---|---|---|
 | M-ENG-098 | `.github/workflows/commit-identity.yml:3-7` | Identity check on PRs into main, develop | value | keep | workflow (authority); AG hard rule names it | — | docs-check-tooling | `docs-check-tooling` adds `feature/living-docs-integration` |  |
 | M-ENG-099 | `.github/scripts/check_commit_identity.sh:9-19` | Rejects Claude author/committer, Co-Authored-By/Claude-Session trailers | value | keep | script (authority); tested by `test_commit_identity_check.py` | — | docs-check-tooling | AG hard rule; at-risk class #18 |  |
-| M-ENG-100 | `.github/workflows/java.yml:61` | `./gradlew check timezoneCheck --rerun-tasks` | value | keep | workflow; VER item 3 cites | ENG | living-docs-engineering-workflow | |  |
+| M-ENG-100 | `.github/workflows/java.yml:61` | `./gradlew check timezoneCheck --rerun-tasks` | value | keep | workflow; VER item 3 cites | ENG | living-docs-engineering-workflow | | ENG-003 |
 | M-ENG-101 | `.github/workflows/python.yml:62` | ingestion-scraper `uv sync --all-extras` without `--locked` | status-note | keep | workflow | — | — | F-H8; no requirement today; owner may add via batch |  |
 | M-ENG-102 | `.github/workflows/python.yml:85-90` | Regenerate fixture; `git diff --exit-code` contract dir | value | keep | workflow; CON cites | CON | living-docs-system-and-contracts | |  |
 | M-ENG-103 | `.github/workflows/python.yml:92-121` | backtesting job: no ruff/mypy | status-note | keep | workflow | — | — | contradicts TODO notes "ruff and mypy clean" (status only) |  |
-| M-ENG-104 | `python.yml`, `java.yml` env | `TESTCONTAINERS_HUB_IMAGE_NAME_PREFIX=mirror.gcr.io/`; Ryuk off | value | keep | workflow; VER item 14 | ENG | living-docs-engineering-workflow | trap text: `living-docs-system-and-contracts` known traps row |  |
-| M-ENG-105 | all workflows `runs-on` | `ubuntu-latest` GitHub-hosted | value | keep | workflow; VER item 13 | ENG | living-docs-engineering-workflow | |  |
+| M-ENG-104 | `python.yml`, `java.yml` env | `TESTCONTAINERS_HUB_IMAGE_NAME_PREFIX=mirror.gcr.io/`; Ryuk off | value | keep | workflow; VER item 14 | ENG | living-docs-engineering-workflow | trap text: `living-docs-system-and-contracts` known traps row | ENG-014 |
+| M-ENG-105 | all workflows `runs-on` | `ubuntu-latest` GitHub-hosted | value | keep | workflow; VER item 13 | ENG | living-docs-engineering-workflow | | ENG-013 |
 | M-ENG-106 | `.github/workflows/dashboard.yml:1-20` | path filter `services/dashboard/**` | value | keep | workflow | — | — | DSH owns what it checks |  |
-| M-ENG-107 | (new) `docs.yml` | Docs checker, report-only until cutover | value | keep | workflow; VER item 15 | ENG | docs-check-tooling | |  |
-| M-ENG-108 | (new) `pull_request_template.md` | PR record sections; no footer | process | keep | template; CW item 37 | ENG | living-docs-engineering-workflow | |  |
-| M-ENG-109 | `.gitattributes` | `merge=union` for DECISIONS.md, TODO.md | value | keep | file; CW item 32 cites | ENG | living-docs-engineering-workflow | |  |
+| M-ENG-107 | (new) `docs.yml` | Docs checker, report-only until cutover | value | keep | workflow; VER item 15 | ENG | docs-check-tooling | | ENG-015 |
+| M-ENG-108 | (new) `pull_request_template.md` | PR record sections; no footer | process | keep | template; CW item 37 | ENG | living-docs-engineering-workflow | | ENG-037 |
+| M-ENG-109 | `.gitattributes` | `merge=union` for DECISIONS.md, TODO.md | value | keep | file; CW item 32 cites | ENG | living-docs-engineering-workflow | | ENG-032 |
 
 ### the at-risk classes at-risk class #18 (ENG share)
 
@@ -321,16 +321,16 @@ Abbreviations: VER = `docs/engineering/verification.md`, CW = `docs/engineering/
 
 | Row | Source (path:line or §) | Rule or content (≤ 15 words) | Class | Disposition | Target | NS | Spec | Decision / note | ID |
 |---|---|---|---|---|---|---|---|---|---|
-| M-ENG-116 | `DECISIONS.md:3` | Append-only; never edit or delete an entry | process | move | CW item 33 | ENG | living-docs-engineering-workflow | engineering ratification batch |  |
-| M-ENG-117 | `DECISIONS.md:9-15,17` | Entry format and `BLOCKED` = stop and ask | process | keep | DECISIONS.md header; CW item 33 links | ENG | living-docs-engineering-workflow | |  |
-| M-ENG-118 | `VERSIONS.md:3` | No floating tags, latest, `>=`; resolve at install, write back | requirement | ratify | CNV item 48 | ENG | living-docs-engineering-workflow | values stay in VERSIONS.md |  |
-| M-ENG-119 | `VERSIONS.md` "Version-sensitive claims" | Re-verify claims when dependent code is touched; record in DECISIONS | requirement | ratify | CNV item 48 | ENG | living-docs-engineering-workflow | table stays in VERSIONS.md |  |
-| M-ENG-120 | `TODO.md:3-7` | Session start: first ready spec; spec index role | process | ratify | CW item 34; AG | ENG | living-docs-engineering-workflow | session-log part: FLAG `TODO session log kept after the merge-flow choice dropped it` |  |
-| M-ENG-121 | design §8.5 | Conversion provenance, ratification batch | requirement | ratify | CW item 27 | ENG | living-docs-engineering-workflow | new rule; engineering ratification batch |  |
-| M-ENG-122 | design §9.1–9.2 | Conflict precedence; docs are not proof | requirement | ratify | CW items 23–25; VER item 12 | ENG | living-docs-engineering-workflow | engineering ratification batch |  |
-| M-ENG-123 | design §5.2 | ID scheme, retirement, no reuse, collisions | requirement | ratify | CW items 21–22 | ENG | living-docs-engineering-workflow | engineering ratification batch |  |
-| M-ENG-124 | design §3, §7.2 | Content by kind; one owner per fact | requirement | ratify | CNV items 40–42 | ENG | living-docs-engineering-workflow | engineering ratification batch |  |
-| M-ENG-125 | design §10.2 | Semantic review recorded in PR; Last reviewed bump rule | requirement | ratify | CW items 37–39 | ENG | living-docs-engineering-workflow | engineering ratification batch |  |
+| M-ENG-116 | `DECISIONS.md:3` | Append-only; never edit or delete an entry | process | move | CW item 33 | ENG | living-docs-engineering-workflow | engineering ratification batch | ENG-033 |
+| M-ENG-117 | `DECISIONS.md:9-15,17` | Entry format and `BLOCKED` = stop and ask | process | keep | DECISIONS.md header; CW item 33 links | ENG | living-docs-engineering-workflow | | ENG-033 |
+| M-ENG-118 | `VERSIONS.md:3` | No floating tags, latest, `>=`; resolve at install, write back | requirement | ratify | CNV item 48 | ENG | living-docs-engineering-workflow | values stay in VERSIONS.md | ENG-048 |
+| M-ENG-119 | `VERSIONS.md` "Version-sensitive claims" | Re-verify claims when dependent code is touched; record in DECISIONS | requirement | ratify | CNV item 48 | ENG | living-docs-engineering-workflow | table stays in VERSIONS.md | ENG-048 |
+| M-ENG-120 | `TODO.md:3-7` | Session start: first ready spec; spec index role | process | ratify | CW item 34; AG | ENG | living-docs-engineering-workflow | session-log part: FLAG `TODO session log kept after the merge-flow choice dropped it` | ENG-034 |
+| M-ENG-121 | design §8.5 | Conversion provenance, ratification batch | requirement | ratify | CW item 27 | ENG | living-docs-engineering-workflow | new rule; engineering ratification batch | ENG-027 |
+| M-ENG-122 | design §9.1–9.2 | Conflict precedence; docs are not proof | requirement | ratify | CW items 23–25; VER item 12 | ENG | living-docs-engineering-workflow | engineering ratification batch | ENG-012 ENG-023 ENG-024 ENG-025 |
+| M-ENG-123 | design §5.2 | ID scheme, retirement, no reuse, collisions | requirement | ratify | CW items 21–22 | ENG | living-docs-engineering-workflow | engineering ratification batch | ENG-021 ENG-022 |
+| M-ENG-124 | design §3, §7.2 | Content by kind; one owner per fact | requirement | ratify | CNV items 40–42 | ENG | living-docs-engineering-workflow | engineering ratification batch | ENG-040 ENG-041 ENG-042 |
+| M-ENG-125 | design §10.2 | Semantic review recorded in PR; Last reviewed bump rule | requirement | ratify | CW items 37–39 | ENG | living-docs-engineering-workflow | engineering ratification batch | ENG-037 ENG-038 ENG-039 |
 
 ### `DECISIONS.md` CHOICE headings about process, CI or git
 
@@ -339,16 +339,16 @@ Classification for the cutover's decisions table (`Heading | Classification | ID
 | Row | Source (path:line or §) | Rule or content (≤ 15 words) | Class | Disposition | Target | NS | Spec | Decision / note | ID |
 |---|---|---|---|---|---|---|---|---|---|
 | M-ENG-126 | DECISIONS.md:21 `## 2026-08-15 — Step 0.0 — CHOICE` | Log initialized; versions pinned | history | keep | — | — | — | **history** |  |
-| M-ENG-127 | DECISIONS.md:320 `## 2026-09-19 — CI/CD pipeline — CHOICE — GitHub-hosted runners` | CI uses GitHub-hosted ubuntu-latest | rationale | move | VER item 13 Source | ENG | living-docs-engineering-workflow | **binding** |  |
+| M-ENG-127 | DECISIONS.md:320 `## 2026-09-19 — CI/CD pipeline — CHOICE — GitHub-hosted runners` | CI uses GitHub-hosted ubuntu-latest | rationale | move | VER item 13 Source | ENG | living-docs-engineering-workflow | **binding** | ENG-013 |
 | M-ENG-128 | DECISIONS.md:438 `## 2026-09-19 — Dashboard — CHOICE — Node 22 LTS (Phase 5 resolution)` | Node 22 pinned | history | keep | — | — | — | **history**; superseded by :969 |  |
 | M-ENG-129 | DECISIONS.md:529 `## 2026-10-07 — Market simulation — CHOICE — 11 tests, not 10; \`scripts/fetch_prices.py\`` | Test added beyond spec list | history | keep | — | — | — | **history** (process precedent only) |  |
-| M-ENG-130 | DECISIONS.md:819 `## 2026-10-09 — Guideline setup — CHOICE — merge flow, merge bar and shared-log conflicts written into the repo` | Merge flow, merge bar, union driver, identity check, cloud limits | rationale | move | VER items 10–11, CW items 30–32 Source | ENG | living-docs-engineering-workflow | **binding**; its "session log dropped" clause is not practised → FLAG |  |
+| M-ENG-130 | DECISIONS.md:819 `## 2026-10-09 — Guideline setup — CHOICE — merge flow, merge bar and shared-log conflicts written into the repo` | Merge flow, merge bar, union driver, identity check, cloud limits | rationale | move | VER items 10–11, CW items 30–32 Source | ENG | living-docs-engineering-workflow | **binding**; its "session log dropped" clause is not practised → FLAG | ENG-010 ENG-011 ENG-030 ENG-031 ENG-032 |
 | M-ENG-131 | DECISIONS.md:852 `## 2026-10-09 — CI — CHOICE — container images off anonymous Docker Hub` | Images off anonymous Docker Hub; registry mirror | rationale | keep | history (rationale in VER item 14 cites the superseding CHOICE) | — | living-docs-engineering-workflow | **history** (mechanism superseded by :974; the goal is carried by :974) |  |
 | M-ENG-132 | DECISIONS.md:857 `## 2026-10-09 — CI — CHOICE — remaining test images through mirror.gcr.io` | LocalStack via mirror; Java prefix env | rationale | keep | history (rationale in VER item 14 cites the superseding CHOICE) | — | living-docs-engineering-workflow | **history** (superseded by :974) |  |
 | M-ENG-133 | DECISIONS.md:896 `## 2026-10-09 — Pre-launch spec audit — CHOICE — gaps closed in the spec index` | Specs added, statuses set | history | keep | — | — | — | **history** (index state) |  |
 | M-ENG-134 | DECISIONS.md:964 `## 2026-10-10 — Single-source cleanup — CHOICE — one version of each pre-rollout artifact` | One version of each artifact; bare `${VAR}` in compose | rationale | link | OPS (compose rule), EXT (prompt v1), CON (schema 1.0) | — | domain specs | **binding** for the domain rules it fixes; not ENG |  |
 | M-ENG-135 | DECISIONS.md:969 `## 2026-10-09 — Dashboard — CHOICE — Node 24 LTS, actions on Node 24` | Node 24; every action on its Node 24 major | value | keep | VERSIONS.md, workflows (values) | — | — | **history** (values live in the authorities) |  |
-| M-ENG-136 | DECISIONS.md:974 `## 2026-10-09 — CI — CHOICE — one prefix for every test image` | One Testcontainers prefix in both container jobs | rationale | move | VER item 14 Source | ENG | living-docs-engineering-workflow | **binding** |  |
+| M-ENG-136 | DECISIONS.md:974 `## 2026-10-09 — CI — CHOICE — one prefix for every test image` | One Testcontainers prefix in both container jobs | rationale | move | VER item 14 Source | ENG | living-docs-engineering-workflow | **binding** | ENG-014 |
 | M-ENG-137 | DECISIONS.md:1100 `## 2026-10-10 — Consolidated code, strategy and BV audit — CHOICE — what becomes specs, what does not` | Audit triage into specs | history | keep | — | — | — | **history** for ENG (domain items owned by research/core-hub fragments) |  |
 
 ### File-level roles
@@ -406,13 +406,13 @@ Row prefixes: `M-INV` invariant rows, `M-CON` contract rows, `M-SYS` everything 
 | M-SYS-016 | `CLAUDE.md:28` | Postgres databases `auspex`, `airflow` | value | link | overview naming table → `.env.example` `POSTGRES_DB`, `docker/postgres-init/` | SYS | living-docs-system-and-contracts | |  |
 | M-SYS-017 | `CLAUDE.md:29` | Roles `auspex_app`, `airflow` | value | link | overview naming table → `.env.example` `POSTGRES_USER`, `docker/airflow-db-role/` | SYS | living-docs-system-and-contracts | |  |
 | M-SYS-018 | `CLAUDE.md:31` | Service directories descriptive, never themed | requirement | ratify | `docs/system/overview.md` (SYS #1) | SYS | living-docs-system-and-contracts | batch | SYS-001 |
-| M-SYS-019 | `CLAUDE.md:33` | No plan-step references in names, tests, branches, commits | requirement | move | `docs/engineering/conventions.md` item 49; one-line hard rule in `AGENTS.md` | ENG | living-docs-engineering-workflow | engineering ratification batch (source is CLAUDE.md only) |  |
+| M-SYS-019 | `CLAUDE.md:33` | No plan-step references in names, tests, branches, commits | requirement | move | `docs/engineering/conventions.md` item 49; one-line hard rule in `AGENTS.md` | ENG | living-docs-engineering-workflow | engineering ratification batch (source is CLAUDE.md only) | ENG-049 |
 | M-SYS-020 | `CLAUDE.md:35-36` | "What this is": see README | status-note | link | `AGENTS.md` Where things are | — | agent-instruction-hierarchy | |  |
 | M-SYS-021 | `CLAUDE.md:39-43` | Session start steps 1–5 | process | move | `AGENTS.md` Session start | — | agent-instruction-hierarchy | |  |
-| M-SYS-022 | `CLAUDE.md:44` | Done flow: mark done, move, TODO row, commit, PR | process | move | `docs/engineering/change-workflow.md` (lifecycle); `AGENTS.md` names it | ENG | living-docs-engineering-workflow | |  |
+| M-SYS-022 | `CLAUDE.md:44` | Done flow: mark done, move, TODO row, commit, PR | process | move | `docs/engineering/change-workflow.md` (lifecycle); `AGENTS.md` names it | ENG | living-docs-engineering-workflow | | ENG-016 |
 | M-SYS-023 | `CLAUDE.md:47` | No legacy system; Flyway scripts create schema on empty DB | requirement | ratify | `docs/system/overview.md` (SYS #3) | SYS | living-docs-system-and-contracts | batch | SYS-003 |
 | M-SYS-024 | `CLAUDE.md:50` | Rule that matters most: test can only pass by violating → stop, flag, ask | process | move | `AGENTS.md` Session start (3) | — | agent-instruction-hierarchy | INV-15 refers to it in plain text |  |
-| M-SYS-025 | `CLAUDE.md:52` | `test_dag_task_only_invokes_fetch_since` cautionary story | rationale | move | `docs/engineering/verification.md` Rationale | ENG | living-docs-engineering-workflow | |  |
+| M-SYS-025 | `CLAUDE.md:52` | `test_dag_task_only_invokes_fetch_since` cautionary story | rationale | move | `docs/engineering/verification.md` Rationale | ENG | living-docs-engineering-workflow | | docs/engineering/verification.md#rationale |
 | M-SYS-026 | `CLAUDE.md:54` | Never violate an invariant; stop and flag | process | move | `AGENTS.md` Session start (4) | — | agent-instruction-hierarchy | |  |
 | M-INV-001 | `CLAUDE.md:55` | Scraper writes only to MinIO and Kafka | invariant | move | `docs/system/invariants.md#INV-1` | INV | living-docs-system-and-contracts | Scope line: Airflow Variables/local state are writes; read-only note (`sample_corroborations.py`) in batch | INV-1 |
 | M-INV-002 | `CLAUDE.md:56` | core-hub sole writer to application DB and Neo4j | invariant | move | `#INV-2` | INV | living-docs-system-and-contracts | Restore exception: PENDING `restore exception to invariant 2` | INV-2 |
@@ -437,23 +437,23 @@ Row prefixes: `M-INV` invariant rows, `M-CON` contract rows, `M-SYS` everything 
 | M-SYS-032 | `CLAUDE.md:93,96` | Restore command; smoke test | command | keep | `README.md` | — | legacy-docs-retirement | |  |
 | M-SYS-033 | `CLAUDE.md:94-95` | Dashboard lint/types/tests; build + bundle check | command | move | `services/dashboard/AGENTS.md` | — | agent-instruction-hierarchy | Strategy and kill-switch rows missing here (G9): add from `README.md:60-61` to strategy `AGENTS.md` |  |
 | M-SYS-034 | `CLAUDE.md:99` | Zero tests executed is a failure | process | move | `AGENTS.md` Hard rules | — | agent-instruction-hierarchy | |  |
-| M-SYS-035 | `CLAUDE.md:99` | `failOnNoDiscoveredTests = true`; pytest `--strict-markers` | requirement | move | `docs/engineering/verification.md` | ENG | living-docs-engineering-workflow | `build.gradle.kts:95,102` |  |
+| M-SYS-035 | `CLAUDE.md:99` | `failOnNoDiscoveredTests = true`; pytest `--strict-markers` | requirement | move | `docs/engineering/verification.md` | ENG | living-docs-engineering-workflow | `build.gradle.kts:95,102` | ENG-003 |
 | M-SYS-036 | `CLAUDE.md:101` | Gradle `UP-TO-DATE` is not a pass; use `--rerun-tasks` | process | move | `AGENTS.md` Hard rules | — | agent-instruction-hierarchy | Duplicate at `services/core-hub/CLAUDE.md:45` deleted |  |
-| M-SYS-037 | `CLAUDE.md:103-114` | TDD loop steps; right-reason red; container suite at completion | process | move | `docs/engineering/verification.md` | ENG | living-docs-engineering-workflow | |  |
+| M-SYS-037 | `CLAUDE.md:103-114` | TDD loop steps; right-reason red; container suite at completion | process | move | `docs/engineering/verification.md` | ENG | living-docs-engineering-workflow | | ENG-001 ENG-002 |
 | M-SYS-038 | `CLAUDE.md:116-135` | Doc-maintenance table; "intentional duplication is fine" | stale | retire | replaced by `docs/engineering/conventions.md` item 40 ("Doc ownership") | — | living-docs-engineering-workflow | Retired, not moved; same source as M-ENG-023 |  |
 | M-SYS-039 | `CLAUDE.md:137` | Scaffolding exemption from test-first | invariant | move | INV-15 exception in `docs/system/invariants.md` | INV | living-docs-system-and-contracts | An exception narrows INV-15, so it lives under it; "pom.xml" is stale (Gradle). Same source as M-ENG-025 | INV-15 |
-| M-SYS-040 | `CLAUDE.md:140-144` | Comment rules: intent only, no narration, contracts, stale worse | process | move | `docs/engineering/conventions.md` | ENG | living-docs-engineering-workflow | |  |
+| M-SYS-040 | `CLAUDE.md:140-144` | Comment rules: intent only, no narration, contracts, stale worse | process | move | `docs/engineering/conventions.md` | ENG | living-docs-engineering-workflow | | ENG-043 ENG-044 ENG-045 ENG-046 |
 | M-SYS-041 | `CLAUDE.md:145` | Flyway migrations frozen; don't edit applied comments | requirement | move | `docs/core-hub/storage.md` | HUB | living-docs-core-hub | |  |
-| M-SYS-042 | `CLAUDE.md:148-152` | Test file locations and markers per service | process | move | Layout rows of scraper and core-hub `AGENTS.md`; `docs/engineering/verification.md` | ENG | agent-instruction-hierarchy, living-docs-engineering-workflow | |  |
+| M-SYS-042 | `CLAUDE.md:148-152` | Test file locations and markers per service | process | move | Layout rows of scraper and core-hub `AGENTS.md`; `docs/engineering/verification.md` | ENG | agent-instruction-hierarchy, living-docs-engineering-workflow | | ENG-003 |
 | M-SYS-043 | `CLAUDE.md:154` | `CorroborationServiceContractTest` abstract; extend unmodified | requirement | move | `docs/core-hub/corroboration.md` | COR | living-docs-core-hub | Nested file keeps the ID only |  |
-| M-SYS-044 | `CLAUDE.md:158-163` | Git Flow branches | process | move | `docs/engineering/change-workflow.md` | ENG | living-docs-engineering-workflow | |  |
-| M-SYS-045 | `CLAUDE.md:165-169` | Rebase, resolve in rebase, ff-only, no `--no-ff` | process | move | `docs/engineering/change-workflow.md` | ENG | living-docs-engineering-workflow | |  |
+| M-SYS-044 | `CLAUDE.md:158-163` | Git Flow branches | process | move | `docs/engineering/change-workflow.md` | ENG | living-docs-engineering-workflow | | ENG-029 |
+| M-SYS-045 | `CLAUDE.md:165-169` | Rebase, resolve in rebase, ff-only, no `--no-ff` | process | move | `docs/engineering/change-workflow.md` | ENG | living-docs-engineering-workflow | | ENG-030 |
 | M-SYS-046 | `CLAUDE.md:172` | Never push to `develop` or `main` directly | process | move | `AGENTS.md` Hard rules | — | agent-instruction-hierarchy | `## 2026-10-09 — Guideline setup — CHOICE — merge flow, …` |  |
-| M-SYS-047 | `CLAUDE.md:174-179` | Merge only on owner's word; local rebase + ff recipe | process | move | Hard rule in `AGENTS.md`; recipe in `docs/engineering/change-workflow.md` | ENG | agent-instruction-hierarchy, living-docs-engineering-workflow | same CHOICE |  |
-| M-SYS-048 | `CLAUDE.md:180` | `main` only via release branch on request | process | move | `docs/engineering/change-workflow.md` | ENG | living-docs-engineering-workflow | |  |
-| M-SYS-049 | `CLAUDE.md:182-186` | Ready to merge: tests per behaviour, mutation check, PR lists them | process | move | `docs/engineering/verification.md` | ENG | living-docs-engineering-workflow | |  |
-| M-SYS-050 | `CLAUDE.md:188` | DECISIONS/TODO union merge driver; check order after rebase | process | move | `docs/engineering/change-workflow.md` | ENG | living-docs-engineering-workflow | |  |
-| M-SYS-051 | `CLAUDE.md:191` | Commit only when the spec's tests pass | process | move | `docs/engineering/change-workflow.md` | ENG | living-docs-engineering-workflow | |  |
+| M-SYS-047 | `CLAUDE.md:174-179` | Merge only on owner's word; local rebase + ff recipe | process | move | Hard rule in `AGENTS.md`; recipe in `docs/engineering/change-workflow.md` | ENG | agent-instruction-hierarchy, living-docs-engineering-workflow | same CHOICE | ENG-030 |
+| M-SYS-048 | `CLAUDE.md:180` | `main` only via release branch on request | process | move | `docs/engineering/change-workflow.md` | ENG | living-docs-engineering-workflow | | ENG-031 |
+| M-SYS-049 | `CLAUDE.md:182-186` | Ready to merge: tests per behaviour, mutation check, PR lists them | process | move | `docs/engineering/verification.md` | ENG | living-docs-engineering-workflow | | ENG-010 ENG-011 |
+| M-SYS-050 | `CLAUDE.md:188` | DECISIONS/TODO union merge driver; check order after rebase | process | move | `docs/engineering/change-workflow.md` | ENG | living-docs-engineering-workflow | | ENG-032 |
+| M-SYS-051 | `CLAUDE.md:191` | Commit only when the spec's tests pass | process | move | `docs/engineering/change-workflow.md` | ENG | living-docs-engineering-workflow | | ENG-035 |
 | M-SYS-052 | `CLAUDE.md:192` | Never commit `.env`, `target/`, `.venv/`, `__pycache__/`, volumes | process | move | `AGENTS.md` Hard rules | — | agent-instruction-hierarchy | |  |
 | M-SYS-053 | `CLAUDE.md:193` | Commits carry the requester's identity; no Claude author or trailers | process | move | `AGENTS.md` Hard rules | — | agent-instruction-hierarchy | Enforced by `check_commit_identity.sh` |  |
 | M-SYS-054 | `CLAUDE.md:194` | No Claude footers or session links on GitHub | process | move | `AGENTS.md` Hard rules | — | agent-instruction-hierarchy | |  |
@@ -473,12 +473,12 @@ Row prefixes: `M-INV` invariant rows, `M-CON` contract rows, `M-SYS` everything 
 | M-SYS-068 | `CLAUDE.md:212` | SEC 10 req/s per IP, User-Agent, filing index, ciks[0], XBRL names | trap | move | `docs/ingestion/connectors.md` Known traps; aggregate budget `docs/operations/topology.md` | ING | living-docs-ingestion, living-docs-operations | Stale path `specs/edgar-efts-fixture-alignment.md` → `specs/done/…` (finding #7) |  |
 | M-SYS-069 | `CLAUDE.md:213` | openFDA has no designations endpoint | trap | move | `docs/ingestion/connectors.md` Known traps | ING | living-docs-ingestion | `fda_approval source`: approved, `divergent` (M-ING-047, no `sources.yaml` entry yet); the trap stays current |  |
 | M-SYS-070 | `CLAUDE.md:214` | PatentsView superseded, Lens.org commercial; use EPO OPS | trap | move | `docs/ingestion/connectors.md` Known traps | ING | living-docs-ingestion | |  |
-| M-SYS-071 | `CLAUDE.md:215` | Docker Hub rate limits; test images via `mirror.gcr.io` prefix | trap | move | `docs/engineering/verification.md` Known traps | ENG | living-docs-engineering-workflow | `## 2026-10-09 — CI — CHOICE — …` (3 entries) |  |
+| M-SYS-071 | `CLAUDE.md:215` | Docker Hub rate limits; test images via `mirror.gcr.io` prefix | trap | move | `docs/engineering/verification.md` Known traps | ENG | living-docs-engineering-workflow | `## 2026-10-09 — CI — CHOICE — …` (3 entries) | docs/engineering/verification.md#known-traps |
 | M-SYS-072 | `CLAUDE.md:216` | Airflow 3 `schedule`; Task SDK proxies Variables/Connections | trap | move | `docs/operations/orchestration.md` Known traps | OPS | living-docs-operations | |  |
 | M-SYS-073 | `CLAUDE.md:217` | Scraper is one gunicorn process (threads), metrics per process | trap | move | `docs/operations/topology.md` (requirement + trap) | OPS | living-docs-operations | |  |
 | M-SYS-074 | `CLAUDE.md:218` | `make_metrics()` cached per registry; DuplicateTimeseries | trap | link | `docs/operations/observability.md` Known traps (M-OPS-212) | — | living-docs-ingestion | |  |
 | M-SYS-075 | `CLAUDE.md:219` | Grafana expands `$VAR` in alerting files; write `$$` | trap | move | `docs/operations/observability.md` Known traps | OPS | living-docs-operations | `## 2026-10-09 — Infrastructure observability — VERIFIED — Grafana expands …` |  |
-| M-SYS-076 | `CLAUDE.md:220` | LocalStack `2026.x` needs licence; pin 4.9.2 | trap | move | `docs/engineering/verification.md` Known traps | ENG | living-docs-engineering-workflow | Pin value in `VERSIONS.md` |  |
+| M-SYS-076 | `CLAUDE.md:220` | LocalStack `2026.x` needs licence; pin 4.9.2 | trap | move | `docs/engineering/verification.md` Known traps | ENG | living-docs-engineering-workflow | Pin value in `VERSIONS.md` | docs/engineering/verification.md#known-traps |
 | M-SYS-077 | `CLAUDE.md:221` | bcrypt hash `$`: single-quote in `.env`, `\$` in `.env.local` | trap | move | `docs/dashboard.md` Known traps | DSH | living-docs-strategy-and-dashboard | |  |
 | M-SYS-078 | `CLAUDE.md:222` | Next 16 middleware renamed `proxy`; `next lint` gone | trap | move | `docs/dashboard.md` Known traps | DSH | living-docs-strategy-and-dashboard | |  |
 | M-SYS-079 | `CLAUDE.md:223` | Airflow generates Fernet key if unset; keys from `.env` | trap | move | `docs/operations/orchestration.md` Known traps | OPS | living-docs-operations | |  |
@@ -500,7 +500,7 @@ Row prefixes: `M-INV` invariant rows, `M-CON` contract rows, `M-SYS` everything 
 | M-CON-004 | `services/CLAUDE.md:24` | Provisioning in `topics.yaml` | contract | move | CON #1 | CON | living-docs-system-and-contracts | | CON-001 |
 | M-CON-005 | `services/CLAUDE.md:24` | DLPR publishes same partition; mismatch fails silently | stale | delete | — (CON #37 states -1) | CON | living-docs-system-and-contracts, agent-instruction-hierarchy | Wrong vs `KafkaConfig.java:187-188` (C2/G4) |  |
 | M-SYS-087 | `services/CLAUDE.md:28` | Comment rule lives in root CLAUDE | status-note | link | `services/AGENTS.md` → `docs/engineering/conventions.md` | — | agent-instruction-hierarchy | |  |
-| M-SYS-088 | `services/CLAUDE.md:30-35` | Per-stack comment form table | process | move | `docs/engineering/conventions.md` item 52 | ENG | living-docs-engineering-workflow | `services/AGENTS.md` keeps a one-line pointer (`agent-instruction-hierarchy`) |  |
+| M-SYS-088 | `services/CLAUDE.md:30-35` | Per-stack comment form table | process | move | `docs/engineering/conventions.md` item 52 | ENG | living-docs-engineering-workflow | `services/AGENTS.md` keeps a one-line pointer (`agent-instruction-hierarchy`) | ENG-052 |
 | M-INV-016 | `services/CLAUDE.md:39` | Scraper writes only MinIO and Kafka; "No DB access, ever" | invariant | link | `#INV-1` | INV | agent-instruction-hierarchy | Stricter than INV-1; read-only note in batch |  |
 | M-INV-017 | `services/CLAUDE.md:40` | core-hub sole writer | invariant | link | `#INV-2` | INV | agent-instruction-hierarchy | |  |
 | M-SYS-089 | `services/CLAUDE.md:42` | Crossing boundary is an architecture violation | process | delete | covered by `AGENTS.md` stop-and-flag | — | agent-instruction-hierarchy | Duplicate |  |
@@ -512,31 +512,31 @@ Row prefixes: `M-INV` invariant rows, `M-CON` contract rows, `M-SYS` everything 
 | M-SYS-090 | `services/core-hub/CLAUDE.md:3` | Auto-loaded with root | status-note | delete | — | — | agent-instruction-hierarchy | |  |
 | M-SYS-091 | `services/core-hub/CLAUDE.md:7-12` | Six Gradle commands | command | move | `services/core-hub/AGENTS.md` | — | agent-instruction-hierarchy | Duplicate of root `:84-89` |  |
 | M-SYS-092 | `services/core-hub/CLAUDE.md:16` | Package, topics, DB, role names | value | link | `docs/system/overview.md` naming table | SYS | agent-instruction-hierarchy | |  |
-| M-SYS-093 | `services/core-hub/CLAUDE.md:19` | Kotlin DSL, committed wrapper, Gradle version | requirement | move | `docs/engineering/conventions.md`; version → `VERSIONS.md` | ENG | living-docs-engineering-workflow | requirements §1 :32 |  |
-| M-SYS-094 | `services/core-hub/CLAUDE.md:20` | Versions only in `libs.versions.toml`, matching `VERSIONS.md` | requirement | move | `docs/engineering/conventions.md` | ENG | living-docs-engineering-workflow | |  |
-| M-SYS-095 | `services/core-hub/CLAUDE.md:21` | No `io.spring.dependency-management` plugin | requirement | move | `docs/engineering/conventions.md` | ENG | living-docs-engineering-workflow | ENG batch (CLAUDE-only source) |  |
-| M-SYS-096 | `services/core-hub/CLAUDE.md:22-25` | Java toolchain pinned to 25 | requirement | move | `docs/engineering/conventions.md`; value → `VERSIONS.md` | ENG | living-docs-engineering-workflow | |  |
-| M-SYS-097 | `services/core-hub/CLAUDE.md:26` | `integrationTest` JVM Test Suite, own source set, in `check` | requirement | move | `docs/engineering/verification.md`; layout row in core-hub `AGENTS.md` | ENG | living-docs-engineering-workflow, agent-instruction-hierarchy | requirements §13 |  |
-| M-SYS-098 | `services/core-hub/CLAUDE.md:27` | `timezoneCheck` own task, non-UTC JVM | requirement | move | `docs/engineering/verification.md` | ENG | living-docs-engineering-workflow | requirements §13 |  |
+| M-SYS-093 | `services/core-hub/CLAUDE.md:19` | Kotlin DSL, committed wrapper, Gradle version | requirement | move | `docs/engineering/conventions.md`; version → `VERSIONS.md` | ENG | living-docs-engineering-workflow | requirements §1 :32 | ENG-053 |
+| M-SYS-094 | `services/core-hub/CLAUDE.md:20` | Versions only in `libs.versions.toml`, matching `VERSIONS.md` | requirement | move | `docs/engineering/conventions.md` | ENG | living-docs-engineering-workflow | | ENG-053 |
+| M-SYS-095 | `services/core-hub/CLAUDE.md:21` | No `io.spring.dependency-management` plugin | requirement | move | `docs/engineering/conventions.md` | ENG | living-docs-engineering-workflow | ENG batch (CLAUDE-only source) | ENG-053 |
+| M-SYS-096 | `services/core-hub/CLAUDE.md:22-25` | Java toolchain pinned to 25 | requirement | move | `docs/engineering/conventions.md`; value → `VERSIONS.md` | ENG | living-docs-engineering-workflow | | ENG-053 |
+| M-SYS-097 | `services/core-hub/CLAUDE.md:26` | `integrationTest` JVM Test Suite, own source set, in `check` | requirement | move | `docs/engineering/verification.md`; layout row in core-hub `AGENTS.md` | ENG | living-docs-engineering-workflow, agent-instruction-hierarchy | requirements §13 | ENG-007 |
+| M-SYS-098 | `services/core-hub/CLAUDE.md:27` | `timezoneCheck` own task, non-UTC JVM | requirement | move | `docs/engineering/verification.md` | ENG | living-docs-engineering-workflow | requirements §13 | ENG-007 |
 | M-INV-018 | `services/core-hub/CLAUDE.md:30` | Sole writer to DB and Neo4j | invariant | link | `#INV-2` | INV | agent-instruction-hierarchy | |  |
 | M-SYS-099 | `services/core-hub/CLAUDE.md:31` | Write order Neo4j → Postgres → ack; ack-mode RECORD | requirement | move | `docs/core-hub/consumption.md` / `storage.md` | HUB | living-docs-core-hub | C5: RECORD likely not applied (HUB records divergent/untested) |  |
 | M-SYS-100 | `services/core-hub/CLAUDE.md:32` | Every `@Transactional` qualified; separate repository packages | requirement | move | `docs/core-hub/storage.md` | HUB | living-docs-core-hub | requirements §3.8 |  |
 | M-SYS-101 | `services/core-hub/CLAUDE.md:33` | Flyway owns schema; `ddl-auto: validate` | requirement | move | `docs/core-hub/storage.md` | HUB | living-docs-core-hub | requirements §1 :38 |  |
 | M-SYS-102 | `services/core-hub/CLAUDE.md:34` | MERGE, never CREATE, for signal and entity nodes | requirement | move | `docs/core-hub/storage.md` | HUB | living-docs-core-hub | |  |
 | M-INV-019 | `services/core-hub/CLAUDE.md:35` | No string-built queries; ArchUnit | invariant | link | `#INV-12` | INV | agent-instruction-hierarchy | |  |
-| M-SYS-103 | `services/core-hub/CLAUDE.md:36` | Java records, no Lombok, constructor injection | requirement | move | `docs/engineering/conventions.md` | ENG | living-docs-engineering-workflow | requirements §1 :32 |  |
+| M-SYS-103 | `services/core-hub/CLAUDE.md:36` | Java records, no Lombok, constructor injection | requirement | move | `docs/engineering/conventions.md` | ENG | living-docs-engineering-workflow | requirements §1 :32 | ENG-054 |
 | M-SYS-104 | `services/core-hub/CLAUDE.md:39` | Unit vs container source sets | process | move | core-hub `AGENTS.md` Layout | — | agent-instruction-hierarchy | |  |
-| M-SYS-105 | `services/core-hub/CLAUDE.md:40` | Static singleton containers, one context, truncate, < 3 min | requirement | move | `docs/engineering/verification.md` | ENG | living-docs-engineering-workflow | requirements §13 |  |
+| M-SYS-105 | `services/core-hub/CLAUDE.md:40` | Static singleton containers, one context, truncate, < 3 min | requirement | move | `docs/engineering/verification.md` | ENG | living-docs-engineering-workflow | requirements §13 | ENG-006 |
 | M-SYS-106 | `services/core-hub/CLAUDE.md:41` | Contract test abstract; extend unmodified | requirement | move | `docs/core-hub/corroboration.md` | COR | living-docs-core-hub | dup of M-SYS-043 |  |
-| M-SYS-107 | `services/core-hub/CLAUDE.md:42` | Awaitility, never `Thread.sleep` | requirement | move | `docs/engineering/verification.md` | ENG | living-docs-engineering-workflow | requirements §13 |  |
+| M-SYS-107 | `services/core-hub/CLAUDE.md:42` | Awaitility, never `Thread.sleep` | requirement | move | `docs/engineering/verification.md` | ENG | living-docs-engineering-workflow | requirements §13 | ENG-005 |
 | M-SYS-108 | `services/core-hub/CLAUDE.md:45` | `UP-TO-DATE` runs nothing; `--rerun-tasks` | process | delete | dup of M-SYS-036 (`AGENTS.md`) | — | agent-instruction-hierarchy | |  |
-| M-SYS-109 | `services/core-hub/CLAUDE.md:46` | Gradle 9 configuration cache: fix script, don't disable | trap | move | `docs/engineering/conventions.md` Known traps | ENG | living-docs-engineering-workflow | ENG batch |  |
+| M-SYS-109 | `services/core-hub/CLAUDE.md:46` | Gradle 9 configuration cache: fix script, don't disable | trap | move | `docs/engineering/conventions.md` Known traps | ENG | living-docs-engineering-workflow | ENG batch | docs/engineering/conventions.md#known-traps |
 | M-SYS-110 | `services/core-hub/CLAUDE.md:47` | `ErrorHandlingDeserializer` mandatory | trap | delete | dup of M-SYS-059 | HUB | living-docs-core-hub | |  |
 | M-CON-006 | `services/core-hub/CLAUDE.md:48` | DLT resolver lowercase `.dlt`, partition -1; re-verify | trap | move | CON Known traps (CON #36–37) | CON | living-docs-system-and-contracts | "Re-verify" stale (verified 2026-08-16) | docs/system/contracts.md#known-traps |
 | M-CON-007 | `services/core-hub/CLAUDE.md:49` | `confidence_score` BigDecimal / NUMERIC(4,3) / double | trap | move | CON Known traps (wire, CON #12); storage half `docs/core-hub/storage.md` | CON | living-docs-system-and-contracts, living-docs-core-hub | | docs/system/contracts.md#known-traps |
 | M-CON-008 | `services/core-hub/CLAUDE.md:50` | `FAIL_ON_UNKNOWN_PROPERTIES=false` | trap | delete | dup of M-SYS-065 | CON | living-docs-system-and-contracts | |  |
 | M-SYS-111 | `services/core-hub/CLAUDE.md:51` | MERGE null ticker trap | trap | delete | dup of M-SYS-062 | HUB | living-docs-core-hub | |  |
-| M-SYS-112 | `services/core-hub/CLAUDE.md:52` | Boot 4.1 / Spring Kafka 4.1 differ from 3.x tutorials | trap | move | `docs/engineering/conventions.md` Known traps | ENG | living-docs-engineering-workflow | requirements §1 :32 |  |
+| M-SYS-112 | `services/core-hub/CLAUDE.md:52` | Boot 4.1 / Spring Kafka 4.1 differ from 3.x tutorials | trap | move | `docs/engineering/conventions.md` Known traps | ENG | living-docs-engineering-workflow | requirements §1 :32 | docs/engineering/conventions.md#known-traps |
 
 ### 4. `services/ingestion-scraper/CLAUDE.md`
 
@@ -551,10 +551,10 @@ Row prefixes: `M-INV` invariant rows, `M-CON` contract rows, `M-SYS` everything 
 | M-INV-022 | `services/ingestion-scraper/CLAUDE.md:20` | `fetch_since()` fetches and maps only | invariant | link | `#INV-3`; detail `docs/ingestion/connectors.md` | INV | agent-instruction-hierarchy | |  |
 | M-SYS-117 | `services/ingestion-scraper/CLAUDE.md:21` | Every HTTP call via `RateLimitedClient` | requirement | move | `docs/ingestion/connectors.md` | ING | living-docs-ingestion | requirements §1 :28, §6.5 |  |
 | M-INV-023 | `services/ingestion-scraper/CLAUDE.md:22` | Datetimes aware; UTC before serialization and MinIO key | invariant | link | `#INV-9`; key format `docs/ingestion/pipeline.md` | INV | agent-instruction-hierarchy | |  |
-| M-SYS-118 | `services/ingestion-scraper/CLAUDE.md:23` | Inject clients and `now()`; no construction inside | requirement | move | `docs/engineering/conventions.md` (seams) | ENG | living-docs-engineering-workflow | requirements §13 (injected clients, `now()`) |  |
-| M-SYS-119 | `services/ingestion-scraper/CLAUDE.md:26` | `pytest-socket` disables sockets in unit suite | requirement | move | `docs/engineering/verification.md` | ENG | living-docs-engineering-workflow | requirements §13 |  |
-| M-SYS-120 | `services/ingestion-scraper/CLAUDE.md:27` | APIs stubbed with `respx` against saved fixtures | requirement | move | `docs/engineering/verification.md` | ENG | living-docs-engineering-workflow | requirements §13 |  |
-| M-SYS-121 | `services/ingestion-scraper/CLAUDE.md:28` | Integration tests use testcontainers, not compose | requirement | move | `docs/engineering/verification.md` | ENG | living-docs-engineering-workflow | requirements §13 |  |
+| M-SYS-118 | `services/ingestion-scraper/CLAUDE.md:23` | Inject clients and `now()`; no construction inside | requirement | move | `docs/engineering/conventions.md` (seams) | ENG | living-docs-engineering-workflow | requirements §13 (injected clients, `now()`) | ENG-005 |
+| M-SYS-119 | `services/ingestion-scraper/CLAUDE.md:26` | `pytest-socket` disables sockets in unit suite | requirement | move | `docs/engineering/verification.md` | ENG | living-docs-engineering-workflow | requirements §13 | ENG-004 |
+| M-SYS-120 | `services/ingestion-scraper/CLAUDE.md:27` | APIs stubbed with `respx` against saved fixtures | requirement | move | `docs/engineering/verification.md` | ENG | living-docs-engineering-workflow | requirements §13 | ENG-005 |
+| M-SYS-121 | `services/ingestion-scraper/CLAUDE.md:28` | Integration tests use testcontainers, not compose | requirement | move | `docs/engineering/verification.md` | ENG | living-docs-engineering-workflow | requirements §13 | ENG-006 |
 | M-CON-009 | `services/ingestion-scraper/CLAUDE.md:29` | `test_contract_fixture.py` generates the fixture | contract | link | CON #9 | CON | agent-instruction-hierarchy | |  |
 | M-SYS-122 | `services/ingestion-scraper/CLAUDE.md:32` | `produce()` async trap | trap | delete | dup of M-SYS-061 | ING | living-docs-ingestion | |  |
 | M-SYS-123 | `services/ingestion-scraper/CLAUDE.md:33` | `strftime` on non-UTC aware datetime writes local time with Z | trap | move | `docs/ingestion/pipeline.md` Known traps (MinIO keys) | ING | living-docs-ingestion | Protects INV-9 |  |
@@ -597,11 +597,11 @@ Row prefixes: `M-INV` invariant rows, `M-CON` contract rows, `M-SYS` everything 
 | M-CON-012 | §0.5 | `gene_targets` is a list | contract | move | CON #8 | CON | living-docs-system-and-contracts | | CON-008 |
 | M-SYS-148 | §0.6 | Kafka Streams not a requirement | requirement | move | `docs/core-hub/corroboration.md` | COR | living-docs-core-hub | `specs/kafka-streams-correlation.md` draft |  |
 | M-SYS-149 | §0.7 | Tickerless signals stored, corroborated, absent from ticker responses | requirement | move | `docs/core-hub/storage.md` / `http-api.md` | HUB | living-docs-core-hub | |  |
-| M-SYS-150 | §1 :26 | Python 3.14, uv, lock committed, exact pins | requirement | move | `docs/engineering/conventions.md`; values `VERSIONS.md` | ENG | living-docs-engineering-workflow | |  |
+| M-SYS-150 | §1 :26 | Python 3.14, uv, lock committed, exact pins | requirement | move | `docs/engineering/conventions.md`; values `VERSIONS.md` | ENG | living-docs-engineering-workflow | | ENG-048 |
 | M-INV-024 | §1 :27 | Fully synchronous; `fetch_since` returns Iterator | invariant | link | `#INV-8`; Iterator → `docs/ingestion/connectors.md` | INV | living-docs-system-and-contracts | |  |
 | M-SYS-151 | §1 :28 | `httpx` only via `RateLimitedClient`; library list | requirement | move | `docs/ingestion/connectors.md`; list → `pyproject.toml` | ING | living-docs-ingestion | |  |
-| M-SYS-152 | §1 :29 | Test libraries; testcontainers required | requirement | move | `docs/engineering/verification.md` | ENG | living-docs-engineering-workflow | |  |
-| M-SYS-153 | §1 :32 | Java 25, Boot 4.x, Gradle Kotlin DSL, no Lombok | requirement | move | `docs/engineering/conventions.md`; values `VERSIONS.md` | ENG | living-docs-engineering-workflow | |  |
+| M-SYS-152 | §1 :29 | Test libraries; testcontainers required | requirement | move | `docs/engineering/verification.md` | ENG | living-docs-engineering-workflow | | ENG-006 |
+| M-SYS-153 | §1 :32 | Java 25, Boot 4.x, Gradle Kotlin DSL, no Lombok | requirement | move | `docs/engineering/conventions.md`; values `VERSIONS.md` | ENG | living-docs-engineering-workflow | | ENG-053 ENG-054 |
 | M-SYS-154 | §1 :32 | Spring Kafka 4.1 DLPR re-confirm at Step 1.3 | history | delete | — | — | living-docs-system-and-contracts | Confirmed `## 2026-08-16 — Step 1.3 — VERIFIED — …` |  |
 | M-SYS-155 | §1 :33-34 | core-hub dependencies and test stack incl. ArchUnit | value | link | `gradle/libs.versions.toml` | ENG | living-docs-engineering-workflow | |  |
 | M-CON-013 | §1 :37 | Topics from declarative `topics.yaml`, never producer side effect | contract | move | CON #1 | CON | living-docs-system-and-contracts | | CON-001 |
@@ -675,10 +675,10 @@ Row prefixes: `M-INV` invariant rows, `M-CON` contract rows, `M-SYS` everything 
 | M-SYS-175 | §14 | First-class `SignalNode` | rationale | move | `docs/core-hub/storage.md` Rationale | HUB | living-docs-core-hub | |  |
 | M-SYS-176 | §14 | `confidence_score` 0.0–1.0 float | rationale | link | CON #12 Rationale | CON | living-docs-system-and-contracts | |  |
 | M-SYS-177 | §14 | UTC everywhere | rationale | link | INV-9 | INV | living-docs-system-and-contracts | |  |
-| M-SYS-178 | §14 | Testcontainers over mocks at store boundary | rationale | move | `docs/engineering/verification.md` Rationale | ENG | living-docs-engineering-workflow | |  |
+| M-SYS-178 | §14 | Testcontainers over mocks at store boundary | rationale | move | `docs/engineering/verification.md` Rationale | ENG | living-docs-engineering-workflow | | docs/engineering/verification.md#rationale |
 | M-SYS-179 | §14 | Free-tier-first tooling | rationale | move | `docs/system/overview.md` Rationale | SYS | living-docs-system-and-contracts | | docs/system/overview.md#rationale |
 | M-SYS-180 | §14 | TDD | rationale | link | INV-15 | INV | living-docs-system-and-contracts | |  |
-| M-SYS-181 | §14 heading | "Do not relitigate" | process | move | conflict policy `docs/engineering/change-workflow.md` | ENG | living-docs-engineering-workflow | |  |
+| M-SYS-181 | §14 heading | "Do not relitigate" | process | move | conflict policy `docs/engineering/change-workflow.md` | ENG | living-docs-engineering-workflow | | ENG-023 |
 
 ### 7. `docker/topics.yaml` (machine authority)
 
@@ -737,7 +737,7 @@ Row prefixes: `M-INV` invariant rows, `M-CON` contract rows, `M-SYS` everything 
 | M-INV-040 | `## 2026-10-07 — Edge research scoping — CHOICE — ownership and insider data are snapshots, not connectors` | Snapshots are not sources | invariant | move | Scope note under `#INV-4`; rules →`living-docs-research/living-docs-strategy-and-dashboard` RES | INV | living-docs-system-and-contracts, living-docs-research | **binding** | INV-4 |
 | M-INV-041 | `## 2026-10-10 — Strategy runtime — CHOICE — state placement, timing and the pass-through stub` | Item 5: unreadable payload skipped and counted; no runtime DLT | invariant | divergent | `#INV-11` verification (FLAG-INV) | INV | living-docs-system-and-contracts, living-docs-strategy-and-dashboard | **binding** for STR; conflicts with INV-11 → FLAG-INV; item 1 (third bucket) → SYS naming table | INV-11 |
 | M-SYS-184 | `## 2026-10-08 — Control-surface scoping — CHOICE — dashboard runs in the stack behind its own server layer` | Browser talks only to dashboard; write token; no CORS | requirement | link | SYS component map; owner `docs/core-hub/http-api.md` (at-risk class #10) | HUB | living-docs-core-hub, living-docs-strategy-and-dashboard | **binding**, owned elsewhere |  |
-| M-SYS-185 | `## 2026-10-09 — Guideline setup — CHOICE — merge flow, merge bar and shared-log conflicts …` | PR flow, owner merges, union driver | process | move | `AGENTS.md` hard rules; ENG change-workflow | ENG | agent-instruction-hierarchy, living-docs-engineering-workflow | **binding** |  |
+| M-SYS-185 | `## 2026-10-09 — Guideline setup — CHOICE — merge flow, merge bar and shared-log conflicts …` | PR flow, owner merges, union driver | process | move | `AGENTS.md` hard rules; ENG change-workflow | ENG | agent-instruction-hierarchy, living-docs-engineering-workflow | **binding** | ENG-010 ENG-011 ENG-030 ENG-031 ENG-032 |
 | M-SYS-186 | `## 2026-10-07 — Startup data — CHOICE — data fills itself on up; prices refresh daily` | No hand-run data scripts | requirement | move | `docs/operations/topology.md`; `AGENTS.md` hard rule | OPS | living-docs-operations, agent-instruction-hierarchy | **binding** |  |
 | M-SYS-187 | `## 2026-10-10 — Consolidated code, strategy and BV audit — CHOICE — what becomes specs, what does not` | Triage of audit findings into specs | history | keep | archive | — | living-docs-cutover | history |  |
 | M-CON-085 | `## 2026-08-16 — Step 1.3 — VERIFIED — DeadLetterPublishingRecoverer with Spring Kafka 4.1` | Multi-template DLT recoverer; `.dlt` and -1 confirmed | contract | ratify | CON #36–38 Source / Known traps | CON | living-docs-system-and-contracts | VERIFIED, not CHOICE: rows go in batch | CON-035 CON-036 CON-037 |
