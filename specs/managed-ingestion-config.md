@@ -1,8 +1,9 @@
 # Managed Ingestion Config
 
 **Status:** blocked
-**Blocked by:** `specs/done/graph-and-connector-wiring-fixes.md` (connector registry; publish threshold and rate limits read from the source entry) and `specs/dashboard-foundation.md` (core-hub write token).
+**Blocked by:** —
 **Branch:** `feature/managed-ingestion-config`
+**Docs impact:** changes ING-037 (where the pre-filter vocabulary comes from: the watchlist instead of the `sources.yaml` entry) and EXT-007 (the format of `prefilter_version`) and adds the golden-set check to EXT-015; cites ING-026.
 
 ---
 
@@ -19,7 +20,7 @@ Today the same intent lives in three places that don't talk to each other:
 | `connectors/epo_ops.py` `_CPC_CLASSES`; `connectors/sec_edgar.py` forms and items, no CIK filter | Patent and EDGAR scope | Hardcoded |
 | Postgres `watchlist`, `watchlist_gene_target` (Flyway V3) | The user's tracked companies and gene targets, edited in the dashboard | Feeds nothing |
 
-`prefilter.py` fixes `PREFILTER_VERSION = "v1"` whatever the vocabulary holds. That value goes into `extraction_id` (`identity.py`) and into the model gate check (`extraction_backend._check_gate`), so an edited vocabulary today leaves no trace of which terms let a document through. Requirements §6.6: the vocabulary "is versioned alongside the prompt" and "measured on the golden set for false negatives". Golden documents carry a `prefilter_should_pass` label (`tests/golden/FORMAT.txt`).
+`prefilter.py` fixes `PREFILTER_VERSION = "v1"` whatever the vocabulary holds. That value goes into `extraction_id` (`identity.py`) and into the model gate check (`extraction_backend._check_gate`), so an edited vocabulary today leaves no trace of which terms let a document through. The vocabulary is versioned alongside the prompt (EXT-007) and measured on the golden set for false negatives (EXT-015); the pre-filter itself is ING-037. Golden documents carry a `prefilter_should_pass` label (`tests/golden/FORMAT.txt`).
 
 ## What this builds
 
@@ -33,7 +34,7 @@ Today the same intent lives in three places that don't talk to each other:
    - `GET /api/v1/ingestion-config/versions` (paged) and `/versions/{id}` with a diff to the previous version.
    - `PUT /api/v1/ingestion-config/sources/{source_type}` and the watchlist alias endpoints; each takes a required `reason`.
    - `GET /api/v1/price-universe` returns active watchlist tickers.
-3. **Scraper reads config per run.** At the start of each `/ingest/<source_type>` call, the scraper fetches its effective config from core-hub. It keeps the last good copy in memory; if core-hub is unreachable and it has none, the run fails with a named error and returns no cursor, so the DAG leaves the cursor untouched (§5). Connectors take their query parameters from the fetched `query`.
+3. **Scraper reads config per run.** At the start of each `/ingest/<source_type>` call, the scraper fetches its effective config from core-hub. It keeps the last good copy in memory; if core-hub is unreachable and it has none, the run fails with a named error and returns no cursor, so the DAG leaves the cursor untouched (ING-026). Connectors take their query parameters from the fetched `query`.
 4. **Vocabulary version on every extraction.** `prefilter_version` becomes `"{algorithm_version}+{vocabulary_hash[:12]}"` (e.g. `v1+3f9a0c12d4e7`). The model gate compares only the algorithm part, so editing terms doesn't invalidate the model's gate record. Instead, a vocabulary is activated only if every golden document labelled `prefilter_should_pass` passes it (zero false negatives on the golden set). A failing vocabulary is refused, and the scraper keeps its last good one and logs an error naming the documents that failed. The golden set ships in the scraper image.
 5. **`POST /config/validate-vocabulary`** on the scraper: given a candidate term list, returns pass/fail and the golden documents it would drop. The dashboard calls it before saving. It reads only the golden set and writes nothing.
 6. **price-service universe** comes from `GET /api/v1/price-universe` plus the fixed benchmark and FX tickers, read at each refresh. If core-hub is unreachable the refresh fails and reports it; it does not fall back to a stale env list.
@@ -47,14 +48,14 @@ Today the same intent lives in three places that don't talk to each other:
 
 ## Constraints
 
-- Invariant 1: the scraper reads config over HTTP and writes only MinIO and Kafka. It never reads Postgres.
-- Invariant 2: only core-hub writes the config tables.
-- Invariant 4: no per-source branching in core-hub or shared scraper code; each connector reads its own keys.
-- Invariant 6: core-hub's URL reaches the scraper and price-service through `.env`.
-- Invariant 10: config versions are append-only, keyed by id; the content hash is deterministic (canonical JSON, sorted keys and terms, lower-cased terms).
-- Invariant 14: `event_id` is unchanged by any config change. Only `extraction_id` (through `prefilter_version`) changes.
-- Invariant 7: `prefilter_version` stays a string field; no schema change to `ResearchSignalEvent`.
-- §6.6: the vocabulary is versioned, and measured on the golden set before it takes effect.
+- INV-1: the scraper reads config over HTTP and writes only MinIO and Kafka. It never reads Postgres.
+- INV-2: only core-hub writes the config tables.
+- INV-4: no per-source branching in core-hub or shared scraper code; each connector reads its own keys.
+- INV-6: core-hub's URL reaches the scraper and price-service through `.env`.
+- INV-10: config versions are append-only, keyed by id; the content hash is deterministic (canonical JSON, sorted keys and terms, lower-cased terms).
+- INV-14: `event_id` is unchanged by any config change. Only `extraction_id` (through `prefilter_version`) changes.
+- INV-7: `prefilter_version` stays a string field; no schema change to `ResearchSignalEvent`.
+- ING-037, EXT-007, EXT-015: the vocabulary is versioned, and measured on the golden set before it takes effect.
 
 ## Required tests
 

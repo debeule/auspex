@@ -1,0 +1,99 @@
+# Extraction
+
+Domain: EXT · Code: `services/ingestion-scraper/src/auspex_ingest/extraction_backend.py`, `services/ingestion-scraper/src/auspex_ingest/extractor.py`, `services/ingestion-scraper/src/auspex_ingest/model_evaluation.py`, `services/ingestion-scraper/src/auspex_ingest/sampling.py`, `services/ingestion-scraper/src/auspex_ingest/reextract.py`, `services/ingestion-scraper/prompts/extraction/`, `services/ingestion-scraper/scripts/`, `config/models/` · Last reviewed against: develop @ b7582c3
+
+## Scope
+
+How a fetched document becomes a signal event or nothing: the extraction contract, untrusted input, prompt and pre-filter versioning, the model registry and its digest, the gate a model passes before it extracts, re-extraction over the archive, and the quality tooling that decides whether a model or a corroboration sample is good enough.
+
+Machine-readable authorities, named here and never copied:
+
+| File | Governs |
+|---|---|
+| `config/models/registry.yaml` | The models the service may load, with their backend, cutoff, context length, timeout, temperature, seed, structured-output mode, digest and deprecation date |
+| `config/models/local_candidates.yaml` | Local candidates that are not loaded; `register_local_model.py` copies one into the registry with the server's live digest |
+| `config/models/scores/` | Gate records, one per model, each for one prompt and pre-filter version |
+| `services/ingestion-scraper/prompts/extraction/` | The prompt files, one per `prompt_version` |
+| `services/ingestion-scraper/config/sources.yaml` | Each source's `min_confidence_to_publish` and `prefilter_vocabulary` |
+
+Whether a passing gate record exists today is readiness, not a requirement: see `SETUP.md` and `specs/first-run-on-stack-machine.md`. Installing, registering and switching to a local model is the runbook `docs/local-model-runbook.md`.
+
+Not in this file:
+- where extraction sits in a run, the pre-filter, the cap and the counters: [pipeline.md](pipeline.md);
+- the event's fields, the `event_type` value set and the identity formulas: [contracts.md](../system/contracts.md) (CON-008, CON-013, CON-016, CON-019);
+- the ticker allowlist on core-hub's HTTP path: [http-api.md](../core-hub/http-api.md);
+- where the model server runs and its memory budget: [topology.md](../operations/topology.md).
+
+## Requirements
+
+- <a id="EXT-001"></a>**EXT-001** — `extract(doc)` returns a signal event or `None`, and the model makes that call through its `is_signal` answer, not a score threshold. A `None` document stays archived, is counted as `not_signal`, and publishes nothing.
+- <a id="EXT-002"></a>**EXT-002** — `min_confidence_to_publish` is set per source in its `sources.yaml` entry, default 0.0 (off). An event scoring below a raised threshold is not published and is counted as `below_threshold`.
+- <a id="EXT-003"></a>**EXT-003** — Document content reaches the model only inside a delimited block (`---BEGIN DOCUMENT---` … `---END DOCUMENT---`), with a system instruction that everything inside the block is data, never instruction.
+- <a id="EXT-004"></a>**EXT-004** — `raw_content` is truncated to the documented maximum before it reaches the model; the maximum is `_MAX_CONTENT_CHARS` in `services/ingestion-scraper/src/auspex_ingest/extraction_backend.py`.
+- <a id="EXT-005"></a>**EXT-005** — Extracted `gene_targets` are checked against a controlled vocabulary of HGNC symbols, and a symbol outside it goes to a review bucket, not to the graph.
+- <a id="EXT-006"></a>**EXT-006** — An extracted ticker is validated before any graph write.
+- <a id="EXT-007"></a>**EXT-007** — The prompt is a versioned file under `services/ingestion-scraper/prompts/extraction/`, and production uses the version named by `EXTRACTION_PROMPT_VERSION`. Every event carries its `prompt_version` and the `prefilter_version` of the vocabulary that let it through.
+- <a id="EXT-008"></a>**EXT-008** — An `event_type` the model returns outside the closed set (CON-013) is recorded as `other`. `trial_ids` keep only `NCT` followed by eight digits, upper-cased, and always include the document's own trial when its `canonical_id` is `nct:`.
+- <a id="EXT-009"></a>**EXT-009** — Every entry of `config/models/registry.yaml` carries the required fields, a local entry pins its weights by digest, and an entry whose `deprecation_date` is 60 days away or less logs a warning at startup. A model id that is not in the registry, including a moving alias, fails at startup.
+- <a id="EXT-010"></a>**EXT-010** — At startup a local model's registered digest is compared with the digest the model server lists at `/api/tags`, and a mismatch refuses to start. When the server cannot be reached, startup logs a warning and the digest is checked before the first extraction instead.
+- <a id="EXT-011"></a>**EXT-011** — A prompt longer than the model's `num_ctx` fails loudly instead of being truncated.
+- <a id="EXT-012"></a>**EXT-012** — The service refuses to start with a model that has no passing gate record at the active prompt and pre-filter versions (`GateNotPassedError`).
+- <a id="EXT-013"></a>**EXT-013** — A model passes the gate at `is_signal` precision of at least 0.85 on the golden set (`GATE_PRECISION`); `score_extraction.py` writes the gate record. The evaluation scripts run the registry entry and prompt default production uses.
+- <a id="EXT-014"></a>**EXT-014** — A model is chosen by a decision rule recorded in `DECISIONS.md` before any gate run of the candidates it decides between. The rule in force is `2026-10-08 — First run on the stack machine — CHOICE — local model decision rule, fixed before the gate runs`.
+- <a id="EXT-015"></a>**EXT-015** — The golden set spans every configured `source_type` and both `is_signal` classes; it is scored for per-field precision and recall, the `is_signal` confusion matrix, `confidence_score` calibration and pre-filter false negatives; and it runs by hand, never in CI.
+- <a id="EXT-016"></a>**EXT-016** — The leakage canary (`check_leakage.py`) flags a model whose answers are correct in at least `_FLAG_THRESHOLD` of the months after its claimed cutoff, and its sampling is deterministic given a seed.
+- <a id="EXT-017"></a>**EXT-017** — Cross-model comparison (`compare_models.py`) reports agreement as gene-target Jaccard, directionality agreement and confidence correlation, deterministic given a seed.
+- <a id="EXT-018"></a>**EXT-018** — A corroboration sample is reviewed by hand and passes at a precision of at least 0.85: `score_corroboration_review.py` exits non-zero below it, and `sample_corroborations.py` samples deterministically given a seed. The sampler only reads Postgres and Neo4j (the read-only scope line of INV-1).
+- <a id="EXT-019"></a>**EXT-019** — Re-extraction is an explicit operation over the MinIO archive, through `scripts/reextract.py` or `POST /reextract`, never a side effect of a routine run. It honours its filters (`source_type`, a `since`/`until` window on `published_date`, `skip_prefilter`, `prompt_version`, `model`), writes a new `extraction_id` under the same `event_id`, and never reads or writes the cursor.
+- <a id="EXT-020"></a>**EXT-020** — The model server is reached through an OpenAI-compatible endpoint at `EXTRACTION_BASE_URL`, with the structured-output mode, timeout, temperature and seed of the model's registry entry.
+- <a id="EXT-021"></a>**EXT-021** — Before launch, each source's `min_confidence_to_publish` is calibrated on the golden set and set from that calibration.
+
+## Known traps
+
+Sources: `CLAUDE.md:225-226` (Known traps); `config/models/local_candidates.yaml` (header comment); `services/ingestion-scraper/CLAUDE.md:34`; requirements §11.1. Procedures are in `docs/local-model-runbook.md`.
+
+- **Ollama's OpenAI-compatible `/v1` endpoint ignores a per-request `num_ctx`.** The server default is 4096 tokens and a longer prompt is silently truncated, so a registry `num_ctx` holds only when Ollama runs with `OLLAMA_CONTEXT_LENGTH` at least that value. Protects EXT-011.
+- **An Ollama tag is re-pointable.** `ollama pull <tag>` downloads whatever the tag names at pull time, so the registry pins the digest and EXT-010 compares it at startup. The digest is read from the native `/api/tags` listing, because `/v1` exposes none; the earlier advice to read `ollama show` is stale.
+- **`instructor` invents values.** Asked to fill a signal event, it fills one from any document, including a gene target for a press release about an executive appointment. That is why the response model carries `is_signal` and `extract` returns `None` (EXT-001).
+- The Docker Desktop and Metal trap (the model server runs on the host, not in a container) is owned by [topology.md](../operations/topology.md).
+
+## Rationale
+
+Non-normative.
+
+- **Forced events make junk nodes** (requirements §11.1). Without the `None` path every document yields an event, and invented targets on real entities inflate distinct-source counts with noise.
+- **The payoff of a hostile document is content, not code** (requirements §11.2). A document that induces a chosen target, company and positive directionality manufactures a corroboration, the least visible and most valuable attack on a research output. It also happens by accident.
+- **A non-zero publish threshold before calibration** would drop real signals invisibly (requirements §11.1); EXT-002 keeps it off and EXT-021 calibrates it before launch.
+- **The extraction budget.** Requirements §0.4 set a steady-state budget of at most 500 extractions a day plus a separate one-time backfill budget, met by the pre-filter before every model call. The per-run cap ([pipeline.md](pipeline.md)) is the limit the code enforces.
+- **Provider history.** `2026-08-15 — Step 0.0 — CHOICE — LLM provider changed from Anthropic to OpenAI` chose the OpenAI SDK through `instructor`; the registry-driven backend of EXT-009 and EXT-020 superseded its model default.
+- **One version of each artifact.** `2026-10-10 — Single-source cleanup — CHOICE — one version of each pre-rollout artifact` left one prompt (`v1`) and event schema `1.0`; the version labels of `2026-10-07 — Local model integration — CHOICE — gate threshold and version labels aligned` (`v1.0`) are superseded by it.
+
+## Verification
+
+| ID | Source | Verified by | Status |
+|---|---|---|---|
+| EXT-001 | requirements §11.1 | `services/ingestion-scraper/tests/unit/test_ingestion_pipeline.py::test_extractor_returns_none_rather_than_inventing_a_gene_target`; `services/ingestion-scraper/tests/unit/test_ingestion_pipeline.py::test_document_with_no_signal_is_archived_but_publishes_no_event` | tested |
+| EXT-002 | requirements §11.1; `2026-10-09 — Graph and connector wiring fixes — CHOICE — publish threshold default is 0.0, not the API's 0.5` | `services/ingestion-scraper/tests/unit/test_ingestion_pipeline.py::test_publish_threshold_defaults_to_zero_and_is_counted_when_raised`; `services/ingestion-scraper/tests/unit/test_connector_registry.py::test_publish_threshold_and_rate_limit_come_from_the_source_entry` | tested |
+| EXT-003 | requirements §11.2; the block markers (`services/ingestion-scraper/src/auspex_ingest/extraction_backend.py`): `2026-10-22 — Living docs — PENDING — ingestion ratification batch`; `2026-10-15 — Living docs — PENDING — defects found while scoping`; `2026-10-17 — Living docs — CHOICE — defects found while scoping` | the block is in place, but the prompt has no statement that its content is data; `services/ingestion-scraper/tests/unit/test_ingestion_pipeline.py::test_injected_instruction_in_raw_content_does_not_change_extracted_entities` is vacuous (it stubs the model) and proves nothing | divergent |
+| EXT-004 | requirements §11.2 | no test asserts the truncation | untested |
+| EXT-005 | requirements §11.2; `2026-10-15 — Living docs — PENDING — defects found while scoping`; `2026-10-17 — Living docs — CHOICE — defects found while scoping` | production passes no vocabulary, and a vocabulary that is set drops unknown symbols silently instead of sending them to review; `services/ingestion-scraper/tests/unit/test_ingestion_pipeline.py::test_gene_target_outside_controlled_vocabulary_is_flagged_not_written` is vacuous | divergent |
+| EXT-006 | requirements §11.2 | no scraper-side check or test; core-hub validates tickers on its HTTP path ([http-api.md](../core-hub/http-api.md)) | untested |
+| EXT-007 | requirements §11.3, §6.6, §0.4 (the pre-filter before every model call that the extraction budget relies on); `2026-10-07 — Local model integration — CHOICE — gate threshold and version labels aligned` | `services/ingestion-scraper/tests/unit/test_scoring.py::test_prompt_and_prefilter_versions_are_recorded_on_every_extracted_event`; `services/ingestion-scraper/tests/unit/test_extraction_backend.py::test_env_example_prompt_version_is_the_service_default`; `services/ingestion-scraper/tests/unit/test_extraction_backend.py::test_extraction_prompt_directory_holds_only_the_default_prompt` | tested |
+| EXT-008 | `2026-10-07 — Company-level extraction — CHOICE — event taxonomy and identifier fields (schema 1.1)` (item 3); `extractor.py` (`EventType`, `resolve_trial_ids`); CON-013; CON-016 | `services/ingestion-scraper/tests/unit/test_company_level_extraction.py::test_unknown_event_type_from_model_is_recorded_as_other`; `services/ingestion-scraper/tests/unit/test_company_level_extraction.py::test_malformed_trial_ids_are_dropped_and_valid_ones_upper_cased`; `services/ingestion-scraper/tests/unit/test_company_level_extraction.py::test_clinical_trial_document_always_lists_its_own_nct_id` | tested |
+| EXT-009 | `specs/done/extraction-backend.md`; `config/models/registry.yaml` (the `deprecation_date` comment); `extraction_backend.py` (registry checks, the deprecation warning); `2026-10-22 — Living docs — PENDING — ingestion ratification batch` | `services/ingestion-scraper/tests/unit/test_extraction_backend.py::test_moving_alias_rejected_at_startup`; `services/ingestion-scraper/tests/unit/test_extraction_backend.py::test_unknown_model_fails_loudly_at_startup`; `services/ingestion-scraper/tests/unit/test_extraction_backend.py::test_registry_entry_missing_digest_is_rejected_for_local_backend`; `services/ingestion-scraper/tests/unit/test_extraction_backend.py::test_registry_entry_missing_num_ctx_is_rejected`; no test covers the deprecation warning | pending-decision |
+| EXT-010 | `specs/done/local-model-integration.md`; `docs/local-model-runbook.md`; the `/api/tags` listing (`services/ingestion-scraper/src/auspex_ingest/extraction_backend.py`): `2026-10-22 — Living docs — PENDING — ingestion ratification batch` | `services/ingestion-scraper/tests/unit/test_extraction_backend.py::test_digest_mismatch_fails_at_startup`; `services/ingestion-scraper/tests/unit/test_local_model_integration.py::test_ollama_digest_lookup_reads_native_tags_endpoint`; `services/ingestion-scraper/tests/unit/test_local_model_integration.py::test_unreachable_model_server_warns_at_startup_and_checks_digest_on_first_extraction` | tested |
+| EXT-011 | `specs/done/extraction-backend.md`; `extraction_backend.py` (`ContextLengthError`) | `services/ingestion-scraper/tests/unit/test_extraction_backend.py::test_over_context_prompt_fails_loudly_not_truncated` | tested |
+| EXT-012 | `specs/done/extraction-backend.md`; `docs/local-model-runbook.md`; `2026-10-07 — Local model integration — CHOICE — gate threshold and version labels aligned` | `services/ingestion-scraper/tests/unit/test_extraction_backend.py::test_startup_refuses_model_without_passing_gate_record`; `services/ingestion-scraper/tests/unit/test_local_model_integration.py::test_extractor_from_env_refuses_gate_record_for_other_prompt_version` | tested |
+| EXT-013 | requirements §11.3; `2026-10-07 — Local model integration — CHOICE — gate threshold and version labels aligned`; `2026-09-19 — Historical backfill — CHOICE — Option A: local model for backfill, API model forward-only`; `docs/local-model-runbook.md`; at-risk class #19 | `services/ingestion-scraper/tests/unit/test_local_model_integration.py::test_gate_record_passes_at_documented_precision_threshold`; `services/ingestion-scraper/tests/unit/test_model_evaluation.py::test_evaluation_scripts_take_the_prompt_default_from_the_service` | tested |
+| EXT-014 | `2026-10-08 — First run on the stack machine — CHOICE — local model decision rule, fixed before the gate runs`; at-risk class #19 | a process rule; no test | untested |
+| EXT-015 | requirements §11.3, §6.6; `2026-10-15 — Living docs — PENDING — defects found while scoping`; `2026-10-17 — Living docs — CHOICE — defects found while scoping` | `services/ingestion-scraper/tests/unit/test_scoring.py::test_golden_set_covers_every_source_type_and_both_is_signal_classes` requires only `biorxiv`, `pubmed`, `clinicaltrials` and `edgar`, and the golden set has no `epo_ops` document; `services/ingestion-scraper/tests/unit/test_scoring.py::test_golden_set_includes_documents_the_prefilter_should_and_should_not_reject`; `services/ingestion-scraper/tests/unit/test_scoring.py::test_scoring_script_reproduces_hand_computed_scores_on_a_toy_set` | divergent |
+| EXT-016 | `services/ingestion-scraper/README.md` (line 97); `services/ingestion-scraper/scripts/check_leakage.py`; `2026-10-22 — Living docs — PENDING — ingestion ratification batch` | `services/ingestion-scraper/tests/unit/test_model_evaluation.py::test_leakage_canary_scoring_reproduces_hand_computed_result_on_toy_set`; `services/ingestion-scraper/tests/unit/test_model_evaluation.py::test_leakage_canary_sampling_is_deterministic_given_a_seed` | pending-decision |
+| EXT-017 | `services/ingestion-scraper/README.md` (line 98); `services/ingestion-scraper/scripts/compare_models.py`; `2026-10-22 — Living docs — PENDING — ingestion ratification batch` | `services/ingestion-scraper/tests/unit/test_model_evaluation.py::test_cross_model_agreement_reproduces_hand_computed_metrics_on_toy_set`; `services/ingestion-scraper/tests/unit/test_model_evaluation.py::test_cross_model_agreement_is_deterministic_given_a_seed` | pending-decision |
+| EXT-018 | `services/ingestion-scraper/README.md` (lines 100-101); `docs/HISTORY.md` (line 96); INV-1; `2026-10-22 — Living docs — PENDING — ingestion ratification batch` | `services/ingestion-scraper/tests/unit/test_sampling.py::test_sampling_script_is_deterministic_given_a_seed`; no test asserts the exit code of `score_corroboration_review.py` | pending-decision |
+| EXT-019 | requirements §10.4; `2026-10-15 — Living docs — PENDING — defects found while scoping`; `2026-10-17 — Living docs — CHOICE — defects found while scoping` | `services/ingestion-scraper/tests/unit/test_reextract.py::test_runner_never_writes_to_airflow_or_cursor`; `services/ingestion-scraper/tests/unit/test_reextract.py::test_extraction_id_changes_on_prompt_version_change`. `ReextractionRunner` ignores `skip_prefilter`, `prompt_version` and `model` (the HTTP path passes them; the extractor is fixed at startup), and `since`/`until` drop the timezone offset and read the time as UTC (`services/ingestion-scraper/src/auspex_ingest/reextract.py`) | divergent |
+| EXT-020 | `specs/done/local-model-integration.md`; `extraction_backend.py` (`build_extractor_from_env`); `2026-10-22 — Living docs — PENDING — ingestion ratification batch` | `services/ingestion-scraper/tests/unit/test_local_model_integration.py::test_instructor_client_uses_registry_mode_timeout_and_base_url`; `services/ingestion-scraper/tests/unit/test_extraction_backend.py::test_extraction_base_url_is_read_from_env`; `services/ingestion-scraper/tests/unit/test_extraction_backend.py::test_extraction_parameters_come_from_registry_not_hardcoded` | tested |
+| EXT-021 | `2026-10-09 — Graph and connector wiring fixes — CHOICE — calibrated publish thresholds before launch` | owned by `specs/golden-set-expansion.md`, whose completion turns this row `tested` | untested |
+
+## Retired requirements
+
+None.

@@ -6,12 +6,13 @@
 1. Met: company-level event extraction (`specs/done/company-level-extraction.md`) — `ResearchSignalEvent` must carry the event type and company identifiers that a structured mapper fills in.
 
 **Branch:** `feature/structured-source-extraction`
+**Docs impact:** would change ING-022 (the stage order gains the structured-mapper path) and ING-037 (the issuer-scope pre-filter) in [pipeline.md](../../docs/ingestion/pipeline.md), and EXT-007 for structured extraction identities.
 
 ---
 
 ## Context
 
-Every document today goes through one path (requirements §6.2): **pre-filter → dedup → MinIO archive → extract → publish**, where extract is an LLM call through the registry-driven extractor (`LLMExtractorFactory`), and the pre-filter requires a term from the source's `prefilter_vocabulary` (gene symbols, modalities).
+Every document today goes through one path, the stage order of ING-022, where extract is an LLM call through the registry-driven extractor (`LLMExtractorFactory`), and the pre-filter requires a term from the source's `prefilter_vocabulary` (gene symbols, modalities).
 
 The 2026-10-07 edge feasibility audit (row 9) asks for cheap company-level sources: Form 4 insider buys, equity offerings, short interest, and catalyst dates. Form 4 and offering filings are structured: the facts a trade needs (transaction code, shares, price, form type, filer) are fields in the document, not prose. Sending them through the LLM would cost one local-model call each (10 to 15 s on the backfill machine), add extraction error to data that has none, and fail the gene-vocabulary pre-filter anyway.
 
@@ -33,10 +34,10 @@ The connector and pipeline shape is fixed by invariants: a new source is a `Sour
 
 ## Constraints
 
-- Invariants 1, 3, 4, 13: archive first and unconditionally; the mapper runs where the LLM call runs today; selection by config.
-- Invariant 7: no schema change here; mappers fill fields the company-level extraction spec defines. If a field is missing, stop and flag rather than adding it in this spec.
-- Invariant 8: synchronous.
-- Invariant 10: dedup and `canonical_id` markers behave identically for both paths.
+- INV-1, INV-3, INV-4, INV-13: archive first and unconditionally; the mapper runs where the LLM call runs today; selection by config.
+- INV-7: no schema change here; mappers fill fields the company-level extraction spec defines. If a field is missing, stop and flag rather than adding it in this spec.
+- INV-8: synchronous.
+- INV-10: dedup and `canonical_id` markers behave identically for both paths.
 
 ## Required tests
 
@@ -60,8 +61,8 @@ cd services/ingestion-scraper && uv run pytest tests/unit/test_structured_extrac
 
 Expected: 10 new tests pass; full unit suite green with a non-zero count.
 
-Then: `services/ingestion-scraper/README.md` pipeline stages and `sources.yaml` schema table list `extraction`, `structured_mapper` and `prefilter`; `docs/requirements.md` §6.2 and §6.6 state the structured path and the issuer-scope pre-filter; the lineage amendment recorded in `DECISIONS.md` and reflected in `specs/historical-backfill.md`.
+Then: `services/ingestion-scraper/README.md` pipeline stages and `sources.yaml` schema table list `extraction`, `structured_mapper` and `prefilter`; ING-022 and ING-037 state the structured path and the issuer-scope pre-filter (see Docs impact); the lineage amendment recorded in `DECISIONS.md` and reflected in `specs/historical-backfill.md`.
 
 ## Notes
 
-- This is a requirements change to §6.2 (one extraction path) and §6.6 (vocabulary pre-filter before every LLM call). The structured path makes no LLM call, so §6.6's cost rationale does not apply, but the text must say so before the tests are written.
+- This changes ING-022 (one extraction path) and ING-037 (vocabulary pre-filter before every model call). The structured path makes no LLM call, so §6.6's cost rationale does not apply, but the text must say so before the tests are written.

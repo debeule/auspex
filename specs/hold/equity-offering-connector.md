@@ -8,6 +8,7 @@
 3. Soft: `specs/point-in-time-universe.md` for the issuer list. Until it lands, the issuer scope is a configured CIK list.
 
 **Branch:** `feature/equity-offering-connector`
+**Docs impact:** would add a connector to [connectors.md](../../docs/ingestion/connectors.md) (its `published_date` rule beside ING-014) and cites ING-005 to ING-007.
 
 ---
 
@@ -21,7 +22,7 @@ Cash-burning biotechs raise equity often, and offerings are a predictable negati
 | `424B5` | Prospectus supplement under a shelf: a priced follow-on, registered direct, or an at-the-market (ATM) programme | `offering_priced` or `atm_established` |
 | `424B4` | Final prospectus outside a shelf (IPO or non-shelf follow-on) | `offering_priced` |
 
-What exists: `connectors/sec_edgar.py`, `connectors/rate_limited_client.py`, `SEC_USER_AGENT`. SEC traps from `CLAUDE.md` apply (10 req/s aggregate, mandatory `User-Agent`, blocks extend on retry). Discovery uses EDGAR's daily form index (`https://www.sec.gov/Archives/edgar/daily-index/{yyyy}/QTR{q}/form.{yyyymmdd}.idx`, quarterly `full-index` for the backfill), verified at the start of the session and recorded in `DECISIONS.md`.
+What exists: `connectors/sec_edgar.py`, `connectors/rate_limited_client.py`, `SEC_USER_AGENT`. The SEC traps in [`docs/ingestion/connectors.md`](../../docs/ingestion/connectors.md#known-traps) (Known traps) apply. Discovery uses EDGAR's daily form index (`https://www.sec.gov/Archives/edgar/daily-index/{yyyy}/QTR{q}/form.{yyyymmdd}.idx`, quarterly `full-index` for the backfill), verified at the start of the session and recorded in `DECISIONS.md`.
 
 ## What this builds
 
@@ -38,8 +39,8 @@ What exists: `connectors/sec_edgar.py`, `connectors/rate_limited_client.py`, `SE
 
 ## Constraints
 
-- Invariants 1, 3, 4, 6, 9, 13.
-- Known-at date is `acceptanceDateTime`. Many offerings are announced by press release the evening before the 424B5 is filed; the 8-K/press-release path captures that earlier time. This connector must not back-date to it.
+- INV-1, INV-3, INV-4, INV-6, INV-9, INV-13.
+- Known-at date is the acceptance time (ING-014). Many offerings are announced by press release the evening before the 424B5 is filed; the 8-K/press-release path captures that earlier time. This connector must not back-date to it.
 - All SEC requests through the shared rate limiter. Unit tests on saved fixtures.
 
 ## Required tests

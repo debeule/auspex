@@ -8,6 +8,7 @@
 3. Soft: `specs/point-in-time-universe.md` for the issuer list. Until it lands, the issuer scope is a configured CIK list (the watchlist companies).
 
 **Branch:** `feature/insider-buying-connector`
+**Docs impact:** would add a connector to [connectors.md](../../docs/ingestion/connectors.md) (its `published_date` rule beside ING-014, its `canonical_id`) and cites ING-005 to ING-007 and ING-033.
 
 ---
 
@@ -15,7 +16,7 @@
 
 Open-market purchases by officers and directors are a company-level, free and orthogonal signal (2026-10-07 edge feasibility audit, row 9; the audit marks its biotech-specific value as inferred, not verified). They are reported on SEC Form 4 within two business days of the trade, as XML (`ownershipDocument`).
 
-What exists: `connectors/sec_edgar.py` (EFTS search plus `data.sec.gov/submissions` for 8-Ks), `connectors/rate_limited_client.py`, `SEC_USER_AGENT` in `.env`. SEC traps from `CLAUDE.md` apply: 10 req/s aggregate across `*.sec.gov` (configure 5), mandatory descriptive `User-Agent`, retrying during a block extends it.
+What exists: `connectors/sec_edgar.py` (EFTS search plus `data.sec.gov/submissions` for 8-Ks), `connectors/rate_limited_client.py`, `SEC_USER_AGENT` in `.env`. The SEC traps in [`docs/ingestion/connectors.md`](../../docs/ingestion/connectors.md#known-traps) (Known traps) apply, with the SEC rate of ING-005 and ING-006 and the 403 stop of ING-007.
 
 Discovery without per-company polling: EDGAR's daily form index `https://www.sec.gov/Archives/edgar/daily-index/{yyyy}/QTR{q}/form.{yyyymmdd}.idx` lists every filing of the day by form type (one request per day; quarterly `full-index` for the backfill). Verify the URL, the index layout, and whether a Form 4 appears under the issuer, the reporting owner, or both at the start of the session; record the result in `DECISIONS.md`.
 
@@ -24,7 +25,7 @@ Discovery without per-company polling: EDGAR's daily form index `https://www.sec
 - `connectors/sec_form4.py` — `SecForm4Connector`, `source_type = "sec_form4"`. `fetch_since(cursor)` reads the daily indexes from the cursor date, keeps form `4` and `4/A` rows, fetches each filing's XML, and yields one `RawDocument` per filing. `published_date` = the filing's `acceptanceDateTime` (from the filing header), never the transaction date. `canonical_id = "edgar:<accession>"`.
 - `extraction/mappers/insider_transactions.py` — `InsiderTransactionsMapper`: a filing is a signal only if it has at least one non-derivative transaction with code `P` (open-market purchase). Event fields: event type `insider_purchase`, issuer CIK and ticker as filed, reporting owner role (director, officer and title, 10% owner), total shares and USD value of `P` transactions, whether the filing marks the trades as made under a Rule 10b5-1 plan. Sales, grants, option exercises and derivative transactions → `not_signal` (counted).
 - `sources.yaml` entry: `extraction: structured`, `structured_mapper: insider_transactions`, `prefilter: issuer_scope`, `rate_limit_rps` sharing the SEC host bucket.
-- A `4/A` amendment publishes under the original filing's `event_id` (requirements §7.1 amendment rule) when it amends a Form 4 already ingested.
+- A `4/A` amendment publishes under the original filing's `event_id` (the amendment rule, ING-033) when it amends a Form 4 already ingested.
 
 ## Out of scope
 
@@ -34,7 +35,7 @@ Discovery without per-company polling: EDGAR's daily form index `https://www.sec
 
 ## Constraints
 
-- Invariants 1, 3, 4, 6, 9, 13. `fetch_since()` fetches and maps only.
+- INV-1, INV-3, INV-4, INV-6, INV-9, INV-13. `fetch_since()` fetches and maps only.
 - Known-at date is `acceptanceDateTime`, UTC. `transactionDate` is retained as a source-specific date and never used for alignment (same trap class as patent `filed_date`).
 - All SEC requests through the shared rate limiter.
 - Unit tests use saved fixtures (respx); `pytest-socket` blocks the network.

@@ -1600,3 +1600,31 @@ The summary lists every source in `sources.yaml`. A source with a run in the las
 **Why it matters:** until approved, these rules are written down but not yet the owner's; the cutover lists every `pending-decision` row.
 **Options considered:** A: approve the batch as written. B: approve it with named items struck or reworded.
 **Action:** default A. When the owner approves, the owner appends `## <date> — Living docs — CHOICE — engineering ratification batch`; the cutover's decision step then flips these rows to their real status and Source. Not blocking.
+
+## 2026-10-22 — Living docs — PENDING — ingestion ratification batch
+**What:** Rules that `docs/ingestion/` states whose only source is code, `services/ingestion-scraper/README.md`, a `CLAUDE.md` trap or a config comment, plus one retirement with no decision behind it. Each requirement below is written as approved text and cites this heading in its verification `Source`. Line numbers are at `feature/living-docs-integration` @ 616b808.
+- **Pending requirements** (status `pending-decision`):
+  - **ING-002** — an unregistered `source_type` raises `UnknownSourceTypeError` naming the registered types (`services/ingestion-scraper/src/auspex_ingest/connectors/registry.py:49`; scraper README line 45).
+  - **ING-003** — `sources.yaml` is parsed strictly: unknown fields and duplicate `source_type`s are rejected at load (`services/ingestion-scraper/src/auspex_ingest/sources.py:9-27`; scraper README line 62).
+  - **ING-028** — a second concurrent run of the same source is refused with 409, without blocking other sources (`services/ingestion-scraper/src/auspex_ingest/api.py:37,60-62`; scraper README line 18; `specs/done/ingestion-run-reliability.md`).
+  - **ING-039** — the scraper HTTP API's routes and status codes: 404 for an unconfigured source, 500 with the error text on a pipeline exception (`services/ingestion-scraper/src/auspex_ingest/api.py:39-102`).
+  - **EXT-009** — the registry's required fields, refusal of an unknown model or moving alias, and the deprecation warning (`services/ingestion-scraper/src/auspex_ingest/extraction_backend.py:50-69,317-323`; `config/models/registry.yaml:11`).
+  - **EXT-016** — the leakage canary: months at least `_FLAG_THRESHOLD` correct after the claimed cutoff are flagged, deterministic given a seed (`services/ingestion-scraper/scripts/check_leakage.py:18`; scraper README line 97).
+  - **EXT-017** — cross-model comparison by Jaccard, directionality and confidence correlation, deterministic given a seed (`services/ingestion-scraper/scripts/compare_models.py`; scraper README line 98).
+  - **EXT-018** — the corroboration-review gate: precision of at least 0.85, `score_corroboration_review.py` exits non-zero below it (`services/ingestion-scraper/scripts/score_corroboration_review.py:23,81`; scraper README lines 100-101; `docs/HISTORY.md:96`).
+- **Partly sourced here** (the row's status follows its approved half, so it is not `pending-decision`):
+  - **ING-008** — the `fda:` canonical prefix (`services/ingestion-scraper/src/auspex_ingest/models.py:6`).
+  - **ING-017** — EDGAR details beyond `2026-10-07 — EDGAR press-release content — CHOICE — filing index replaces the submissions lookup`: inline-XBRL viewer links are followed, and search hits are deduplicated by accession (`services/ingestion-scraper/src/auspex_ingest/connectors/sec_edgar.py:165-166,207-234`; scraper README line 107).
+  - **ING-022** — the exact position of the cross-source canonical check and of the extraction cap in the stage order (`services/ingestion-scraper/src/auspex_ingest/pipeline.py:100-125`).
+  - **ING-037** — the pre-filter matches `raw_content`, which carries title and body alike; requirements §6.6 says "title or content" (`services/ingestion-scraper/src/auspex_ingest/prefilter.py:17-20`).
+  - **ING-038** — production wires the identity `EntityNormalizer` (`services/ingestion-scraper/src/auspex_ingest/pipeline_factory.py:52`).
+  - **EXT-003** — the `---BEGIN DOCUMENT---` / `---END DOCUMENT---` markers (`services/ingestion-scraper/src/auspex_ingest/extraction_backend.py:199`). The "data, never instruction" half stays `divergent`.
+  - **EXT-010** — the digest is read from the model server's `/api/tags` listing (`services/ingestion-scraper/src/auspex_ingest/extraction_backend.py:96-102`). The root `CLAUDE.md` trap says `ollama show`, which is stale.
+  - **EXT-020** — `EXTRACTION_BASE_URL` names the OpenAI-compatible endpoint (`build_extractor_from_env` in `services/ingestion-scraper/src/auspex_ingest/extraction_backend.py`).
+- **Known traps without an ID** in `docs/ingestion/connectors.md`: the EPO OPS token refresh and `Retry-After` handling (`services/ingestion-scraper/src/auspex_ingest/connectors/epo_ops.py:2`), and the ClinicalTrials.gov `filter.advanced` range syntax (`services/ingestion-scraper/src/auspex_ingest/connectors/clinicaltrials.py:45`; scraper README line 110).
+- **Retirement:** **ING-021**, the optional `fda_designation` source of requirements §6.9. openFDA has no designations endpoint (§6.9) and the source was never built.
+**Why it matters:** the conversion rule lets no rule enter `docs/` as approved on code or a README alone. Each item above matches today's code; only its approval is missing.
+**Options considered:**
+- A: approve the batch as written.
+- B: reject or reword single items; each rejected item is then retired or rewritten by a follow-up change.
+**Action:** default A. Owner to answer by appending `## <date> — Living docs — CHOICE — ingestion ratification batch`. The cutover's decision-application step then flips the `pending-decision` rows above to their real status and cites that `CHOICE`. Not blocking.

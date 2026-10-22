@@ -50,13 +50,13 @@ Scoping listed these classes of normative statements whose only home is an archi
 | `## 2026-08-15 — Step 0.0 — CHOICE` | history |  | M-ENG-126 |
 | `## 2026-08-15 — Step 0.0 — CHOICE — MinIO pinned to RELEASE.2025-09-07T16-13-09Z` | history |  | M-OPS-250 |
 | `## 2026-08-15 — Step 0.0 — CHOICE — LLM provider changed from Anthropic to OpenAI` | history |  | M-EXT-043 |
-| `## 2026-08-15 — Step 2.3 — CHOICE — Patent connector: PatentsView → Lens.org → EPO OPS (final)` | binding |  | M-ING-120 |
+| `## 2026-08-15 — Step 2.3 — CHOICE — Patent connector: PatentsView → Lens.org → EPO OPS (final)` | binding | ING-018 | M-ING-120 |
 | `## 2026-08-15 — Step 0.0 — CHOICE — Ticker-restricted ingestion via pre-filter vocabulary (no architecture change)` | history |  | M-ING-122 |
-| `## 2026-08-15 — Step 2.3 — CHOICE — Patent connector changed from Lens.org to EPO OPS` | binding |  | M-ING-121 |
+| `## 2026-08-15 — Step 2.3 — CHOICE — Patent connector changed from Lens.org to EPO OPS` | binding | ING-018 | M-ING-121 |
 | `## 2026-08-15 — Step 0.0 — CHOICE — Watched tickers and initial pre-filter vocabulary` | history |  | M-ING-123 |
 | `## 2026-09-19 — Watchlist & alerts — CHOICE — Discord webhook transport` | history |  | M-COR-027 |
 | `## 2026-09-19 — Watchlist & alerts — CHOICE — Entity-key-based watchlist, not ticker-based` | history |  | M-COR-028 |
-| `## 2026-09-19 — Historical backfill — CHOICE — Option A: local model for backfill, API model forward-only` | binding |  | M-EXT-044 |
+| `## 2026-09-19 — Historical backfill — CHOICE — Option A: local model for backfill, API model forward-only` | binding | EXT-013 | M-EXT-044 |
 | `## 2026-09-19 — CI/CD pipeline — CHOICE — GitHub-hosted runners` | binding | ENG-013 | M-ENG-127 |
 | `## 2026-09-20 — Watchlist backend — CHOICE — No user_id column; single-user installation, extensible` | binding | SYS-004 | M-SYS-183,M-HUB-073 |
 | `## 2026-09-20 — Watchlist backend — CHOICE — core-hub calls ClinicalTrials.gov directly` | binding | INV-4 | M-INV-035,M-HUB-074 |
@@ -72,11 +72,11 @@ Scoping listed these classes of normative statements whose only home is an archi
 | `## 2026-09-20 — Strategy layer session 2 — CHOICE — Minimum 20 trades before metrics and Kelly sizing` | binding |  | M-STR-075 |
 | `## 2026-09-19 — Dashboard — CHOICE — Node 22 LTS (Phase 5 resolution)` | history |  | M-ENG-128 |
 | `## 2026-09-25 — Watchlist backend — CHOICE — live preview smoke test deferred` | history |  | M-HUB-075 |
-| `## 2026-10-07 — Live ingestion — CHOICE — unchanged re-fetch skip with retry-safe markers` | binding |  | M-ING-124 |
+| `## 2026-10-07 — Live ingestion — CHOICE — unchanged re-fetch skip with retry-safe markers` | binding | ING-032 | M-ING-124 |
 | `## 2026-10-07 — Market simulation — CHOICE — PositionSizer `fx_rate` is EUR per USD` | binding |  | M-RES-170 |
 | `## 2026-10-07 — Market simulation — CHOICE — FillModel does not shift entry dates` | binding |  | M-RES-171 |
 | `## 2026-10-07 — Market simulation — CHOICE — 11 tests, not 10; `scripts/fetch_prices.py`` | history |  | M-ENG-129 |
-| `## 2026-10-07 — Local model integration — CHOICE — gate threshold and version labels aligned` | binding |  | M-EXT-046 |
+| `## 2026-10-07 — Local model integration — CHOICE — gate threshold and version labels aligned` | binding | EXT-007 EXT-013 | M-EXT-046 |
 | `## 2026-10-07 — Startup data — CHOICE — data fills itself on `up`; prices refresh daily` | binding |  | M-SYS-186,M-RES-174,M-OPS-252 |
 | `## 2026-10-07 — Realistic cost model — CHOICE — per-ticker spread, FX fee, volume cap, gap-through stops` | binding |  | M-RES-175 |
 | `## 2026-10-07 — Pre-registration — CHOICE — evaluation protocol and kill criteria locked before the backfill` | binding |  | M-EVA-063 |
@@ -84,14 +84,14 @@ Scoping listed these classes of normative statements whose only home is an archi
 | `## 2026-10-07 — Pre-registration — CHOICE — market-model abnormal returns against XBI with two-way clustered errors` | binding |  | M-EVA-065 |
 | `## 2026-10-07 — Pre-registration — CHOICE — hypothesis triage; versions 2 registered` | binding |  | M-EVA-066 |
 | `## 2026-10-07 — Pre-registration — CHOICE — sizing ceilings: quarter Kelly, 5% per name, one position per theme, no hold through binary events` | binding |  | M-EVA-067 |
-| `## 2026-10-07 — EDGAR press-release content — CHOICE — filing index replaces the submissions lookup` | binding |  | M-ING-125 |
+| `## 2026-10-07 — EDGAR press-release content — CHOICE — filing index replaces the submissions lookup` | binding | ING-014 ING-017 | M-ING-125 |
 | `## 2026-10-07 — Second-wave specs — CHOICE — structured filings bypass the LLM` | history |  | M-ING-126 |
 | `## 2026-10-07 — Second-wave specs — CHOICE — short interest is a market-data snapshot, not a connector` | binding | INV-4 | M-INV-039,M-RES-176 |
 | `## 2026-10-07 — Second-wave specs — CHOICE — point-in-time universe scope` | binding |  | M-RES-177 |
 | `## 2026-10-07 — Second-wave specs — CHOICE — paper trading gates capital, run at several sizes` | binding |  | M-EVA-069 |
 | `## 2026-10-07 — Backtest look-ahead fix — CHOICE — one backtest event per corroboration, not per superseding record` | binding |  | M-RES-179 |
 | `## 2026-10-07 — Backtest look-ahead fix — CHOICE — entry and holding-window timing` | binding |  | M-RES-180 |
-| `## 2026-10-07 — Company-level extraction — CHOICE — event taxonomy and identifier fields (schema 1.1)` | binding | CON-013 CON-016 | M-CON-083,M-EXT-047 |
+| `## 2026-10-07 — Company-level extraction — CHOICE — event taxonomy and identifier fields (schema 1.1)` | binding | CON-013 CON-016 EXT-008 ING-019 | M-CON-083,M-EXT-047 |
 | `## 2026-10-07 — Edge research scoping — CHOICE — edge research synthesis: the alpha path becomes slow monthly scores` | history |  | M-EVA-070 |
 | `## 2026-10-07 — Edge research scoping — CHOICE — ownership and insider data are snapshots, not connectors` | binding | INV-4 | M-INV-040,M-RES-181 |
 | `## 2026-10-07 — Edge research scoping — CHOICE — deferred items` | history |  | M-EVA-073 |
@@ -104,7 +104,7 @@ Scoping listed these classes of normative statements whose only home is an archi
 | `## 2026-10-08 — Control-surface scoping — CHOICE — research config is read-only in the dashboard` | binding |  | M-DSH-036 |
 | `## 2026-10-08 — Control-surface scoping — CHOICE — dashboard runs in the stack behind its own server layer` | binding |  | M-SYS-184,M-HUB-076,M-DSH-037 |
 | `## 2026-10-08 — First run on the stack machine — CHOICE — price history from 2013, set before the first `up`` | history |  | M-RES-186 |
-| `## 2026-10-08 — First run on the stack machine — CHOICE — local model decision rule, fixed before the gate runs` | binding |  | M-EXT-048 |
+| `## 2026-10-08 — First run on the stack machine — CHOICE — local model decision rule, fixed before the gate runs` | binding | EXT-014 | M-EXT-048 |
 | `## 2026-10-09 — Guideline setup — CHOICE — merge flow, merge bar and shared-log conflicts written into the repo` | binding | ENG-010 ENG-011 ENG-030 ENG-031 ENG-032 | M-ENG-130,M-SYS-185 |
 | `## 2026-10-09 — Point-in-time universe — CHOICE — one universe from 2014, backfill scope from its own start` | binding |  | M-RES-187 |
 | `## 2026-10-08 — Edge research scoping — CHOICE — direction: both` | history |  | M-EVA-075 |
@@ -113,9 +113,9 @@ Scoping listed these classes of normative statements whose only home is an archi
 | `## 2026-10-09 — CI — CHOICE — container images off anonymous Docker Hub` | binding |  | M-ENG-131,M-OPS-254 |
 | `## 2026-10-09 — CI — CHOICE — remaining test images through mirror.gcr.io` | history |  | M-ENG-132 |
 | `## 2026-10-09 — Stack backup — CHOICE — nightly backup to a folder on the Mac` | binding | INV-2 | M-INV-037,M-OPS-257 |
-| `## 2026-10-09 — Soak-test readiness — CHOICE — cursor after a run with failed documents` | binding |  | M-ING-128,M-OPS-258 |
+| `## 2026-10-09 — Soak-test readiness — CHOICE — cursor after a run with failed documents` | binding | ING-026 | M-ING-128,M-OPS-258 |
 | `## 2026-10-09 — Soak-test readiness — CHOICE — transient Kafka failures pause instead of retrying longer` | binding |  | M-HUB-077 |
-| `## 2026-10-09 — Soak-test readiness — CHOICE — SEC request budget across containers` | binding |  | M-ING-129,M-OPS-259 |
+| `## 2026-10-09 — Soak-test readiness — CHOICE — SEC request budget across containers` | binding | ING-006 ING-007 | M-ING-129,M-OPS-259 |
 | `## 2026-10-09 — Dashboard foundation — CHOICE — Next 16, Vitest 5 and Tailwind 4 to clear the advisories` | history |  | M-DSH-032 |
 | `## 2026-10-09 — Dashboard foundation — CHOICE — login endpoint, write-token failure mode, path layout` | binding |  | M-HUB-078,M-DSH-033 |
 | `## 2026-10-09 — Pre-launch spec audit — CHOICE — gaps closed in the spec index` | history |  | M-ENG-133 |
@@ -133,9 +133,9 @@ Scoping listed these classes of normative statements whose only home is an archi
 | `## 2026-10-10 — Stack state persistence — CHOICE — required secrets and a writable state volume` | binding |  | M-OPS-267 |
 | `## 2026-10-09 — Slow-signal pre-registration — CHOICE — one protocol and one version per hypothesis, H9–H12 registered` | binding |  | M-EVA-079 |
 | `## 2026-10-09 — Slow-signal pre-registration — CHOICE — details the spec left open` | binding |  | M-EVA-080 |
-| `## 2026-10-09 — Graph and connector wiring fixes — CHOICE — publish threshold default is 0.0, not the API's 0.5` | binding |  | M-EXT-049 |
+| `## 2026-10-09 — Graph and connector wiring fixes — CHOICE — publish threshold default is 0.0, not the API's 0.5` | binding | EXT-002 | M-EXT-049 |
 | `## 2026-10-09 — Graph and connector wiring fixes — CHOICE — ticker resolution details` | binding |  | M-HUB-079 |
-| `## 2026-10-09 — Graph and connector wiring fixes — CHOICE — calibrated publish thresholds before launch` | binding |  | M-EXT-050 |
+| `## 2026-10-09 — Graph and connector wiring fixes — CHOICE — calibrated publish thresholds before launch` | binding | EXT-021 | M-EXT-050 |
 | `## 2026-10-09 — Graph and connector wiring fixes — CHOICE — no VIA migration` | history |  | M-HUB-080 |
 | `## 2026-10-09 — SEC ownership datasets — CHOICE — acceptance time from a filing date` | binding |  | M-RES-190 |
 | `## 2026-10-09 — SEC ownership datasets — CHOICE — how filings, amendments and trades are counted` | binding |  | M-RES-191 |
@@ -146,9 +146,9 @@ Scoping listed these classes of normative statements whose only home is an archi
 | `## 2026-10-10 — Pipeline alerting gaps — CHOICE — Elasticsearch read-only indices from the exporter` | binding |  | M-OPS-271 |
 | `## 2026-10-10 — Pre-launch spec audit — CHOICE — portfolio verdict and the remaining blockers` | binding |  | M-EVA-081 |
 | `## 2026-10-10 — Stack backup — CHOICE — client tools from the server image, memory and restore semantics` | binding | INV-2 | M-INV-038,M-OPS-272 |
-| `## 2026-10-10 — Ingestion run reliability — CHOICE — schedule times, extraction cap and task timeout` | binding |  | M-ING-131,M-OPS-273 |
-| `## 2026-10-10 — Ingestion run reliability — CHOICE — rate limiter spaces requests evenly, with no burst` | binding |  | M-ING-132 |
-| `## 2026-10-10 — Ingestion run reliability — CHOICE — a 403 on a filing index also stops the EDGAR run` | binding |  | M-ING-133 |
+| `## 2026-10-10 — Ingestion run reliability — CHOICE — schedule times, extraction cap and task timeout` | binding | ING-027 | M-ING-131,M-OPS-273 |
+| `## 2026-10-10 — Ingestion run reliability — CHOICE — rate limiter spaces requests evenly, with no burst` | binding | ING-005 | M-ING-132 |
+| `## 2026-10-10 — Ingestion run reliability — CHOICE — a 403 on a filing index also stops the EDGAR run` | binding | ING-007 | M-ING-133 |
 | `## 2026-10-10 — Ingestion run reliability — CHOICE — requirements §5 text follows the 2026-10-09 cursor decision` | history |  | M-ING-134 |
 | `## 2026-10-10 — Consolidated code, strategy and BV audit — CHOICE — what becomes specs, what does not` | binding |  | M-ENG-137,M-EVA-082 |
 | `## 2026-10-10 — Price finality and split availability — CHOICE — edges the spec leaves open` | binding |  | M-RES-194 |
@@ -463,16 +463,16 @@ Row prefixes: `M-INV` invariant rows, `M-CON` contract rows, `M-SYS` everything 
 | M-SYS-058 | `CLAUDE.md:200` | No hand-run setup/data scripts; one-shot or DAG calling API | requirement | move | `docs/operations/topology.md`; one-line hard rule in `AGENTS.md` | OPS | living-docs-operations, agent-instruction-hierarchy | `## 2026-10-07 — Startup data — CHOICE — data fills itself on up; prices refresh daily` |  |
 | M-SYS-059 | `CLAUDE.md:203` | `ErrorHandlingDeserializer` mandatory | trap | move | `docs/core-hub/consumption.md` Known traps | HUB | living-docs-core-hub | |  |
 | M-SYS-060 | `CLAUDE.md:204` | DLPR default `.DLT` and same partition; resolver returns -1 | trap | move | `docs/system/contracts.md` Known traps (CON #36–37) | CON | living-docs-system-and-contracts | Drop "re-verify": `## 2026-08-16 — Step 1.3 — VERIFIED — DeadLetterPublishingRecoverer with Spring Kafka 4.1` | docs/system/contracts.md#known-traps |
-| M-SYS-061 | `CLAUDE.md:205` | `produce()` async: flush, check delivery reports | trap | move | `docs/ingestion/pipeline.md` Known traps | ING | living-docs-ingestion | |  |
+| M-SYS-061 | `CLAUDE.md:205` | `produce()` async: flush, check delivery reports | trap | move | `docs/ingestion/pipeline.md` Known traps | ING | living-docs-ingestion | | docs/ingestion/pipeline.md#known-traps |
 | M-SYS-062 | `CLAUDE.md:206` | `MERGE {ticker: null}` matches all; MERGE Company on name | trap | move | `docs/core-hub/storage.md` Known traps | HUB | living-docs-core-hub | |  |
 | M-SYS-063 | `CLAUDE.md:207` | Neo4j no decimal; NUMERIC(4,3); double via converter | trap | move | `docs/core-hub/storage.md` Known traps | HUB | living-docs-core-hub | C12: "converter" is an inline `.doubleValue()` |  |
 | M-SYS-064 | `CLAUDE.md:208` | Primitive double cannot be null; BigDecimal + `@NotNull` | trap | move | `docs/system/contracts.md` Known traps (CON #12) | CON | living-docs-system-and-contracts | | docs/system/contracts.md#known-traps |
 | M-SYS-065 | `CLAUDE.md:209` | `FAIL_ON_UNKNOWN_PROPERTIES=false` on consumer | trap | move | `docs/system/contracts.md` Known traps (CON #30) | CON | living-docs-system-and-contracts | Illustrative core-hub AGENTS lists it as HUB; this fragment owns it under CON | docs/system/contracts.md#known-traps |
-| M-SYS-066 | `CLAUDE.md:210` | Patents: filed date is not disclosure; use pre-grant publication | trap | move | `docs/ingestion/connectors.md` Known traps | ING | living-docs-ingestion | |  |
-| M-SYS-067 | `CLAUDE.md:211` | Trials: first-submitted date private; post date public | trap | move | `docs/ingestion/connectors.md` Known traps | ING | living-docs-ingestion | |  |
-| M-SYS-068 | `CLAUDE.md:212` | SEC 10 req/s per IP, User-Agent, filing index, ciks[0], XBRL names | trap | move | `docs/ingestion/connectors.md` Known traps; aggregate budget `docs/operations/topology.md` | ING | living-docs-ingestion, living-docs-operations | Stale path `specs/edgar-efts-fixture-alignment.md` → `specs/done/…` (finding #7) |  |
-| M-SYS-069 | `CLAUDE.md:213` | openFDA has no designations endpoint | trap | move | `docs/ingestion/connectors.md` Known traps | ING | living-docs-ingestion | `fda_approval source`: approved, `divergent` (M-ING-047, no `sources.yaml` entry yet); the trap stays current |  |
-| M-SYS-070 | `CLAUDE.md:214` | PatentsView superseded, Lens.org commercial; use EPO OPS | trap | move | `docs/ingestion/connectors.md` Known traps | ING | living-docs-ingestion | |  |
+| M-SYS-066 | `CLAUDE.md:210` | Patents: filed date is not disclosure; use pre-grant publication | trap | move | `docs/ingestion/connectors.md` Known traps | ING | living-docs-ingestion | | docs/ingestion/connectors.md#known-traps |
+| M-SYS-067 | `CLAUDE.md:211` | Trials: first-submitted date private; post date public | trap | move | `docs/ingestion/connectors.md` Known traps | ING | living-docs-ingestion | | docs/ingestion/connectors.md#known-traps |
+| M-SYS-068 | `CLAUDE.md:212` | SEC 10 req/s per IP, User-Agent, filing index, ciks[0], XBRL names | trap | move | `docs/ingestion/connectors.md` Known traps; aggregate budget `docs/operations/topology.md` | ING | living-docs-ingestion, living-docs-operations | Stale path `specs/edgar-efts-fixture-alignment.md` → `specs/done/…` (finding #7) | docs/ingestion/connectors.md#known-traps |
+| M-SYS-069 | `CLAUDE.md:213` | openFDA has no designations endpoint | trap | move | `docs/ingestion/connectors.md` Known traps | ING | living-docs-ingestion | `fda_approval source`: approved, `divergent` (M-ING-047, no `sources.yaml` entry yet); the trap stays current | docs/ingestion/connectors.md#known-traps |
+| M-SYS-070 | `CLAUDE.md:214` | PatentsView superseded, Lens.org commercial; use EPO OPS | trap | move | `docs/ingestion/connectors.md` Known traps | ING | living-docs-ingestion | | docs/ingestion/connectors.md#known-traps |
 | M-SYS-071 | `CLAUDE.md:215` | Docker Hub rate limits; test images via `mirror.gcr.io` prefix | trap | move | `docs/engineering/verification.md` Known traps | ENG | living-docs-engineering-workflow | `## 2026-10-09 — CI — CHOICE — …` (3 entries) | docs/engineering/verification.md#known-traps |
 | M-SYS-072 | `CLAUDE.md:216` | Airflow 3 `schedule`; Task SDK proxies Variables/Connections | trap | move | `docs/operations/orchestration.md` Known traps | OPS | living-docs-operations | |  |
 | M-SYS-073 | `CLAUDE.md:217` | Scraper is one gunicorn process (threads), metrics per process | trap | move | `docs/operations/topology.md` (requirement + trap) | OPS | living-docs-operations | |  |
@@ -483,8 +483,8 @@ Row prefixes: `M-INV` invariant rows, `M-CON` contract rows, `M-SYS` everything 
 | M-SYS-078 | `CLAUDE.md:222` | Next 16 middleware renamed `proxy`; `next lint` gone | trap | move | `docs/dashboard.md` Known traps | DSH | living-docs-strategy-and-dashboard | |  |
 | M-SYS-079 | `CLAUDE.md:223` | Airflow generates Fernet key if unset; keys from `.env` | trap | move | `docs/operations/orchestration.md` Known traps | OPS | living-docs-operations | |  |
 | M-SYS-080 | `CLAUDE.md:224` | Docker Desktop has no Metal; Ollama on host | trap | link | `docs/operations/topology.md` Known traps (M-OPS-218) | — | living-docs-ingestion | Procedure stays in `docs/local-model-runbook.md` |  |
-| M-SYS-081 | `CLAUDE.md:225` | Ollama `/v1` ignores `num_ctx`; set `OLLAMA_CONTEXT_LENGTH` | trap | move | `docs/ingestion/extraction.md` Known traps | EXT | living-docs-ingestion | |  |
-| M-SYS-082 | `CLAUDE.md:226` | Ollama tag re-pointing; registry pins digest, checked at startup | trap | move | `docs/ingestion/extraction.md` Known traps | EXT | living-docs-ingestion | |  |
+| M-SYS-081 | `CLAUDE.md:225` | Ollama `/v1` ignores `num_ctx`; set `OLLAMA_CONTEXT_LENGTH` | trap | move | `docs/ingestion/extraction.md` Known traps | EXT | living-docs-ingestion | | docs/ingestion/extraction.md#known-traps |
+| M-SYS-082 | `CLAUDE.md:226` | Ollama tag re-pointing; registry pins digest, checked at startup | trap | move | `docs/ingestion/extraction.md` Known traps | EXT | living-docs-ingestion | | docs/ingestion/extraction.md#known-traps |
 | M-SYS-083 | `CLAUDE.md:229-243` | File map | process | move | `AGENTS.md` Where things are | — | agent-instruction-hierarchy | |  |
 | M-SYS-084 | `CLAUDE.md:246` | Tone: report only on passing run; say blocked plainly | process | move | `AGENTS.md` Tone | — | agent-instruction-hierarchy | |  |
 
@@ -546,10 +546,10 @@ Row prefixes: `M-INV` invariant rows, `M-CON` contract rows, `M-SYS` everything 
 | M-SYS-114 | `services/ingestion-scraper/CLAUDE.md:7-11` | Five uv commands | command | move | `services/ingestion-scraper/AGENTS.md` | — | agent-instruction-hierarchy | |  |
 | M-SYS-115 | `services/ingestion-scraper/CLAUDE.md:15` | Package, bucket, topics names | value | link | `docs/system/overview.md` naming table | SYS | agent-instruction-hierarchy | |  |
 | M-INV-020 | `services/ingestion-scraper/CLAUDE.md:18` | Sync only; no async, await, aiokafka | invariant | link | `#INV-8` | INV | agent-instruction-hierarchy | |  |
-| M-SYS-116 | `services/ingestion-scraper/CLAUDE.md:18` | `fetch_since` returns an `Iterator` | requirement | move | `docs/ingestion/connectors.md` | ING | living-docs-ingestion | requirements §6.1 |  |
+| M-SYS-116 | `services/ingestion-scraper/CLAUDE.md:18` | `fetch_since` returns an `Iterator` | requirement | move | `docs/ingestion/connectors.md` | ING | living-docs-ingestion | requirements §6.1 | ING-001 |
 | M-INV-021 | `services/ingestion-scraper/CLAUDE.md:19` | Writes MinIO, Kafka only; no Postgres, Neo4j, Variables, state files | invariant | link | `#INV-1` (scope line) | INV | living-docs-system-and-contracts, agent-instruction-hierarchy | "No Postgres, no Neo4j" read-ban relaxed by INV-1 read-only note → batch |  |
 | M-INV-022 | `services/ingestion-scraper/CLAUDE.md:20` | `fetch_since()` fetches and maps only | invariant | link | `#INV-3`; detail `docs/ingestion/connectors.md` | INV | agent-instruction-hierarchy | |  |
-| M-SYS-117 | `services/ingestion-scraper/CLAUDE.md:21` | Every HTTP call via `RateLimitedClient` | requirement | move | `docs/ingestion/connectors.md` | ING | living-docs-ingestion | requirements §1 :28, §6.5 |  |
+| M-SYS-117 | `services/ingestion-scraper/CLAUDE.md:21` | Every HTTP call via `RateLimitedClient` | requirement | move | `docs/ingestion/connectors.md` | ING | living-docs-ingestion | requirements §1 :28, §6.5 | ING-005 |
 | M-INV-023 | `services/ingestion-scraper/CLAUDE.md:22` | Datetimes aware; UTC before serialization and MinIO key | invariant | link | `#INV-9`; key format `docs/ingestion/pipeline.md` | INV | agent-instruction-hierarchy | |  |
 | M-SYS-118 | `services/ingestion-scraper/CLAUDE.md:23` | Inject clients and `now()`; no construction inside | requirement | move | `docs/engineering/conventions.md` (seams) | ENG | living-docs-engineering-workflow | requirements §13 (injected clients, `now()`) | ENG-005 |
 | M-SYS-119 | `services/ingestion-scraper/CLAUDE.md:26` | `pytest-socket` disables sockets in unit suite | requirement | move | `docs/engineering/verification.md` | ENG | living-docs-engineering-workflow | requirements §13 | ENG-004 |
@@ -557,8 +557,8 @@ Row prefixes: `M-INV` invariant rows, `M-CON` contract rows, `M-SYS` everything 
 | M-SYS-121 | `services/ingestion-scraper/CLAUDE.md:28` | Integration tests use testcontainers, not compose | requirement | move | `docs/engineering/verification.md` | ENG | living-docs-engineering-workflow | requirements §13 | ENG-006 |
 | M-CON-009 | `services/ingestion-scraper/CLAUDE.md:29` | `test_contract_fixture.py` generates the fixture | contract | link | CON #9 | CON | agent-instruction-hierarchy | |  |
 | M-SYS-122 | `services/ingestion-scraper/CLAUDE.md:32` | `produce()` async trap | trap | delete | dup of M-SYS-061 | ING | living-docs-ingestion | |  |
-| M-SYS-123 | `services/ingestion-scraper/CLAUDE.md:33` | `strftime` on non-UTC aware datetime writes local time with Z | trap | move | `docs/ingestion/pipeline.md` Known traps (MinIO keys) | ING | living-docs-ingestion | Protects INV-9 |  |
-| M-SYS-124 | `services/ingestion-scraper/CLAUDE.md:34` | `instructor` invents values; hence `is_signal` and `None` | trap | move | `docs/ingestion/extraction.md` Known traps | EXT | living-docs-ingestion | requirements §11.1 |  |
+| M-SYS-123 | `services/ingestion-scraper/CLAUDE.md:33` | `strftime` on non-UTC aware datetime writes local time with Z | trap | move | `docs/ingestion/pipeline.md` Known traps (MinIO keys) | ING | living-docs-ingestion | Protects INV-9 | docs/ingestion/pipeline.md#known-traps |
+| M-SYS-124 | `services/ingestion-scraper/CLAUDE.md:34` | `instructor` invents values; hence `is_signal` and `None` | trap | move | `docs/ingestion/extraction.md` Known traps | EXT | living-docs-ingestion | requirements §11.1 | docs/ingestion/extraction.md#known-traps |
 | M-SYS-125 | `services/ingestion-scraper/CLAUDE.md:35` | One gunicorn process; don't raise workers | trap | delete | dup of M-SYS-073 | OPS | living-docs-operations | |  |
 | M-SYS-126 | `services/ingestion-scraper/CLAUDE.md:36` | `configure_logging()` in `create_app()`; ECS field names | requirement | link | `docs/operations/observability.md` (log contract, M-OPS-026) | — | living-docs-operations | OPS batch (CLAUDE-only source) |  |
 
@@ -590,16 +590,16 @@ Row prefixes: `M-INV` invariant rows, `M-CON` contract rows, `M-SYS` everything 
 | Row | Source | Rule or content (≤ 15 words) | Class | Disposition | Target | NS | Spec | Decision / note | ID |
 |---|---|---|---|---|---|---|---|---|---|
 | M-SYS-143 | §0.1 | Historical research instrument, not live monitor | requirement | keep | stays with live-trading spec (`specs/live-trading.md`) →`living-docs-research/living-docs-strategy-and-dashboard` | EVA | living-docs-research | Out of rollout (`historical-instrument amendment out of scope`); index row only; C4 conflict open |  |
-| M-SYS-144 | §0.2 | Cursor in Airflow Variables, read/written by DAG task | requirement | move | `docs/ingestion/pipeline.md` (rule), `docs/operations/orchestration.md` (storage) | ING | living-docs-ingestion, living-docs-operations | |  |
-| M-SYS-145 | §0.3 | 24-month backfill prerequisite; 90-day `initial_lookback` | requirement | divergent | backfill →`living-docs-research/living-docs-strategy-and-dashboard` (`specs/historical-backfill.md`); lookback `docs/ingestion/connectors.md` names `sources.yaml` | ING | living-docs-ingestion, living-docs-research | `sources.yaml` value is 30 (`initial_lookback value`) |  |
+| M-SYS-144 | §0.2 | Cursor in Airflow Variables, read/written by DAG task | requirement | move | `docs/ingestion/pipeline.md` (rule), `docs/operations/orchestration.md` (storage) | ING | living-docs-ingestion, living-docs-operations | | ING-026 |
+| M-SYS-145 | §0.3 | 24-month backfill prerequisite; 90-day `initial_lookback` | requirement | divergent | backfill →`living-docs-research/living-docs-strategy-and-dashboard` (`specs/historical-backfill.md`); lookback `docs/ingestion/connectors.md` names `sources.yaml` | ING | living-docs-ingestion, living-docs-research | `sources.yaml` value is 30 (`initial_lookback value`) | ING-004 |
 | M-SYS-146 | §0.3 note | Forward-only collection cannot support backtest; backfill needed | rationale | move | →`living-docs-research/living-docs-strategy-and-dashboard` `docs/research/backtesting.md` Rationale | RES | living-docs-research | |  |
-| M-SYS-147 | §0.4 | ≤500 extractions/day; separate backfill budget; pre-filter | requirement | move | `docs/ingestion/extraction.md` | EXT | living-docs-ingestion | |  |
+| M-SYS-147 | §0.4 | ≤500 extractions/day; separate backfill budget; pre-filter | requirement | move | `docs/ingestion/extraction.md` | EXT | living-docs-ingestion | | EXT-007 |
 | M-CON-012 | §0.5 | `gene_targets` is a list | contract | move | CON #8 | CON | living-docs-system-and-contracts | | CON-008 |
 | M-SYS-148 | §0.6 | Kafka Streams not a requirement | requirement | move | `docs/core-hub/corroboration.md` | COR | living-docs-core-hub | `specs/kafka-streams-correlation.md` draft |  |
 | M-SYS-149 | §0.7 | Tickerless signals stored, corroborated, absent from ticker responses | requirement | move | `docs/core-hub/storage.md` / `http-api.md` | HUB | living-docs-core-hub | |  |
 | M-SYS-150 | §1 :26 | Python 3.14, uv, lock committed, exact pins | requirement | move | `docs/engineering/conventions.md`; values `VERSIONS.md` | ENG | living-docs-engineering-workflow | | ENG-048 |
 | M-INV-024 | §1 :27 | Fully synchronous; `fetch_since` returns Iterator | invariant | link | `#INV-8`; Iterator → `docs/ingestion/connectors.md` | INV | living-docs-system-and-contracts | |  |
-| M-SYS-151 | §1 :28 | `httpx` only via `RateLimitedClient`; library list | requirement | move | `docs/ingestion/connectors.md`; list → `pyproject.toml` | ING | living-docs-ingestion | |  |
+| M-SYS-151 | §1 :28 | `httpx` only via `RateLimitedClient`; library list | requirement | move | `docs/ingestion/connectors.md`; list → `pyproject.toml` | ING | living-docs-ingestion | | ING-005 |
 | M-SYS-152 | §1 :29 | Test libraries; testcontainers required | requirement | move | `docs/engineering/verification.md` | ENG | living-docs-engineering-workflow | | ENG-006 |
 | M-SYS-153 | §1 :32 | Java 25, Boot 4.x, Gradle Kotlin DSL, no Lombok | requirement | move | `docs/engineering/conventions.md`; values `VERSIONS.md` | ENG | living-docs-engineering-workflow | | ENG-053 ENG-054 |
 | M-SYS-154 | §1 :32 | Spring Kafka 4.1 DLPR re-confirm at Step 1.3 | history | delete | — | — | living-docs-system-and-contracts | Confirmed `## 2026-08-16 — Step 1.3 — VERIFIED — …` |  |
@@ -668,7 +668,7 @@ Row prefixes: `M-INV` invariant rows, `M-CON` contract rows, `M-SYS` everything 
 | M-CON-049 | §10.4 | Minor mismatch accepted and logged; `FAIL_ON_UNKNOWN_PROPERTIES=false` | contract | move | CON #30 | CON | living-docs-system-and-contracts | | CON-029 |
 | M-CON-050 | §10.4 | Version as UTF-8 header and field | contract | move | CON #31 | CON | living-docs-system-and-contracts | "consumers read the field" half → batch | CON-030 |
 | M-CON-051 | §10.4 | Bump updates model, record and fixture in one change | contract | move | CON #32 | CON | living-docs-system-and-contracts | | CON-031 |
-| M-SYS-171 | §10.4 | Re-extraction is an explicit CLI operation | requirement | move | `docs/ingestion/extraction.md` | EXT | living-docs-ingestion | |  |
+| M-SYS-171 | §10.4 | Re-extraction is an explicit CLI operation | requirement | move | `docs/ingestion/extraction.md` | EXT | living-docs-ingestion | | EXT-019 |
 | M-SYS-172 | §14 | Sync-only settled | rationale | link | INV-8 rationale in `docs/system/overview.md` | INV | living-docs-system-and-contracts | |  |
 | M-SYS-173 | §14 | Airflow scheduler, Kafka backbone | rationale | move | `docs/operations/orchestration.md` Rationale | OPS | living-docs-operations | |  |
 | M-SYS-174 | §14 | Airflow metadata separate logical DB | rationale | link | M-SYS-157 owner | OPS | living-docs-operations | |  |
@@ -809,10 +809,10 @@ Target IDs are not assigned here (design §5.2); `connectors.md#4` means "the 4t
 |---|---|---|---|---|---|---|---|---|---|
 | M-ING-001 | §5 :126 | Airflow 3: `schedule` rename, Task SDK proxies Variables, `catchup` default | trap | link | operations/orchestration.md | OPS | living-docs-operations | |  |
 | M-ING-002 | §5 :128 | Airflow owns when; Kafka owns after extraction; no RabbitMQ | rationale | link | system/overview.md | SYS | living-docs-system-and-contracts | |  |
-| M-ING-003 | §5 :130 | Pipeline stateless: takes cursor, returns next_cursor; earliest failed else latest | requirement | move | ingestion/pipeline.md#5 | ING | living-docs-ingestion | CHOICE "cursor after a run with failed documents"; `test_ingestion_run_reliability.py::test_cursor_stops_at_the_earliest_failed_document` |  |
-| M-ING-004 | §5 :130 | Capped run returns the input cursor | requirement | move | pipeline.md#5 | ING | living-docs-ingestion | `::test_extraction_cap_stops_the_run_and_returns_the_input_cursor` |  |
+| M-ING-003 | §5 :130 | Pipeline stateless: takes cursor, returns next_cursor; earliest failed else latest | requirement | move | ingestion/pipeline.md#5 | ING | living-docs-ingestion | CHOICE "cursor after a run with failed documents"; `test_ingestion_run_reliability.py::test_cursor_stops_at_the_earliest_failed_document` | ING-026 |
+| M-ING-004 | §5 :130 | Capped run returns the input cursor | requirement | move | pipeline.md#5 | ING | living-docs-ingestion | `::test_extraction_cap_stops_the_run_and_returns_the_input_cursor` | ING-026 |
 | M-ING-005 | §5 :132-137 | DAG task reads Variable, writes next_cursor, fails after; untouched on error | requirement | link | operations/orchestration.md | OPS | living-docs-operations | design §2 seam: DAG side is OPS |  |
-| M-ING-006 | §5 :134 | First-run default is now − initial_lookback from sources.yaml | requirement | move | connectors.md#4 | ING | living-docs-ingestion | pending-decision *Lookback*; `test_api.py::test_ingest_absent_cursor_defaults_to_initial_lookback` |  |
+| M-ING-006 | §5 :134 | First-run default is now − initial_lookback from sources.yaml | requirement | move | connectors.md#4 | ING | living-docs-ingestion | pending-decision *Lookback*; `test_api.py::test_ingest_absent_cursor_defaults_to_initial_lookback` | ING-004 |
 | M-ING-007 | §5 :139 | `run_mock_ingestion.py` and backfill runner take cursor as argument | stale | delete | — | — | living-docs-ingestion | neither script exists at e51f742 |  |
 | M-ING-008 | §5 :139 | A backfill never writes the live cursor | requirement | keep | specs/historical-backfill.md | ING | living-docs-ingestion | unbuilt; stays in the change spec |  |
 | M-ING-009 | §5 :141 | catchup=False, max_active_runs=1, staggered schedules | requirement | link | operations/orchestration.md | OPS | living-docs-operations | |  |
@@ -821,62 +821,62 @@ Target IDs are not assigned here (design §5.2); `connectors.md#4` means "the 4t
 
 | Row | Source | Rule or content | Class | Disposition | Target | NS | Spec | Decision / note | ID |
 |---|---|---|---|---|---|---|---|---|---|
-| M-ING-010 | §6.1 :147-156 | fetch_since fetches and maps only: no MinIO, model or publish | requirement | move | connectors.md#1 | ING | living-docs-ingestion | `test_connector_contract.py::test_fetch_since_performs_no_io_beyond_http`; applies INV-3 |  |
-| M-ING-011 | §6.1 :151 | fetch_since is synchronous, returns Iterator, cursor UTC-aware | requirement | move | connectors.md#1 | ING | living-docs-ingestion | `::test_fetch_since_is_not_a_coroutine_and_returns_an_iterator`; INV-8 |  |
+| M-ING-010 | §6.1 :147-156 | fetch_since fetches and maps only: no MinIO, model or publish | requirement | move | connectors.md#1 | ING | living-docs-ingestion | `test_connector_contract.py::test_fetch_since_performs_no_io_beyond_http`; applies INV-3 | ING-001 |
+| M-ING-011 | §6.1 :151 | fetch_since is synchronous, returns Iterator, cursor UTC-aware | requirement | move | connectors.md#1 | ING | living-docs-ingestion | `::test_fetch_since_is_not_a_coroutine_and_returns_an_iterator`; INV-8 | ING-001 |
 | M-ING-012 | §6.1 :158 | [A1] why connectors must not write | rationale | link | connectors.md Rationale | ING | living-docs-ingestion | |  |
-| M-ING-013 | §6.2 :167 | Order pre-filter → dedup → archive → extract → publish | stale | move | pipeline.md#1 | ING | living-docs-ingestion | corrected to archive first (finding #2); Rationale records it; `test_ingestion_pipeline.py::test_pipeline_archives_before_publishing` |  |
-| M-ING-014 | §6.2 :167 | Pipeline is the single caller of connector, archive, extractor, producer | requirement | move | pipeline.md#2 | ING | living-docs-ingestion | untested |  |
-| M-ING-015 | §6.2 :169 | Failing document recorded; run continues | requirement | move | pipeline.md#3 | ING | living-docs-ingestion | `::test_one_bad_document_does_not_abort_the_batch` |  |
-| M-ING-016 | §6.2 :169 | RunResult counts incl. deduped, extracted | requirement | ratify | pipeline.md#4 | ING | living-docs-ingestion | pending-decision *RunResult*; code has no deduped/extracted (`pipeline.py:16-29`) |  |
-| M-ING-017 | §6.2 :169 | RunResult `deduped`, `extracted` counters | requirement | retire | pipeline.md Retired | ING | living-docs-ingestion | *RunResult*; original text kept |  |
+| M-ING-013 | §6.2 :167 | Order pre-filter → dedup → archive → extract → publish | stale | move | pipeline.md#1 | ING | living-docs-ingestion | corrected to archive first (finding #2); Rationale records it; `test_ingestion_pipeline.py::test_pipeline_archives_before_publishing` | ING-022 |
+| M-ING-014 | §6.2 :167 | Pipeline is the single caller of connector, archive, extractor, producer | requirement | move | pipeline.md#2 | ING | living-docs-ingestion | untested | ING-023 |
+| M-ING-015 | §6.2 :169 | Failing document recorded; run continues | requirement | move | pipeline.md#3 | ING | living-docs-ingestion | `::test_one_bad_document_does_not_abort_the_batch` | ING-024 |
+| M-ING-016 | §6.2 :169 | RunResult counts incl. deduped, extracted | requirement | ratify | pipeline.md#4 | ING | living-docs-ingestion | pending-decision *RunResult*; code has no deduped/extracted (`pipeline.py:16-29`) | ING-025 |
+| M-ING-017 | §6.2 :169 | RunResult `deduped`, `extracted` counters | requirement | retire | pipeline.md Retired | ING | living-docs-ingestion | *RunResult*; original text kept | ING-041 |
 | M-ING-018 | §6.2 :169 | Task fails after saving next_cursor when any document failed | requirement | link | operations/orchestration.md | OPS | living-docs-operations | pipeline.md#5 owns next_cursor |  |
-| M-ING-019 | §6.2 :171 | Flush and check delivery reports; undelivered message fails run | requirement | move | pipeline.md#8 | ING | living-docs-ingestion | untested for the real client; `test_kafka_delivery_failure_fails_the_run` is weak |  |
-| M-ING-020 | §6.3 :175 | RawDocument fields as connector output | contract | move | connectors.md#1 | ING | living-docs-ingestion | wire form is CON; `test_connector_contract.py::test_rawdocument_rejects_naive_datetime` |  |
-| M-ING-021 | §6.3 :175 | Source-specific dates retained separately | requirement | divergent | connectors.md#10 | ING | living-docs-ingestion | *Defects*: kept only in raw_content |  |
-| M-ING-022 | §6.4 :179 | EntityNormalizer seam, identity implementation, every write through it | requirement | move | pipeline.md#17 | ING | living-docs-ingestion | `::test_entity_values_pass_through_the_normalizer`; core-hub entity_key normalization → corroboration.md#3 |  |
+| M-ING-019 | §6.2 :171 | Flush and check delivery reports; undelivered message fails run | requirement | move | pipeline.md#8 | ING | living-docs-ingestion | untested for the real client; `test_kafka_delivery_failure_fails_the_run` is weak | ING-029 |
+| M-ING-020 | §6.3 :175 | RawDocument fields as connector output | contract | move | connectors.md#1 | ING | living-docs-ingestion | wire form is CON; `test_connector_contract.py::test_rawdocument_rejects_naive_datetime` | ING-001 |
+| M-ING-021 | §6.3 :175 | Source-specific dates retained separately | requirement | divergent | connectors.md#10 | ING | living-docs-ingestion | *Defects*: kept only in raw_content | ING-016 |
+| M-ING-022 | §6.4 :179 | EntityNormalizer seam, identity implementation, every write through it | requirement | move | pipeline.md#17 | ING | living-docs-ingestion | `::test_entity_values_pass_through_the_normalizer`; core-hub entity_key normalization → corroboration.md#3 | ING-038 |
 | M-ING-023 | §6.4 :179 | Seam history (introduced early, not inserted later) | history | delete | — | — | living-docs-ingestion | plan history |  |
-| M-ING-024 | §6.5 :183 | One RateLimitedClient; per-host bucket from sources.yaml | requirement | move | connectors.md#5 | ING | living-docs-ingestion | `test_rate_limited_client.py::test_two_connectors_on_the_same_host_share_one_bucket` |  |
+| M-ING-024 | §6.5 :183 | One RateLimitedClient; per-host bucket from sources.yaml | requirement | move | connectors.md#5 | ING | living-docs-ingestion | `test_rate_limited_client.py::test_two_connectors_on_the_same_host_share_one_bucket` | ING-005 |
 | M-ING-025 | §6.5 :183 | Airflow schedules staggered | requirement | link | operations/orchestration.md | OPS | living-docs-operations | |  |
-| M-ING-026 | §6.5 :185-192 | Verified per-host limits table (6 hosts) | contract | move | connectors.md#6 | ING | living-docs-ingestion | external facts kept in doc; configured rates stay in sources.yaml; `test_sources_schema.py::test_source_rates_follow_the_requirements_limits` |  |
+| M-ING-026 | §6.5 :185-192 | Verified per-host limits table (6 hosts) | contract | move | connectors.md#6 | ING | living-docs-ingestion | external facts kept in doc; configured rates stay in sources.yaml; `test_sources_schema.py::test_source_rates_follow_the_requirements_limits` | ING-006 |
 | M-ING-027 | §6.5 :192 | SEC: "Configure 5 req/s" | value | link | sources.yaml; operations/topology.md | OPS | living-docs-operations | configured value 4 lives in sources.yaml; aggregate budget is OPS |  |
-| M-ING-028 | §6.5 :187 | EPO token expires 20 min, refresh; 429 carries Retry-After | trap | move | connectors.md Known traps | ING | living-docs-ingestion | |  |
-| M-ING-029 | §6.5 :192 | SEC User-Agent mandatory; IP block ~10 min, retry extends it | trap | move | connectors.md Known traps; #7 | ING | living-docs-ingestion | |  |
-| M-ING-030 | §6.5 :188 | openFDA daily cap of 1,000 binds without a key | trap | divergent | connectors.md (`fda_approval`) | ING | living-docs-ingestion | *fda_approval*; approved source, no `sources.yaml` entry yet; the cap binds once the entry exists |  |
-| M-ING-031 | §6.6 :196 | Deterministic vocabulary pre-filter before every model call (title or content) | requirement | ratify | pipeline.md#16 | ING | living-docs-ingestion | *ING batch*: code matches raw_content only (`prefilter.py:17-20`) |  |
-| M-ING-032 | §6.6 :196 | Pre-filter measured on golden set for false negatives | requirement | move | extraction.md#15 | EXT | living-docs-ingestion | `test_scoring.py::test_golden_set_includes_documents_the_prefilter_should_and_should_not_reject` |  |
-| M-ING-033 | §6.6 :196 | Vocabulary versioned alongside prompt (`prefilter_version`) | requirement | move | extraction.md#7 | EXT | living-docs-ingestion | |  |
-| M-ING-034 | §6.6 :196 | prefiltered_out counted in RunResult | requirement | move | pipeline.md#4 | ING | living-docs-ingestion | `::test_prefilter_counts_appear_in_run_result`; dedup skips also counted there (*RunResult*) |  |
+| M-ING-028 | §6.5 :187 | EPO token expires 20 min, refresh; 429 carries Retry-After | trap | move | connectors.md Known traps | ING | living-docs-ingestion | | docs/ingestion/connectors.md#known-traps |
+| M-ING-029 | §6.5 :192 | SEC User-Agent mandatory; IP block ~10 min, retry extends it | trap | move | connectors.md Known traps; #7 | ING | living-docs-ingestion | | docs/ingestion/connectors.md#known-traps ING-007 |
+| M-ING-030 | §6.5 :188 | openFDA daily cap of 1,000 binds without a key | trap | divergent | connectors.md (`fda_approval`) | ING | living-docs-ingestion | *fda_approval*; approved source, no `sources.yaml` entry yet; the cap binds once the entry exists | ING-020 |
+| M-ING-031 | §6.6 :196 | Deterministic vocabulary pre-filter before every model call (title or content) | requirement | ratify | pipeline.md#16 | ING | living-docs-ingestion | *ING batch*: code matches raw_content only (`prefilter.py:17-20`) | ING-037 |
+| M-ING-032 | §6.6 :196 | Pre-filter measured on golden set for false negatives | requirement | move | extraction.md#15 | EXT | living-docs-ingestion | `test_scoring.py::test_golden_set_includes_documents_the_prefilter_should_and_should_not_reject` | EXT-015 |
+| M-ING-033 | §6.6 :196 | Vocabulary versioned alongside prompt (`prefilter_version`) | requirement | move | extraction.md#7 | EXT | living-docs-ingestion | | EXT-007 |
+| M-ING-034 | §6.6 :196 | prefiltered_out counted in RunResult | requirement | move | pipeline.md#4 | ING | living-docs-ingestion | `::test_prefilter_counts_appear_in_run_result`; dedup skips also counted there (*RunResult*) | ING-025 |
 | M-ING-035 | §6.6 :196 | Cost rationale for the pre-filter | rationale | link | pipeline.md Rationale | ING | living-docs-ingestion | |  |
-| M-ING-036 | §6.7 :200 | published_date is when information became public; non-public dates never align | requirement | move | connectors.md#9 | ING | living-docs-ingestion | |  |
-| M-ING-037 | §6.7 :204 | bioRxiv: date of fetched version | requirement | move | connectors.md#9 | ING | living-docs-ingestion | `test_academic_papers.py::test_published_date_is_the_public_posting_date_not_retrieved_at` |  |
-| M-ING-038 | §6.7 :205 | PubMed: earliest public availability | requirement | divergent | connectors.md#9 | ING | living-docs-ingestion | *Defects*: partial dates default to day 1 |  |
-| M-ING-039 | §6.7 :206 | Patents: pre-grant publication, else grant; filed_date excluded | requirement | move | connectors.md#9 | ING | living-docs-ingestion | `test_epo_ops.py::test_published_date_is_the_public_disclosure_date_not_filing_date` |  |
-| M-ING-040 | §6.7 :207 | Clinical trials: first post, or last update post when amended | requirement | move | connectors.md#9 | ING | living-docs-ingestion | `test_clinical_trials.py::test_published_date_is_a_post_date_not_the_submission_date` |  |
-| M-ING-041 | §6.7 :208 | Regulatory: action date | requirement | divergent | connectors.md (`fda_approval`) | ING | living-docs-ingestion | *fda_approval*; approved source, no `sources.yaml` entry yet |  |
-| M-ING-042 | §6.7 :209 | EDGAR: acceptanceDateTime | requirement | move | connectors.md#9 | ING | living-docs-ingestion | `test_sec_edgar.py::test_published_date_is_the_acceptance_time_converted_from_eastern_to_utc` |  |
-| M-ING-043 | §6.8 :213-221 | Verified source APIs table (endpoint, auth, status) | contract | move | connectors.md#6 | ING | living-docs-ingestion | dated facts; patents row's "see CLAUDE.md traps" becomes a trap entry |  |
-| M-ING-044 | §6.8 :220 | EFTS undocumented; keep the mapping thin | trap | move | connectors.md Known traps | ING | living-docs-ingestion | |  |
+| M-ING-036 | §6.7 :200 | published_date is when information became public; non-public dates never align | requirement | move | connectors.md#9 | ING | living-docs-ingestion | | ING-009 |
+| M-ING-037 | §6.7 :204 | bioRxiv: date of fetched version | requirement | move | connectors.md#9 | ING | living-docs-ingestion | `test_academic_papers.py::test_published_date_is_the_public_posting_date_not_retrieved_at` | ING-010 |
+| M-ING-038 | §6.7 :205 | PubMed: earliest public availability | requirement | divergent | connectors.md#9 | ING | living-docs-ingestion | *Defects*: partial dates default to day 1 | ING-011 |
+| M-ING-039 | §6.7 :206 | Patents: pre-grant publication, else grant; filed_date excluded | requirement | move | connectors.md#9 | ING | living-docs-ingestion | `test_epo_ops.py::test_published_date_is_the_public_disclosure_date_not_filing_date` | ING-012 |
+| M-ING-040 | §6.7 :207 | Clinical trials: first post, or last update post when amended | requirement | move | connectors.md#9 | ING | living-docs-ingestion | `test_clinical_trials.py::test_published_date_is_a_post_date_not_the_submission_date` | ING-013 |
+| M-ING-041 | §6.7 :208 | Regulatory: action date | requirement | divergent | connectors.md (`fda_approval`) | ING | living-docs-ingestion | *fda_approval*; approved source, no `sources.yaml` entry yet | ING-015 |
+| M-ING-042 | §6.7 :209 | EDGAR: acceptanceDateTime | requirement | move | connectors.md#9 | ING | living-docs-ingestion | `test_sec_edgar.py::test_published_date_is_the_acceptance_time_converted_from_eastern_to_utc` | ING-014 |
+| M-ING-043 | §6.8 :213-221 | Verified source APIs table (endpoint, auth, status) | contract | move | connectors.md#6 | ING | living-docs-ingestion | dated facts; patents row's "see CLAUDE.md traps" becomes a trap entry | ING-006 |
+| M-ING-044 | §6.8 :220 | EFTS undocumented; keep the mapping thin | trap | move | connectors.md Known traps | ING | living-docs-ingestion | | docs/ingestion/connectors.md#known-traps |
 | M-ING-045 | §6.8 :221 | company_tickers.json is ticker resolution source | contract | link | core-hub/storage.md#10 | HUB | living-docs-core-hub | used by `SecTickerCache` |  |
-| M-ING-046 | §6.9 :225 | openFDA has no designations endpoint | trap | move | connectors.md Known traps | ING | living-docs-ingestion | |  |
-| M-ING-047 | §6.9 :227 | `fda_approval` source via Drugs@FDA, labels, shortages | requirement | divergent | connectors.md#14 | ING | living-docs-ingestion | *fda_approval*; approved source, no `sources.yaml` entry yet; connector code exists and is tested, only unconfigured — see spec Notes |  |
-| M-ING-048 | §6.9 :228 | Optional `fda_designation` as own source_type | requirement | retire | connectors.md#14 Retired | ING | living-docs-ingestion | never built |  |
+| M-ING-046 | §6.9 :225 | openFDA has no designations endpoint | trap | move | connectors.md Known traps | ING | living-docs-ingestion | | docs/ingestion/connectors.md#known-traps |
+| M-ING-047 | §6.9 :227 | `fda_approval` source via Drugs@FDA, labels, shortages | requirement | divergent | connectors.md#14 | ING | living-docs-ingestion | *fda_approval*; approved source, no `sources.yaml` entry yet; connector code exists and is tested, only unconfigured — see spec Notes | ING-020 |
+| M-ING-048 | §6.9 :228 | Optional `fda_designation` as own source_type | requirement | retire | connectors.md#14 Retired | ING | living-docs-ingestion | never built | ING-021 |
 
 ### docs/requirements.md §7, §7.1 (archive, dedup, precedence)
 
 | Row | Source | Rule or content | Class | Disposition | Target | NS | Spec | Decision / note | ID |
 |---|---|---|---|---|---|---|---|---|---|
 | M-ING-049 | §7 :234 | Archive unconditional, before any other side effect | invariant | link | INV-13 | INV | living-docs-system-and-contracts | pipeline.md#1 applies it |  |
-| M-ING-050 | §7 :236-240 | Object key raw/{source}/{external_id}/{UTC ts}-{sha8}.json | contract | move | pipeline.md#9 | ING | living-docs-ingestion | `test_connector_contract.py::test_minio_key_converts_offset_timestamp_to_utc_wall_time` |  |
-| M-ING-051 | §7 :242 | Same-second retry must not be a collision error | requirement | move | pipeline.md#9 | ING | living-docs-ingestion | `tests/integration/test_minio_storage.py::test_same_second_refetch_of_identical_content_is_a_noop_not_an_error` |  |
+| M-ING-050 | §7 :236-240 | Object key raw/{source}/{external_id}/{UTC ts}-{sha8}.json | contract | move | pipeline.md#9 | ING | living-docs-ingestion | `test_connector_contract.py::test_minio_key_converts_offset_timestamp_to_utc_wall_time` | ING-030 |
+| M-ING-051 | §7 :242 | Same-second retry must not be a collision error | requirement | move | pipeline.md#9 | ING | living-docs-ingestion | `tests/integration/test_minio_storage.py::test_same_second_refetch_of_identical_content_is_a_noop_not_an_error` | ING-030 |
 | M-ING-052 | §7.1.1 :246 | Archive always, first | invariant | link | INV-13 | INV | living-docs-system-and-contracts | |  |
-| M-ING-053 | §7.1.2 :247 | Dedup gates extraction and publish only, never archive | requirement | move | pipeline.md#10 | ING | living-docs-ingestion | `test_deduplication.py::test_dedup_never_suppresses_the_minio_write` |  |
-| M-ING-054 | §7.1.3 :248 | Same content hash: skip extraction and publish | requirement | move | pipeline.md#11 | ING | living-docs-ingestion | implemented as processed markers (CHOICE "unchanged re-fetch…") |  |
-| M-ING-055 | §7.1.4 :249 | Amendment publishes under same event_id, new extraction_id | requirement | move | pipeline.md#12 | ING | living-docs-ingestion | `::test_changed_content_is_treated_as_an_amendment_and_republished` |  |
-| M-ING-056 | §7.1.5 :250-254 | Canonical marker path and payload | contract | move | pipeline.md#13 | ING | living-docs-ingestion | |  |
-| M-ING-057 | §7.1.5 :256 | Marker written after successful publish | requirement | divergent | pipeline.md#13 | ING | living-docs-ingestion | *Defects*: written before flush (`pipeline.py:168` vs `:189`) |  |
-| M-ING-058 | §7.1.5 :256 | Cross-source hit skips extraction, records source_observation | requirement | divergent | pipeline.md#14 | ING | living-docs-ingestion | *Defects*; scope of the raw pointer follows *Raw-pointer* (CON) |  |
-| M-ING-059 | §7.1.5 :258 | Marker write failure → one re-extraction, absorbed downstream | requirement | move | pipeline.md#13 | ING | living-docs-ingestion | `::test_failed_marker_write_causes_at_most_one_redundant_extraction` |  |
-| M-ING-060 | §7.1.6 :260 | No canonical_id: cross-source duplicates accepted | requirement | move | pipeline.md#15 | ING | living-docs-ingestion | `::test_document_with_no_canonical_id_is_not_deduped_across_sources` |  |
+| M-ING-053 | §7.1.2 :247 | Dedup gates extraction and publish only, never archive | requirement | move | pipeline.md#10 | ING | living-docs-ingestion | `test_deduplication.py::test_dedup_never_suppresses_the_minio_write` | ING-031 |
+| M-ING-054 | §7.1.3 :248 | Same content hash: skip extraction and publish | requirement | move | pipeline.md#11 | ING | living-docs-ingestion | implemented as processed markers (CHOICE "unchanged re-fetch…") | ING-032 |
+| M-ING-055 | §7.1.4 :249 | Amendment publishes under same event_id, new extraction_id | requirement | move | pipeline.md#12 | ING | living-docs-ingestion | `::test_changed_content_is_treated_as_an_amendment_and_republished` | ING-033 |
+| M-ING-056 | §7.1.5 :250-254 | Canonical marker path and payload | contract | move | pipeline.md#13 | ING | living-docs-ingestion | | ING-034 |
+| M-ING-057 | §7.1.5 :256 | Marker written after successful publish | requirement | divergent | pipeline.md#13 | ING | living-docs-ingestion | *Defects*: written before flush (`pipeline.py:168` vs `:189`) | ING-034 |
+| M-ING-058 | §7.1.5 :256 | Cross-source hit skips extraction, records source_observation | requirement | divergent | pipeline.md#14 | ING | living-docs-ingestion | *Defects*; scope of the raw pointer follows *Raw-pointer* (CON) | ING-035 |
+| M-ING-059 | §7.1.5 :258 | Marker write failure → one re-extraction, absorbed downstream | requirement | move | pipeline.md#13 | ING | living-docs-ingestion | `::test_failed_marker_write_causes_at_most_one_redundant_extraction` | ING-034 |
+| M-ING-060 | §7.1.6 :260 | No canonical_id: cross-source duplicates accepted | requirement | move | pipeline.md#15 | ING | living-docs-ingestion | `::test_document_with_no_canonical_id_is_not_deduped_across_sources` | ING-036 |
 | M-ING-061 | §7.1 :262 | Embedding-similarity dedup is cut | rationale | link | pipeline.md Rationale | ING | living-docs-ingestion | |  |
 | M-ING-062 | §7.1 :264 | Postgres warehouse; DuckDB is a possible next step | status-note | delete | — | — | living-docs-ingestion | future idea, not behaviour |  |
 
@@ -896,21 +896,21 @@ Target IDs are not assigned here (design §5.2); `connectors.md#4` means "the 4t
 
 | Row | Source | Rule or content | Class | Disposition | Target | NS | Spec | Decision / note | ID |
 |---|---|---|---|---|---|---|---|---|---|
-| M-EXT-001 | §11.1 :356-358 | extract returns event or None; model decides via is_signal | requirement | move | extraction.md#1 | EXT | living-docs-ingestion | `test_ingestion_pipeline.py::test_extractor_returns_none_rather_than_inventing_a_gene_target` |  |
-| M-EXT-002 | §11.1 :358 | None → archived, counted, no event | requirement | move | extraction.md#1 | EXT | living-docs-ingestion | `::test_document_with_no_signal_is_archived_but_publishes_no_event` |  |
+| M-EXT-001 | §11.1 :356-358 | extract returns event or None; model decides via is_signal | requirement | move | extraction.md#1 | EXT | living-docs-ingestion | `test_ingestion_pipeline.py::test_extractor_returns_none_rather_than_inventing_a_gene_target` | EXT-001 |
+| M-EXT-002 | §11.1 :358 | None → archived, counted, no event | requirement | move | extraction.md#1 | EXT | living-docs-ingestion | `::test_document_with_no_signal_is_archived_but_publishes_no_event` | EXT-001 |
 | M-EXT-003 | §11.1 :358 | Why forced events create junk nodes | rationale | link | extraction.md Rationale | EXT | living-docs-ingestion | |  |
-| M-EXT-004 | §11.1 :360 | min_confidence_to_publish per source, default 0.0 | requirement | move | extraction.md#2 | EXT | living-docs-ingestion | CHOICE "publish threshold default is 0.0…"; `::test_publish_threshold_defaults_to_zero_and_is_counted_when_raised` |  |
+| M-EXT-004 | §11.1 :360 | min_confidence_to_publish per source, default 0.0 | requirement | move | extraction.md#2 | EXT | living-docs-ingestion | CHOICE "publish threshold default is 0.0…"; `::test_publish_threshold_defaults_to_zero_and_is_counted_when_raised` | EXT-002 |
 | M-EXT-005 | §11.1 :360 | Raise only on calibration evidence | requirement | keep | specs/golden-set-expansion.md | EXT | living-docs-ingestion | unbuilt calibration |  |
-| M-EXT-006 | §11.2 :366 | Delimited block, system instruction: content is data | requirement | divergent | extraction.md#3 | EXT | living-docs-ingestion | *Defects*: prompt lacks the statement |  |
-| M-EXT-007 | §11.2 :367 | raw_content truncated to a documented maximum | requirement | move | extraction.md#4 | EXT | living-docs-ingestion | names `_MAX_CONTENT_CHARS` (`extraction_backend.py:29`); untested |  |
-| M-EXT-008 | §11.2 :368 | gene_targets checked against HGNC; unknown to review bucket | requirement | divergent | extraction.md#5 | EXT | living-docs-ingestion | *Defects*; cited test is vacuous |  |
-| M-EXT-009 | §11.2 :369 | Extracted ticker validated against allowlist before graph write | requirement | move | extraction.md#6 | EXT | living-docs-ingestion | untested; controller half → core-hub/http-api.md#3 |  |
+| M-EXT-006 | §11.2 :366 | Delimited block, system instruction: content is data | requirement | divergent | extraction.md#3 | EXT | living-docs-ingestion | *Defects*: prompt lacks the statement | EXT-003 |
+| M-EXT-007 | §11.2 :367 | raw_content truncated to a documented maximum | requirement | move | extraction.md#4 | EXT | living-docs-ingestion | names `_MAX_CONTENT_CHARS` (`extraction_backend.py:29`); untested | EXT-004 |
+| M-EXT-008 | §11.2 :368 | gene_targets checked against HGNC; unknown to review bucket | requirement | divergent | extraction.md#5 | EXT | living-docs-ingestion | *Defects*; cited test is vacuous | EXT-005 |
+| M-EXT-009 | §11.2 :369 | Extracted ticker validated against allowlist before graph write | requirement | move | extraction.md#6 | EXT | living-docs-ingestion | untested; controller half → core-hub/http-api.md#3 | EXT-006 |
 | M-EXT-010 | §11.2 :371 | Payoff is manufactured corroboration | rationale | link | extraction.md Rationale | EXT | living-docs-ingestion | |  |
-| M-EXT-011 | §11.3 :377 | Prompt is versioned file; prompt_version on every event | requirement | move | extraction.md#7 | EXT | living-docs-ingestion | `test_scoring.py::test_prompt_and_prefilter_versions_are_recorded_on_every_extracted_event` |  |
-| M-EXT-012 | §11.3 :377 | Golden set (20–30 docs) spans every source_type, scores fields, calibration, FNs | requirement | divergent | extraction.md#15 | EXT | living-docs-ingestion | *Defects*: no epo_ops document; count dropped (51 today) |  |
-| M-EXT-013 | §11.3 :377 | Runs manually, never in CI, gates each connector | requirement | move | extraction.md#13, #15 | EXT | living-docs-ingestion | |  |
-| M-EXT-014 | §10.4 :348 | Re-extraction is explicit CLI over archive, never routine side effect | requirement | move | extraction.md#19 | EXT | living-docs-ingestion | `test_reextract.py::test_runner_never_writes_to_airflow_or_cursor` |  |
-| M-EXT-015 | §10.4 :348 | Re-extraction writes new extraction_id, re-runs corroboration | requirement | divergent | extraction.md#19 | EXT | living-docs-ingestion | *Defects*: flags ignored, offset replaced; corroboration re-run via pending flag (`CorroborationServiceIT::reExtractedSignalIsScannedAgain`) |  |
+| M-EXT-011 | §11.3 :377 | Prompt is versioned file; prompt_version on every event | requirement | move | extraction.md#7 | EXT | living-docs-ingestion | `test_scoring.py::test_prompt_and_prefilter_versions_are_recorded_on_every_extracted_event` | EXT-007 |
+| M-EXT-012 | §11.3 :377 | Golden set (20–30 docs) spans every source_type, scores fields, calibration, FNs | requirement | divergent | extraction.md#15 | EXT | living-docs-ingestion | *Defects*: no epo_ops document; count dropped (51 today) | EXT-015 |
+| M-EXT-013 | §11.3 :377 | Runs manually, never in CI, gates each connector | requirement | move | extraction.md#13, #15 | EXT | living-docs-ingestion | | EXT-013 EXT-015 |
+| M-EXT-014 | §10.4 :348 | Re-extraction is explicit CLI over archive, never routine side effect | requirement | move | extraction.md#19 | EXT | living-docs-ingestion | `test_reextract.py::test_runner_never_writes_to_airflow_or_cursor` | EXT-019 |
+| M-EXT-015 | §10.4 :348 | Re-extraction writes new extraction_id, re-runs corroboration | requirement | divergent | extraction.md#19 | EXT | living-docs-ingestion | *Defects*: flags ignored, offset replaced; corroboration re-run via pending flag (`CorroborationServiceIT::reExtractedSignalIsScannedAgain`) | EXT-019 |
 | M-HUB-007 | §3.8 :79 | Neo4j → Postgres → acknowledge | requirement | move | storage.md#4 | HUB | living-docs-core-hub | `SignalIngestionServiceTest::test_ingest_calls_graph_port_before_record_port`; shared row with `living-docs-system-and-contracts` fragment |  |
 | M-HUB-008 | §3.8 :79 | ack-mode RECORD; offset never committed before both stores return | requirement | move | consumption.md#8 | HUB | living-docs-core-hub | untested (C5), *Defects*; `FaultInjectionIT::test_neo4j_failure_prevents_offset_commit…` does not prove it |  |
 | M-HUB-009 | §3.8 :79 | Repositories in separate base packages with explicit @Enable… | stale | retire | storage.md Retired | HUB | living-docs-core-hub | *HUB batch*: no repositories exist (C12) |  |
@@ -942,13 +942,13 @@ Target IDs are not assigned here (design §5.2); `connectors.md#4` means "the 4t
 | M-ING-071 | services/ingestion-scraper/README.md:16 | raw.ingested published for all documents | stale | link | CON raw pointer | CON | living-docs-system-and-contracts | *Raw-pointer*; code publishes for published signals only |  |
 | M-ING-072 | services/ingestion-scraper/README.md:18 | At most max_documents_per_run to extraction; processed don't count | requirement | link | pipeline.md#6 | ING | legacy-docs-retirement | |  |
 | M-ING-073 | services/ingestion-scraper/README.md:18 | Capped or unconfirmed-delivery run returns given cursor | requirement | link | pipeline.md#5 | ING | legacy-docs-retirement | |  |
-| M-ING-074 | services/ingestion-scraper/README.md:18 | Second concurrent run of a source → 409 | requirement | ratify | pipeline.md#7 | ING | living-docs-ingestion | *ING batch* (archived spec ingestion-run-reliability also lists it); `test_ingestion_run_reliability.py::test_second_concurrent_run_of_a_source_is_refused_with_409` |  |
+| M-ING-074 | services/ingestion-scraper/README.md:18 | Second concurrent run of a source → 409 | requirement | ratify | pipeline.md#7 | ING | living-docs-ingestion | *ING batch* (archived spec ingestion-run-reliability also lists it); `test_ingestion_run_reliability.py::test_second_concurrent_run_of_a_source_is_refused_with_409` | ING-028 |
 | M-ING-075 | services/ingestion-scraper/README.md:22 | DAG per entry; hour apart; pool 1 slot; retries; 3 h; save then fail | requirement | link | operations/orchestration.md | OPS | living-docs-operations | |  |
 | M-ING-076 | services/ingestion-scraper/README.md:28-35 | Connectors table (class, source_type, status) | status-note | keep | README | — | legacy-docs-retirement | fix stale statuses: fda_approval "Active" (unconfigured), epo_ops "Blocked" (scheduled) |  |
 | M-ING-077 | services/ingestion-scraper/README.md:32 | ClinicalTrials.gov raw_content includes lead sponsor | requirement | link | connectors.md#13 | ING | legacy-docs-retirement | |  |
 | M-ING-078 | services/ingestion-scraper/README.md:33 | EDGAR 8-K items, Exhibit 99.1 + cover, acceptance time | requirement | link | connectors.md#11 | ING | legacy-docs-retirement | |  |
 | M-ING-079 | services/ingestion-scraper/README.md:41-43 | Adding a connector: module, register, sources.yaml entry | process | keep | README | — | legacy-docs-retirement | how-to stays; requirement is connectors.md#2 |  |
-| M-ING-080 | services/ingestion-scraper/README.md:45 | Unregistered source_type raises UnknownSourceTypeError listing types | requirement | ratify | connectors.md#2 | ING | living-docs-ingestion | *ING batch*; `test_connector_registry.py::test_unknown_source_type_raises_a_named_error_listing_registered_types` |  |
+| M-ING-080 | services/ingestion-scraper/README.md:45 | Unregistered source_type raises UnknownSourceTypeError listing types | requirement | ratify | connectors.md#2 | ING | living-docs-ingestion | *ING batch*; `test_connector_registry.py::test_unknown_source_type_raises_a_named_error_listing_registered_types` | ING-002 |
 | M-ING-081 | services/ingestion-scraper/README.md:53-60 | sources.yaml field table | contract | link | connectors.md (sources.yaml semantics) | ING | legacy-docs-retirement | |  |
 | M-ING-082 | services/ingestion-scraper/README.md:54 | Live sources ≥ 30 min apart (test-enforced) | requirement | link | operations/orchestration.md | OPS | living-docs-operations | |  |
 | M-ING-083 | services/ingestion-scraper/README.md:55 | Rate spacing even, no burst; requests wait | requirement | link | connectors.md#5 | ING | legacy-docs-retirement | |  |
@@ -956,7 +956,7 @@ Target IDs are not assigned here (design §5.2); `connectors.md#4` means "the 4t
 | M-ING-085 | services/ingestion-scraper/README.md:56 | initial_lookback: days fetched on first run | requirement | link | connectors.md#4 | ING | legacy-docs-retirement | *Lookback* |  |
 | M-ING-086 | services/ingestion-scraper/README.md:57 | max_documents_per_run sized to 3 h timeout | rationale | link | pipeline.md Rationale | ING | legacy-docs-retirement | |  |
 | M-ING-087 | services/ingestion-scraper/README.md:60 | min_confidence_to_publish optional, default 0.0 | requirement | link | extraction.md#2 | EXT | legacy-docs-retirement | |  |
-| M-ING-088 | services/ingestion-scraper/README.md:62 | Unknown fields rejected at parse time | requirement | ratify | connectors.md#3 | ING | living-docs-ingestion | *ING batch*; `test_sources_schema.py::test_unknown_field_in_sources_yaml_is_rejected_at_parse_time` |  |
+| M-ING-088 | services/ingestion-scraper/README.md:62 | Unknown fields rejected at parse time | requirement | ratify | connectors.md#3 | ING | living-docs-ingestion | *ING batch*; `test_sources_schema.py::test_unknown_field_in_sources_yaml_is_rejected_at_parse_time` | ING-003 |
 | M-ING-089 | services/ingestion-scraper/README.md:68-75 | Development commands | command | link | services/ingestion-scraper/AGENTS.md | — | agent-instruction-hierarchy | |  |
 | M-ING-090 | services/ingestion-scraper/README.md:74,94 | `run_pipeline.py` CLI without Airflow | command | keep | README scripts table | — | legacy-docs-retirement | *run_pipeline*: developer tool, no requirement |  |
 | M-ING-091 | services/ingestion-scraper/README.md:83 | "138+ tests" | status-note | delete | — | — | legacy-docs-retirement | stale count |  |
@@ -964,20 +964,20 @@ Target IDs are not assigned here (design §5.2); `connectors.md#4` means "the 4t
 | M-ING-093 | services/ingestion-scraper/README.md:85 | Golden set of 50 documents | status-note | delete | — | — | legacy-docs-retirement | 51 files; no count in docs |  |
 | M-ING-094 | services/ingestion-scraper/README.md:95 | score_extraction writes gate record | requirement | link | extraction.md#13 | EXT | legacy-docs-retirement | |  |
 | M-ING-095 | services/ingestion-scraper/README.md:96 | evaluate_model writes latency record per model | requirement | link | extraction.md#13 | EXT | legacy-docs-retirement | archived spec model-evaluation |  |
-| M-ING-096 | services/ingestion-scraper/README.md:97 | Leakage canary flags months ≥ 70% correct after cutoff | requirement | ratify | extraction.md#16 | EXT | living-docs-ingestion | *ING batch*; `test_model_evaluation.py::test_leakage_canary_scoring_reproduces_hand_computed_result_on_toy_set` |  |
-| M-ING-097 | services/ingestion-scraper/README.md:98 | Cross-model agreement: Jaccard, directionality, confidence correlation | requirement | ratify | extraction.md#17 | EXT | living-docs-ingestion | *ING batch*; `::test_cross_model_agreement_reproduces_hand_computed_metrics_on_toy_set` |  |
+| M-ING-096 | services/ingestion-scraper/README.md:97 | Leakage canary flags months ≥ 70% correct after cutoff | requirement | ratify | extraction.md#16 | EXT | living-docs-ingestion | *ING batch*; `test_model_evaluation.py::test_leakage_canary_scoring_reproduces_hand_computed_result_on_toy_set` | EXT-016 |
+| M-ING-097 | services/ingestion-scraper/README.md:98 | Cross-model agreement: Jaccard, directionality, confidence correlation | requirement | ratify | extraction.md#17 | EXT | living-docs-ingestion | *ING batch*; `::test_cross_model_agreement_reproduces_hand_computed_metrics_on_toy_set` | EXT-017 |
 | M-ING-098 | services/ingestion-scraper/README.md:99 | register_local_model copies candidate with live digest | requirement | link | extraction.md#9-10 | EXT | legacy-docs-retirement | `test_local_model_integration.py::test_register_local_model_appends_loadable_entry_with_live_digest` |  |
-| M-ING-099 | services/ingestion-scraper/README.md:100 | sample_corroborations reads live DB | requirement | ratify | extraction.md#18; INV-1 scope note | EXT | living-docs-ingestion | *ING batch*; read-only scope stated by `living-docs-system-and-contracts` |  |
-| M-ING-100 | services/ingestion-scraper/README.md:101 | Corroboration review scored against 0.85 gate | requirement | ratify | extraction.md#18 | EXT | living-docs-ingestion | *ING batch*; only README and `HISTORY.md:96`; no test asserts exit 2 |  |
+| M-ING-099 | services/ingestion-scraper/README.md:100 | sample_corroborations reads live DB | requirement | ratify | extraction.md#18; INV-1 scope note | EXT | living-docs-ingestion | *ING batch*; read-only scope stated by `living-docs-system-and-contracts` | EXT-018 |
+| M-ING-100 | services/ingestion-scraper/README.md:101 | Corroboration review scored against 0.85 gate | requirement | ratify | extraction.md#18 | EXT | living-docs-ingestion | *ING batch*; only README and `HISTORY.md:96`; no test asserts exit 2 | EXT-018 |
 | M-ING-101 | services/ingestion-scraper/README.md:107 | SEC 10 req/s aggregate; 403 stops EDGAR run | requirement | link | connectors.md#7 | ING | legacy-docs-retirement | CHOICE "a 403 on a filing index also stops…" |  |
 | M-ING-102 | services/ingestion-scraper/README.md:107 | EDGAR 4 req/s + universe build 5 req/s stay under 10 | requirement | link | operations/topology.md; connectors.md#6 | OPS | living-docs-operations | at-risk class #8: aggregate is OPS, per-connector ING |  |
 | M-ING-103 | services/ingestion-scraper/README.md:107 | User-Agent mandatory; index.htm doc table; Accepted is US Eastern | trap | link | connectors.md Known traps; #11 | ING | legacy-docs-retirement | |  |
 | M-ING-104 | services/ingestion-scraper/README.md:107 | Company CIK from ciks[0]; submissions too short | trap | link | connectors.md#11 | ING | legacy-docs-retirement | |  |
-| M-ING-105 | services/ingestion-scraper/README.md:107 | Inline-XBRL `/ix?doc=` links; hits deduplicated by accession | requirement | ratify | connectors.md#11 | ING | living-docs-ingestion | *ING batch* |  |
+| M-ING-105 | services/ingestion-scraper/README.md:107 | Inline-XBRL `/ix?doc=` links; hits deduplicated by accession | requirement | ratify | connectors.md#11 | ING | living-docs-ingestion | *ING batch* | ING-017 |
 | M-ING-106 | services/ingestion-scraper/README.md:107 | EFTS `_source` uses adsh, ciks, display_names | trap | link | connectors.md Known traps | ING | legacy-docs-retirement | |  |
 | M-ING-107 | services/ingestion-scraper/README.md:108 | EPO OPS OAuth2, 2.5 req/s free tier | trap | link | connectors.md#6 | ING | legacy-docs-retirement | |  |
 | M-ING-108 | services/ingestion-scraper/README.md:109 | openFDA 1,000/day; no designations | trap | link | connectors.md Known traps | ING | legacy-docs-retirement | daily-cap half is M-ING-030 (`divergent`: approved *fda_approval* source; the cap binds once its `sources.yaml` entry exists) |  |
-| M-ING-109 | services/ingestion-scraper/README.md:110 | CT.gov v2 needs `filter.advanced` range syntax | trap | ratify | connectors.md Known traps | ING | living-docs-ingestion | *ING batch* |  |
+| M-ING-109 | services/ingestion-scraper/README.md:110 | CT.gov v2 needs `filter.advanced` range syntax | trap | ratify | connectors.md Known traps | ING | living-docs-ingestion | *ING batch* | docs/ingestion/connectors.md#known-traps |
 | M-ING-110 | services/ingestion-scraper/README.md:111 | Patents: filed_date is not disclosure date | trap | link | connectors.md#9 | ING | legacy-docs-retirement | |  |
 
 ### services/core-hub/README.md
@@ -1040,9 +1040,9 @@ Target IDs are not assigned here (design §5.2); `connectors.md#4` means "the 4t
 | Row | Source | Rule or content | Class | Disposition | Target | NS | Spec | Decision / note | ID |
 |---|---|---|---|---|---|---|---|---|---|
 | M-EXT-016 | config/models/registry.yaml:1-10 | Model entries and their fields | value | keep | registry.yaml | — | — | machine authority; extraction.md#9 names required fields |  |
-| M-EXT-017 | config/models/registry.yaml:11 | deprecation_date set when provider announces end of life | requirement | ratify | extraction.md#9 | EXT | living-docs-ingestion | *ING batch*: deprecation warning (`extraction_backend.py:317-323`) |  |
+| M-EXT-017 | config/models/registry.yaml:11 | deprecation_date set when provider announces end of life | requirement | ratify | extraction.md#9 | EXT | living-docs-ingestion | *ING batch*: deprecation warning (`extraction_backend.py:317-323`) | EXT-009 |
 | M-EXT-018 | config/models/local_candidates.yaml:1-3 | Not loaded; register script copies entry plus live digest | requirement | link | extraction.md#9-10 | EXT | living-docs-ingestion | |  |
-| M-EXT-019 | config/models/local_candidates.yaml:5-6 | num_ctx holds only with OLLAMA_CONTEXT_LENGTH ≥ num_ctx | trap | move | extraction.md Known traps | EXT | living-docs-ingestion | also root CLAUDE.md trap |  |
+| M-EXT-019 | config/models/local_candidates.yaml:5-6 | num_ctx holds only with OLLAMA_CONTEXT_LENGTH ≥ num_ctx | trap | move | extraction.md Known traps | EXT | living-docs-ingestion | also root CLAUDE.md trap | docs/ingestion/extraction.md#known-traps |
 | M-EXT-020 | config/models/local_candidates.yaml:37 | 4k-context build under a similar tag | trap | keep | local_candidates.yaml | — | — | config comment |  |
 | M-EXT-021 | config/models/scores/ | Gate records, one per model, prompt, prefilter | value | keep | scores/ | — | — | machine authority; empty today (readiness is SETUP's) |  |
 
@@ -1069,9 +1069,9 @@ Target IDs are not assigned here (design §5.2); `connectors.md#4` means "the 4t
 | M-EXT-026 | runbook:31 | Ollama ignores per-request context; set server context | trap | link | extraction.md Known traps | EXT | living-docs-ingestion | procedure stays in runbook |  |
 | M-EXT-027 | runbook:55 | Registry pins digest; re-pulled weights refused | requirement | link | extraction.md#10 | EXT | living-docs-ingestion | `test_extraction_backend.py::test_digest_mismatch_fails_at_startup` |  |
 | M-EXT-028 | runbook:66 | evaluate_model prints precision, latency, estimate; writes latency record | requirement | link | extraction.md#13 | EXT | living-docs-ingestion | |  |
-| M-EXT-029 | runbook:67 | Gate passes at is_signal precision ≥ 0.85 | requirement | move | extraction.md#13 | EXT | living-docs-ingestion | at-risk class #19; CHOICE "gate threshold and version labels aligned"; `test_local_model_integration.py::test_gate_record_passes_at_documented_precision_threshold` |  |
-| M-EXT-030 | runbook:67 | Service refuses model without passing record at active prompt/prefilter | requirement | move | extraction.md#12 | EXT | living-docs-ingestion | `test_extraction_backend.py::test_startup_refuses_model_without_passing_gate_record` |  |
-| M-EXT-031 | runbook:68 | Scripts run production's registry configuration | requirement | move | extraction.md#13 | EXT | living-docs-ingestion | `test_model_evaluation.py::test_evaluation_scripts_take_the_prompt_default_from_the_service` |  |
+| M-EXT-029 | runbook:67 | Gate passes at is_signal precision ≥ 0.85 | requirement | move | extraction.md#13 | EXT | living-docs-ingestion | at-risk class #19; CHOICE "gate threshold and version labels aligned"; `test_local_model_integration.py::test_gate_record_passes_at_documented_precision_threshold` | EXT-013 |
+| M-EXT-030 | runbook:67 | Service refuses model without passing record at active prompt/prefilter | requirement | move | extraction.md#12 | EXT | living-docs-ingestion | `test_extraction_backend.py::test_startup_refuses_model_without_passing_gate_record` | EXT-012 |
+| M-EXT-031 | runbook:68 | Scripts run production's registry configuration | requirement | move | extraction.md#13 | EXT | living-docs-ingestion | `test_model_evaluation.py::test_evaluation_scripts_take_the_prompt_default_from_the_service` | EXT-013 |
 | M-EXT-032 | runbook:72 | Model choice recorded as CHOICE from results | process | link | extraction.md#14 | EXT | living-docs-ingestion | |  |
 | M-EXT-033 | runbook:92 | Unreachable server warns; digest checked before first extraction | requirement | link | extraction.md#10 | EXT | living-docs-ingestion | `test_local_model_integration.py::test_unreachable_model_server_warns_at_startup_and_checks_digest_on_first_extraction` |  |
 | M-EXT-034 | runbook:92 | Failed extraction stays archived, counted failed | requirement | link | pipeline.md#3 | ING | living-docs-ingestion | `test_extraction_backend.py::test_model_server_unreachable_documents_stay_archived_and_not_published` |  |
@@ -1081,14 +1081,14 @@ Target IDs are not assigned here (design §5.2); `connectors.md#4` means "the 4t
 
 | Row | Source | Rule or content | Class | Disposition | Target | NS | Spec | Decision / note | ID |
 |---|---|---|---|---|---|---|---|---|---|
-| M-EXT-036 | `services/ingestion-scraper/src/auspex_ingest/extraction_backend.py:199` | Content wrapped in BEGIN/END DOCUMENT markers | requirement | ratify | extraction.md#3 | EXT | living-docs-ingestion | *ING batch*; the "data, never instruction" half is divergent (M-EXT-006) |  |
-| M-EXT-037 | `services/ingestion-scraper/src/auspex_ingest/extraction_backend.py:96-102` | Digest read from Ollama `/api/tags` | requirement | ratify | extraction.md#10 | EXT | living-docs-ingestion | *ING batch*; CLAUDE.md trap says `ollama show` (stale) |  |
-| M-EXT-038 | `extraction_backend.py` registry checks | Required fields; moving alias and unknown model refused | requirement | ratify | extraction.md#9 | EXT | living-docs-ingestion | *ING batch*; `test_extraction_backend.py::test_moving_alias_rejected_at_startup` |  |
-| M-EXT-039 | `extraction_backend.py` ContextLengthError | Over-context prompt fails loudly | requirement | move | extraction.md#11 | EXT | living-docs-ingestion | archived spec extraction-backend; `::test_over_context_prompt_fails_loudly_not_truncated` |  |
-| M-EXT-040 | `extraction_backend.py` `build_extractor_from_env` | OpenAI-compatible endpoint via EXTRACTION_BASE_URL, registry parameters | requirement | ratify | extraction.md#20 | EXT | living-docs-ingestion | *ING batch*; `test_local_model_integration.py::test_instructor_client_uses_registry_mode_timeout_and_base_url` |  |
-| M-EXT-041 | `extractor.py` `resolve_trial_ids`, `EventType` | Unknown event_type → other; trial_ids rule | requirement | move | extraction.md#8 | EXT | living-docs-ingestion | CHOICE "event taxonomy…" item 3; `test_company_level_extraction.py::test_unknown_event_type_from_model_is_recorded_as_other` |  |
-| M-ING-116 | `services/ingestion-scraper/src/auspex_ingest/api.py:39-102` | /health, /sources, /ingest (404, 500), /reextract, /metrics | contract | ratify | pipeline.md#18 | ING | living-docs-ingestion | *ING batch*; `test_api.py::test_ingest_unknown_source_type_returns_404` |  |
-| M-ING-117 | `services/ingestion-scraper/src/auspex_ingest/pipeline.py:~220` run log | Run summary lacks cursor before and after | requirement | divergent | pipeline.md#19 | ING | living-docs-ingestion | *Defects*; §12 :386 is the source |  |
+| M-EXT-036 | `services/ingestion-scraper/src/auspex_ingest/extraction_backend.py:199` | Content wrapped in BEGIN/END DOCUMENT markers | requirement | ratify | extraction.md#3 | EXT | living-docs-ingestion | *ING batch*; the "data, never instruction" half is divergent (M-EXT-006) | EXT-003 |
+| M-EXT-037 | `services/ingestion-scraper/src/auspex_ingest/extraction_backend.py:96-102` | Digest read from Ollama `/api/tags` | requirement | ratify | extraction.md#10 | EXT | living-docs-ingestion | *ING batch*; CLAUDE.md trap says `ollama show` (stale) | EXT-010 |
+| M-EXT-038 | `extraction_backend.py` registry checks | Required fields; moving alias and unknown model refused | requirement | ratify | extraction.md#9 | EXT | living-docs-ingestion | *ING batch*; `test_extraction_backend.py::test_moving_alias_rejected_at_startup` | EXT-009 |
+| M-EXT-039 | `extraction_backend.py` ContextLengthError | Over-context prompt fails loudly | requirement | move | extraction.md#11 | EXT | living-docs-ingestion | archived spec extraction-backend; `::test_over_context_prompt_fails_loudly_not_truncated` | EXT-011 |
+| M-EXT-040 | `extraction_backend.py` `build_extractor_from_env` | OpenAI-compatible endpoint via EXTRACTION_BASE_URL, registry parameters | requirement | ratify | extraction.md#20 | EXT | living-docs-ingestion | *ING batch*; `test_local_model_integration.py::test_instructor_client_uses_registry_mode_timeout_and_base_url` | EXT-020 |
+| M-EXT-041 | `extractor.py` `resolve_trial_ids`, `EventType` | Unknown event_type → other; trial_ids rule | requirement | move | extraction.md#8 | EXT | living-docs-ingestion | CHOICE "event taxonomy…" item 3; `test_company_level_extraction.py::test_unknown_event_type_from_model_is_recorded_as_other` | EXT-008 |
+| M-ING-116 | `services/ingestion-scraper/src/auspex_ingest/api.py:39-102` | /health, /sources, /ingest (404, 500), /reextract, /metrics | contract | ratify | pipeline.md#18 | ING | living-docs-ingestion | *ING batch*; `test_api.py::test_ingest_unknown_source_type_returns_404` | ING-039 |
+| M-ING-117 | `services/ingestion-scraper/src/auspex_ingest/pipeline.py:~220` run log | Run summary lacks cursor before and after | requirement | divergent | pipeline.md#19 | ING | living-docs-ingestion | *Defects*; §12 :386 is the source | ING-040 |
 | M-HUB-062 | `services/core-hub/src/main/java/dev/auspex/corehub/audit/RawAuditService.java:47` | Raw audit reads `ingested_at` | requirement | divergent | storage.md#12 | HUB | living-docs-core-hub | *Raw-pointer*; `RawAuditIT` uses a hand-written payload |  |
 | M-HUB-063 | `RawAuditService` | Malformed raw payload retried, not dead-lettered at once | requirement | divergent | consumption.md#4 | HUB | living-docs-core-hub | *Defects* |  |
 | M-HUB-064 | `services/core-hub/src/main/java/dev/auspex/corehub/corroboration/ScheduledCorroborationService.java:57-82` | Graph-only Signal after DLT; dual write without outbox | requirement | ratify | storage.md#4 | HUB | living-docs-core-hub | *HUB batch* (C14) |  |
@@ -1101,53 +1101,53 @@ Target IDs are not assigned here (design §5.2); `connectors.md#4` means "the 4t
 
 | Row | Source | Rule or content | Class | Disposition | Target | NS | Spec | Decision / note | ID |
 |---|---|---|---|---|---|---|---|---|---|
-| M-ING-118 | at-risk class #5 | Processed-marker semantics | requirement | move | pipeline.md#11 | ING | living-docs-ingestion | CHOICE "unchanged re-fetch skip with retry-safe markers"; `test_unchanged_refetch.py::test_failed_kafka_flush_marks_nothing_so_undelivered_signals_are_retried` |  |
+| M-ING-118 | at-risk class #5 | Processed-marker semantics | requirement | move | pipeline.md#11 | ING | living-docs-ingestion | CHOICE "unchanged re-fetch skip with retry-safe markers"; `test_unchanged_refetch.py::test_failed_kafka_flush_marks_nothing_so_undelivered_signals_are_retried` | ING-032 |
 | M-HUB-067 | at-risk class #6 | Graph edge replacement on rewrite | requirement | move | storage.md#11 | HUB | living-docs-core-hub | archived spec graph-relationship-replacement; `GraphRelationshipReplacementIT::graphAndPostgresHoldTheSameEntitiesAfterARewrite` |  |
 | M-HUB-068 | at-risk class #7 | Listener pause on store outage | requirement | move | consumption.md#7 | HUB | living-docs-core-hub | CHOICE "transient Kafka failures pause…"; `DeadLetterRecoveryIT::recordConsumedDuringANeo4jOutageIsStoredAfterRecovery` |  |
 | M-HUB-069 | at-risk class #7 | DLT replay via `corehub-dlt-replay` | requirement | move | consumption.md#10 | HUB | living-docs-core-hub | `DeadLetterRecoveryIT::replayDoesNotRepublishARecordTwice` |  |
-| M-ING-119 | at-risk class #8 | SEC budget, per-connector side (EDGAR rate, 403 stop) | requirement | move | connectors.md#6-7 | ING | living-docs-ingestion | CHOICE "SEC request budget across containers"; aggregate → OPS (`living-docs-operations/legacy-docs-retirement`) |  |
+| M-ING-119 | at-risk class #8 | SEC budget, per-connector side (EDGAR rate, 403 stop) | requirement | move | connectors.md#6-7 | ING | living-docs-ingestion | CHOICE "SEC request budget across containers"; aggregate → OPS (`living-docs-operations/legacy-docs-retirement`) | ING-006 ING-007 |
 | M-COR-026 | at-risk class #9 | Corroboration scorer formula | requirement | link | same as M-COR-018 | — | living-docs-core-hub | Duplicate of M-COR-018; the ID is carried there |  |
 | M-HUB-070 | at-risk class #10 | Write token, no CORS, browser only talks to dashboard | requirement | move | http-api.md#1-2 | HUB | living-docs-core-hub | CHOICE "dashboard runs in the stack behind its own server layer"; dashboard.md links |  |
 | M-HUB-071 | at-risk class #12 | Single-user installation, no user_id | requirement | move | storage.md#13 | HUB | living-docs-core-hub | CHOICE "No user_id column; single-user installation, extensible" |  |
 | M-HUB-072 | at-risk class #13 | core-hub calls ClinicalTrials.gov directly | invariant | link | INV-4 exception in `docs/system/invariants.md` | INV | living-docs-system-and-contracts | CHOICE "core-hub calls ClinicalTrials.gov directly"; http-api.md#4 links |  |
-| M-EXT-042 | at-risk class #19 | Extraction gate ≥ 0.85 and decision rule fixed in advance | requirement | move | extraction.md#13-14 | EXT | living-docs-ingestion | CHOICE "local model decision rule, fixed before the gate runs"; not the protocol's event-to-ticker 0.85 gate (EVA) |  |
+| M-EXT-042 | at-risk class #19 | Extraction gate ≥ 0.85 and decision rule fixed in advance | requirement | move | extraction.md#13-14 | EXT | living-docs-ingestion | CHOICE "local model decision rule, fixed before the gate runs"; not the protocol's event-to-ticker 0.85 gate (EVA) | EXT-013 EXT-014 |
 
 ### DECISIONS.md CHOICE entries in this domain
 
 | Row | Source (heading) | Rule or content | Class | Disposition | Target | NS | Spec | Decision / note | ID |
 |---|---|---|---|---|---|---|---|---|---|
 | M-EXT-043 | 2026-08-15 — Step 0.0 — CHOICE — LLM provider changed from Anthropic to OpenAI | OpenAI SDK through instructor; gpt-4o default | history | link | extraction.md Rationale | EXT | living-docs-ingestion | history: superseded by the registry-driven backend; endpoint rule is extraction.md#20 |  |
-| M-ING-120 | 2026-08-15 — Step 2.3 — CHOICE — Patent connector: PatentsView → Lens.org → EPO OPS (final) | EPO OPS; epo-app canonical stable across A1/B1 | requirement | move | connectors.md#12 | ING | living-docs-ingestion | binding |  |
-| M-ING-121 | 2026-08-15 — Step 2.3 — CHOICE — Patent connector changed from Lens.org to EPO OPS | external_id is publication reference CC-NUM-KIND | requirement | move | connectors.md#12 | ING | living-docs-ingestion | binding (duplicate of M-ING-120) |  |
+| M-ING-120 | 2026-08-15 — Step 2.3 — CHOICE — Patent connector: PatentsView → Lens.org → EPO OPS (final) | EPO OPS; epo-app canonical stable across A1/B1 | requirement | move | connectors.md#12 | ING | living-docs-ingestion | binding | ING-018 |
+| M-ING-121 | 2026-08-15 — Step 2.3 — CHOICE — Patent connector changed from Lens.org to EPO OPS | external_id is publication reference CC-NUM-KIND | requirement | move | connectors.md#12 | ING | living-docs-ingestion | binding (duplicate of M-ING-120) | ING-018 |
 | M-ING-122 | 2026-08-15 — Step 0.0 — CHOICE — Ticker-restricted ingestion via pre-filter vocabulary (no architecture change) | Scope set by vocabulary; WATCHED_TICKERS, config/prefilter | history | link | pipeline.md Rationale | ING | living-docs-ingestion | history: vocabulary now per entry in sources.yaml; `config/prefilter/` deleted |  |
 | M-ING-123 | 2026-08-15 — Step 0.0 — CHOICE — Watched tickers and initial pre-filter vocabulary | Eight tickers and their terms | history | delete | — | — | living-docs-ingestion | values now in sources.yaml |  |
 | M-COR-027 | 2026-09-19 — Watchlist & alerts — CHOICE — Discord webhook transport | Discord webhook for alerts | history | keep | specs/hold/watchlist-alerts.md | — | living-docs-core-hub | unbuilt |  |
 | M-COR-028 | 2026-09-19 — Watchlist & alerts — CHOICE — Entity-key-based watchlist, not ticker-based | watchlist_entries hold entity keys | history | delete | — | — | living-docs-core-hub | superseded: hold spec reads V3 tables |  |
-| M-EXT-044 | 2026-09-19 — Historical backfill — CHOICE — Option A: local model for backfill, API model forward-only | Gate at ≥ 0.85; one-model corpus | requirement | move | extraction.md#13 | EXT | living-docs-ingestion | binding for the gate; lineage rule keeps living in specs/historical-backfill.md |  |
+| M-EXT-044 | 2026-09-19 — Historical backfill — CHOICE — Option A: local model for backfill, API model forward-only | Gate at ≥ 0.85; one-model corpus | requirement | move | extraction.md#13 | EXT | living-docs-ingestion | binding for the gate; lineage rule keeps living in specs/historical-backfill.md | EXT-013 |
 | M-HUB-073 | 2026-09-20 — Watchlist backend — CHOICE — No user_id column; single-user installation, extensible | No user_id; one-migration path | requirement | move | storage.md#13 | HUB | living-docs-core-hub | binding |  |
 | M-HUB-074 | 2026-09-20 — Watchlist backend — CHOICE — core-hub calls ClinicalTrials.gov directly | Preview calls CT.gov; 5 s timeout | invariant | link | INV-4 exception in `docs/system/invariants.md` | INV | living-docs-system-and-contracts | binding |  |
 | M-EXT-045 | 2026-09-20 — Option A hosting — CHOICE — A1 (MacBook) confirmed for Phase 4; A2/A3 deferred | Backfill on the Mac | history | delete | — | — | living-docs-ingestion | hosting note, no rule |  |
 | M-HUB-075 | 2026-09-25 — Watchlist backend — CHOICE — live preview smoke test deferred | Live preview call deferred | history | delete | — | — | living-docs-core-hub | status only |  |
-| M-ING-124 | 2026-10-07 — Live ingestion — CHOICE — unchanged re-fetch skip with retry-safe markers | Processed markers after final outcome and flush | requirement | move | pipeline.md#11 | ING | living-docs-ingestion | binding |  |
-| M-EXT-046 | 2026-10-07 — Local model integration — CHOICE — gate threshold and version labels aligned | GATE_PRECISION 0.85; prompt from EXTRACTION_PROMPT_VERSION | requirement | move | extraction.md#7, #13 | EXT | living-docs-ingestion | binding; its `v1.0` label is superseded by Single-source cleanup (prompt `v1`) |  |
-| M-ING-125 | 2026-10-07 — EDGAR press-release content — CHOICE — filing index replaces the submissions lookup | Items 2.02/7.01/8.01; Exhibit 99.1; acceptance time UTC; ciks[0] | requirement | move | connectors.md#9, #11 | ING | living-docs-ingestion | binding; 4,000-char note → extraction.md#4 |  |
+| M-ING-124 | 2026-10-07 — Live ingestion — CHOICE — unchanged re-fetch skip with retry-safe markers | Processed markers after final outcome and flush | requirement | move | pipeline.md#11 | ING | living-docs-ingestion | binding | ING-032 |
+| M-EXT-046 | 2026-10-07 — Local model integration — CHOICE — gate threshold and version labels aligned | GATE_PRECISION 0.85; prompt from EXTRACTION_PROMPT_VERSION | requirement | move | extraction.md#7, #13 | EXT | living-docs-ingestion | binding; its `v1.0` label is superseded by Single-source cleanup (prompt `v1`) | EXT-007 EXT-013 |
+| M-ING-125 | 2026-10-07 — EDGAR press-release content — CHOICE — filing index replaces the submissions lookup | Items 2.02/7.01/8.01; Exhibit 99.1; acceptance time UTC; ciks[0] | requirement | move | connectors.md#9, #11 | ING | living-docs-ingestion | binding; 4,000-char note → extraction.md#4 | ING-014 ING-017 |
 | M-ING-126 | 2026-10-07 — Second-wave specs — CHOICE — structured filings bypass the LLM | Deterministic mapper path for Form 4, offerings | history | keep | specs/hold/structured-source-extraction.md | — | living-docs-ingestion | unbuilt (hold) |  |
-| M-EXT-047 | 2026-10-07 — Company-level extraction — CHOICE — event taxonomy and identifier fields (schema 1.1) | event_type set, trial_ids rule, V4 columns, CT lead sponsor | requirement | move | extraction.md#8; storage.md#9; connectors.md#13; CON closed set | EXT | living-docs-ingestion | binding (split across EXT, HUB, ING, CON); "schema 1.1" and prompt v1.1 superseded by Single-source cleanup |  |
+| M-EXT-047 | 2026-10-07 — Company-level extraction — CHOICE — event taxonomy and identifier fields (schema 1.1) | event_type set, trial_ids rule, V4 columns, CT lead sponsor | requirement | move | extraction.md#8; storage.md#9; connectors.md#13; CON closed set | EXT | living-docs-ingestion | binding (split across EXT, HUB, ING, CON); "schema 1.1" and prompt v1.1 superseded by Single-source cleanup | EXT-008 |
 | M-ING-127 | 2026-10-08 — Control-surface scoping — CHOICE — the watchlist is the single source for tracked tickers and terms | Watchlist feeds scraper config; versioned vocabulary | history | keep | specs/managed-ingestion-config.md | — | living-docs-ingestion | unbuilt; binding for that spec only |  |
 | M-HUB-076 | 2026-10-08 — Control-surface scoping — CHOICE — dashboard runs in the stack behind its own server layer | Browser → dashboard only; no core-hub CORS; token on writes | requirement | move | http-api.md#1-2 | HUB | living-docs-core-hub | binding; BFF half is DSH (`living-docs-strategy-and-dashboard`) |  |
-| M-EXT-048 | 2026-10-08 — First run on the stack machine — CHOICE — local model decision rule, fixed before the gate runs | Eligibility and tie-break rule for the first model choice | requirement | move | extraction.md#14 | EXT | living-docs-ingestion | binding |  |
-| M-ING-128 | 2026-10-09 — Soak-test readiness — CHOICE — cursor after a run with failed documents | next_cursor never passes a failed document | requirement | move | pipeline.md#5 | ING | living-docs-ingestion | binding; DAG half → OPS |  |
+| M-EXT-048 | 2026-10-08 — First run on the stack machine — CHOICE — local model decision rule, fixed before the gate runs | Eligibility and tie-break rule for the first model choice | requirement | move | extraction.md#14 | EXT | living-docs-ingestion | binding | EXT-014 |
+| M-ING-128 | 2026-10-09 — Soak-test readiness — CHOICE — cursor after a run with failed documents | next_cursor never passes a failed document | requirement | move | pipeline.md#5 | ING | living-docs-ingestion | binding; DAG half → OPS | ING-026 |
 | M-HUB-077 | 2026-10-09 — Soak-test readiness — CHOICE — transient Kafka failures pause instead of retrying longer | Pause on outage; 5 s/30 s back-off; replay endpoint | requirement | move | consumption.md#6, #7, #10 | HUB | living-docs-core-hub | binding |  |
-| M-ING-129 | 2026-10-09 — Soak-test readiness — CHOICE — SEC request budget across containers | EDGAR 4 + universe 5; EDGAR stops on 403 | requirement | move | connectors.md#6-7 | ING | living-docs-ingestion | binding; aggregate → operations/topology.md (`living-docs-operations`) |  |
+| M-ING-129 | 2026-10-09 — Soak-test readiness — CHOICE — SEC request budget across containers | EDGAR 4 + universe 5; EDGAR stops on 403 | requirement | move | connectors.md#6-7 | ING | living-docs-ingestion | binding; aggregate → operations/topology.md (`living-docs-operations`) | ING-006 ING-007 |
 | M-HUB-078 | 2026-10-09 — Dashboard foundation — CHOICE — login endpoint, write-token failure mode, path layout | Item 3: write token fails closed | requirement | move | http-api.md#1 | HUB | living-docs-core-hub | binding for item 3; items 1, 2, 4, 5 are DSH (`living-docs-strategy-and-dashboard`) |  |
 | M-ING-130 | 2026-10-10 — Single-source cleanup — CHOICE — one version of each pre-rollout artifact | One prompt v1, schema 1.0, deleted duplicates | history | link | extraction.md Rationale | EXT | living-docs-ingestion | history: its effects are code and CON facts |  |
-| M-EXT-049 | 2026-10-09 — Graph and connector wiring fixes — CHOICE — publish threshold default is 0.0, not the API's 0.5 | Threshold per entry, default 0.0 | requirement | move | extraction.md#2 | EXT | living-docs-ingestion | binding |  |
+| M-EXT-049 | 2026-10-09 — Graph and connector wiring fixes — CHOICE — publish threshold default is 0.0, not the API's 0.5 | Threshold per entry, default 0.0 | requirement | move | extraction.md#2 | EXT | living-docs-ingestion | binding | EXT-002 |
 | M-HUB-079 | 2026-10-09 — Graph and connector wiring fixes — CHOICE — ticker resolution details | Single-ticker match; back-fill by SEC title; failure logged | requirement | move | storage.md#10; http-api.md#4 | HUB | living-docs-core-hub | binding |  |
-| M-EXT-050 | 2026-10-09 — Graph and connector wiring fixes — CHOICE — calibrated publish thresholds before launch | Per-source calibration before launch | requirement | move | `docs/ingestion/extraction.md` item 21 | EXT | living-docs-ingestion | binding before launch; the calibration work itself stays in `specs/golden-set-expansion.md` |  |
+| M-EXT-050 | 2026-10-09 — Graph and connector wiring fixes — CHOICE — calibrated publish thresholds before launch | Per-source calibration before launch | requirement | move | `docs/ingestion/extraction.md` item 21 | EXT | living-docs-ingestion | binding before launch; the calibration work itself stays in `specs/golden-set-expansion.md` | EXT-021 |
 | M-HUB-080 | 2026-10-09 — Graph and connector wiring fixes — CHOICE — no VIA migration | Writer emits USES_MECHANISM; no rewrite | history | link | storage.md Rationale | HUB | living-docs-core-hub | rule itself is storage.md#9 (ArchUnit) |  |
-| M-ING-131 | 2026-10-10 — Ingestion run reliability — CHOICE — schedule times, extraction cap and task timeout | Cap 150 sized to 3 h; schedules; timeout | requirement | move | pipeline.md#6 | ING | living-docs-ingestion | binding for the cap rule (value in sources.yaml); schedules and timeout → OPS |  |
-| M-ING-132 | 2026-10-10 — Ingestion run reliability — CHOICE — rate limiter spaces requests evenly, with no burst | One-token bucket; even spacing | requirement | move | connectors.md#5 | ING | living-docs-ingestion | binding; `test_rate_limited_client.py::test_idle_time_does_not_bank_a_burst` |  |
-| M-ING-133 | 2026-10-10 — Ingestion run reliability — CHOICE — a 403 on a filing index also stops the EDGAR run | Any SEC 403 ends the run | requirement | move | connectors.md#7 | ING | living-docs-ingestion | binding; `test_sec_edgar.py::test_index_403_stops_the_run_without_further_sec_requests` |  |
+| M-ING-131 | 2026-10-10 — Ingestion run reliability — CHOICE — schedule times, extraction cap and task timeout | Cap 150 sized to 3 h; schedules; timeout | requirement | move | pipeline.md#6 | ING | living-docs-ingestion | binding for the cap rule (value in sources.yaml); schedules and timeout → OPS | ING-027 |
+| M-ING-132 | 2026-10-10 — Ingestion run reliability — CHOICE — rate limiter spaces requests evenly, with no burst | One-token bucket; even spacing | requirement | move | connectors.md#5 | ING | living-docs-ingestion | binding; `test_rate_limited_client.py::test_idle_time_does_not_bank_a_burst` | ING-005 |
+| M-ING-133 | 2026-10-10 — Ingestion run reliability — CHOICE — a 403 on a filing index also stops the EDGAR run | Any SEC 403 ends the run | requirement | move | connectors.md#7 | ING | living-docs-ingestion | binding; `test_sec_edgar.py::test_index_403_stops_the_run_without_further_sec_requests` | ING-007 |
 | M-ING-134 | 2026-10-10 — Ingestion run reliability — CHOICE — requirements §5 text follows the 2026-10-09 cursor decision | §5 text edited to the cursor rule | history | delete | — | — | living-docs-ingestion | doc-edit record |  |
 | M-COR-029 | 2026-10-10 — Corroboration late arrivals — CHOICE — contract test signals are written pending, clear runs after the commit | Contract-test helpers write pending; clear after commit | requirement | move | corroboration.md#1, #8 | COR | living-docs-core-hub | binding |  |
 | M-COR-030 | 2026-10-10 — Consolidated code, strategy and BV audit — CHOICE — what becomes specs, what does not | Which audit findings became specs | history | delete | — | — | living-docs-core-hub | item 6 (no withdrawal of published corroborations) noted in corroboration.md Rationale |  |
