@@ -343,3 +343,8 @@ Invariants with no §3 item: INV-3 (§5, §6.1), INV-4 (§6.1, §13 ArchUnit), I
 * **No `extracted_at` on the event.** `## 2026-09-20 — Strategy layer session 2 — FLAG — extracted_at missing from ResearchSignalEvent (§10.2)` is still open; CON does not add the field.
 * **The `fda:` prefix** is in `_CANONICAL_PREFIXES` but `fda_approval` has no `sources.yaml` entry (`## 2026-10-15 — Living docs — PENDING — fda_approval source`, written by `living-docs-ingestion`). The canonical-prefix requirement names the authority, not the list, so it is unaffected.
 * **Ack mode and listener validation** (items C5 and C6 of the defects entry) are HUB's to record; the `confidence_score` requirement states only the wire half.
+* **As built.**
+  * **Raw pointer rows are `tested`, not `divergent`.** C1 was fixed on develop (b7582c3, `specs/done/raw-pointer-contract-fix.md`) before this spec ran. CON-005, CON-006 and CON-007 therefore cite the raw-pointer CHOICE and the pointer tests, and the required test `raw_pointer_rows_are_divergent_and_cite_the_raw_pointer_decision` no longer applies.
+  * **Reviewed at develop b7582c3, not e51f742.** Line citations follow b7582c3. The invariant text is the same in both.
+  * **Answered decisions are cited by their CHOICE heading.**
+  * **`Step 1.3` stays in contracts.md.** It appears in the CON-035, CON-036 and CON-037 Source cells and in one Known traps line, as the verbatim `## 2026-08-16 — Step 1.3 — VERIFIED — …` headings, because check M requires the exact heading text.
