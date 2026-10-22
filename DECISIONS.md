@@ -1647,3 +1647,15 @@ The summary lists every source in `sources.yaml`. A source with a run in the las
 - A: approve the batch as written.
 - B: reject or reword single items; each rejected item is then retired or rewritten by a follow-up change.
 **Action:** default A. Owner to answer by appending `## <date> — Living docs — CHOICE — core-hub ratification batch`. The cutover's decision-application step then flips the rows above from `pending-decision` to their real status and cites that `CHOICE`. Not blocking.
+## 2026-10-22 — Living docs — PENDING — operations ratification batch
+**What:** These operations requirements in `docs/operations/` have no approval in a requirements §, a `CHOICE` entry, an archived spec or an invariant: their only source is code, a README, a root `CLAUDE.md` trap, a config comment or the rollout design (`specs/living-docs-cutover-design.md`). Each is written as approved text with status `pending-decision` and cites this heading. Each matches today's code.
+- **OPS-002** — the scraper reaches the host's model server as `host.docker.internal` through compose `extra_hosts` with `host-gateway`. `docker/docker-compose.yml` (service `ingestion-scraper`); `docker/README.md:211-224`.
+- **OPS-007** — `.env.example` configures compose and the host scripts alike: every variable compose reads is in it, not every variable in it is read by compose. `.env.example` header comment and the host scripts that read it.
+- **OPS-021** — the scraper serves from one gunicorn process with threads. Root `CLAUDE.md` known trap; `services/ingestion-scraper/config/gunicorn.conf.py` comment; tested by `test_gunicorn_serves_from_one_process_so_metrics_are_not_split_across_workers`.
+- **OPS-022** — price-service and backup each serve from one gunicorn process with threads. `services/backtesting/config/gunicorn.conf.py`, `services/backup/config/gunicorn.conf.py`; untested.
+- **OPS-031** — the non-ingestion DAGs retry, and those that call a service fail on any HTTP error status. `services/backtesting/dags/price_refresh.py`, `services/backtesting/dags/universe_build.py`, `services/backup/dags/backup.py`, `services/ingestion-scraper/dags/daily_health.py`; only the backup DAG is tested.
+- **OPS-053** — renaming a catalogued metric changes the catalogue row, the emitter and every consumer in one PR. design §2 (rollout rule).
+- **OPS-068** — `POST /backup` answers 409 while a run is in progress. `services/backup/src/auspex_backup/api.py:33`; `services/backup/README.md:8`; untested.
+**Why it matters:** until approved, these rules are written down but not yet the owner's; the cutover lists every `pending-decision` row.
+**Options considered:** A: approve the batch as written. B: approve it with named items struck or reworded; a struck item is retired by a follow-up change.
+**Action:** default A. When the owner approves, the owner appends `## <date> — Living docs — CHOICE — operations ratification batch`; the cutover's decision step then flips these rows to their real status and Source. Not blocking.

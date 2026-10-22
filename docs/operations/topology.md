@@ -1,0 +1,100 @@
+# Topology
+
+Domain: OPS · Code: `docker/docker-compose.yml`, `.env.example`, `services/*/Dockerfile`, `services/*/config/gunicorn.conf.py`, `services/backtesting/src/auspex_backtesting/stack_bootstrap.py`, `docker/` · Last reviewed against: develop @ `b7582c3`
+
+## Scope
+
+Where the stack runs and how it is assembled: the host, the compose profiles, published ports, the configuration surface, startup data, the two Postgres databases, memory and disk, persistence, image builds, the one-process rule for the Python services, and the combined request budget against SEC.
+
+Not here:
+- topic names, partitions and retention, and the rule that topics come only from `docker/topics.yaml`: [contracts.md](../system/contracts.md) (CON-001); this file only says that `kafka-init` is one of the startup one-shots;
+- the bucket and database names: [overview.md](../system/overview.md);
+- where credentials live: INV-6 in [invariants.md](../system/invariants.md); this file says how compose passes them;
+- the DAGs that keep data current, their schedules and the Airflow settings: [orchestration.md](orchestration.md);
+- logs, metrics and alerts: [observability.md](observability.md); backup and the restore runbook: [backup.md](backup.md);
+- each SEC client's own rate: EDGAR in [connectors.md](../ingestion/connectors.md), the universe, ownership, filing and catalyst clients in [universe.md](../research/universe.md) and [panels.md](../research/panels.md);
+- image pin rules: [conventions.md](../engineering/conventions.md); CI images: [verification.md](../engineering/verification.md);
+- stack commands (`up`, `down`, the restore command): the root `README.md`.
+
+## Requirements
+
+- <a id="OPS-001"></a>**OPS-001** — The stack runs on one Mac. Docker Desktop's VM has the memory cap set in `SETUP.md` step 2, and the local model server (Ollama) runs on the host, outside Docker.
+- <a id="OPS-002"></a>**OPS-002** — The scraper reaches the host's model server as `host.docker.internal`, which compose maps to the host through `extra_hosts` with `host-gateway`.
+- <a id="OPS-003"></a>**OPS-003** — Compose mounts `config/models/` read-only into the scraper and passes it the `EXTRACTION_*` variables; the model registry and gate records are never written from inside a container.
+- <a id="OPS-004"></a>**OPS-004** — Compose has three profiles. The default profile holds the stores, monitoring, price-service, backup, Airflow and the startup one-shots. Profile `app` holds `ingestion-scraper`, `core-hub`, `strategy-runtime` and `dashboard`. Profile `restore` holds only the `restore` one-shot, which no other profile starts.
+- <a id="OPS-005"></a>**OPS-005** — Every port compose publishes is bound to `127.0.0.1`. The exporters, `volume-usage` and `backup` publish none; Prometheus and Airflow reach them on the compose network.
+- <a id="OPS-006"></a>**OPS-006** — Compose reads every variable `.env.example` defines as a plain `${VAR}`, with no default. The Airflow secrets and `BACKUP_HOST_DIR` are required references (`${VAR:?message}`), so `up` stops naming the missing one. Credentials, including the MinIO keys, have no value in `.env.example` and come only from `.env`. When a change adds a variable, an `.env` copied before it existed must gain it.
+- <a id="OPS-007"></a>**OPS-007** — `.env.example` configures compose and the host scripts alike: every variable compose reads is in it, but not every variable in it is read by compose; some are read only by scripts run on the host.
+- <a id="OPS-008"></a>**OPS-008** — Compose takes Elasticsearch and Filebeat from Elastic's registry (`docker.elastic.co`), not from Docker Hub.
+- <a id="OPS-009"></a>**OPS-009** — Startup data loads itself on `up`. Each startup one-shot (`kafka-init`, `minio-init`, `price-bootstrap`, `elasticsearch-setup`, `airflow-db-role`, `airflow-state-init`, `postgres-monitor-role`) is a no-op when its data or setting already exists, or re-applies it idempotently. `kafka-init` creates the topics CON-001 defines. Data that must stay current is refreshed by an Airflow DAG calling a service endpoint ([orchestration.md](orchestration.md)), never by a script run by hand.
+- <a id="OPS-010"></a>**OPS-010** — `minio-init` creates every bucket `stack_buckets()` in `services/backtesting/src/auspex_backtesting/stack_bootstrap.py` lists and leaves an existing bucket alone.
+- <a id="OPS-011"></a>**OPS-011** — Every `depends_on` entry in compose carries a condition: a service starts only after the stores it needs report healthy and the one-shots it needs have exited successfully. `up --wait` therefore returns only when every healthchecked service is healthy and every one-shot has completed.
+- <a id="OPS-012"></a>**OPS-012** — One Postgres container holds two databases: the application database and Airflow's metadata database. Both are created by `docker/postgres-init/` on the first start of an empty data volume. Airflow's database is owned by its own role, with no grants between that role and the application database.
+- <a id="OPS-013"></a>**OPS-013** — The Postgres roles that must exist on a volume created earlier are re-applied by one-shots on every `up`, never by an init script: `airflow-db-role` creates Airflow's role if missing and sets its password from `.env`, passing the name and password to `psql` as variables; `postgres-monitor-role` does the same for the monitoring role. `airflow-state-init` makes the `airflow_state` volume writable for Airflow's user. Each runs before the service that needs it.
+- <a id="OPS-014"></a>**OPS-014** — Every compose service has a `mem_limit` from its `*_MEM_LIMIT` variable in `.env`. The limits of the long-running services sum to at most the VM's memory less 512 MB; one-shots are not counted. This is the long-running memory budget; the per-service values are in `.env.example`.
+- <a id="OPS-015"></a>**OPS-015** — Airflow runs one API worker and a bounded number of concurrent tasks (`AIRFLOW_API_WORKERS`, `AIRFLOW_PARALLELISM`). Neo4j's heap and page cache are set explicitly (`NEO4J_HEAP_SIZE`, `NEO4J_PAGECACHE_SIZE`) and together use at most three quarters of its limit.
+- <a id="OPS-016"></a>**OPS-016** — Every store on the VM disk has a setting that bounds it (topic retention, log rotation, index deletion, Prometheus retention) or an alert and a dashboard panel that watch it (the stores that only grow, such as MinIO and Postgres).
+- <a id="OPS-017"></a>**OPS-017** — Every stateful path of every service is on a named volume declared in compose, and every named volume is mounted into `volume-usage`. Removing and recreating the containers and images leaves every store, cursor and setting as it was.
+- <a id="OPS-018"></a>**OPS-018** — Kafka's cluster ID is pinned to the ID its volume was formatted with; consumer offsets are kept longer than the longest topic retention; the compose project name is `auspex` in both the compose file and `.env.example`.
+- <a id="OPS-019"></a>**OPS-019** — `docker compose down -v` destroys all data (price history, the pinned universe, the raw archive and every signal) and is never offered as a fix: a wrong partition count is fixed per topic in place (procedure in `docker/README.md`). Every line of documentation that mentions `down -v` says that it destroys all data.
+- <a id="OPS-020"></a>**OPS-020** — Each of the six application images is built from its service's Dockerfile (`services/*/Dockerfile`: ingestion-scraper, core-hub, backtesting, strategy, backup, dashboard), with that service's directory as build context, except `strategy`, which builds from `services/` because it installs `services/backtesting` from source. The backup image is built on the Postgres server image, so `pg_dump` and `pg_restore` always match the server's major version.
+- <a id="OPS-021"></a>**OPS-021** — The scraper serves from one gunicorn process with threads, never several workers.
+- <a id="OPS-022"></a>**OPS-022** — price-service and backup each serve from one gunicorn process with threads.
+- <a id="OPS-023"></a>**OPS-023** — Every client that sends requests to a `*.sec.gov` host and can run at the same time as another stays, together with those others, under SEC's per-IP request limit. The clients are the EDGAR connector (`services/ingestion-scraper/src/auspex_ingest/connectors/sec_edgar.py`, scraper container); the universe build (package `universe`), the filing-text panel (package `filings`) and the catalyst panel (package `catalysts`), all built from `services/backtesting/src/auspex_backtesting/api.py`, the first in price-service and the other two from host scripts; and the ownership datasets client (`services/backtesting/src/auspex_backtesting/ownership/job.py`, a host script). EDGAR ingestion and the universe build may overlap, so their two rates sum under the limit; an ownership pull is never scheduled to overlap EDGAR ingestion. Each client's own rate is owned by the doc of its component (see Scope).
+
+## Machine-readable authorities
+
+| File | Governs | Notes |
+|---|---|---|
+| `docker/docker-compose.yml` | Services, profiles, ports, mounts, dependencies, healthchecks, build contexts | OPS-004 to OPS-006, OPS-009 to OPS-013, OPS-017, OPS-020 |
+| `.env.example` | Every variable name, memory limits, retention, sizes, the empty credential slots | Values are never copied into `docs/` |
+| `docker/topics.yaml` | Topics `kafka-init` creates | Owned by [contracts.md](../system/contracts.md) |
+| `docker/postgres-init/`, `docker/airflow-db-role/`, `docker/postgres-monitor/` | Database creation and the two re-applied roles | OPS-012, OPS-013 |
+| `services/*/Dockerfile`, `services/*/config/gunicorn.conf.py` | Image builds and the one-process servers | OPS-020 to OPS-022 |
+| `services/ingestion-scraper/config/sources.yaml` | The EDGAR connector's rate | OPS-023 names the clients; the rate is the connector's |
+
+## Verification
+
+The compose-reading tests live in the scraper package (`services/ingestion-scraper/tests/unit/test_stack_*.py`) for historical reasons; they test the stack configuration, not the scraper. `tested` here means the configuration is asserted, not that the stack has run on the Mac.
+
+| ID | Source | Verified by | Status |
+|---|---|---|---|
+| OPS-001 | `## 2026-09-20 — Option A hosting — CHOICE — A1 (MacBook) confirmed for Phase 4; A2/A3 deferred`; `## 2026-10-09 — Infrastructure observability — CHOICE — memory limits sized to 7.5 GB, first estimates` [`SETUP.md`; `docker/README.md`] | — | untested |
+| OPS-002 | `## 2026-10-22 — Living docs — PENDING — operations ratification batch` [`docker/README.md`; `docker/docker-compose.yml`] | — | pending-decision |
+| OPS-003 | `specs/done/local-model-integration.md` [`docker/README.md`] | — | untested |
+| OPS-004 | `specs/done/containerisation.md`; `specs/done/stack-backup.md` [`docker/README.md`] | `services/ingestion-scraper/tests/unit/test_stack_backup_config.py::test_restore_service_runs_only_under_the_restore_profile`; `services/ingestion-scraper/tests/unit/test_dashboard_stack_config.py::test_dashboard_service_is_in_app_profile_bound_to_localhost_with_healthcheck` cover two services; no test asserts the other `app` services' profile | untested |
+| OPS-005 | requirements §1 [`docker/README.md`; `docker/CLAUDE.md`] | `services/ingestion-scraper/tests/unit/test_stack_observability_config.py::test_new_exporters_publish_no_host_ports` (exporters only) and the dashboard test above; no test covers every published port | untested |
+| OPS-006 | `## 2026-10-09 — Infrastructure observability — CHOICE — monitoring values only in .env.example`; `## 2026-10-10 — Stack state persistence — CHOICE — required secrets and a writable state volume`; requirements §1 [`docker/CLAUDE.md`; `docker/README.md`] | `services/ingestion-scraper/tests/unit/test_repo_scaffolding.py::test_compose_gives_no_default_to_env_example_variables`; `services/ingestion-scraper/tests/unit/test_repo_scaffolding.py::test_no_credential_has_a_source_default`; `services/ingestion-scraper/tests/unit/test_stack_persistence_config.py::test_airflow_fernet_key_jwt_secret_and_api_secret_key_are_required_env_references` | tested |
+| OPS-007 | `## 2026-10-22 — Living docs — PENDING — operations ratification batch` [`.env.example`] | `services/ingestion-scraper/tests/unit/test_repo_scaffolding.py::test_env_example_covers_all_referenced_vars` covers the first half | pending-decision |
+| OPS-008 | `## 2026-10-09 — CI — CHOICE — container images off anonymous Docker Hub` [`CLAUDE.md`] | — | untested |
+| OPS-009 | ``## 2026-10-07 — Startup data — CHOICE — data fills itself on `up`; prices refresh daily`` (spelled in the matrix as 2026-10-07 — Startup data — CHOICE — data fills itself on up; prices refresh daily); requirements §1 [`CLAUDE.md`; `docker/CLAUDE.md`; `docker/README.md`] | `services/backtesting/tests/unit/test_stack_bootstrap.py::test_missing_buckets_are_created_and_existing_ones_left_alone` covers `minio-init`; no test covers the other one-shots or the no-hand-run-script rule | untested |
+| OPS-010 | `specs/done/strategy-runtime.md` [`docker/README.md`] | `services/backtesting/tests/unit/test_stack_bootstrap.py::test_stack_creates_the_raw_prices_and_strategy_buckets`; `services/backtesting/tests/unit/test_stack_bootstrap.py::test_missing_buckets_are_created_and_existing_ones_left_alone` | tested |
+| OPS-011 | `specs/done/containerisation.md` [`docker/CLAUDE.md`; `docker/README.md`] | — | untested |
+| OPS-012 | requirements §1 [`docker/README.md`; `docker/CLAUDE.md`] | `services/ingestion-scraper/tests/unit/test_repo_scaffolding.py::test_airflow_metadata_is_a_separate_database` | tested |
+| OPS-013 | `## 2026-10-09 — Infrastructure observability — CHOICE — monitoring role from a one-shot, not an init script`; `## 2026-10-10 — Stack state persistence — CHOICE — required secrets and a writable state volume` [`docker/README.md`; `docker/CLAUDE.md`] | `services/ingestion-scraper/tests/unit/test_stack_persistence_config.py::test_airflow_db_role_job_runs_before_airflow_and_after_postgres`; `services/ingestion-scraper/tests/unit/test_stack_persistence_config.py::test_airflow_db_role_script_alters_the_role_from_env_and_creates_it_if_missing`; `services/ingestion-scraper/tests/unit/test_stack_persistence_config.py::test_airflow_state_volume_is_made_writable_for_the_airflow_user_before_airflow_starts`; `services/ingestion-scraper/tests/unit/test_stack_observability_config.py::test_exporter_credentials_are_a_monitoring_role_not_the_app_owner` | tested |
+| OPS-014 | `## 2026-10-09 — Infrastructure observability — CHOICE — memory limits sized to 7.5 GB, first estimates`; `## 2026-10-10 — Infrastructure observability — CHOICE — dashboard memory limit and health probe`; `specs/done/container-limits-and-log-rotation.md` [`docker/README.md`; `docker/CLAUDE.md`] | `services/ingestion-scraper/tests/unit/test_stack_observability_config.py::test_every_service_has_a_memory_limit`; `services/ingestion-scraper/tests/unit/test_stack_observability_config.py::test_long_running_memory_limits_fit_the_vm_budget`; `services/ingestion-scraper/tests/unit/test_stack_observability_config.py::test_every_limit_variable_is_documented_in_env_example` | tested |
+| OPS-015 | `specs/done/container-limits-and-log-rotation.md` [`docker/README.md`] | `services/ingestion-scraper/tests/unit/test_stack_observability_config.py::test_airflow_runs_one_api_worker_and_at_most_four_tasks`; `services/ingestion-scraper/tests/unit/test_stack_observability_config.py::test_neo4j_heap_and_page_cache_fit_within_its_limit` | tested |
+| OPS-016 | `specs/done/container-limits-and-log-rotation.md` [`docker/README.md`] | the bounds and watches are each tested on their own (OPS-042, OPS-043, OPS-050, `services/ingestion-scraper/tests/unit/test_stack_observability_config.py::test_infrastructure_dashboard_is_provisioned_with_service_grid_and_disk_panels`); no test checks that every store has one | untested |
+| OPS-017 | `specs/done/stack-state-persistence.md` [`docker/README.md`; `docker/CLAUDE.md`] | `services/ingestion-scraper/tests/unit/test_stack_persistence_config.py::test_every_stateful_service_keeps_its_data_dir_on_a_declared_named_volume`; `services/ingestion-scraper/tests/unit/test_stack_observability_config.py::test_volume_usage_mounts_every_named_volume` | tested |
+| OPS-018 | `specs/done/stack-state-persistence.md` [`docker/README.md`] | `services/ingestion-scraper/tests/unit/test_stack_persistence_config.py::test_kafka_cluster_id_is_pinned_to_the_id_existing_volumes_were_formatted_with`; `services/ingestion-scraper/tests/unit/test_stack_persistence_config.py::test_kafka_offsets_outlive_the_longest_topic_retention`; `services/ingestion-scraper/tests/unit/test_stack_persistence_config.py::test_compose_file_names_the_project_and_env_example_agrees` | tested |
+| OPS-019 | `specs/done/stack-state-persistence.md` [`docker/README.md`; `docker/CLAUDE.md`; `CLAUDE.md`] | `services/ingestion-scraper/tests/unit/test_stack_persistence_config.py::test_docs_never_offer_down_v_as_a_fix` reads five files, not `docs/` | untested |
+| OPS-020 | `## 2026-10-10 — Stack backup — CHOICE — client tools from the server image, memory and restore semantics`; `specs/done/containerisation.md`; `specs/done/strategy-runtime.md`; `specs/done/dashboard-foundation.md` [`services/*/Dockerfile`] | — | untested |
+| OPS-021 | `## 2026-10-22 — Living docs — PENDING — operations ratification batch` [`services/ingestion-scraper/config/gunicorn.conf.py`; `CLAUDE.md`] | `services/ingestion-scraper/tests/unit/test_metrics.py::test_gunicorn_serves_from_one_process_so_metrics_are_not_split_across_workers` | pending-decision |
+| OPS-022 | `## 2026-10-22 — Living docs — PENDING — operations ratification batch` [`services/{backtesting,backup}/config/gunicorn.conf.py`] | — | pending-decision |
+| OPS-023 | `## 2026-10-09 — Soak-test readiness — CHOICE — SEC request budget across containers`; requirements §6.5 [at-risk class #8] | each client's pacing is tested on its own, e.g. `services/backtesting/tests/unit/test_universe_sec_index.py::test_filing_index_lookups_run_at_most_five_per_second`; no test asserts the sum or the ownership scheduling rule | untested |
+
+## Known traps
+
+- Docker Hub rate-limits anonymous pulls per IP. Compose names Elastic's images from `docker.elastic.co` (OPS-008); the CI half, test images through the Testcontainers prefix, is in [verification.md](../engineering/verification.md). (from `CLAUDE.md`, Known traps; `## 2026-10-09 — CI — CHOICE — container images off anonymous Docker Hub`)
+- Docker Desktop on macOS cannot use Metal, so the model server runs on the host and the scraper reaches it through `host.docker.internal` (OPS-001, OPS-002). [extraction.md](../ingestion/extraction.md) links here. (from `CLAUDE.md`, Known traps)
+- `up --wait` waits for every healthcheck and one-shot (OPS-011). Airflow's healthcheck has a long start period, so about a minute of "starting" on Airflow is normal, not a failure. (from `docker/README.md` and `docker/CLAUDE.md`)
+- `prometheus_client` keeps metrics per process. With several gunicorn workers each scrape reaches a different worker and counters jump, which is why the Python services run one process with threads (OPS-021, OPS-022); multiprocess mode is the alternative if more processes are ever needed. (from `CLAUDE.md`, Known traps)
+
+## Rationale
+
+- One Mac, not a dedicated host or a hosted model: `## 2026-09-20 — Option A hosting — CHOICE — A1 (MacBook) confirmed for Phase 4; A2/A3 deferred`. Moving to a dedicated host or an API model is a separate decision, taken only if the research shows a signal worth acting on in real time.
+- The memory limits are a ceiling, not a reservation: a container at its limit is killed and restarted, which raises an alert, so the sum is kept within the VM to guard the worst case.
+
+## Retired requirements
+
+None.

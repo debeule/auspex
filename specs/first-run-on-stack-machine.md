@@ -3,6 +3,7 @@
 **Status:** blocked
 **Blocked by:** the stack machine. This spec runs only on the user's MacBook Pro (Apple M4 Pro, 24 GB), started there by name. Cloud sessions and CI cannot run any of it: they have no Docker stack, no Ollama, and their network blocks `sec.gov` and model downloads, so a session anywhere else skips it. On the Mac nothing else blocks it; each step names its own precondition, and a step whose precondition is not met is skipped and reported, never worked around.
 **Branch:** `feature/first-run-on-stack-machine`
+**Docs impact:** none — operational acceptance only; cites OPS IDs
 
 ---
 
@@ -20,7 +21,7 @@ Everything the cloud sessions could build and test is merged into `develop`. Wha
 | First SEC ownership backfill (13F, insider, offerings) and its coverage | `specs/sec-ownership-datasets.md`, `DECISIONS.md` 2026-10-09 PENDING "first backfill on the stack machine" | the data sets are on `sec.gov` |
 | First filing-text panel (biotech and `us_small_mid`), the broad universe's first build, a 20-filing hand check of the Item 1A cuts | `specs/filing-text-change-score.md` (code done, blocked only on this) | the filings are on `sec.gov` |
 
-Machine facts: Docker Desktop is capped at **8 GB** (`SETUP.md` step 2), which leaves about 10–12 GB for the model. Ollama runs natively on the host because Docker on macOS has no Metal access; containers reach it at `host.docker.internal:11434`, host scripts at `localhost:11434`.
+Machine facts: Docker Desktop is capped at **8 GB** (`SETUP.md` step 2; OPS-001), which leaves about 10–12 GB for the model. Ollama runs natively on the host because Docker on macOS has no Metal access; containers reach it at `host.docker.internal:11434`, host scripts at `localhost:11434`.
 
 Model choice research (thread "Research: best local model for extraction", 2026-10-07): **Llama 3.1 8B Instruct Q8_0** is the primary candidate (cutoff Dec 2023, best documented instruction following that fits). **Phi-3-medium 14B Q4_K_M** is the only challenger worth gating (cutoff Oct 2023, more biomedical knowledge, ~1.4x slower, fills the memory budget). **Llama 3.1 8B Q4_K_M** is the memory fallback. Mistral Small 24B and Gemma 3 27B stay in `local_candidates.yaml` but are not gated here: neither fits next to Docker, and Gemma's cutoff (Aug 2024) is inside the window.
 
@@ -50,9 +51,9 @@ Every result goes into one PR from `feature/first-run-on-stack-machine` into `de
 ## Constraints
 
 - **Never print secrets.** Check that `.env` keys are set with `grep -c '^KEY=.\+'`, never `cat .env`. Never commit `.env`.
-- Invariant 6: nothing from `.env` goes into a tracked file.
-- Invariant 9: all recorded dates in UTC.
-- Commits: author and committer are the user (`git config user.name` / `user.email` must be the user's own identity, `matthias.debeule <debeulematthias@gmail.com>`); no `Co-Authored-By` or other Claude trailers; message style per root `CLAUDE.md` (`subject: detail1, detail2`, lowercase, no body). PR body without Claude footers.
+- INV-6: nothing from `.env` goes into a tracked file.
+- INV-9: all recorded dates in UTC.
+- Commits: author and committer are the user (`git config user.name` / `user.email` must be the user's own identity, `matthias.debeule <debeulematthias@gmail.com>`); no `Co-Authored-By` or other Claude trailers; message style per root `AGENTS.md` (`subject: detail1, detail2`, lowercase, no body). PR body without Claude footers.
 - Long steps (universe build, model pulls, evaluation) run in the background with bounded polling; keep the Mac awake with `caffeinate -i` for anything over a few minutes.
 - One heavy job at a time while measuring: run model evaluation only when the universe build is not running, so latency and memory reflect the steady stack and not a build.
 - Commands run from the repo root unless a step says otherwise. Host scripts read `.env` with `uv run --env-file`, not `source .env` (`SEC_USER_AGENT` contains a space).
