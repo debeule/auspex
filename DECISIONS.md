@@ -1628,3 +1628,22 @@ The summary lists every source in `sources.yaml`. A source with a run in the las
 - A: approve the batch as written.
 - B: reject or reword single items; each rejected item is then retired or rewritten by a follow-up change.
 **Action:** default A. Owner to answer by appending `## <date> — Living docs — CHOICE — ingestion ratification batch`. The cutover's decision-application step then flips the `pending-decision` rows above to their real status and cites that `CHOICE`. Not blocking.
+## 2026-10-22 — Living docs — PENDING — core-hub ratification batch
+**What:** These core-hub requirements in `docs/core-hub/` have no approval in a requirements §, a `CHOICE` entry, an archived spec or an invariant: their only source is the code, `services/core-hub/README.md`, a nested agent file or a root `CLAUDE.md` trap. Each matches the code at develop @ b7582c3 and is written with status `pending-decision`, citing this heading. Line numbers are at that commit.
+- **HUB-017** — a DLT replay covers only the records on the topic when the call starts, drops the `kafka_dlt-*` and serializer type headers, and is at-least-once (a crash between send and commit replays a record again; idempotent writes absorb it). `services/core-hub/README.md:73` and `specs/done/dead-letter-recovery.md` say "at most once"; the code commits after the send (`DltReplayService.java`).
+- **HUB-020** — an applied Flyway migration is never edited, comments included. `CLAUDE.md:146`.
+- **HUB-023** — `MERGE`, never `CREATE`, for `Signal` nodes, entity nodes and relationships, beyond the node rows of requirements §3.7's table. `services/core-hub/README.md:123`; `services/core-hub/CLAUDE.md:34`.
+- **HUB-025** — a record that dead-letters after its Neo4j write leaves a graph-only `Signal`; redelivery or replay converges, and nothing else repairs it (two stores written in sequence, no outbox).
+- **HUB-035** — company names are matched to SEC titles after `CompanyNameNormalizer` (lower case, punctuation stripped, trailing corporate suffixes dropped). `services/core-hub/README.md:47`.
+- **HUB-040 (retirement)** — requirements §3.8's "JPA and Neo4j repositories live in separate base packages with explicit `@EnableJpaRepositories`/`@EnableNeo4jRepositories`" is retired: core-hub has no repositories and writes through `JdbcTemplate` and the Neo4j `Driver`.
+- **HUB-042** — the write token is compared in constant time (`MessageDigest.isEqual` in `WriteTokenInterceptor.java`).
+- **HUB-045** — `GET /api/v1/signals/{ticker}` answers 200 with empty lists for a valid ticker no signal reaches. `services/core-hub/README.md:78` says 404, which is stale; `SignalRestIT.test_unknown_ticker_returns_empty_lists_not_500` asserts 200.
+- **HUB-049** — every error answer is a JSON body with a message and the status, never a stack trace (`GlobalExceptionHandler.java`).
+- **HUB-051** — actuator exposes only `health`, `info` and `prometheus`, outside `/api`, read-only (`application.yml` `management.endpoints.web.exposure.include`).
+- **COR-004** — the only corroboration kind is shared-entity corroboration over `GeneTarget` and `Mechanism`, with `entity_key` = normalized name + `:` + label (`CorroborationScanner.java`).
+- **COR-013** — the scorer formula, `0.7 × diversity + 0.3 × recency` clamped to [0, 1], with `diversity = min(1, (n − 1) / 4)` and recency linear over 90 days after `corroborated_at`, computed at read time against the service clock and never stored or published. `services/core-hub/README.md:57-59` is the only prose source; the code is `CorroborationScorer.java`.
+**Why it matters:** the conversion rule lets no rule enter `docs/` as approved on code alone; until approved, these are written down but not yet the owner's.
+**Options considered:**
+- A: approve the batch as written.
+- B: reject or reword single items; each rejected item is then retired or rewritten by a follow-up change.
+**Action:** default A. Owner to answer by appending `## <date> — Living docs — CHOICE — core-hub ratification batch`. The cutover's decision-application step then flips the rows above from `pending-decision` to their real status and cites that `CHOICE`. Not blocking.

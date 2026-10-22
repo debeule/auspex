@@ -58,8 +58,8 @@ Scoping listed these classes of normative statements whose only home is an archi
 | `## 2026-09-19 — Watchlist & alerts — CHOICE — Entity-key-based watchlist, not ticker-based` | history |  | M-COR-028 |
 | `## 2026-09-19 — Historical backfill — CHOICE — Option A: local model for backfill, API model forward-only` | binding | EXT-013 | M-EXT-044 |
 | `## 2026-09-19 — CI/CD pipeline — CHOICE — GitHub-hosted runners` | binding | ENG-013 | M-ENG-127 |
-| `## 2026-09-20 — Watchlist backend — CHOICE — No user_id column; single-user installation, extensible` | binding | SYS-004 | M-SYS-183,M-HUB-073 |
-| `## 2026-09-20 — Watchlist backend — CHOICE — core-hub calls ClinicalTrials.gov directly` | binding | INV-4 | M-INV-035,M-HUB-074 |
+| `## 2026-09-20 — Watchlist backend — CHOICE — No user_id column; single-user installation, extensible` | binding | SYS-004 HUB-039 | M-SYS-183,M-HUB-073 |
+| `## 2026-09-20 — Watchlist backend — CHOICE — core-hub calls ClinicalTrials.gov directly` | binding | INV-4 HUB-047 | M-INV-035,M-HUB-074 |
 | `## 2026-09-20 — Option A hosting — CHOICE — A1 (MacBook) confirmed for Phase 4; A2/A3 deferred` | history |  | M-EXT-045,M-OPS-251 |
 | `## 2026-09-20 — Strategy layer — CHOICE — XBI as primary benchmark` | history |  | M-EVA-060 |
 | `## 2026-09-20 — Strategy layer — CHOICE — Known-at delay default: 1 business day after corroborated_at` | history |  | M-EVA-061 |
@@ -91,7 +91,7 @@ Scoping listed these classes of normative statements whose only home is an archi
 | `## 2026-10-07 — Second-wave specs — CHOICE — paper trading gates capital, run at several sizes` | binding |  | M-EVA-069 |
 | `## 2026-10-07 — Backtest look-ahead fix — CHOICE — one backtest event per corroboration, not per superseding record` | binding |  | M-RES-179 |
 | `## 2026-10-07 — Backtest look-ahead fix — CHOICE — entry and holding-window timing` | binding |  | M-RES-180 |
-| `## 2026-10-07 — Company-level extraction — CHOICE — event taxonomy and identifier fields (schema 1.1)` | binding | CON-013 CON-016 EXT-008 ING-019 | M-CON-083,M-EXT-047 |
+| `## 2026-10-07 — Company-level extraction — CHOICE — event taxonomy and identifier fields (schema 1.1)` | binding | CON-013 CON-016 EXT-008 ING-019 HUB-033 | M-CON-083,M-EXT-047 |
 | `## 2026-10-07 — Edge research scoping — CHOICE — edge research synthesis: the alpha path becomes slow monthly scores` | history |  | M-EVA-070 |
 | `## 2026-10-07 — Edge research scoping — CHOICE — ownership and insider data are snapshots, not connectors` | binding | INV-4 | M-INV-040,M-RES-181 |
 | `## 2026-10-07 — Edge research scoping — CHOICE — deferred items` | history |  | M-EVA-073 |
@@ -102,7 +102,7 @@ Scoping listed these classes of normative statements whose only home is an archi
 | `## 2026-10-08 — Control-surface scoping — CHOICE — Grafana for technical health, dashboard for using the application` | binding |  | M-DSH-034,M-OPS-253 |
 | `## 2026-10-08 — Control-surface scoping — CHOICE — the watchlist is the single source for tracked tickers and terms` | history |  | M-ING-127,M-DSH-035 |
 | `## 2026-10-08 — Control-surface scoping — CHOICE — research config is read-only in the dashboard` | binding |  | M-DSH-036 |
-| `## 2026-10-08 — Control-surface scoping — CHOICE — dashboard runs in the stack behind its own server layer` | binding |  | M-SYS-184,M-HUB-076,M-DSH-037 |
+| `## 2026-10-08 — Control-surface scoping — CHOICE — dashboard runs in the stack behind its own server layer` | binding | HUB-041 HUB-043 | M-SYS-184,M-HUB-076,M-DSH-037 |
 | `## 2026-10-08 — First run on the stack machine — CHOICE — price history from 2013, set before the first `up`` | history |  | M-RES-186 |
 | `## 2026-10-08 — First run on the stack machine — CHOICE — local model decision rule, fixed before the gate runs` | binding | EXT-014 | M-EXT-048 |
 | `## 2026-10-09 — Guideline setup — CHOICE — merge flow, merge bar and shared-log conflicts written into the repo` | binding | ENG-010 ENG-011 ENG-030 ENG-031 ENG-032 | M-ENG-130,M-SYS-185 |
@@ -114,10 +114,10 @@ Scoping listed these classes of normative statements whose only home is an archi
 | `## 2026-10-09 — CI — CHOICE — remaining test images through mirror.gcr.io` | history |  | M-ENG-132 |
 | `## 2026-10-09 — Stack backup — CHOICE — nightly backup to a folder on the Mac` | binding | INV-2 | M-INV-037,M-OPS-257 |
 | `## 2026-10-09 — Soak-test readiness — CHOICE — cursor after a run with failed documents` | binding | ING-026 | M-ING-128,M-OPS-258 |
-| `## 2026-10-09 — Soak-test readiness — CHOICE — transient Kafka failures pause instead of retrying longer` | binding |  | M-HUB-077 |
+| `## 2026-10-09 — Soak-test readiness — CHOICE — transient Kafka failures pause instead of retrying longer` | binding | HUB-012 HUB-013 HUB-016 | M-HUB-077 |
 | `## 2026-10-09 — Soak-test readiness — CHOICE — SEC request budget across containers` | binding | ING-006 ING-007 | M-ING-129,M-OPS-259 |
 | `## 2026-10-09 — Dashboard foundation — CHOICE — Next 16, Vitest 5 and Tailwind 4 to clear the advisories` | history |  | M-DSH-032 |
-| `## 2026-10-09 — Dashboard foundation — CHOICE — login endpoint, write-token failure mode, path layout` | binding |  | M-HUB-078,M-DSH-033 |
+| `## 2026-10-09 — Dashboard foundation — CHOICE — login endpoint, write-token failure mode, path layout` | binding | HUB-041 | M-HUB-078,M-DSH-033 |
 | `## 2026-10-09 — Pre-launch spec audit — CHOICE — gaps closed in the spec index` | history |  | M-ENG-133 |
 | `## 2026-10-09 — Catalyst date panel — CHOICE — how documents become rows` | binding |  | M-RES-189 |
 | `## 2026-10-09 — Infrastructure observability — CHOICE — monitoring role from a one-shot, not an init script` | binding |  | M-OPS-260 |
@@ -134,7 +134,7 @@ Scoping listed these classes of normative statements whose only home is an archi
 | `## 2026-10-09 — Slow-signal pre-registration — CHOICE — one protocol and one version per hypothesis, H9–H12 registered` | binding |  | M-EVA-079 |
 | `## 2026-10-09 — Slow-signal pre-registration — CHOICE — details the spec left open` | binding |  | M-EVA-080 |
 | `## 2026-10-09 — Graph and connector wiring fixes — CHOICE — publish threshold default is 0.0, not the API's 0.5` | binding | EXT-002 | M-EXT-049 |
-| `## 2026-10-09 — Graph and connector wiring fixes — CHOICE — ticker resolution details` | binding |  | M-HUB-079 |
+| `## 2026-10-09 — Graph and connector wiring fixes — CHOICE — ticker resolution details` | binding | HUB-034 HUB-047 | M-HUB-079 |
 | `## 2026-10-09 — Graph and connector wiring fixes — CHOICE — calibrated publish thresholds before launch` | binding | EXT-021 | M-EXT-050 |
 | `## 2026-10-09 — Graph and connector wiring fixes — CHOICE — no VIA migration` | history |  | M-HUB-080 |
 | `## 2026-10-09 — SEC ownership datasets — CHOICE — acceptance time from a filing date` | binding |  | M-RES-190 |
@@ -152,7 +152,7 @@ Scoping listed these classes of normative statements whose only home is an archi
 | `## 2026-10-10 — Ingestion run reliability — CHOICE — requirements §5 text follows the 2026-10-09 cursor decision` | history |  | M-ING-134 |
 | `## 2026-10-10 — Consolidated code, strategy and BV audit — CHOICE — what becomes specs, what does not` | binding |  | M-ENG-137,M-EVA-082 |
 | `## 2026-10-10 — Price finality and split availability — CHOICE — edges the spec leaves open` | binding |  | M-RES-194 |
-| `## 2026-10-10 — Corroboration late arrivals — CHOICE — contract test signals are written pending, clear runs after the commit` | binding |  | M-COR-029 |
+| `## 2026-10-10 — Corroboration late arrivals — CHOICE — contract test signals are written pending, clear runs after the commit` | binding | COR-001 COR-010 | M-COR-029 |
 | `## 2026-10-10 — Evaluation protocol — CHOICE — how the event evaluation reads the spec` | binding |  | M-EVA-083 |
 | `## 2026-10-10 — Evaluation protocol — CHOICE — the raw-return backtest reserves trial cells too` | binding |  | M-EVA-084 |
 | `## 2026-10-10 — Short interest snapshots — CHOICE — publication dates from FINRA's rule, published rows win` | binding |  | M-RES-195 |
@@ -443,9 +443,9 @@ Row prefixes: `M-INV` invariant rows, `M-CON` contract rows, `M-SYS` everything 
 | M-SYS-038 | `CLAUDE.md:116-135` | Doc-maintenance table; "intentional duplication is fine" | stale | retire | replaced by `docs/engineering/conventions.md` item 40 ("Doc ownership") | — | living-docs-engineering-workflow | Retired, not moved; same source as M-ENG-023 |  |
 | M-SYS-039 | `CLAUDE.md:137` | Scaffolding exemption from test-first | invariant | move | INV-15 exception in `docs/system/invariants.md` | INV | living-docs-system-and-contracts | An exception narrows INV-15, so it lives under it; "pom.xml" is stale (Gradle). Same source as M-ENG-025 | INV-15 |
 | M-SYS-040 | `CLAUDE.md:140-144` | Comment rules: intent only, no narration, contracts, stale worse | process | move | `docs/engineering/conventions.md` | ENG | living-docs-engineering-workflow | | ENG-043 ENG-044 ENG-045 ENG-046 |
-| M-SYS-041 | `CLAUDE.md:145` | Flyway migrations frozen; don't edit applied comments | requirement | move | `docs/core-hub/storage.md` | HUB | living-docs-core-hub | |  |
+| M-SYS-041 | `CLAUDE.md:145` | Flyway migrations frozen; don't edit applied comments | requirement | move | `docs/core-hub/storage.md` | HUB | living-docs-core-hub | | HUB-020 |
 | M-SYS-042 | `CLAUDE.md:148-152` | Test file locations and markers per service | process | move | Layout rows of scraper and core-hub `AGENTS.md`; `docs/engineering/verification.md` | ENG | agent-instruction-hierarchy, living-docs-engineering-workflow | | ENG-003 |
-| M-SYS-043 | `CLAUDE.md:154` | `CorroborationServiceContractTest` abstract; extend unmodified | requirement | move | `docs/core-hub/corroboration.md` | COR | living-docs-core-hub | Nested file keeps the ID only |  |
+| M-SYS-043 | `CLAUDE.md:154` | `CorroborationServiceContractTest` abstract; extend unmodified | requirement | move | `docs/core-hub/corroboration.md` | COR | living-docs-core-hub | Nested file keeps the ID only | COR-001 |
 | M-SYS-044 | `CLAUDE.md:158-163` | Git Flow branches | process | move | `docs/engineering/change-workflow.md` | ENG | living-docs-engineering-workflow | | ENG-029 |
 | M-SYS-045 | `CLAUDE.md:165-169` | Rebase, resolve in rebase, ff-only, no `--no-ff` | process | move | `docs/engineering/change-workflow.md` | ENG | living-docs-engineering-workflow | | ENG-030 |
 | M-SYS-046 | `CLAUDE.md:172` | Never push to `develop` or `main` directly | process | move | `AGENTS.md` Hard rules | — | agent-instruction-hierarchy | `## 2026-10-09 — Guideline setup — CHOICE — merge flow, …` |  |
@@ -461,11 +461,11 @@ Row prefixes: `M-INV` invariant rows, `M-CON` contract rows, `M-SYS` everything 
 | M-SYS-056 | `CLAUDE.md:198` | Cloud sessions: no Docker/sec.gov/Yahoo; container tests in CI | process | move | `AGENTS.md` Hard rules (owner) | — | agent-instruction-hierarchy | ENG verification links |  |
 | M-SYS-057 | `CLAUDE.md:199` | Mac-only work goes into a spec the owner runs there | process | move | `AGENTS.md` Hard rules | — | agent-instruction-hierarchy | Stale path `specs/first-run-on-stack-machine.md` still valid |  |
 | M-SYS-058 | `CLAUDE.md:200` | No hand-run setup/data scripts; one-shot or DAG calling API | requirement | move | `docs/operations/topology.md`; one-line hard rule in `AGENTS.md` | OPS | living-docs-operations, agent-instruction-hierarchy | `## 2026-10-07 — Startup data — CHOICE — data fills itself on up; prices refresh daily` |  |
-| M-SYS-059 | `CLAUDE.md:203` | `ErrorHandlingDeserializer` mandatory | trap | move | `docs/core-hub/consumption.md` Known traps | HUB | living-docs-core-hub | |  |
+| M-SYS-059 | `CLAUDE.md:203` | `ErrorHandlingDeserializer` mandatory | trap | move | `docs/core-hub/consumption.md` Known traps | HUB | living-docs-core-hub | | docs/core-hub/consumption.md#known-traps |
 | M-SYS-060 | `CLAUDE.md:204` | DLPR default `.DLT` and same partition; resolver returns -1 | trap | move | `docs/system/contracts.md` Known traps (CON #36–37) | CON | living-docs-system-and-contracts | Drop "re-verify": `## 2026-08-16 — Step 1.3 — VERIFIED — DeadLetterPublishingRecoverer with Spring Kafka 4.1` | docs/system/contracts.md#known-traps |
 | M-SYS-061 | `CLAUDE.md:205` | `produce()` async: flush, check delivery reports | trap | move | `docs/ingestion/pipeline.md` Known traps | ING | living-docs-ingestion | | docs/ingestion/pipeline.md#known-traps |
-| M-SYS-062 | `CLAUDE.md:206` | `MERGE {ticker: null}` matches all; MERGE Company on name | trap | move | `docs/core-hub/storage.md` Known traps | HUB | living-docs-core-hub | |  |
-| M-SYS-063 | `CLAUDE.md:207` | Neo4j no decimal; NUMERIC(4,3); double via converter | trap | move | `docs/core-hub/storage.md` Known traps | HUB | living-docs-core-hub | C12: "converter" is an inline `.doubleValue()` |  |
+| M-SYS-062 | `CLAUDE.md:206` | `MERGE {ticker: null}` matches all; MERGE Company on name | trap | move | `docs/core-hub/storage.md` Known traps | HUB | living-docs-core-hub | | docs/core-hub/storage.md#known-traps |
+| M-SYS-063 | `CLAUDE.md:207` | Neo4j no decimal; NUMERIC(4,3); double via converter | trap | move | `docs/core-hub/storage.md` Known traps | HUB | living-docs-core-hub | C12: "converter" is an inline `.doubleValue()` | docs/core-hub/storage.md#known-traps |
 | M-SYS-064 | `CLAUDE.md:208` | Primitive double cannot be null; BigDecimal + `@NotNull` | trap | move | `docs/system/contracts.md` Known traps (CON #12) | CON | living-docs-system-and-contracts | | docs/system/contracts.md#known-traps |
 | M-SYS-065 | `CLAUDE.md:209` | `FAIL_ON_UNKNOWN_PROPERTIES=false` on consumer | trap | move | `docs/system/contracts.md` Known traps (CON #30) | CON | living-docs-system-and-contracts | Illustrative core-hub AGENTS lists it as HUB; this fragment owns it under CON | docs/system/contracts.md#known-traps |
 | M-SYS-066 | `CLAUDE.md:210` | Patents: filed date is not disclosure; use pre-grant publication | trap | move | `docs/ingestion/connectors.md` Known traps | ING | living-docs-ingestion | | docs/ingestion/connectors.md#known-traps |
@@ -519,15 +519,15 @@ Row prefixes: `M-INV` invariant rows, `M-CON` contract rows, `M-SYS` everything 
 | M-SYS-097 | `services/core-hub/CLAUDE.md:26` | `integrationTest` JVM Test Suite, own source set, in `check` | requirement | move | `docs/engineering/verification.md`; layout row in core-hub `AGENTS.md` | ENG | living-docs-engineering-workflow, agent-instruction-hierarchy | requirements §13 | ENG-007 |
 | M-SYS-098 | `services/core-hub/CLAUDE.md:27` | `timezoneCheck` own task, non-UTC JVM | requirement | move | `docs/engineering/verification.md` | ENG | living-docs-engineering-workflow | requirements §13 | ENG-007 |
 | M-INV-018 | `services/core-hub/CLAUDE.md:30` | Sole writer to DB and Neo4j | invariant | link | `#INV-2` | INV | agent-instruction-hierarchy | |  |
-| M-SYS-099 | `services/core-hub/CLAUDE.md:31` | Write order Neo4j → Postgres → ack; ack-mode RECORD | requirement | move | `docs/core-hub/consumption.md` / `storage.md` | HUB | living-docs-core-hub | C5: RECORD likely not applied (HUB records divergent/untested) |  |
-| M-SYS-100 | `services/core-hub/CLAUDE.md:32` | Every `@Transactional` qualified; separate repository packages | requirement | move | `docs/core-hub/storage.md` | HUB | living-docs-core-hub | requirements §3.8 |  |
-| M-SYS-101 | `services/core-hub/CLAUDE.md:33` | Flyway owns schema; `ddl-auto: validate` | requirement | move | `docs/core-hub/storage.md` | HUB | living-docs-core-hub | requirements §1 :38 |  |
-| M-SYS-102 | `services/core-hub/CLAUDE.md:34` | MERGE, never CREATE, for signal and entity nodes | requirement | move | `docs/core-hub/storage.md` | HUB | living-docs-core-hub | |  |
+| M-SYS-099 | `services/core-hub/CLAUDE.md:31` | Write order Neo4j → Postgres → ack; ack-mode RECORD | requirement | move | `docs/core-hub/consumption.md` / `storage.md` | HUB | living-docs-core-hub | C5: RECORD likely not applied (HUB records divergent/untested) | HUB-014 HUB-024 |
+| M-SYS-100 | `services/core-hub/CLAUDE.md:32` | Every `@Transactional` qualified; separate repository packages | requirement | move | `docs/core-hub/storage.md` | HUB | living-docs-core-hub | requirements §3.8 | HUB-026 |
+| M-SYS-101 | `services/core-hub/CLAUDE.md:33` | Flyway owns schema; `ddl-auto: validate` | requirement | move | `docs/core-hub/storage.md` | HUB | living-docs-core-hub | requirements §1 :38 | HUB-019 |
+| M-SYS-102 | `services/core-hub/CLAUDE.md:34` | MERGE, never CREATE, for signal and entity nodes | requirement | move | `docs/core-hub/storage.md` | HUB | living-docs-core-hub | | HUB-023 |
 | M-INV-019 | `services/core-hub/CLAUDE.md:35` | No string-built queries; ArchUnit | invariant | link | `#INV-12` | INV | agent-instruction-hierarchy | |  |
 | M-SYS-103 | `services/core-hub/CLAUDE.md:36` | Java records, no Lombok, constructor injection | requirement | move | `docs/engineering/conventions.md` | ENG | living-docs-engineering-workflow | requirements §1 :32 | ENG-054 |
 | M-SYS-104 | `services/core-hub/CLAUDE.md:39` | Unit vs container source sets | process | move | core-hub `AGENTS.md` Layout | — | agent-instruction-hierarchy | |  |
 | M-SYS-105 | `services/core-hub/CLAUDE.md:40` | Static singleton containers, one context, truncate, < 3 min | requirement | move | `docs/engineering/verification.md` | ENG | living-docs-engineering-workflow | requirements §13 | ENG-006 |
-| M-SYS-106 | `services/core-hub/CLAUDE.md:41` | Contract test abstract; extend unmodified | requirement | move | `docs/core-hub/corroboration.md` | COR | living-docs-core-hub | dup of M-SYS-043 |  |
+| M-SYS-106 | `services/core-hub/CLAUDE.md:41` | Contract test abstract; extend unmodified | requirement | move | `docs/core-hub/corroboration.md` | COR | living-docs-core-hub | dup of M-SYS-043 | COR-001 |
 | M-SYS-107 | `services/core-hub/CLAUDE.md:42` | Awaitility, never `Thread.sleep` | requirement | move | `docs/engineering/verification.md` | ENG | living-docs-engineering-workflow | requirements §13 | ENG-005 |
 | M-SYS-108 | `services/core-hub/CLAUDE.md:45` | `UP-TO-DATE` runs nothing; `--rerun-tasks` | process | delete | dup of M-SYS-036 (`AGENTS.md`) | — | agent-instruction-hierarchy | |  |
 | M-SYS-109 | `services/core-hub/CLAUDE.md:46` | Gradle 9 configuration cache: fix script, don't disable | trap | move | `docs/engineering/conventions.md` Known traps | ENG | living-docs-engineering-workflow | ENG batch | docs/engineering/conventions.md#known-traps |
@@ -595,8 +595,8 @@ Row prefixes: `M-INV` invariant rows, `M-CON` contract rows, `M-SYS` everything 
 | M-SYS-146 | §0.3 note | Forward-only collection cannot support backtest; backfill needed | rationale | move | →`living-docs-research/living-docs-strategy-and-dashboard` `docs/research/backtesting.md` Rationale | RES | living-docs-research | |  |
 | M-SYS-147 | §0.4 | ≤500 extractions/day; separate backfill budget; pre-filter | requirement | move | `docs/ingestion/extraction.md` | EXT | living-docs-ingestion | | EXT-007 |
 | M-CON-012 | §0.5 | `gene_targets` is a list | contract | move | CON #8 | CON | living-docs-system-and-contracts | | CON-008 |
-| M-SYS-148 | §0.6 | Kafka Streams not a requirement | requirement | move | `docs/core-hub/corroboration.md` | COR | living-docs-core-hub | `specs/kafka-streams-correlation.md` draft |  |
-| M-SYS-149 | §0.7 | Tickerless signals stored, corroborated, absent from ticker responses | requirement | move | `docs/core-hub/storage.md` / `http-api.md` | HUB | living-docs-core-hub | |  |
+| M-SYS-148 | §0.6 | Kafka Streams not a requirement | requirement | move | `docs/core-hub/corroboration.md` | COR | living-docs-core-hub | `specs/kafka-streams-correlation.md` draft | COR-002 |
+| M-SYS-149 | §0.7 | Tickerless signals stored, corroborated, absent from ticker responses | requirement | move | `docs/core-hub/storage.md` / `http-api.md` | HUB | living-docs-core-hub | | HUB-036 |
 | M-SYS-150 | §1 :26 | Python 3.14, uv, lock committed, exact pins | requirement | move | `docs/engineering/conventions.md`; values `VERSIONS.md` | ENG | living-docs-engineering-workflow | | ENG-048 |
 | M-INV-024 | §1 :27 | Fully synchronous; `fetch_since` returns Iterator | invariant | link | `#INV-8`; Iterator → `docs/ingestion/connectors.md` | INV | living-docs-system-and-contracts | |  |
 | M-SYS-151 | §1 :28 | `httpx` only via `RateLimitedClient`; library list | requirement | move | `docs/ingestion/connectors.md`; list → `pyproject.toml` | ING | living-docs-ingestion | | ING-005 |
@@ -607,8 +607,8 @@ Row prefixes: `M-INV` invariant rows, `M-CON` contract rows, `M-SYS` everything 
 | M-CON-013 | §1 :37 | Topics from declarative `topics.yaml`, never producer side effect | contract | move | CON #1 | CON | living-docs-system-and-contracts | | CON-001 |
 | M-SYS-156 | §1 :38 | Postgres holds raw audit, signals, history, observations, corroborations, price series | stale | delete | `docs/core-hub/storage.md` lists actual tables | HUB | living-docs-core-hub | "price series" wrong: prices are MinIO Parquet (A C5) |  |
 | M-SYS-157 | §1 :38 | Airflow metadata separate DB, own role, no cross-grants | requirement | move | `docs/operations/topology.md` | OPS | living-docs-operations | §14 settled too |  |
-| M-SYS-158 | §1 :38 | Flyway owns schema; `ddl-auto=validate` | requirement | move | `docs/core-hub/storage.md` | HUB | living-docs-core-hub | |  |
-| M-SYS-159 | §1 :39 | Neo4j constraints via versioned idempotent startup component; `GraphSchema` node | requirement | move | `docs/core-hub/storage.md` | HUB | living-docs-core-hub | |  |
+| M-SYS-158 | §1 :38 | Flyway owns schema; `ddl-auto=validate` | requirement | move | `docs/core-hub/storage.md` | HUB | living-docs-core-hub | | HUB-019 |
+| M-SYS-159 | §1 :39 | Neo4j constraints via versioned idempotent startup component; `GraphSchema` node | requirement | move | `docs/core-hub/storage.md` | HUB | living-docs-core-hub | | HUB-032 |
 | M-SYS-160 | §1 :40 | MinIO credentials from `.env`, no defaults; ports on 127.0.0.1 | requirement | move | INV-6 (credentials); `docs/operations/topology.md` (ports) | OPS | living-docs-operations | |  |
 | M-CON-014 | §2 :48 | Raw pointer: fields, `retrieved_at`, no `raw_content`, key `external_id` | contract | divergent | CON #5 | CON | living-docs-system-and-contracts | PENDING `raw-pointer contract`; C1 `RawAuditService.java:47` | CON-005 |
 | M-CON-015 | §2 :48, §3.7 | Raw pointer for every archived document | contract | divergent | CON #6 | CON | living-docs-system-and-contracts | PENDING `raw-pointer contract`; `pipeline.py:159` | CON-006 |
@@ -636,21 +636,21 @@ Row prefixes: `M-INV` invariant rows, `M-CON` contract rows, `M-SYS` everything 
 | M-CON-029 | §3.7 table | `corroboration` `(entity_key, participants_hash)`, supersession | contract | move | CON #25 | CON | living-docs-system-and-contracts | | CON-025 |
 | M-CON-030 | §3.7 table | `(:Signal)` MERGE on `event_id` | contract | move | CON #26 | CON | living-docs-system-and-contracts | | CON-026 |
 | M-CON-031 | §3.7 table | Entity nodes MERGE on natural key per §9 | contract | move | CON #27 (links HUB graph model) | CON | living-docs-system-and-contracts | | CON-027 |
-| M-SYS-162 | §3.8 | Write order Neo4j → Postgres → ack; RECORD; qualified `@Transactional`; ArchUnit | requirement | move | `docs/core-hub/consumption.md` / `storage.md` | HUB | living-docs-core-hub | No INV |  |
-| M-SYS-163 | §3.9 | earliest; one group per listener; small `max.poll.records` | requirement | move | `docs/core-hub/consumption.md` | HUB | living-docs-core-hub | No INV |  |
+| M-SYS-162 | §3.8 | Write order Neo4j → Postgres → ack; RECORD; qualified `@Transactional`; ArchUnit | requirement | move | `docs/core-hub/consumption.md` / `storage.md` | HUB | living-docs-core-hub | No INV | HUB-014 HUB-024 HUB-026 |
+| M-SYS-163 | §3.9 | earliest; one group per listener; small `max.poll.records` | requirement | move | `docs/core-hub/consumption.md` | HUB | living-docs-core-hub | No INV | HUB-001 |
 | M-CON-032 | §3.10 | Deterministic failures (deserialize, validation, enum, score, major) → DLT immediately | contract | link | `docs/core-hub/consumption.md` | — | living-docs-system-and-contracts | Unknown enum: PENDING `closed sets on the wire`, divergent (C7) |  |
-| M-SYS-164 | §3.10 | Transient: 3 deliveries with back-off, then DLT | requirement | move | `docs/core-hub/consumption.md` | HUB | living-docs-core-hub | |  |
-| M-SYS-165 | §3.10 | `ErrorHandlingDeserializer` wraps both listeners | requirement | move | `docs/core-hub/consumption.md` | HUB | living-docs-core-hub | |  |
+| M-SYS-164 | §3.10 | Transient: 3 deliveries with back-off, then DLT | requirement | move | `docs/core-hub/consumption.md` | HUB | living-docs-core-hub | | HUB-012 |
+| M-SYS-165 | §3.10 | `ErrorHandlingDeserializer` wraps both listeners | requirement | move | `docs/core-hub/consumption.md` | HUB | living-docs-core-hub | | HUB-002 |
 | M-CON-033 | §3.10 | Diagnostic headers on every dead letter | contract | move | CON #38 | CON | living-docs-system-and-contracts | | CON-037 |
 | M-INV-032 | §3.10 | Never block a partition | invariant | move | `#INV-11` | INV | living-docs-system-and-contracts | | INV-11 |
 | M-INV-033 | §3.11 | Parameterized queries; ArchUnit + injection tests | invariant | move | `#INV-12` | INV | living-docs-system-and-contracts | | INV-12 |
-| M-SYS-166 | §3.11 | Controller ticker allowlist regex | requirement | move | `docs/core-hub/http-api.md` | HUB | living-docs-core-hub | Value is code (`SignalController`) |  |
+| M-SYS-166 | §3.11 | Controller ticker allowlist regex | requirement | move | `docs/core-hub/http-api.md` | HUB | living-docs-core-hub | Value is code (`SignalController`) | HUB-044 |
 | M-INV-034 | §3.12 | Nothing dies silently | invariant | move | `#INV-11` | INV | living-docs-system-and-contracts | | INV-11 |
-| M-SYS-167 | §3.12 | DLT depth and per-source signal age reported | requirement | move | `docs/core-hub/consumption.md` (health reporter); alerts `docs/operations/observability.md` | HUB | living-docs-core-hub, living-docs-operations | |  |
+| M-SYS-167 | §3.12 | DLT depth and per-source signal age reported | requirement | move | `docs/core-hub/consumption.md` (health reporter); alerts `docs/operations/observability.md` | HUB | living-docs-core-hub, living-docs-operations | | HUB-052 |
 | M-CON-034 | §10.1 | `event_id` formula, canonical else `source_type:external_id` | contract | move | CON #18 | CON | living-docs-system-and-contracts | | CON-018 |
 | M-CON-035 | §10.1 | `extraction_id` formula | contract | move | CON #19 | CON | living-docs-system-and-contracts | | CON-019 |
 | M-CON-036 | §10.1 | `canonical_id` typed prefix; connector supplies it consistently | contract | move | CON #20 | CON | living-docs-system-and-contracts | Prefixes owned by `models.py:6` | CON-020 |
-| M-SYS-168 | §10.1 | `signal_current.source_type` from first observation, never updated | requirement | move | `docs/core-hub/storage.md` | HUB | living-docs-core-hub | |  |
+| M-SYS-168 | §10.1 | `signal_current.source_type` from first observation, never updated | requirement | move | `docs/core-hub/storage.md` | HUB | living-docs-core-hub | | HUB-028 |
 | M-CON-037 | §10.1 | Near-miss identity formulas and why | rationale | move | CON Rationale | CON | living-docs-system-and-contracts | | docs/system/contracts.md#rationale |
 | M-CON-038 | §10.2 | Field list of `ResearchSignalEvent` | contract | move | CON #8 (field list owned by model + fixture) | CON | living-docs-system-and-contracts | Not copied | CON-008 |
 | M-CON-039 | §10.2 | `event_type` closed set | contract | move | CON #13 (values owned by `EventType`) | CON | living-docs-system-and-contracts | | CON-013 |
@@ -661,8 +661,8 @@ Row prefixes: `M-INV` invariant rows, `M-CON` contract rows, `M-SYS` everything 
 | M-CON-044 | §10.2 | `external_id`, `raw_object_key` keep chain of custody; lists rationale | contract | move | CON #8 (+ Rationale) | CON | living-docs-system-and-contracts | | CON-008 |
 | M-CON-045 | §10.3 | `confidence_score` 0.0–1.0 inclusive; missing/out of range → DLT, never clamped | contract | link | `docs/core-hub/consumption.md` | — | living-docs-system-and-contracts | C6 unverified listener validation |  |
 | M-CON-046 | §10.3 | Java `BigDecimal` with `@NotNull @DecimalMin @DecimalMax` | contract | move | CON #12 | CON | living-docs-system-and-contracts | | CON-012 |
-| M-SYS-169 | §10.3 | `@Valid` explicit on listener payload | requirement | move | `docs/core-hub/consumption.md` | HUB | living-docs-core-hub | C6 |  |
-| M-SYS-170 | §10.3 | Postgres NUMERIC(4,3); Neo4j double | requirement | move | `docs/core-hub/storage.md` | HUB | living-docs-core-hub | |  |
+| M-SYS-169 | §10.3 | `@Valid` explicit on listener payload | requirement | move | `docs/core-hub/consumption.md` | HUB | living-docs-core-hub | C6 | HUB-011 |
+| M-SYS-170 | §10.3 | Postgres NUMERIC(4,3); Neo4j double | requirement | move | `docs/core-hub/storage.md` | HUB | living-docs-core-hub | | HUB-029 |
 | M-CON-047 | §10.4 | `major.minor` parsed as integers | contract | move | CON #28 | CON | living-docs-system-and-contracts | | CON-028 |
 | M-CON-048 | §10.4 | Unknown major → DLQ | contract | link | `docs/core-hub/consumption.md` | — | living-docs-system-and-contracts | |  |
 | M-CON-049 | §10.4 | Minor mismatch accepted and logged; `FAIL_ON_UNKNOWN_PROPERTIES=false` | contract | move | CON #30 | CON | living-docs-system-and-contracts | | CON-029 |
@@ -672,7 +672,7 @@ Row prefixes: `M-INV` invariant rows, `M-CON` contract rows, `M-SYS` everything 
 | M-SYS-172 | §14 | Sync-only settled | rationale | link | INV-8 rationale in `docs/system/overview.md` | INV | living-docs-system-and-contracts | |  |
 | M-SYS-173 | §14 | Airflow scheduler, Kafka backbone | rationale | move | `docs/operations/orchestration.md` Rationale | OPS | living-docs-operations | |  |
 | M-SYS-174 | §14 | Airflow metadata separate logical DB | rationale | link | M-SYS-157 owner | OPS | living-docs-operations | |  |
-| M-SYS-175 | §14 | First-class `SignalNode` | rationale | move | `docs/core-hub/storage.md` Rationale | HUB | living-docs-core-hub | |  |
+| M-SYS-175 | §14 | First-class `SignalNode` | rationale | move | `docs/core-hub/storage.md` Rationale | HUB | living-docs-core-hub | | docs/core-hub/storage.md#rationale |
 | M-SYS-176 | §14 | `confidence_score` 0.0–1.0 float | rationale | link | CON #12 Rationale | CON | living-docs-system-and-contracts | |  |
 | M-SYS-177 | §14 | UTC everywhere | rationale | link | INV-9 | INV | living-docs-system-and-contracts | |  |
 | M-SYS-178 | §14 | Testcontainers over mocks at store boundary | rationale | move | `docs/engineering/verification.md` Rationale | ENG | living-docs-engineering-workflow | | docs/engineering/verification.md#rationale |
@@ -787,19 +787,19 @@ Target IDs are not assigned here (design §5.2); `connectors.md#4` means "the 4t
 
 | Row | Source (path:line or §) | Rule or content (≤ 15 words) | Class | Disposition | Target | NS | Spec | Decision / note | ID |
 |---|---|---|---|---|---|---|---|---|---|
-| M-COR-001 | §4 :93-99 | Corroborate: same normalized entity, distinct source_type, published ≤ 90 days apart | requirement | move | core-hub/corroboration.md#2 | COR | living-docs-core-hub | tested: `CorroborationServiceContractTest::test_two_distinct_sources_same_target_produces_one_corroboration`, `::test_signals_91_days_apart_produce_none`, `::test_signal_exactly_at_window_boundary` |  |
-| M-COR-002 | §4 :101 | Window is between the two signals, never against now | requirement | move | corroboration.md#2 | COR | living-docs-core-hub | `::test_two_historical_signals_90_days_apart_corroborate_regardless_of_run_time` |  |
+| M-COR-001 | §4 :93-99 | Corroborate: same normalized entity, distinct source_type, published ≤ 90 days apart | requirement | move | core-hub/corroboration.md#2 | COR | living-docs-core-hub | tested: `CorroborationServiceContractTest::test_two_distinct_sources_same_target_produces_one_corroboration`, `::test_signals_91_days_apart_produce_none`, `::test_signal_exactly_at_window_boundary` | COR-003 |
+| M-COR-002 | §4 :101 | Window is between the two signals, never against now | requirement | move | corroboration.md#2 | COR | living-docs-core-hub | `::test_two_historical_signals_90_days_apart_corroborate_regardless_of_run_time` | COR-003 |
 | M-COR-003 | §4.1 :105-107 | Why `(entity_key, participant_event_ids)` key fails under growth | rationale | link | corroboration.md Rationale | COR | living-docs-core-hub | no ID |  |
-| M-COR-004 | §4.1 :109-112 | Record: entity_key, participants_hash, participant ids, distinct_source_count | requirement | move | corroboration.md#4 | COR | living-docs-core-hub | |  |
-| M-COR-005 | §4.1 :113 | corroborated_at = max participant published_date; only backtest join field | requirement | move | corroboration.md#4 | COR | living-docs-core-hub | `::test_corroborated_at_is_latest_participant_publication_not_run_time`; `living-docs-research` cites it |  |
-| M-COR-006 | §4.1 :114 | first_detected_at is scheduler run time, diagnostic only | requirement | move | corroboration.md#4 | COR | living-docs-core-hub | untested |  |
-| M-COR-007 | §4.1 :115 | Larger group supersedes; superseded rows kept, excluded from notifications and REST | requirement | move | corroboration.md#5 | COR | living-docs-core-hub | `::test_fourth_signal_supersedes_rather_than_duplicating`, `::test_superseded_rows_are_retained_for_backtesting_but_excluded_from_notifications` |  |
-| M-COR-008 | §4.2 :118 | Every graph write marks signal pending with fresh token, same transaction | requirement | move | corroboration.md#6 | COR | living-docs-core-hub | `CorroborationServiceIT::writeCommittingLongAfterItStartedIsCorroborated` |  |
-| M-COR-009 | §4.2 :118 | Scan reads pending batch; matches ±90 days of its own published_date | requirement | move | corroboration.md#7 | COR | living-docs-core-hub | batch size is `corroboration.scan-batch-size` (`application.yml:70`, value) |  |
-| M-COR-010 | §4.2 :118 | Wall-clock filter allowed only as documented optimisation, never semantics | requirement | move | corroboration.md#9 | COR | living-docs-core-hub | |  |
-| M-COR-011 | §4.2 :118 | Entities above configurable degree cap (default 500) are skipped | requirement | move | corroboration.md#7 | COR | living-docs-core-hub | `::test_high_degree_entity_is_skipped_by_the_degree_cap` |  |
-| M-COR-012 | §4.2 :118 | Clear pending only after sends acked, inserts committed, token unchanged | requirement | move | corroboration.md#8 | COR | living-docs-core-hub | `CorroborationScannerTest::pendingFlagIsClearedOnlyAfterEverySendIsAcknowledged`, `::clearUsesTheWriteTokenTheScanRead` |  |
-| M-COR-013 | §4.2 :118 | No clock decides; late commit, lagging partition, DLT replay all scanned | requirement | move | corroboration.md#9 | COR | living-docs-core-hub | `CorroborationServiceIT::signalWrittenAfterNewerSignalsWereScannedIsCorroborated` |  |
+| M-COR-004 | §4.1 :109-112 | Record: entity_key, participants_hash, participant ids, distinct_source_count | requirement | move | corroboration.md#4 | COR | living-docs-core-hub | | COR-005 |
+| M-COR-005 | §4.1 :113 | corroborated_at = max participant published_date; only backtest join field | requirement | move | corroboration.md#4 | COR | living-docs-core-hub | `::test_corroborated_at_is_latest_participant_publication_not_run_time`; `living-docs-research` cites it | COR-005 |
+| M-COR-006 | §4.1 :114 | first_detected_at is scheduler run time, diagnostic only | requirement | move | corroboration.md#4 | COR | living-docs-core-hub | untested | COR-006 |
+| M-COR-007 | §4.1 :115 | Larger group supersedes; superseded rows kept, excluded from notifications and REST | requirement | move | corroboration.md#5 | COR | living-docs-core-hub | `::test_fourth_signal_supersedes_rather_than_duplicating`, `::test_superseded_rows_are_retained_for_backtesting_but_excluded_from_notifications` | COR-007 |
+| M-COR-008 | §4.2 :118 | Every graph write marks signal pending with fresh token, same transaction | requirement | move | corroboration.md#6 | COR | living-docs-core-hub | `CorroborationServiceIT::writeCommittingLongAfterItStartedIsCorroborated` | COR-008 |
+| M-COR-009 | §4.2 :118 | Scan reads pending batch; matches ±90 days of its own published_date | requirement | move | corroboration.md#7 | COR | living-docs-core-hub | batch size is `corroboration.scan-batch-size` (`application.yml:70`, value) | COR-009 |
+| M-COR-010 | §4.2 :118 | Wall-clock filter allowed only as documented optimisation, never semantics | requirement | move | corroboration.md#9 | COR | living-docs-core-hub | | COR-011 |
+| M-COR-011 | §4.2 :118 | Entities above configurable degree cap (default 500) are skipped | requirement | move | corroboration.md#7 | COR | living-docs-core-hub | `::test_high_degree_entity_is_skipped_by_the_degree_cap` | COR-009 |
+| M-COR-012 | §4.2 :118 | Clear pending only after sends acked, inserts committed, token unchanged | requirement | move | corroboration.md#8 | COR | living-docs-core-hub | `CorroborationScannerTest::pendingFlagIsClearedOnlyAfterEverySendIsAcknowledged`, `::clearUsesTheWriteTokenTheScanRead` | COR-010 |
+| M-COR-013 | §4.2 :118 | No clock decides; late commit, lagging partition, DLT replay all scanned | requirement | move | corroboration.md#9 | COR | living-docs-core-hub | `CorroborationServiceIT::signalWrittenAfterNewerSignalsWereScannedIsCorroborated` | COR-011 |
 | M-COR-014 | §4.2 :120 | `CorroborationService` interface stays | invariant | link | INV-5 | INV | living-docs-system-and-contracts | corroboration.md#1 applies it |  |
 | M-COR-015 | §4.2 :120 | Streams implementation is conditional later work | status-note | keep | specs/kafka-streams-correlation.md | COR | living-docs-core-hub | not current behaviour |  |
 
@@ -884,13 +884,13 @@ Target IDs are not assigned here (design §5.2); `connectors.md#4` means "the 4t
 
 | Row | Source | Rule or content | Class | Disposition | Target | NS | Spec | Decision / note | ID |
 |---|---|---|---|---|---|---|---|---|---|
-| M-HUB-001 | §9 :278-289 | Signal node properties and three relationship types | contract | move | core-hub/storage.md#9 | HUB | living-docs-core-hub | company-level fields not in graph (CHOICE "event taxonomy…", item 4) |  |
-| M-HUB-002 | §9 :286-288 | Only TARGETS, USES_MECHANISM, MENTIONS are written | requirement | move | storage.md#9 | HUB | living-docs-core-hub | enforced: `ArchRulesTest::noRelationshipTypeOtherThanThoseInTheGraphModelIsWritten` |  |
-| M-HUB-003 | §9 :291 | Company MERGEs on name, never ticker; ticker set-if-known | requirement | move | storage.md#10 | HUB | living-docs-core-hub | CHOICE "ticker resolution details" item 4: extracted name as written; `SignalPersistenceIT::test_two_companies_without_tickers_are_two_nodes` |  |
-| M-HUB-004 | §9 :293 | confidence_score is a double in the graph, explicit conversion | requirement | move | storage.md#8 | HUB | living-docs-core-hub | `SignalPersistenceIT::test_confidence_score_is_numerically_comparable_in_cypher`; "converter" is an inline `.doubleValue()` |  |
+| M-HUB-001 | §9 :278-289 | Signal node properties and three relationship types | contract | move | core-hub/storage.md#9 | HUB | living-docs-core-hub | company-level fields not in graph (CHOICE "event taxonomy…", item 4) | HUB-030 HUB-033 |
+| M-HUB-002 | §9 :286-288 | Only TARGETS, USES_MECHANISM, MENTIONS are written | requirement | move | storage.md#9 | HUB | living-docs-core-hub | enforced: `ArchRulesTest::noRelationshipTypeOtherThanThoseInTheGraphModelIsWritten` | HUB-031 |
+| M-HUB-003 | §9 :291 | Company MERGEs on name, never ticker; ticker set-if-known | requirement | move | storage.md#10 | HUB | living-docs-core-hub | CHOICE "ticker resolution details" item 4: extracted name as written; `SignalPersistenceIT::test_two_companies_without_tickers_are_two_nodes` | HUB-034 |
+| M-HUB-004 | §9 :293 | confidence_score is a double in the graph, explicit conversion | requirement | move | storage.md#8 | HUB | living-docs-core-hub | `SignalPersistenceIT::test_confidence_score_is_numerically_comparable_in_cypher`; "converter" is an inline `.doubleValue()` | HUB-029 |
 | M-HUB-005 | §9 :293 | Verify SDN default conversion for pinned version | stale | delete | — | — | living-docs-core-hub | no SDN repositories are used |  |
-| M-HUB-006 | §9 :295 | Unique constraints, indexes, one GraphSchema node | requirement | move | storage.md#9 | HUB | living-docs-core-hub | `Neo4jSchemaInitializer`; untested by name beyond `SchemaIT` |  |
-| M-COR-016 | §9 :297-301 | Corroboration pattern is typed (never MENTIONS) | requirement | move | corroboration.md#2 | COR | living-docs-core-hub | `CorroborationServiceContractTest::test_two_signals_sharing_only_a_company_do_not_corroborate` |  |
+| M-HUB-006 | §9 :295 | Unique constraints, indexes, one GraphSchema node | requirement | move | storage.md#9 | HUB | living-docs-core-hub | `Neo4jSchemaInitializer`; untested by name beyond `SchemaIT` | HUB-032 |
+| M-COR-016 | §9 :297-301 | Corroboration pattern is typed (never MENTIONS) | requirement | move | corroboration.md#2 | COR | living-docs-core-hub | `CorroborationServiceContractTest::test_two_signals_sharing_only_a_company_do_not_corroborate` | COR-003 |
 
 ### docs/requirements.md §11 (extraction), plus §10.4 re-extraction and §3/§10.3 consumer rules owned by HUB
 
@@ -911,21 +911,21 @@ Target IDs are not assigned here (design §5.2); `connectors.md#4` means "the 4t
 | M-EXT-013 | §11.3 :377 | Runs manually, never in CI, gates each connector | requirement | move | extraction.md#13, #15 | EXT | living-docs-ingestion | | EXT-013 EXT-015 |
 | M-EXT-014 | §10.4 :348 | Re-extraction is explicit CLI over archive, never routine side effect | requirement | move | extraction.md#19 | EXT | living-docs-ingestion | `test_reextract.py::test_runner_never_writes_to_airflow_or_cursor` | EXT-019 |
 | M-EXT-015 | §10.4 :348 | Re-extraction writes new extraction_id, re-runs corroboration | requirement | divergent | extraction.md#19 | EXT | living-docs-ingestion | *Defects*: flags ignored, offset replaced; corroboration re-run via pending flag (`CorroborationServiceIT::reExtractedSignalIsScannedAgain`) | EXT-019 |
-| M-HUB-007 | §3.8 :79 | Neo4j → Postgres → acknowledge | requirement | move | storage.md#4 | HUB | living-docs-core-hub | `SignalIngestionServiceTest::test_ingest_calls_graph_port_before_record_port`; shared row with `living-docs-system-and-contracts` fragment |  |
-| M-HUB-008 | §3.8 :79 | ack-mode RECORD; offset never committed before both stores return | requirement | move | consumption.md#8 | HUB | living-docs-core-hub | untested (C5), *Defects*; `FaultInjectionIT::test_neo4j_failure_prevents_offset_commit…` does not prove it |  |
-| M-HUB-009 | §3.8 :79 | Repositories in separate base packages with explicit @Enable… | stale | retire | storage.md Retired | HUB | living-docs-core-hub | *HUB batch*: no repositories exist (C12) |  |
-| M-HUB-010 | §3.8 :79 | Every @Transactional qualified (ArchUnit) | requirement | move | storage.md#5 | HUB | living-docs-core-hub | enforced: `ArchRulesTest::test_no_unqualified_transactional` |  |
-| M-HUB-011 | §3.9 :80 | earliest; one group per listener; small max.poll.records | requirement | move | consumption.md#1 | HUB | living-docs-core-hub | untested |  |
-| M-HUB-012 | §3.10 :81 | Deterministic failures → DLT at once (incl. unknown enum) | requirement | divergent | consumption.md#4 | HUB | living-docs-core-hub | unknown enum: *Closed sets* (C7); `KafkaErrorHandlingIT::test_malformed_json_goes_to_dlt_immediately` |  |
-| M-HUB-013 | §3.10 :81 | Transient: 3 deliveries with back-off, then DLT | requirement | move | consumption.md#6 | HUB | living-docs-core-hub | `KafkaRetryTest::transientFailureIsRetriedTwiceWithGrowingBackoff` |  |
-| M-HUB-014 | §3.10 :81 | ErrorHandlingDeserializer on both listeners | requirement | move | consumption.md#2 | HUB | living-docs-core-hub | `KafkaRetryTest::deserializationFailureGoesToTheDltWithoutRetry` |  |
+| M-HUB-007 | §3.8 :79 | Neo4j → Postgres → acknowledge | requirement | move | storage.md#4 | HUB | living-docs-core-hub | `SignalIngestionServiceTest::test_ingest_calls_graph_port_before_record_port`; shared row with `living-docs-system-and-contracts` fragment | HUB-024 |
+| M-HUB-008 | §3.8 :79 | ack-mode RECORD; offset never committed before both stores return | requirement | move | consumption.md#8 | HUB | living-docs-core-hub | untested (C5), *Defects*; `FaultInjectionIT::test_neo4j_failure_prevents_offset_commit…` does not prove it | HUB-014 |
+| M-HUB-009 | §3.8 :79 | Repositories in separate base packages with explicit @Enable… | stale | retire | storage.md Retired | HUB | living-docs-core-hub | *HUB batch*: no repositories exist (C12) | HUB-040 |
+| M-HUB-010 | §3.8 :79 | Every @Transactional qualified (ArchUnit) | requirement | move | storage.md#5 | HUB | living-docs-core-hub | enforced: `ArchRulesTest::test_no_unqualified_transactional` | HUB-026 |
+| M-HUB-011 | §3.9 :80 | earliest; one group per listener; small max.poll.records | requirement | move | consumption.md#1 | HUB | living-docs-core-hub | untested | HUB-001 |
+| M-HUB-012 | §3.10 :81 | Deterministic failures → DLT at once (incl. unknown enum) | requirement | divergent | consumption.md#4 | HUB | living-docs-core-hub | unknown enum: *Closed sets* (C7); `KafkaErrorHandlingIT::test_malformed_json_goes_to_dlt_immediately` | HUB-004 HUB-005 HUB-006 HUB-007 HUB-008 HUB-009 |
+| M-HUB-013 | §3.10 :81 | Transient: 3 deliveries with back-off, then DLT | requirement | move | consumption.md#6 | HUB | living-docs-core-hub | `KafkaRetryTest::transientFailureIsRetriedTwiceWithGrowingBackoff` | HUB-012 |
+| M-HUB-014 | §3.10 :81 | ErrorHandlingDeserializer on both listeners | requirement | move | consumption.md#2 | HUB | living-docs-core-hub | `KafkaRetryTest::deserializationFailureGoesToTheDltWithoutRetry` | HUB-002 |
 | M-HUB-015 | §3.10 :81 | Never block a partition | invariant | link | INV-11 | INV | living-docs-system-and-contracts | consumption.md#6; `KafkaErrorHandlingIT::test_poison_message_does_not_block_partition` |  |
-| M-HUB-016 | §10.3 :342 | @Valid on listener payload needed explicitly | requirement | move | consumption.md#5 | HUB | living-docs-core-hub | untested (C6), *Defects* |  |
-| M-HUB-017 | §10.3 :344 | Missing/out-of-range score → DLT, never clamped | requirement | move | consumption.md#4 | HUB | living-docs-core-hub | untested through Kafka (C6) |  |
-| M-HUB-018 | §10.3 :342 | NUMERIC(4,3) in Postgres | requirement | move | storage.md#8 | HUB | living-docs-core-hub | Flyway V1 |  |
-| M-HUB-019 | §10.1 :328 | signal_current.source_type from first observation; observations append | requirement | move | storage.md#7 | HUB | living-docs-core-hub | `SignalPersistenceIT::test_second_source_observation_appends_and_does_not_change_signal_source_type` |  |
-| M-HUB-020 | §10.4 :346 | FAIL_ON_UNKNOWN_PROPERTIES=false on the consumer | requirement | move | consumption.md#3 | HUB | living-docs-core-hub | `ResearchSignalEventTest::test_minor_version_bump_with_extra_field_is_accepted` |  |
-| M-HUB-021 | §12 :388 | @Scheduled health reporter: DLT depth, per-source signal age | requirement | move | http-api.md#8 | HUB | living-docs-core-hub | `HealthReporterTest::healthReporterExportsDltDepthPerTopic`; "from Phase 5 notification transport" → keep in specs/hold/watchlist-alerts.md |  |
+| M-HUB-016 | §10.3 :342 | @Valid on listener payload needed explicitly | requirement | move | consumption.md#5 | HUB | living-docs-core-hub | untested (C6), *Defects* | HUB-011 |
+| M-HUB-017 | §10.3 :344 | Missing/out-of-range score → DLT, never clamped | requirement | move | consumption.md#4 | HUB | living-docs-core-hub | untested through Kafka (C6) | HUB-007 HUB-008 |
+| M-HUB-018 | §10.3 :342 | NUMERIC(4,3) in Postgres | requirement | move | storage.md#8 | HUB | living-docs-core-hub | Flyway V1 | HUB-029 |
+| M-HUB-019 | §10.1 :328 | signal_current.source_type from first observation; observations append | requirement | move | storage.md#7 | HUB | living-docs-core-hub | `SignalPersistenceIT::test_second_source_observation_appends_and_does_not_change_signal_source_type` | HUB-028 |
+| M-HUB-020 | §10.4 :346 | FAIL_ON_UNKNOWN_PROPERTIES=false on the consumer | requirement | move | consumption.md#3 | HUB | living-docs-core-hub | `ResearchSignalEventTest::test_minor_version_bump_with_extra_field_is_accepted` | HUB-003 |
+| M-HUB-021 | §12 :388 | @Scheduled health reporter: DLT depth, per-source signal age | requirement | move | http-api.md#8 | HUB | living-docs-core-hub | `HealthReporterTest::healthReporterExportsDltDepthPerTopic`; "from Phase 5 notification transport" → keep in specs/hold/watchlist-alerts.md | HUB-052 |
 
 ### services/ingestion-scraper/README.md
 
@@ -1000,26 +1000,26 @@ Target IDs are not assigned here (design §5.2); `connectors.md#4` means "the 4t
 | M-HUB-035 | services/core-hub/README.md:38-43 | Node keys; pending flag and token on Signal | contract | link | storage.md#9; corroboration.md#6 | HUB | legacy-docs-retirement | |  |
 | M-HUB-036 | services/core-hub/README.md:45 | Relationship types enforced; write replaces the signal's edges | requirement | link | storage.md#9, #11 | HUB | legacy-docs-retirement | at-risk class #6; `GraphRelationshipReplacementIT::rewriteWithADifferentGeneReplacesTheTargetsEdge` |  |
 | M-HUB-037 | services/core-hub/README.md:47 | Ticker only on single SEC match; never cleared; watchlist back-fill | requirement | link | storage.md#10 | HUB | legacy-docs-retirement | CHOICE "ticker resolution details"; `CompanyTickerIT::companyMatchingTwoSecTitlesGetsNoTicker` |  |
-| M-HUB-038 | services/core-hub/README.md:47 | CompanyNameNormalizer suffix list | requirement | ratify | storage.md#10 | HUB | living-docs-core-hub | *HUB batch* (code-only detail) |  |
+| M-HUB-038 | services/core-hub/README.md:47 | CompanyNameNormalizer suffix list | requirement | ratify | storage.md#10 | HUB | living-docs-core-hub | *HUB batch* (code-only detail) | HUB-035 |
 | M-HUB-039 | services/core-hub/README.md:49 | Flyway owns schema; ddl-auto validate, never update | requirement | link | storage.md#1 | HUB | legacy-docs-retirement | `SchemaIT::test_ddl_auto_is_validate` |  |
 | M-COR-017 | services/core-hub/README.md:55 | Corroboration definition, supersession by containment | requirement | link | corroboration.md#2, #5 | COR | legacy-docs-retirement | |  |
-| M-COR-018 | services/core-hub/README.md:57-59 | Score = 0.7 diversity + 0.3 recency, clamped; factor definitions | requirement | ratify | corroboration.md#11 | COR | living-docs-core-hub | *HUB batch*; at-risk class #9; README is the only prose source; `CorroborationScorerTest::test_score_never_leaves_0_1_range` |  |
+| M-COR-018 | services/core-hub/README.md:57-59 | Score = 0.7 diversity + 0.3 recency, clamped; factor definitions | requirement | ratify | corroboration.md#11 | COR | living-docs-core-hub | *HUB batch*; at-risk class #9; README is the only prose source; `CorroborationScorerTest::test_score_never_leaves_0_1_range` | COR-013 |
 | M-COR-019 | services/core-hub/README.md:61 | Pending flag and token scan; clear after commit if token unchanged | requirement | link | corroboration.md#6-9 | COR | legacy-docs-retirement | |  |
 | M-COR-020 | services/core-hub/README.md:63 | CorroborationService abstract; contract test re-runs unmodified | requirement | link | corroboration.md#1 | COR | legacy-docs-retirement | "steps 2.8 and 6.4" is a plan-step reference: delete |  |
 | M-HUB-040 | services/core-hub/README.md:69 | Non-GET under /api needs bearer write token; 401 otherwise | requirement | link | http-api.md#1 | HUB | legacy-docs-retirement | at-risk class #10; `WriteTokenIT::writeWithoutTokenIsRejectedWith401` |  |
 | M-HUB-041 | services/core-hub/README.md:69 | No CORS; browsers reach core-hub via dashboard | requirement | link | http-api.md#2 | HUB | legacy-docs-retirement | `WriteTokenIT::noCorsHeadersAreReturnedForCrossOriginRequests` |  |
 | M-HUB-042 | services/core-hub/README.md:71 | Watchlist summary contents | contract | link | http-api.md#4 | HUB | legacy-docs-retirement | |  |
-| M-HUB-043 | services/core-hub/README.md:73 | DLT replay semantics; "replayed at most once" | requirement | ratify | consumption.md#10 | HUB | living-docs-core-hub | *HUB batch*: wording corrected to at-least-once, absorbed by idempotent writes |  |
+| M-HUB-043 | services/core-hub/README.md:73 | DLT replay semantics; "replayed at most once" | requirement | ratify | consumption.md#10 | HUB | living-docs-core-hub | *HUB batch*: wording corrected to at-least-once, absorbed by idempotent writes | HUB-017 |
 | M-HUB-044 | services/core-hub/README.md:75,79 | Signals by ticker: direct + corroborated | contract | link | http-api.md#3 | HUB | legacy-docs-retirement | |  |
 | M-HUB-045 | services/core-hub/README.md:77 | Ticker must be in "configured allowlist" | stale | delete | — | — | legacy-docs-retirement | it is a regex, not a list |  |
-| M-HUB-046 | services/core-hub/README.md:78 | Returns 404 if no signals | stale | ratify | http-api.md#3 | HUB | living-docs-core-hub | *HUB batch*: approved text is 200 with empty lists (`SignalRestIT::test_unknown_ticker_returns_empty_lists_not_500`) |  |
+| M-HUB-046 | services/core-hub/README.md:78 | Returns 404 if no signals | stale | ratify | http-api.md#3 | HUB | living-docs-core-hub | *HUB batch*: approved text is 200 with empty lists (`SignalRestIT::test_unknown_ticker_returns_empty_lists_not_500`) | HUB-045 |
 | M-HUB-047 | services/core-hub/README.md:80 | Injection test covers Cypher injection and MATCH DELETE | requirement | link | storage.md#6 | HUB | legacy-docs-retirement | `SignalRestIT::test_injection_payload_is_rejected_or_bound_and_node_count_is_unchanged` |  |
 | M-HUB-048 | services/core-hub/README.md:86-93 | Development commands | command | link | services/core-hub/AGENTS.md | — | agent-instruction-hierarchy | |  |
 | M-HUB-049 | services/core-hub/README.md:99-103 | Build layout: Kotlin DSL, catalog matches VERSIONS.md, no dependency-management plugin | process | link | engineering/conventions.md | ENG | living-docs-engineering-workflow | |  |
 | M-HUB-050 | services/core-hub/README.md:111-114 | Test layout; static singleton containers; 3-minute target | process | link | engineering/verification.md | ENG | living-docs-engineering-workflow | |  |
 | M-HUB-051 | services/core-hub/README.md:116 | Contract test is abstract, never inlined | requirement | link | corroboration.md#1 | COR | legacy-docs-retirement | |  |
 | M-HUB-052 | services/core-hub/README.md:122 | @Transactional always qualified | requirement | link | storage.md#5 | HUB | legacy-docs-retirement | |  |
-| M-HUB-053 | services/core-hub/README.md:123 | MERGE, never CREATE, for signal and entity nodes | requirement | ratify | storage.md#3 | HUB | living-docs-core-hub | *HUB batch* beyond §3.7's table |  |
+| M-HUB-053 | services/core-hub/README.md:123 | MERGE, never CREATE, for signal and entity nodes | requirement | ratify | storage.md#3 | HUB | living-docs-core-hub | *HUB batch* beyond §3.7's table | HUB-023 |
 | M-HUB-054 | services/core-hub/README.md:124 | Parameterized queries; ArchUnit at build time | invariant | link | INV-12; storage.md#6 | INV | legacy-docs-retirement | ArchUnit scope gap: *Defects* |  |
 | M-HUB-055 | services/core-hub/README.md:125 | BigDecimal DTO, NUMERIC(4,3), double in Neo4j | requirement | link | CON; storage.md#8 | HUB | legacy-docs-retirement | |  |
 | M-HUB-056 | services/core-hub/README.md:126 | Java 25 records, no Lombok | rationale | link | engineering/conventions.md | ENG | living-docs-engineering-workflow | |  |
@@ -1089,26 +1089,26 @@ Target IDs are not assigned here (design §5.2); `connectors.md#4` means "the 4t
 | M-EXT-041 | `extractor.py` `resolve_trial_ids`, `EventType` | Unknown event_type → other; trial_ids rule | requirement | move | extraction.md#8 | EXT | living-docs-ingestion | CHOICE "event taxonomy…" item 3; `test_company_level_extraction.py::test_unknown_event_type_from_model_is_recorded_as_other` | EXT-008 |
 | M-ING-116 | `services/ingestion-scraper/src/auspex_ingest/api.py:39-102` | /health, /sources, /ingest (404, 500), /reextract, /metrics | contract | ratify | pipeline.md#18 | ING | living-docs-ingestion | *ING batch*; `test_api.py::test_ingest_unknown_source_type_returns_404` | ING-039 |
 | M-ING-117 | `services/ingestion-scraper/src/auspex_ingest/pipeline.py:~220` run log | Run summary lacks cursor before and after | requirement | divergent | pipeline.md#19 | ING | living-docs-ingestion | *Defects*; §12 :386 is the source | ING-040 |
-| M-HUB-062 | `services/core-hub/src/main/java/dev/auspex/corehub/audit/RawAuditService.java:47` | Raw audit reads `ingested_at` | requirement | divergent | storage.md#12 | HUB | living-docs-core-hub | *Raw-pointer*; `RawAuditIT` uses a hand-written payload |  |
-| M-HUB-063 | `RawAuditService` | Malformed raw payload retried, not dead-lettered at once | requirement | divergent | consumption.md#4 | HUB | living-docs-core-hub | *Defects* |  |
-| M-HUB-064 | `services/core-hub/src/main/java/dev/auspex/corehub/corroboration/ScheduledCorroborationService.java:57-82` | Graph-only Signal after DLT; dual write without outbox | requirement | ratify | storage.md#4 | HUB | living-docs-core-hub | *HUB batch* (C14) |  |
-| M-COR-024 | `services/core-hub/src/main/java/dev/auspex/corehub/corroboration/ScheduledCorroborationService.java:57-76` | Corroborated event at-least-once; consumers dedup on hash | requirement | move | corroboration.md#10 | COR | living-docs-core-hub | untested, *Defects* (C8); shape/version → CON |  |
-| M-COR-025 | `CorroborationScanner` entity key | entity_key = normalized name + ":" + label; one kind | requirement | ratify | corroboration.md#3 | COR | living-docs-core-hub | *HUB batch* |  |
-| M-HUB-065 | `WriteTokenInterceptor` | Constant-time compare; 401 JSON; fails closed when unset | requirement | move | http-api.md#1 | HUB | living-docs-core-hub | CHOICE "login endpoint, write-token failure mode, path layout" item 3; `WriteTokenInterceptorTest::test_writes_are_refused_when_no_token_is_configured` |  |
-| M-HUB-066 | `application.yml` management exposure | Actuator health, info, prometheus outside /api | contract | ratify | http-api.md#7 | HUB | living-docs-core-hub | *HUB batch*; `MetricsIT::test_prometheus_endpoint_returns_200` |  |
+| M-HUB-062 | `services/core-hub/src/main/java/dev/auspex/corehub/audit/RawAuditService.java:47` | Raw audit reads `ingested_at` | requirement | divergent | storage.md#12 | HUB | living-docs-core-hub | *Raw-pointer*; `RawAuditIT` uses a hand-written payload | HUB-038 |
+| M-HUB-063 | `RawAuditService` | Malformed raw payload retried, not dead-lettered at once | requirement | divergent | consumption.md#4 | HUB | living-docs-core-hub | *Defects* | HUB-010 |
+| M-HUB-064 | `services/core-hub/src/main/java/dev/auspex/corehub/corroboration/ScheduledCorroborationService.java:57-82` | Graph-only Signal after DLT; dual write without outbox | requirement | ratify | storage.md#4 | HUB | living-docs-core-hub | *HUB batch* (C14) | HUB-025 |
+| M-COR-024 | `services/core-hub/src/main/java/dev/auspex/corehub/corroboration/ScheduledCorroborationService.java:57-76` | Corroborated event at-least-once; consumers dedup on hash | requirement | move | corroboration.md#10 | COR | living-docs-core-hub | untested, *Defects* (C8); shape/version → CON | COR-012 |
+| M-COR-025 | `CorroborationScanner` entity key | entity_key = normalized name + ":" + label; one kind | requirement | ratify | corroboration.md#3 | COR | living-docs-core-hub | *HUB batch* | COR-004 |
+| M-HUB-065 | `WriteTokenInterceptor` | Constant-time compare; 401 JSON; fails closed when unset | requirement | move | http-api.md#1 | HUB | living-docs-core-hub | CHOICE "login endpoint, write-token failure mode, path layout" item 3; `WriteTokenInterceptorTest::test_writes_are_refused_when_no_token_is_configured` | HUB-041 HUB-042 |
+| M-HUB-066 | `application.yml` management exposure | Actuator health, info, prometheus outside /api | contract | ratify | http-api.md#7 | HUB | living-docs-core-hub | *HUB batch*; `MetricsIT::test_prometheus_endpoint_returns_200` | HUB-051 |
 
 ### the at-risk classes at-risk classes in this domain
 
 | Row | Source | Rule or content | Class | Disposition | Target | NS | Spec | Decision / note | ID |
 |---|---|---|---|---|---|---|---|---|---|
 | M-ING-118 | at-risk class #5 | Processed-marker semantics | requirement | move | pipeline.md#11 | ING | living-docs-ingestion | CHOICE "unchanged re-fetch skip with retry-safe markers"; `test_unchanged_refetch.py::test_failed_kafka_flush_marks_nothing_so_undelivered_signals_are_retried` | ING-032 |
-| M-HUB-067 | at-risk class #6 | Graph edge replacement on rewrite | requirement | move | storage.md#11 | HUB | living-docs-core-hub | archived spec graph-relationship-replacement; `GraphRelationshipReplacementIT::graphAndPostgresHoldTheSameEntitiesAfterARewrite` |  |
-| M-HUB-068 | at-risk class #7 | Listener pause on store outage | requirement | move | consumption.md#7 | HUB | living-docs-core-hub | CHOICE "transient Kafka failures pause…"; `DeadLetterRecoveryIT::recordConsumedDuringANeo4jOutageIsStoredAfterRecovery` |  |
-| M-HUB-069 | at-risk class #7 | DLT replay via `corehub-dlt-replay` | requirement | move | consumption.md#10 | HUB | living-docs-core-hub | `DeadLetterRecoveryIT::replayDoesNotRepublishARecordTwice` |  |
+| M-HUB-067 | at-risk class #6 | Graph edge replacement on rewrite | requirement | move | storage.md#11 | HUB | living-docs-core-hub | archived spec graph-relationship-replacement; `GraphRelationshipReplacementIT::graphAndPostgresHoldTheSameEntitiesAfterARewrite` | HUB-037 |
+| M-HUB-068 | at-risk class #7 | Listener pause on store outage | requirement | move | consumption.md#7 | HUB | living-docs-core-hub | CHOICE "transient Kafka failures pause…"; `DeadLetterRecoveryIT::recordConsumedDuringANeo4jOutageIsStoredAfterRecovery` | HUB-013 |
+| M-HUB-069 | at-risk class #7 | DLT replay via `corehub-dlt-replay` | requirement | move | consumption.md#10 | HUB | living-docs-core-hub | `DeadLetterRecoveryIT::replayDoesNotRepublishARecordTwice` | HUB-016 |
 | M-ING-119 | at-risk class #8 | SEC budget, per-connector side (EDGAR rate, 403 stop) | requirement | move | connectors.md#6-7 | ING | living-docs-ingestion | CHOICE "SEC request budget across containers"; aggregate → OPS (`living-docs-operations/legacy-docs-retirement`) | ING-006 ING-007 |
 | M-COR-026 | at-risk class #9 | Corroboration scorer formula | requirement | link | same as M-COR-018 | — | living-docs-core-hub | Duplicate of M-COR-018; the ID is carried there |  |
-| M-HUB-070 | at-risk class #10 | Write token, no CORS, browser only talks to dashboard | requirement | move | http-api.md#1-2 | HUB | living-docs-core-hub | CHOICE "dashboard runs in the stack behind its own server layer"; dashboard.md links |  |
-| M-HUB-071 | at-risk class #12 | Single-user installation, no user_id | requirement | move | storage.md#13 | HUB | living-docs-core-hub | CHOICE "No user_id column; single-user installation, extensible" |  |
+| M-HUB-070 | at-risk class #10 | Write token, no CORS, browser only talks to dashboard | requirement | move | http-api.md#1-2 | HUB | living-docs-core-hub | CHOICE "dashboard runs in the stack behind its own server layer"; dashboard.md links | HUB-041 HUB-043 |
+| M-HUB-071 | at-risk class #12 | Single-user installation, no user_id | requirement | move | storage.md#13 | HUB | living-docs-core-hub | CHOICE "No user_id column; single-user installation, extensible" | HUB-039 |
 | M-HUB-072 | at-risk class #13 | core-hub calls ClinicalTrials.gov directly | invariant | link | INV-4 exception in `docs/system/invariants.md` | INV | living-docs-system-and-contracts | CHOICE "core-hub calls ClinicalTrials.gov directly"; http-api.md#4 links |  |
 | M-EXT-042 | at-risk class #19 | Extraction gate ≥ 0.85 and decision rule fixed in advance | requirement | move | extraction.md#13-14 | EXT | living-docs-ingestion | CHOICE "local model decision rule, fixed before the gate runs"; not the protocol's event-to-ticker 0.85 gate (EVA) | EXT-013 EXT-014 |
 
@@ -1124,7 +1124,7 @@ Target IDs are not assigned here (design §5.2); `connectors.md#4` means "the 4t
 | M-COR-027 | 2026-09-19 — Watchlist & alerts — CHOICE — Discord webhook transport | Discord webhook for alerts | history | keep | specs/hold/watchlist-alerts.md | — | living-docs-core-hub | unbuilt |  |
 | M-COR-028 | 2026-09-19 — Watchlist & alerts — CHOICE — Entity-key-based watchlist, not ticker-based | watchlist_entries hold entity keys | history | delete | — | — | living-docs-core-hub | superseded: hold spec reads V3 tables |  |
 | M-EXT-044 | 2026-09-19 — Historical backfill — CHOICE — Option A: local model for backfill, API model forward-only | Gate at ≥ 0.85; one-model corpus | requirement | move | extraction.md#13 | EXT | living-docs-ingestion | binding for the gate; lineage rule keeps living in specs/historical-backfill.md | EXT-013 |
-| M-HUB-073 | 2026-09-20 — Watchlist backend — CHOICE — No user_id column; single-user installation, extensible | No user_id; one-migration path | requirement | move | storage.md#13 | HUB | living-docs-core-hub | binding |  |
+| M-HUB-073 | 2026-09-20 — Watchlist backend — CHOICE — No user_id column; single-user installation, extensible | No user_id; one-migration path | requirement | move | storage.md#13 | HUB | living-docs-core-hub | binding | HUB-039 |
 | M-HUB-074 | 2026-09-20 — Watchlist backend — CHOICE — core-hub calls ClinicalTrials.gov directly | Preview calls CT.gov; 5 s timeout | invariant | link | INV-4 exception in `docs/system/invariants.md` | INV | living-docs-system-and-contracts | binding |  |
 | M-EXT-045 | 2026-09-20 — Option A hosting — CHOICE — A1 (MacBook) confirmed for Phase 4; A2/A3 deferred | Backfill on the Mac | history | delete | — | — | living-docs-ingestion | hosting note, no rule |  |
 | M-HUB-075 | 2026-09-25 — Watchlist backend — CHOICE — live preview smoke test deferred | Live preview call deferred | history | delete | — | — | living-docs-core-hub | status only |  |
@@ -1134,22 +1134,22 @@ Target IDs are not assigned here (design §5.2); `connectors.md#4` means "the 4t
 | M-ING-126 | 2026-10-07 — Second-wave specs — CHOICE — structured filings bypass the LLM | Deterministic mapper path for Form 4, offerings | history | keep | specs/hold/structured-source-extraction.md | — | living-docs-ingestion | unbuilt (hold) |  |
 | M-EXT-047 | 2026-10-07 — Company-level extraction — CHOICE — event taxonomy and identifier fields (schema 1.1) | event_type set, trial_ids rule, V4 columns, CT lead sponsor | requirement | move | extraction.md#8; storage.md#9; connectors.md#13; CON closed set | EXT | living-docs-ingestion | binding (split across EXT, HUB, ING, CON); "schema 1.1" and prompt v1.1 superseded by Single-source cleanup | EXT-008 |
 | M-ING-127 | 2026-10-08 — Control-surface scoping — CHOICE — the watchlist is the single source for tracked tickers and terms | Watchlist feeds scraper config; versioned vocabulary | history | keep | specs/managed-ingestion-config.md | — | living-docs-ingestion | unbuilt; binding for that spec only |  |
-| M-HUB-076 | 2026-10-08 — Control-surface scoping — CHOICE — dashboard runs in the stack behind its own server layer | Browser → dashboard only; no core-hub CORS; token on writes | requirement | move | http-api.md#1-2 | HUB | living-docs-core-hub | binding; BFF half is DSH (`living-docs-strategy-and-dashboard`) |  |
+| M-HUB-076 | 2026-10-08 — Control-surface scoping — CHOICE — dashboard runs in the stack behind its own server layer | Browser → dashboard only; no core-hub CORS; token on writes | requirement | move | http-api.md#1-2 | HUB | living-docs-core-hub | binding; BFF half is DSH (`living-docs-strategy-and-dashboard`) | HUB-041 HUB-043 |
 | M-EXT-048 | 2026-10-08 — First run on the stack machine — CHOICE — local model decision rule, fixed before the gate runs | Eligibility and tie-break rule for the first model choice | requirement | move | extraction.md#14 | EXT | living-docs-ingestion | binding | EXT-014 |
 | M-ING-128 | 2026-10-09 — Soak-test readiness — CHOICE — cursor after a run with failed documents | next_cursor never passes a failed document | requirement | move | pipeline.md#5 | ING | living-docs-ingestion | binding; DAG half → OPS | ING-026 |
-| M-HUB-077 | 2026-10-09 — Soak-test readiness — CHOICE — transient Kafka failures pause instead of retrying longer | Pause on outage; 5 s/30 s back-off; replay endpoint | requirement | move | consumption.md#6, #7, #10 | HUB | living-docs-core-hub | binding |  |
+| M-HUB-077 | 2026-10-09 — Soak-test readiness — CHOICE — transient Kafka failures pause instead of retrying longer | Pause on outage; 5 s/30 s back-off; replay endpoint | requirement | move | consumption.md#6, #7, #10 | HUB | living-docs-core-hub | binding | HUB-012 HUB-013 HUB-016 |
 | M-ING-129 | 2026-10-09 — Soak-test readiness — CHOICE — SEC request budget across containers | EDGAR 4 + universe 5; EDGAR stops on 403 | requirement | move | connectors.md#6-7 | ING | living-docs-ingestion | binding; aggregate → operations/topology.md (`living-docs-operations`) | ING-006 ING-007 |
-| M-HUB-078 | 2026-10-09 — Dashboard foundation — CHOICE — login endpoint, write-token failure mode, path layout | Item 3: write token fails closed | requirement | move | http-api.md#1 | HUB | living-docs-core-hub | binding for item 3; items 1, 2, 4, 5 are DSH (`living-docs-strategy-and-dashboard`) |  |
+| M-HUB-078 | 2026-10-09 — Dashboard foundation — CHOICE — login endpoint, write-token failure mode, path layout | Item 3: write token fails closed | requirement | move | http-api.md#1 | HUB | living-docs-core-hub | binding for item 3; items 1, 2, 4, 5 are DSH (`living-docs-strategy-and-dashboard`) | HUB-041 |
 | M-ING-130 | 2026-10-10 — Single-source cleanup — CHOICE — one version of each pre-rollout artifact | One prompt v1, schema 1.0, deleted duplicates | history | link | extraction.md Rationale | EXT | living-docs-ingestion | history: its effects are code and CON facts |  |
 | M-EXT-049 | 2026-10-09 — Graph and connector wiring fixes — CHOICE — publish threshold default is 0.0, not the API's 0.5 | Threshold per entry, default 0.0 | requirement | move | extraction.md#2 | EXT | living-docs-ingestion | binding | EXT-002 |
-| M-HUB-079 | 2026-10-09 — Graph and connector wiring fixes — CHOICE — ticker resolution details | Single-ticker match; back-fill by SEC title; failure logged | requirement | move | storage.md#10; http-api.md#4 | HUB | living-docs-core-hub | binding |  |
+| M-HUB-079 | 2026-10-09 — Graph and connector wiring fixes — CHOICE — ticker resolution details | Single-ticker match; back-fill by SEC title; failure logged | requirement | move | storage.md#10; http-api.md#4 | HUB | living-docs-core-hub | binding | HUB-034 HUB-047 |
 | M-EXT-050 | 2026-10-09 — Graph and connector wiring fixes — CHOICE — calibrated publish thresholds before launch | Per-source calibration before launch | requirement | move | `docs/ingestion/extraction.md` item 21 | EXT | living-docs-ingestion | binding before launch; the calibration work itself stays in `specs/golden-set-expansion.md` | EXT-021 |
 | M-HUB-080 | 2026-10-09 — Graph and connector wiring fixes — CHOICE — no VIA migration | Writer emits USES_MECHANISM; no rewrite | history | link | storage.md Rationale | HUB | living-docs-core-hub | rule itself is storage.md#9 (ArchUnit) |  |
 | M-ING-131 | 2026-10-10 — Ingestion run reliability — CHOICE — schedule times, extraction cap and task timeout | Cap 150 sized to 3 h; schedules; timeout | requirement | move | pipeline.md#6 | ING | living-docs-ingestion | binding for the cap rule (value in sources.yaml); schedules and timeout → OPS | ING-027 |
 | M-ING-132 | 2026-10-10 — Ingestion run reliability — CHOICE — rate limiter spaces requests evenly, with no burst | One-token bucket; even spacing | requirement | move | connectors.md#5 | ING | living-docs-ingestion | binding; `test_rate_limited_client.py::test_idle_time_does_not_bank_a_burst` | ING-005 |
 | M-ING-133 | 2026-10-10 — Ingestion run reliability — CHOICE — a 403 on a filing index also stops the EDGAR run | Any SEC 403 ends the run | requirement | move | connectors.md#7 | ING | living-docs-ingestion | binding; `test_sec_edgar.py::test_index_403_stops_the_run_without_further_sec_requests` | ING-007 |
 | M-ING-134 | 2026-10-10 — Ingestion run reliability — CHOICE — requirements §5 text follows the 2026-10-09 cursor decision | §5 text edited to the cursor rule | history | delete | — | — | living-docs-ingestion | doc-edit record |  |
-| M-COR-029 | 2026-10-10 — Corroboration late arrivals — CHOICE — contract test signals are written pending, clear runs after the commit | Contract-test helpers write pending; clear after commit | requirement | move | corroboration.md#1, #8 | COR | living-docs-core-hub | binding |  |
+| M-COR-029 | 2026-10-10 — Corroboration late arrivals — CHOICE — contract test signals are written pending, clear runs after the commit | Contract-test helpers write pending; clear after commit | requirement | move | corroboration.md#1, #8 | COR | living-docs-core-hub | binding | COR-001 COR-010 |
 | M-COR-030 | 2026-10-10 — Consolidated code, strategy and BV audit — CHOICE — what becomes specs, what does not | Which audit findings became specs | history | delete | — | — | living-docs-core-hub | item 6 (no withdrawal of published corroborations) noted in corroboration.md Rationale |  |
 
 ### File-level summary

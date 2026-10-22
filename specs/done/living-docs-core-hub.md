@@ -1,6 +1,6 @@
 # Living docs: core-hub and corroboration
 
-**Status:** blocked
+**Status:** done
 **Blocked by:**
 1. `specs/docs-check-tooling.md` merged into `feature/living-docs-integration`: `python3 -m tools.docs_check` with `--next`, `--paths`, check M (`--matrix … --domain NS` and `--matrix … --decisions`), and `docs-check.toml` with `[rollout] planned_domains`.
 2. `specs/living-docs-system-and-contracts.md` merged into the integration branch. It provides:
@@ -384,3 +384,16 @@ The revert removes `docs/core-hub/`. It restores the 4 specs, the matrix ID cell
 - **The README says `source_observation` is one row per (event_id, source_type)** (`README.md:33`). The key also includes `external_id`. The matrix marks the README row `delete`, because it is wrong and the key is CON's.
 - `CorroborationServiceContractTest` has two tests named after the dropped watermark. Renaming them is a code change for the fix spec; the verification table cites them by their current names.
 - Exact PENDING titles are those committed on the scoping branch. If one differs from the text above, use the committed one.
+- **As built.** Where the build differs from the text above:
+  - IDs: HUB-001 to HUB-018 in `consumption.md`, HUB-019 to HUB-040 in `storage.md` (HUB-040, the repository-packages rule of requirements §3.8, is retired at once: core-hub has no Spring Data repositories), HUB-041 to HUB-052 in `http-api.md`, COR-001 to COR-014 in `corroboration.md`.
+  - `Last reviewed against` is `develop @ b7582c3` (the raw pointer contract fix), not `e51f742`: the docs were reviewed against the later code, which includes the C1 fix.
+  - The malformed raw payload (HUB-010) and the raw audit row (HUB-038) are `tested`, not `divergent`: defect C1 was fixed on develop by `specs/done/raw-pointer-contract-fix.md` before this spec ran, so the rows describe the code as it is and cite that spec.
+  - Per-record logging context (HUB-018) is sourced from `specs/done/centralised-logging.md`, so it is `tested` and not in the ratification batch. It covers the signal listener only: the raw-pointer listener puts only the topic in context.
+  - Requirements were split where parts have different statuses: dead-letter replay into HUB-016 (`tested`) and HUB-017 (ratification); Flyway ownership and frozen migrations; idempotency and the graph `MERGE`; the graph model into HUB-030 to HUB-033; the write token (HUB-041) and its constant-time comparison (HUB-042); `first_detected_at` (COR-006) apart from the record (COR-005); the error body (HUB-049) apart from value formats (HUB-050).
+  - Extra IDs for matrix rows the lists above did not name: HUB-036 (tickerless companies, requirements §0.7), COR-002 (the scheduled scan as the implementation, §0.6), HUB-035 (name normalizer, from M-HUB-038) and HUB-015 (dead-letter counter).
+  - HUB-033 (company-level fields stay off the graph) is `untested`: the Postgres half is asserted, nothing asserts the graph lacks them.
+  - `grep -n "user_id" docs/core-hub/storage.md` prints two lines: the HUB-039 requirement and its verification row, whose Source must carry the `No user_id column` decision heading for check M.
+  - Status words in verification tables are plain, not backticked, so the `| tested |` and `-w tested` greps in Required tests match what they are meant to.
+  - Matrix rows with disposition link, keep or delete keep an empty `IDs` cell. The ClinicalTrials.gov decision row also carries HUB-047, which applies the INV-4 exception.
+  - `grep -rln "0.7 × diversity\|0\.7 \* diversity" docs/` also lists `docs/HISTORY.md:93` (`0.7 * diversity_factor`, phase history written before this rollout). It is not in this spec's Affected files and is left for `specs/legacy-docs-retirement.md`; the definition-of-done grep (`×` only) lists `corroboration.md` alone.
+  - Java tests were not run here: `./gradlew test --rerun-tasks` failed resolving dependencies (Maven Central answered 429). No Java code changed; check K confirms every `tested` row names a real test method.

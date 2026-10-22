@@ -4,15 +4,13 @@
 **Blocked by:** Historical backfill — this spec requires production-scale graph data to make index optimizations meaningful. The backfill is itself blocked pending budget approval.
 **Note:** node-count and latency thresholds in this spec are placeholders. Treat this spec as blocked-and-draft — the required tests need revision before implementation can start. Do a scoping pass (revise thresholds from actual backfill measurements) before marking this `ready`.
 **Branch:** `feature/neo4j-indexing`
+**Docs impact:** changes HUB-032 (`docs/core-hub/storage.md`, the constraints and indexes `Neo4jSchemaInitializer` creates) for each index it adds; adds and retires no ID.
 
 ---
 
 ## Context
 
-Constraint and index existence is tested from Phase 1 (`SchemaIT`). The constraints in place are:
-
-- Unique: `Signal.event_id`, `GeneTarget.name`, `Mechanism.name`, `Company.name`
-- Indexes (non-unique): `Signal.published_date`, `Signal.source_type`, `Company.ticker`
+The unique constraints and indexes the graph has today are HUB-032 in `docs/core-hub/storage.md`: `Neo4jSchemaInitializer` creates them on every start. No test lists them yet.
 
 The corroboration query in `CorroborationScanner.findGroups()` and the REST query in `SignalQueryService.queryDirectSignals()` are the two hot paths. Both are currently untested at scale.
 
@@ -32,7 +30,7 @@ Schema changes. New relationship types. Indexes on fields not queried by existin
 
 - `test_hot_path_queries_use_indexes_not_full_scans` asserts on `EXPLAIN` output (`IndexSeek` or `NodeIndexSeek` present), not on wall-clock time. Wall-clock latency is environment-dependent and unsuitable for a committed test.
 - Only add an index if `EXPLAIN` confirms it is used. Unused indexes impose write overhead on every signal ingest.
-- Indexes are added via a new Flyway migration (Cypher script in `src/main/resources/db/migration/neo4j/`). Not via ad-hoc Cypher in a startup bean.
+- Proposal, to settle when this spec is scoped: add indexes through a versioned Cypher migration rather than `Neo4jSchemaInitializer`. Today HUB-032 creates every constraint and index in that startup component, which is idempotent and records a `(:GraphSchema {version})` node; moving them is a change to HUB-032 that this spec's `Docs impact` must then name.
 
 ## Required tests
 

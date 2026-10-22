@@ -3,25 +3,26 @@
 **Status:** blocked
 **Blocked by:**
 1. Met: company-level event extraction (`specs/done/company-level-extraction.md`) — `ResearchSignalEvent` must carry the event type and the company and program identifiers (company CIK or ticker where known, lead sponsor, NCT ID, drug code such as `SRP-9001`) before signals can be matched on them. Use the field names that spec lands; this spec does not add extraction fields.
-2. User approval of the requirements amendment below (§4 and §9 of `docs/requirements.md`). Logged in `DECISIONS.md` 2026-10-07 FLAG "corroboration is matched on gene target, not company".
+2. User approval of the amendment in this spec's Docs impact: changes to COR-003, COR-004 and COR-013 (`docs/core-hub/corroboration.md`) and HUB-030 and HUB-031 (`docs/core-hub/storage.md`). Logged in `DECISIONS.md` 2026-10-07 FLAG "corroboration is matched on gene target, not company".
 
 **Priority (2026-10-07 edge research):** off the alpha path. Corroborated events at 50 to 150 per year cannot reach the promotion t at a realistic 20-day σ of about 22.5%, so this spec serves the research tool and the negative-event veto's company mapping, not a trading trigger. Still valid as written; build it after the slow-signal specs unless the user says otherwise.
 
 **Branch:** `feature/company-program-corroboration`
+**Docs impact:** changes COR-003 (the definition, stated per kind, with a configurable window), COR-004 (adds the `COMPANY_PROGRAM` kind and its `program:` entity key), COR-013 (recency measured against `as_of`), HUB-030 (adds the `Program` node) and HUB-031 (adds `ABOUT_PROGRAM` and `SPONSORED_BY`); adds COR IDs for the `kind`, `tickers`, `window_days` and `mechanism_only` fields and the degree-cap report, and HUB IDs for the `as_of` parameter and the skipped-entities endpoint (`docs/core-hub/corroboration.md`, `docs/core-hub/storage.md`, `docs/core-hub/http-api.md`). Retires nothing.
 
 ---
 
 ## Context
 
-Corroboration today (`docs/requirements.md` §4, §9) links two signals when they share a `GeneTarget` or `Mechanism` node, come from distinct `source_type`s, and are published within 90 days of each other. The 2026-10-07 edge feasibility audit rated this event definition fatal for trading: a bioRxiv paper and a trial on DMD are not Sarepta news, and nothing maps a gene target to the stock it moves. It also found two point-in-time defects in the same component.
+Corroboration today (COR-003) links two signals when they share a `GeneTarget` or `Mechanism` node, come from distinct `source_type`s, and are published within 90 days of each other. The 2026-10-07 edge feasibility audit rated this event definition fatal for trading: a bioRxiv paper and a trial on DMD are not Sarepta news, and nothing maps a gene target to the stock it moves. It also found two point-in-time defects in the same component.
 
 What exists in `services/core-hub`:
 - `corroboration/CorroborationService` (interface) with one implementation, `ScheduledCorroborationService`, which delegates to `CorroborationScanner` and publishes `CorroboratedSignalEvent` to `auspex.signals.corroborated`.
-- `CorroborationScanner` — Cypher `MATCH (s)-[:TARGETS|USES_MECHANISM]->(e)`, a ±90-day window (`WINDOW_SECONDS`), a degree cap (`corroboration.degree-cap`, default 500), a pending flag and write token on each `Signal` (set by every graph write, cleared after the scan's sends are acknowledged), and the `corroboration` table keyed on `(entity_key, participants_hash)` with supersession (§4.1).
-- `CorroborationScorer` — `0.7 × diversity + 0.3 × recency`, where recency is measured against `clock.instant()`. It is called at read time by `query/SignalQueryService`. Recomputing a historical corroboration's score therefore depends on the day the code runs (audit row 13).
+- `CorroborationScanner` — the definition, kind and window (COR-003, COR-004, with the window as the constant `WINDOW_SECONDS`), the pending-signal scan and degree cap (COR-008 to COR-011), and the record with supersession (COR-005, COR-007; key CON-025).
+- `CorroborationScorer` — the score (COR-013), whose recency is measured against `clock.instant()` and computed at read time by `query/SignalQueryService`. Recomputing a historical corroboration's score therefore depends on the day the code runs (audit row 13).
 - `watchlist/SecTickerCache` — SEC `company_tickers.json` lookup (ticker ↔ CIK ↔ name).
 - `CorroborationServiceContractTest` (abstract, `src/integrationTest`) — any `CorroborationService` implementation must pass it unmodified.
-- Flyway `V1`–`V3` create the schema on an empty database (there is no legacy data to migrate).
+- The Flyway migrations create the schema on an empty database; there is no legacy data to migrate (HUB-019, HUB-021).
 
 Audit rows covered here: 4 (core-hub side), 11 and 13.
 
@@ -31,7 +32,7 @@ Audit rows covered here: 4 (core-hub side), 11 and 13.
 2. **A second corroboration kind.** The scheduled run executes two scans and writes both into the existing `corroboration` table:
    - `GENE_TARGET` — today's scan, unchanged. Kept as context; not a trading trigger.
    - `COMPANY_PROGRAM` — signals sharing a `Program` node, distinct `source_type`s, within the window. `entity_key` is `program:<Program.key>`, so the natural key `(entity_key, participants_hash)` and supersession are unchanged.
-   A `kind` column (next free Flyway version, `V5` or later since `V4` is `company_level_fields`; `NOT NULL`, no default) and a `tickers` array are added. `CorroboratedSignalEvent` gains `kind` and `tickers` (additive; consumers already ignore unknown fields). Both scans stay behind `CorroborationService` — this is a second scanner inside the existing implementation, not a new implementation, so the contract test runs unmodified.
+   A `kind` column (the next free Flyway version; `NOT NULL`, no default) and a `tickers` array are added. `CorroboratedSignalEvent` gains `kind` and `tickers` (additive; consumers already ignore unknown fields). Both scans stay behind `CorroborationService` — this is a second scanner inside the existing implementation, not a new implementation, so the contract test runs unmodified.
 3. **Configurable window.** `corroboration.window-days` (default 90) replaces the hard-coded constant, so 7- and 30-day variants can be run as pre-registered alternatives (row 11). The Python side records which window produced a corroboration through a `window_days` column.
 4. **Mechanism-only matches flagged.** A `GENE_TARGET` corroboration whose only shared entity is a `Mechanism` (AAV, CRISPR) carries `mechanism_only = true`. Trading consumers exclude these (row 11).
 5. **Degree-cap report.** Each scan logs and counts (`auspex.corroboration.entities.skipped.total`, tagged by label) the entities skipped by the degree cap, and `GET /api/v1/corroborations/skipped-entities` lists them with their degree. The audit asks whether core targets such as DMD are silently skipped (row 11).
@@ -47,16 +48,16 @@ Audit rows covered here: 4 (core-hub side), 11 and 13.
 
 ## Constraints
 
-- Invariant 2: core-hub remains the sole writer to Postgres and Neo4j.
-- Invariant 5: both kinds sit behind `CorroborationService`. `CorroborationServiceContractTest` must pass unmodified.
-- Invariant 10: natural key stays `(entity_key, participants_hash)` per requirements §3.7.
-- Invariant 12: all new Cypher and SQL use bind parameters; the ArchUnit rule covers the new classes.
-- Requirements §4 window semantics are between the two signals, not against today — the configurable window keeps that.
-- Write ordering Neo4j → Postgres → ack is unchanged; every new `@Transactional` is qualified.
+- INV-2: core-hub remains the sole writer to Postgres and Neo4j.
+- INV-5 and COR-001: both kinds sit behind `CorroborationService`, and the contract test passes unmodified.
+- INV-10: the natural key stays `(entity_key, participants_hash)` (CON-025).
+- INV-12: all new Cypher and SQL use bind parameters; the ArchUnit rule covers the new classes (HUB-027).
+- COR-003: the window is between the two signals, not against today; the configurable window keeps that.
+- HUB-024 and HUB-026: write ordering Neo4j → Postgres → ack is unchanged; every new `@Transactional` is qualified.
 - `MERGE (c:Company {ticker: null})` trap: never MERGE on ticker or CIK.
 - Ticker resolution must be point-in-time where the data allows: a ticker reassigned after `published_date` must not attach. `SecTickerCache` only knows today's mapping, so a CIK that resolved through it is stamped `ticker_source = 'current'` and the backtest treats it as a known limitation, recorded in `DECISIONS.md`.
 
-**Requirements amendment (do this first, in the same PR):** §4 gains a second, company-program corroboration rule and the `kind` field; §9 gains the `Program` node and `ABOUT_PROGRAM`/`SPONSORED_BY` relationships, and the typed corroboration pattern is stated per kind. Without this amendment the tests below would contradict §4 and must not be written.
+**Docs amendment (do this first, in the same PR):** the changes listed under Docs impact. COR-004 gains the company-program kind and the `kind` field; COR-003 states the typed corroboration pattern per kind; HUB-030 and HUB-031 gain the `Program` node and the `ABOUT_PROGRAM`/`SPONSORED_BY` relationships. Without this amendment the tests below would contradict COR-003 and COR-004 and must not be written.
 
 ## Required tests
 
@@ -88,10 +89,10 @@ cd services/core-hub && ./gradlew test --rerun-tasks && ./gradlew integrationTes
 
 Expected: 6 new unit tests and 9 new integration tests pass alongside the existing suite; `build/reports/tests/` shows a non-zero count for both tasks; the contract test file is unchanged in the diff.
 
-Then: `docs/requirements.md` §4 and §9 amended; `services/core-hub/README.md` corroboration section updated; the degree-cap report run against the stack and its result (which watched targets exceed the cap) recorded in `DECISIONS.md`.
+Then: the IDs listed under Docs impact amended in `docs/core-hub/`; `services/core-hub/README.md` corroboration section updated; the degree-cap report run against the stack and its result (which watched targets exceed the cap) recorded in `DECISIONS.md`.
 
 ## Notes
 
-- Why one implementation with two scanners rather than a new `CorroborationService`: a company-program implementation cannot pass the gene-target contract cases, and Invariant 5 forbids editing the contract test. Keeping gene-target corroboration as context also lets the backtest compare the two definitions.
+- Why one implementation with two scanners rather than a new `CorroborationService`: a company-program implementation cannot pass the gene-target contract cases, and COR-001 (applying INV-5) forbids editing the contract test. Keeping gene-target corroboration as context also lets the backtest compare the two definitions.
 - The 0.85 event-to-ticker precision gate (audit row 4 done-when) is measured on the golden set by the company-level extraction spec. This spec consumes its output and does not re-measure.
 - The score is not persisted today and should stay that way: a stored recency term would reintroduce the wall-clock dependency row 13 removes.
