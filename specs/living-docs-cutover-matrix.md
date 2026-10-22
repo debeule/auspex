@@ -73,42 +73,42 @@ Scoping listed these classes of normative statements whose only home is an archi
 | `## 2026-09-19 — Dashboard — CHOICE — Node 22 LTS (Phase 5 resolution)` | history |  | M-ENG-128 |
 | `## 2026-09-25 — Watchlist backend — CHOICE — live preview smoke test deferred` | history |  | M-HUB-075 |
 | `## 2026-10-07 — Live ingestion — CHOICE — unchanged re-fetch skip with retry-safe markers` | binding | ING-032 | M-ING-124 |
-| `## 2026-10-07 — Market simulation — CHOICE — PositionSizer `fx_rate` is EUR per USD` | binding |  | M-RES-170 |
-| `## 2026-10-07 — Market simulation — CHOICE — FillModel does not shift entry dates` | binding |  | M-RES-171 |
+| `## 2026-10-07 — Market simulation — CHOICE — PositionSizer `fx_rate` is EUR per USD` | binding | RES-061 | M-RES-170 |
+| `## 2026-10-07 — Market simulation — CHOICE — FillModel does not shift entry dates` | binding | RES-056 | M-RES-171 |
 | `## 2026-10-07 — Market simulation — CHOICE — 11 tests, not 10; `scripts/fetch_prices.py`` | history |  | M-ENG-129 |
 | `## 2026-10-07 — Local model integration — CHOICE — gate threshold and version labels aligned` | binding | EXT-007 EXT-013 | M-EXT-046 |
-| `## 2026-10-07 — Startup data — CHOICE — data fills itself on `up`; prices refresh daily` | binding | OPS-009 OPS-026 | M-SYS-186,M-RES-174,M-OPS-252 |
-| `## 2026-10-07 — Realistic cost model — CHOICE — per-ticker spread, FX fee, volume cap, gap-through stops` | binding |  | M-RES-175 |
-| `## 2026-10-07 — Pre-registration — CHOICE — evaluation protocol and kill criteria locked before the backfill` | binding |  | M-EVA-063 |
-| `## 2026-10-07 — Pre-registration — CHOICE — trials counted as cells across the hypothesis family, budget 64` | binding |  | M-EVA-064 |
-| `## 2026-10-07 — Pre-registration — CHOICE — market-model abnormal returns against XBI with two-way clustered errors` | binding |  | M-EVA-065 |
-| `## 2026-10-07 — Pre-registration — CHOICE — hypothesis triage; versions 2 registered` | binding |  | M-EVA-066 |
+| `## 2026-10-07 — Startup data — CHOICE — data fills itself on `up`; prices refresh daily` | binding | OPS-009 OPS-026 RES-002 RES-003 RES-005 RES-009 RES-011 | M-SYS-186,M-RES-174,M-OPS-252 |
+| `## 2026-10-07 — Realistic cost model — CHOICE — per-ticker spread, FX fee, volume cap, gap-through stops` | binding | RES-057 RES-058 RES-059 RES-060 | M-RES-175 |
+| `## 2026-10-07 — Pre-registration — CHOICE — evaluation protocol and kill criteria locked before the backfill` | binding | EVA-001 EVA-016 EVA-019 | M-EVA-063 |
+| `## 2026-10-07 — Pre-registration — CHOICE — trials counted as cells across the hypothesis family, budget 64` | binding | EVA-004 EVA-011 | M-EVA-064 |
+| `## 2026-10-07 — Pre-registration — CHOICE — market-model abnormal returns against XBI with two-way clustered errors` | binding | EVA-017 | M-EVA-065 |
+| `## 2026-10-07 — Pre-registration — CHOICE — hypothesis triage; versions 2 registered` | binding | EVA-007 | M-EVA-066 |
 | `## 2026-10-07 — Pre-registration — CHOICE — sizing ceilings: quarter Kelly, 5% per name, one position per theme, no hold through binary events` | binding |  | M-EVA-067 |
 | `## 2026-10-07 — EDGAR press-release content — CHOICE — filing index replaces the submissions lookup` | binding | ING-014 ING-017 | M-ING-125 |
 | `## 2026-10-07 — Second-wave specs — CHOICE — structured filings bypass the LLM` | history |  | M-ING-126 |
-| `## 2026-10-07 — Second-wave specs — CHOICE — short interest is a market-data snapshot, not a connector` | binding | INV-4 | M-INV-039,M-RES-176 |
-| `## 2026-10-07 — Second-wave specs — CHOICE — point-in-time universe scope` | binding |  | M-RES-177 |
-| `## 2026-10-07 — Second-wave specs — CHOICE — paper trading gates capital, run at several sizes` | binding |  | M-EVA-069 |
-| `## 2026-10-07 — Backtest look-ahead fix — CHOICE — one backtest event per corroboration, not per superseding record` | binding |  | M-RES-179 |
-| `## 2026-10-07 — Backtest look-ahead fix — CHOICE — entry and holding-window timing` | binding |  | M-RES-180 |
+| `## 2026-10-07 — Second-wave specs — CHOICE — short interest is a market-data snapshot, not a connector` | binding | INV-4 RES-026 RES-027 RES-030 RES-037 | M-INV-039,M-RES-176 |
+| `## 2026-10-07 — Second-wave specs — CHOICE — point-in-time universe scope` | binding | RES-001 RES-016 RES-024 RES-073 | M-RES-177 |
+| `## 2026-10-07 — Second-wave specs — CHOICE — paper trading gates capital, run at several sizes` | binding | EVA-028 RES-079 | M-EVA-069 |
+| `## 2026-10-07 — Backtest look-ahead fix — CHOICE — one backtest event per corroboration, not per superseding record` | binding | RES-071 | M-RES-179 |
+| `## 2026-10-07 — Backtest look-ahead fix — CHOICE — entry and holding-window timing` | binding | RES-069 | M-RES-180 |
 | `## 2026-10-07 — Company-level extraction — CHOICE — event taxonomy and identifier fields (schema 1.1)` | binding | CON-013 CON-016 EXT-008 ING-019 HUB-033 | M-CON-083,M-EXT-047 |
 | `## 2026-10-07 — Edge research scoping — CHOICE — edge research synthesis: the alpha path becomes slow monthly scores` | history |  | M-EVA-070 |
-| `## 2026-10-07 — Edge research scoping — CHOICE — ownership and insider data are snapshots, not connectors` | binding | INV-4 | M-INV-040,M-RES-181 |
+| `## 2026-10-07 — Edge research scoping — CHOICE — ownership and insider data are snapshots, not connectors` | binding | INV-4 RES-026 RES-027 RES-028 RES-030 | M-INV-040,M-RES-181 |
 | `## 2026-10-07 — Edge research scoping — CHOICE — deferred items` | history |  | M-EVA-073 |
-| `## 2026-10-08 — Edge research scoping — CHOICE — quarterly banded rotation; catalysts as a guard, not a trigger` | binding |  | M-RES-183 |
-| `## 2026-10-08 — Edge research scoping — CHOICE — two non-LLM panels before the LLM backfill` | binding |  | M-EVA-074 |
-| `## 2026-10-08 — Point-in-time universe — CHOICE — how the monthly list is derived from free SEC data` | binding |  | M-RES-184 |
-| `## 2026-10-08 — Point-in-time universe — CHOICE — windows the prices do not cover` | binding |  | M-RES-185 |
+| `## 2026-10-08 — Edge research scoping — CHOICE — quarterly banded rotation; catalysts as a guard, not a trigger` | binding | RES-058 RES-076 RES-078 | M-RES-183 |
+| `## 2026-10-08 — Edge research scoping — CHOICE — two non-LLM panels before the LLM backfill` | binding | RES-066 | M-EVA-074 |
+| `## 2026-10-08 — Point-in-time universe — CHOICE — how the monthly list is derived from free SEC data` | binding | RES-011 RES-014 RES-015 RES-016 RES-017 RES-018 RES-020 RES-023 RES-025 | M-RES-184 |
+| `## 2026-10-08 — Point-in-time universe — CHOICE — windows the prices do not cover` | binding | RES-064 RES-072 RES-073 | M-RES-185 |
 | `## 2026-10-08 — Control-surface scoping — CHOICE — Grafana for technical health, dashboard for using the application` | binding | OPS-051 | M-DSH-034,M-OPS-253 |
 | `## 2026-10-08 — Control-surface scoping — CHOICE — the watchlist is the single source for tracked tickers and terms` | history |  | M-ING-127,M-DSH-035 |
-| `## 2026-10-08 — Control-surface scoping — CHOICE — research config is read-only in the dashboard` | binding |  | M-DSH-036 |
+| `## 2026-10-08 — Control-surface scoping — CHOICE — research config is read-only in the dashboard` | binding | EVA-006 | M-DSH-036 |
 | `## 2026-10-08 — Control-surface scoping — CHOICE — dashboard runs in the stack behind its own server layer` | binding | HUB-041 HUB-043 | M-SYS-184,M-HUB-076,M-DSH-037 |
 | `## 2026-10-08 — First run on the stack machine — CHOICE — price history from 2013, set before the first `up`` | history |  | M-RES-186 |
 | `## 2026-10-08 — First run on the stack machine — CHOICE — local model decision rule, fixed before the gate runs` | binding | EXT-014 | M-EXT-048 |
 | `## 2026-10-09 — Guideline setup — CHOICE — merge flow, merge bar and shared-log conflicts written into the repo` | binding | ENG-010 ENG-011 ENG-030 ENG-031 ENG-032 | M-ENG-130,M-SYS-185 |
-| `## 2026-10-09 — Point-in-time universe — CHOICE — one universe from 2014, backfill scope from its own start` | binding |  | M-RES-187 |
+| `## 2026-10-09 — Point-in-time universe — CHOICE — one universe from 2014, backfill scope from its own start` | binding | RES-011 RES-017 RES-019 RES-021 RES-025 | M-RES-187 |
 | `## 2026-10-08 — Edge research scoping — CHOICE — direction: both` | history |  | M-EVA-075 |
-| `## 2026-10-08 — Edge research scoping — CHOICE — portfolio paper-trading pass rule` | binding |  | M-EVA-076 |
+| `## 2026-10-08 — Edge research scoping — CHOICE — portfolio paper-trading pass rule` | binding | EVA-027 EVA-028 | M-EVA-076 |
 | `## 2026-10-08 — Edge research scoping — CHOICE — build order` | history |  | M-EVA-077 |
 | `## 2026-10-09 — CI — CHOICE — container images off anonymous Docker Hub` | binding | OPS-008 | M-ENG-131,M-OPS-254 |
 | `## 2026-10-09 — CI — CHOICE — remaining test images through mirror.gcr.io` | history |  | M-ENG-132 |
@@ -119,7 +119,7 @@ Scoping listed these classes of normative statements whose only home is an archi
 | `## 2026-10-09 — Dashboard foundation — CHOICE — Next 16, Vitest 5 and Tailwind 4 to clear the advisories` | history |  | M-DSH-032 |
 | `## 2026-10-09 — Dashboard foundation — CHOICE — login endpoint, write-token failure mode, path layout` | binding | HUB-041 | M-HUB-078,M-DSH-033 |
 | `## 2026-10-09 — Pre-launch spec audit — CHOICE — gaps closed in the spec index` | history |  | M-ENG-133 |
-| `## 2026-10-09 — Catalyst date panel — CHOICE — how documents become rows` | binding |  | M-RES-189 |
+| `## 2026-10-09 — Catalyst date panel — CHOICE — how documents become rows` | binding | RES-029 RES-041 RES-042 RES-043 | M-RES-189 |
 | `## 2026-10-09 — Infrastructure observability — CHOICE — monitoring role from a one-shot, not an init script` | binding | OPS-013 | M-OPS-260 |
 | `## 2026-10-09 — Infrastructure observability — CHOICE — compose defaults for sizes and thresholds` | history |  | M-OPS-261 |
 | `## 2026-10-09 — Infrastructure observability — CHOICE — memory limits sized to 7.5 GB, first estimates` | binding | OPS-014 | M-OPS-262 |
@@ -131,39 +131,39 @@ Scoping listed these classes of normative statements whose only home is an archi
 | `## 2026-10-09 — Dashboard — CHOICE — Node 24 LTS, actions on Node 24` | history |  | M-ENG-135 |
 | `## 2026-10-09 — CI — CHOICE — one prefix for every test image` | binding | ENG-014 | M-ENG-136,M-OPS-256 |
 | `## 2026-10-10 — Stack state persistence — CHOICE — required secrets and a writable state volume` | binding | OPS-037 OPS-013 OPS-039 | M-OPS-267 |
-| `## 2026-10-09 — Slow-signal pre-registration — CHOICE — one protocol and one version per hypothesis, H9–H12 registered` | binding |  | M-EVA-079 |
-| `## 2026-10-09 — Slow-signal pre-registration — CHOICE — details the spec left open` | binding |  | M-EVA-080 |
+| `## 2026-10-09 — Slow-signal pre-registration — CHOICE — one protocol and one version per hypothesis, H9–H12 registered` | binding | EVA-001 EVA-003 EVA-004 EVA-005 EVA-027 | M-EVA-079 |
+| `## 2026-10-09 — Slow-signal pre-registration — CHOICE — details the spec left open` | binding | EVA-002 EVA-007 EVA-008 EVA-009 EVA-015 RES-050 | M-EVA-080 |
 | `## 2026-10-09 — Graph and connector wiring fixes — CHOICE — publish threshold default is 0.0, not the API's 0.5` | binding | EXT-002 | M-EXT-049 |
 | `## 2026-10-09 — Graph and connector wiring fixes — CHOICE — ticker resolution details` | binding | HUB-034 HUB-047 | M-HUB-079 |
 | `## 2026-10-09 — Graph and connector wiring fixes — CHOICE — calibrated publish thresholds before launch` | binding | EXT-021 | M-EXT-050 |
 | `## 2026-10-09 — Graph and connector wiring fixes — CHOICE — no VIA migration` | history |  | M-HUB-080 |
-| `## 2026-10-09 — SEC ownership datasets — CHOICE — acceptance time from a filing date` | binding |  | M-RES-190 |
-| `## 2026-10-09 — SEC ownership datasets — CHOICE — how filings, amendments and trades are counted` | binding |  | M-RES-191 |
-| `## 2026-10-09 — SEC ownership datasets — CHOICE — specialist thresholds have one source, the registered H9` | binding |  | M-RES-193 |
+| `## 2026-10-09 — SEC ownership datasets — CHOICE — acceptance time from a filing date` | binding | RES-031 | M-RES-190 |
+| `## 2026-10-09 — SEC ownership datasets — CHOICE — how filings, amendments and trades are counted` | binding | RES-032 RES-033 RES-034 | M-RES-191 |
+| `## 2026-10-09 — SEC ownership datasets — CHOICE — specialist thresholds have one source, the registered H9` | binding | RES-033 | M-RES-193 |
 | `## 2026-10-10 — Container limits and log rotation — CHOICE — json-file log driver with rotation, not local` | binding | OPS-042 | M-OPS-268 |
 | `## 2026-10-10 — Pipeline alerting gaps — CHOICE — Source Silence reads the last run over 7 days, and no data alerts` | binding | OPS-058 | M-OPS-269 |
 | `## 2026-10-10 — Pipeline alerting gaps — CHOICE — which sources the daily summary lists` | binding | OPS-059 | M-OPS-270 |
 | `## 2026-10-10 — Pipeline alerting gaps — CHOICE — Elasticsearch read-only indices from the exporter` | binding | OPS-049 | M-OPS-271 |
-| `## 2026-10-10 — Pre-launch spec audit — CHOICE — portfolio verdict and the remaining blockers` | binding |  | M-EVA-081 |
+| `## 2026-10-10 — Pre-launch spec audit — CHOICE — portfolio verdict and the remaining blockers` | binding | EVA-023 EVA-024 | M-EVA-081 |
 | `## 2026-10-10 — Stack backup — CHOICE — client tools from the server image, memory and restore semantics` | binding | INV-2 OPS-020 OPS-066 OPS-067 | M-INV-038,M-OPS-272 |
 | `## 2026-10-10 — Ingestion run reliability — CHOICE — schedule times, extraction cap and task timeout` | binding | ING-027 OPS-028 OPS-030 | M-ING-131,M-OPS-273 |
 | `## 2026-10-10 — Ingestion run reliability — CHOICE — rate limiter spaces requests evenly, with no burst` | binding | ING-005 | M-ING-132 |
 | `## 2026-10-10 — Ingestion run reliability — CHOICE — a 403 on a filing index also stops the EDGAR run` | binding | ING-007 | M-ING-133 |
 | `## 2026-10-10 — Ingestion run reliability — CHOICE — requirements §5 text follows the 2026-10-09 cursor decision` | history |  | M-ING-134 |
-| `## 2026-10-10 — Consolidated code, strategy and BV audit — CHOICE — what becomes specs, what does not` | binding |  | M-ENG-137,M-EVA-082 |
-| `## 2026-10-10 — Price finality and split availability — CHOICE — edges the spec leaves open` | binding |  | M-RES-194 |
+| `## 2026-10-10 — Consolidated code, strategy and BV audit — CHOICE — what becomes specs, what does not` | binding | EVA-011 EVA-012 EVA-026 RES-077 | M-ENG-137,M-EVA-082 |
+| `## 2026-10-10 — Price finality and split availability — CHOICE — edges the spec leaves open` | binding | RES-004 RES-005 RES-006 RES-007 RES-018 | M-RES-194 |
 | `## 2026-10-10 — Corroboration late arrivals — CHOICE — contract test signals are written pending, clear runs after the commit` | binding | COR-001 COR-010 | M-COR-029 |
-| `## 2026-10-10 — Evaluation protocol — CHOICE — how the event evaluation reads the spec` | binding |  | M-EVA-083 |
-| `## 2026-10-10 — Evaluation protocol — CHOICE — the raw-return backtest reserves trial cells too` | binding |  | M-EVA-084 |
-| `## 2026-10-10 — Short interest snapshots — CHOICE — publication dates from FINRA's rule, published rows win` | binding |  | M-RES-195 |
+| `## 2026-10-10 — Evaluation protocol — CHOICE — how the event evaluation reads the spec` | binding | EVA-010 EVA-013 EVA-017 EVA-018 EVA-020 | M-EVA-083 |
+| `## 2026-10-10 — Evaluation protocol — CHOICE — the raw-return backtest reserves trial cells too` | binding | EVA-011 | M-EVA-084 |
+| `## 2026-10-10 — Short interest snapshots — CHOICE — publication dates from FINRA's rule, published rows win` | binding | RES-037 | M-RES-195 |
 | `## 2026-10-10 — Strategy runtime — CHOICE — state placement, timing and the pass-through stub` | binding | INV-11 | M-INV-041,M-STR-079,M-OPS-275 |
-| `## 2026-10-11 — Cross-sectional portfolio backtest — CHOICE — how the engine reads the spec` | binding |  | M-RES-196 |
+| `## 2026-10-11 — Cross-sectional portfolio backtest — CHOICE — how the engine reads the spec` | binding | EVA-011 EVA-023 EVA-024 EVA-025 EVA-026 RES-058 RES-075 RES-076 RES-077 RES-078 RES-079 RES-080 RES-081 | M-RES-196 |
 | `## 2026-10-11 — Strategy metrics — CHOICE — where the spec left the metrics open` | binding |  | M-STR-080 |
-| `## 2026-10-11 — Short interest snapshots — CHOICE — short interest share and change on one split basis` | binding |  | M-RES-197 |
-| `## 2026-10-15 — Filing text change score — CHOICE — how the panel reads EDGAR and where the second universe lives` | binding |  | M-RES-198 |
+| `## 2026-10-11 — Short interest snapshots — CHOICE — short interest share and change on one split basis` | binding | RES-039 | M-RES-197 |
+| `## 2026-10-15 — Filing text change score — CHOICE — how the panel reads EDGAR and where the second universe lives` | binding | RES-013 RES-045 RES-046 RES-047 RES-048 | M-RES-198 |
 | `## 2026-10-11 — Decision trace — CHOICE — one document record per participant, deterministic intent ids, risk reviews per event` | binding |  | M-STR-081 |
 | `## 2026-10-11 — Portfolio and risk — CHOICE — catalyst and short-interest sources, units and check order` | binding |  | M-STR-082 |
-| `## 2026-10-15 — Holdings composite score — CHOICE — where the spec left the H9 score open` | binding |  | M-RES-199 |
+| `## 2026-10-15 — Holdings composite score — CHOICE — where the spec left the H9 score open` | binding | RES-028 RES-036 RES-050 RES-051 RES-052 RES-053 RES-054 | M-RES-199 |
 
 ## Engineering (ENG)
 
@@ -592,7 +592,7 @@ Row prefixes: `M-INV` invariant rows, `M-CON` contract rows, `M-SYS` everything 
 | M-SYS-143 | §0.1 | Historical research instrument, not live monitor | requirement | keep | stays with live-trading spec (`specs/live-trading.md`) →`living-docs-research/living-docs-strategy-and-dashboard` | EVA | living-docs-research | Out of rollout (`historical-instrument amendment out of scope`); index row only; C4 conflict open |  |
 | M-SYS-144 | §0.2 | Cursor in Airflow Variables, read/written by DAG task | requirement | move | `docs/ingestion/pipeline.md` (rule), `docs/operations/orchestration.md` (storage) | ING | living-docs-ingestion, living-docs-operations | | ING-026 |
 | M-SYS-145 | §0.3 | 24-month backfill prerequisite; 90-day `initial_lookback` | requirement | divergent | backfill →`living-docs-research/living-docs-strategy-and-dashboard` (`specs/historical-backfill.md`); lookback `docs/ingestion/connectors.md` names `sources.yaml` | ING | living-docs-ingestion, living-docs-research | `sources.yaml` value is 30 (`initial_lookback value`) | ING-004 |
-| M-SYS-146 | §0.3 note | Forward-only collection cannot support backtest; backfill needed | rationale | move | →`living-docs-research/living-docs-strategy-and-dashboard` `docs/research/backtesting.md` Rationale | RES | living-docs-research | |  |
+| M-SYS-146 | §0.3 note | Forward-only collection cannot support backtest; backfill needed | rationale | move | →`living-docs-research/living-docs-strategy-and-dashboard` `docs/research/backtesting.md` Rationale | RES | living-docs-research | | docs/research/backtesting.md#rationale |
 | M-SYS-147 | §0.4 | ≤500 extractions/day; separate backfill budget; pre-filter | requirement | move | `docs/ingestion/extraction.md` | EXT | living-docs-ingestion | | EXT-007 |
 | M-CON-012 | §0.5 | `gene_targets` is a list | contract | move | CON #8 | CON | living-docs-system-and-contracts | | CON-008 |
 | M-SYS-148 | §0.6 | Kafka Streams not a requirement | requirement | move | `docs/core-hub/corroboration.md` | COR | living-docs-core-hub | `specs/kafka-streams-correlation.md` draft | COR-002 |
@@ -1199,94 +1199,94 @@ Written against: `develop` @ `e51f742`. Sources were read from `/home/claude/aus
 |---|---|---|---|---|---|---|---|---|---|
 | M-RES-001 | §0.1 (`requirements.md:11`) | System is a historical research instrument, not a live monitor | requirement | link | `docs/system/overview.md` | SYS | living-docs-system-and-contracts | Research-side consequence (forward paper and live trading gated by forward check) is EVA (M-EVA-048). FLAG `2026-09-20 Strategy layer — requirements.md §0.1 assumption flips at session 3` is history; `specs/live-trading.md` carries the §0.1 amendment |  |
 | M-RES-002 | §0.3 (`:13`) | Bounded 24-month backfill is a prerequisite for the event backtest | requirement | link | `specs/historical-backfill.md` | — | legacy-docs-retirement | Plan-step text (`Step 4.0`, `Phase 4`) is history. Backfill scope now from `BACKFILL_SCOPE_START` (M-RES-031); live lookback is ING/OPS |  |
-| M-RES-003 | §0.3 note (`:19`) | Forward-only collection yields too few corroborations for a backtest | rationale | move | backtesting (Rationale) | RES | living-docs-research | Non-normative |  |
-| M-RES-004 | §4.1 (`:112`) | `corroborated_at = max(participant.published_date)` is the only field a backtest joins on | requirement | move | backtesting | RES | living-docs-research | Record definition is COR (`docs/core-hub/corroboration.md`); the join rule is RES. `alignment/aligner.py:10,32`; `test_point_in_time_alignment.py` |  |
-| M-RES-005 | §4.1 (`:114`) | Superseded rows retained so the backtest reads the participant set as of a date | requirement | move | backtesting | RES | living-docs-research | Storage side is COR. at-risk class #2 also M-RES-160 |  |
-| M-RES-006 | §6.7 (`:200`) | Non-public dates never used for point-in-time alignment | requirement | move | backtesting | RES | living-docs-research | Per-source mapping table stays ING (`docs/ingestion/connectors.md`); RES links it |  |
+| M-RES-003 | §0.3 note (`:19`) | Forward-only collection yields too few corroborations for a backtest | rationale | move | backtesting (Rationale) | RES | living-docs-research | Non-normative | docs/research/backtesting.md#rationale |
+| M-RES-004 | §4.1 (`:112`) | `corroborated_at = max(participant.published_date)` is the only field a backtest joins on | requirement | move | backtesting | RES | living-docs-research | Record definition is COR (`docs/core-hub/corroboration.md`); the join rule is RES. `alignment/aligner.py:10,32`; `test_point_in_time_alignment.py` | RES-067 RES-071 |
+| M-RES-005 | §4.1 (`:114`) | Superseded rows retained so the backtest reads the participant set as of a date | requirement | move | backtesting | RES | living-docs-research | Storage side is COR. at-risk class #2 also M-RES-160 | RES-071 |
+| M-RES-006 | §6.7 (`:200`) | Non-public dates never used for point-in-time alignment | requirement | move | backtesting | RES | living-docs-research | Per-source mapping table stays ING (`docs/ingestion/connectors.md`); RES links it | RES-068 |
 | M-RES-007 | §6.7 (`:206`) | Patent `filed_date` excluded from backtest joins | trap | link | `docs/ingestion/connectors.md` | ING | living-docs-ingestion | RES Known traps one-line link only |  |
-| M-RES-008 | §8 (`:270`) | yfinance is the price source; unofficial, rate-limited, personal-use terms | requirement | move | market-data | RES | living-docs-research | Caveats move to Known traps (M-RES-020) |  |
-| M-RES-009 | §8 (`:272`) | Every OHLCV series written to Parquet in MinIO once; backtests read the snapshot | requirement | move | market-data | RES | living-docs-research | `price_refresher.py`; `test_price_refresh.py` |  |
-| M-RES-010 | §8 (`:272`) | Documented fallback: Stooq, daily OHLCV | requirement | move | market-data | RES | living-docs-research | Code falls back to Stooq (`prices/stooq.py`) |  |
+| M-RES-008 | §8 (`:270`) | yfinance is the price source; unofficial, rate-limited, personal-use terms | requirement | move | market-data | RES | living-docs-research | Caveats move to Known traps (M-RES-020) | RES-001 |
+| M-RES-009 | §8 (`:272`) | Every OHLCV series written to Parquet in MinIO once; backtests read the snapshot | requirement | move | market-data | RES | living-docs-research | `price_refresher.py`; `test_price_refresh.py` | RES-001 |
+| M-RES-010 | §8 (`:272`) | Documented fallback: Stooq, daily OHLCV | requirement | move | market-data | RES | living-docs-research | Code falls back to Stooq (`prices/stooq.py`) | RES-001 |
 | M-RES-011 | §8 heading (`:268`) | "Historical Price Data (Phase 4)" | history | delete | — | — | legacy-docs-retirement | Plan-phase label |  |
-| M-RES-012 | §8 (`:272`) | "Fetch once" pattern applies to every fetched research document | requirement | move | panels | RES | living-docs-research | Generalised by every panel spec's "Requirements §8 pattern" constraint (M-RES-100) |  |
+| M-RES-012 | §8 (`:272`) | "Fetch once" pattern applies to every fetched research document | requirement | move | panels | RES | living-docs-research | Generalised by every panel spec's "Requirements §8 pattern" constraint (M-RES-100) | RES-029 |
 | M-RES-013 | §14 (`:412`) | UTC everywhere; free-tier-first tooling | requirement | link | `docs/system/overview.md` | SYS | living-docs-system-and-contracts | Research applies INV-9; free-only delisted prices is M-RES-041 |  |
 
 ### services/backtesting/README.md
 
 | Row | Source (path:line or §) | Rule or content (≤ 15 words) | Class | Disposition | Target | NS | Spec | Decision / note | ID |
 |---|---|---|---|---|---|---|---|---|---|
-| M-RES-020 | `services/backtesting/README.md:85` and §8 | Yahoo rate limits; `auto_adjust` adjusts dividends; Stooq uses own symbols | trap | move | market-data (Known traps) | RES | living-docs-research | |  |
-| M-RES-021 | `services/backtesting/README.md:85` | One append-only OHLCV snapshot per ticker, Yahoo then Stooq | requirement | move | market-data | RES | living-docs-research | Dup of M-RES-009/010; one ID |  |
-| M-RES-022 | `services/backtesting/README.md:85` | Only settled bars stored: two hours after NYSE close, early closes included | requirement | move | market-data | RES | living-docs-research | archived `price-finality-and-split-availability`; CHOICE 2026-10-10 Price finality — edges. Delay value named, not copied |  |
-| M-RES-023 | `services/backtesting/README.md:85` | Append only when response repeats last stored bar; else `SnapshotDiscontinuityError` | requirement | move | market-data | RES | living-docs-research | `test_price_finality.py` |  |
-| M-RES-024 | `services/backtesting/README.md:85` | `adjusted_through` records share basis of the first download | requirement | move | market-data | RES | living-docs-research | |  |
-| M-RES-025 | code `services/backtesting/src/auspex_backtesting/prices/price_fetcher.py:19-45` | Every snapshot carries `adjusted_through` and settled bars only | requirement | divergent | market-data | RES | living-docs-research | `scripts/fetch_prices.py` writes without either; `market_cap.py:36` then raises. PENDING — `defects found while scoping` (legacy `fetch_prices.py`) |  |
-| M-RES-026 | `services/backtesting/README.md:37` | Split history `available`/`confirmed_empty`/`unavailable`, vouches to `covered_through` | requirement | move | market-data | RES | living-docs-research | `unavailable` never read as no splits |  |
-| M-RES-027 | code `services/backtesting/src/auspex_backtesting/prices/price_refresher.py:34,59` | Each refresh includes the protocol benchmark and the EUR/USD pair | requirement | ratify | market-data | RES | living-docs-research | research ratification batch. List named by code, not copied |  |
-| M-RES-028 | code `services/backtesting/src/auspex_backtesting/api.py:68-99` | Price service `GET /health`, `POST /prices/refresh`, `POST /universe/build` (409) | contract | ratify | market-data | RES | living-docs-research | `/health` code-only. Refresh and build endpoints are covered by archived specs (move) |  |
+| M-RES-020 | `services/backtesting/README.md:85` and §8 | Yahoo rate limits; `auto_adjust` adjusts dividends; Stooq uses own symbols | trap | move | market-data (Known traps) | RES | living-docs-research | | docs/research/market-data.md#known-traps |
+| M-RES-021 | `services/backtesting/README.md:85` | One append-only OHLCV snapshot per ticker, Yahoo then Stooq | requirement | move | market-data | RES | living-docs-research | Dup of M-RES-009/010; one ID | RES-001 |
+| M-RES-022 | `services/backtesting/README.md:85` | Only settled bars stored: two hours after NYSE close, early closes included | requirement | move | market-data | RES | living-docs-research | archived `price-finality-and-split-availability`; CHOICE 2026-10-10 Price finality — edges. Delay value named, not copied | RES-004 |
+| M-RES-023 | `services/backtesting/README.md:85` | Append only when response repeats last stored bar; else `SnapshotDiscontinuityError` | requirement | move | market-data | RES | living-docs-research | `test_price_finality.py` | RES-005 |
+| M-RES-024 | `services/backtesting/README.md:85` | `adjusted_through` records share basis of the first download | requirement | move | market-data | RES | living-docs-research | | RES-006 |
+| M-RES-025 | code `services/backtesting/src/auspex_backtesting/prices/price_fetcher.py:19-45` | Every snapshot carries `adjusted_through` and settled bars only | requirement | divergent | market-data | RES | living-docs-research | `scripts/fetch_prices.py` writes without either; `market_cap.py:36` then raises. PENDING — `defects found while scoping` (legacy `fetch_prices.py`) | RES-010 |
+| M-RES-026 | `services/backtesting/README.md:37` | Split history `available`/`confirmed_empty`/`unavailable`, vouches to `covered_through` | requirement | move | market-data | RES | living-docs-research | `unavailable` never read as no splits | RES-007 |
+| M-RES-027 | code `services/backtesting/src/auspex_backtesting/prices/price_refresher.py:34,59` | Each refresh includes the protocol benchmark and the EUR/USD pair | requirement | ratify | market-data | RES | living-docs-research | research ratification batch. List named by code, not copied | RES-008 |
+| M-RES-028 | code `services/backtesting/src/auspex_backtesting/api.py:68-99` | Price service `GET /health`, `POST /prices/refresh`, `POST /universe/build` (409) | contract | ratify | market-data | RES | living-docs-research | `/health` code-only. Refresh and build endpoints are covered by archived specs (move) | RES-011 RES-012 |
 | M-RES-029 | `services/backtesting/README.md:87-97` | Price service metrics catalogue and alert thresholds | contract | link | `docs/operations/observability.md` | OPS | living-docs-operations | |  |
-| M-RES-030 | `services/backtesting/README.md:7`, `services/backtesting/README.md:9-15` | Monthly members on first NYSE session of month, data public before it | requirement | move | universe | RES | living-docs-research | CHOICE 2026-10-08 Point-in-time universe — how the monthly list is derived, item 1 |  |
+| M-RES-030 | `services/backtesting/README.md:7`, `services/backtesting/README.md:9-15` | Monthly members on first NYSE session of month, data public before it | requirement | move | universe | RES | living-docs-research | CHOICE 2026-10-08 Point-in-time universe — how the monthly list is derived, item 1 | RES-015 |
 | M-RES-031 | `services/backtesting/README.md:9-15` | Rule values: SIC, exchanges, cap, liquidity, window | value | link | `config/universe/rules.yaml` | — | living-docs-research | Values not copied. README table deleted at cutover |  |
-| M-RES-032 | `services/backtesting/README.md:17` | One biotech universe serves every study; build refuses late `PRICE_HISTORY_START` (409) | requirement | move | universe | RES | living-docs-research | CHOICE 2026-10-09 Point-in-time universe — one universe from 2014, item 2 |  |
-| M-RES-033 | `services/backtesting/README.md:19` | Inputs are SEC bulk archives plus price snapshots | requirement | move | universe | RES | living-docs-research | SEC traps link ING; request budget link OPS |  |
-| M-RES-034 | `services/backtesting/README.md:23` | One rules file per universe; no code names a universe; all-digit id refused | requirement | move | universe | RES | living-docs-research | CHOICE 2026-10-15 Filing text change score — second universe, items 2 and 6 |  |
-| M-RES-035 | `services/backtesting/README.md:25-33` | Storage layout under `universe/{version}/`; month written once; listings and coverage rewritten | requirement | move | universe | RES | living-docs-research | |  |
-| M-RES-036 | `services/backtesting/README.md:30` | Rules file pinned on first build; different file under same version refused | requirement | move | universe | RES | living-docs-research | at-risk class #16. `RulesVersionError`; `test_universe_store.py` |  |
-| M-RES-037 | `services/backtesting/README.md:35` | Member row fields, `ticker_source`, exit reasons | contract | move | universe | RES | living-docs-research | |  |
-| M-RES-038 | `services/backtesting/README.md:37` | Month needing unknown split history not written; next build retries | requirement | move | universe | RES | living-docs-research | CHOICE 2026-10-10 Price finality — edges |  |
+| M-RES-032 | `services/backtesting/README.md:17` | One biotech universe serves every study; build refuses late `PRICE_HISTORY_START` (409) | requirement | move | universe | RES | living-docs-research | CHOICE 2026-10-09 Point-in-time universe — one universe from 2014, item 2 | RES-019 |
+| M-RES-033 | `services/backtesting/README.md:19` | Inputs are SEC bulk archives plus price snapshots | requirement | move | universe | RES | living-docs-research | SEC traps link ING; request budget link OPS | RES-025 |
+| M-RES-034 | `services/backtesting/README.md:23` | One rules file per universe; no code names a universe; all-digit id refused | requirement | move | universe | RES | living-docs-research | CHOICE 2026-10-15 Filing text change score — second universe, items 2 and 6 | RES-013 |
+| M-RES-035 | `services/backtesting/README.md:25-33` | Storage layout under `universe/{version}/`; month written once; listings and coverage rewritten | requirement | move | universe | RES | living-docs-research | | RES-020 |
+| M-RES-036 | `services/backtesting/README.md:30` | Rules file pinned on first build; different file under same version refused | requirement | move | universe | RES | living-docs-research | at-risk class #16. `RulesVersionError`; `test_universe_store.py` | RES-014 |
+| M-RES-037 | `services/backtesting/README.md:35` | Member row fields, `ticker_source`, exit reasons | contract | move | universe | RES | living-docs-research | | RES-017 |
+| M-RES-038 | `services/backtesting/README.md:37` | Month needing unknown split history not written; next build retries | requirement | move | universe | RES | living-docs-research | CHOICE 2026-10-10 Price finality — edges | RES-018 |
 | M-RES-039 | `services/backtesting/README.md:39` | `auspex_universe_build` DAG builds monthly and on first start | process | link | `docs/operations/orchestration.md` | OPS | living-docs-operations | |  |
-| M-RES-040 | `services/backtesting/README.md:43-48` | Backtest trades only entry-month members; outside counted; windows bounded at delisting | requirement | move | backtesting | RES | living-docs-research | CHOICE 2026-10-08 Point-in-time universe — windows the prices do not cover |  |
-| M-RES-041 | `services/backtesting/README.md:48` | Survivorship summary with −30%/0% delisting bound | requirement | move | backtesting | RES | living-docs-research | at-risk class #20. Bound values stay in code until registered: D F6 trap (M-EVA-060) |  |
-| M-RES-042 | `services/backtesting/README.md:52-59` | Catalyst panel sources, known-at times, precision kept | requirement | move | panels | RES | living-docs-research | CHOICE 2026-10-09 Catalyst date panel — how documents become rows |  |
-| M-RES-043 | `services/backtesting/README.md:61-66` | Catalyst rows append-only by disclosure quarter; documents kept once | requirement | move | panels | RES | living-docs-research | |  |
-| M-RES-044 | `services/backtesting/README.md:68` | `as_of` returns latest row per catalyst; `binaries_between` takes aware datetimes | contract | move | panels | RES | living-docs-research | |  |
+| M-RES-040 | `services/backtesting/README.md:43-48` | Backtest trades only entry-month members; outside counted; windows bounded at delisting | requirement | move | backtesting | RES | living-docs-research | CHOICE 2026-10-08 Point-in-time universe — windows the prices do not cover | RES-072 |
+| M-RES-041 | `services/backtesting/README.md:48` | Survivorship summary with −30%/0% delisting bound | requirement | move | backtesting | RES | living-docs-research | at-risk class #20. Bound values stay in code until registered: D F6 trap (M-EVA-060) | RES-073 |
+| M-RES-042 | `services/backtesting/README.md:52-59` | Catalyst panel sources, known-at times, precision kept | requirement | move | panels | RES | living-docs-research | CHOICE 2026-10-09 Catalyst date panel — how documents become rows | RES-041 |
+| M-RES-043 | `services/backtesting/README.md:61-66` | Catalyst rows append-only by disclosure quarter; documents kept once | requirement | move | panels | RES | living-docs-research | | RES-043 |
+| M-RES-044 | `services/backtesting/README.md:68` | `as_of` returns latest row per catalyst; `binaries_between` takes aware datetimes | contract | move | panels | RES | living-docs-research | | RES-044 |
 | M-RES-045 | `services/backtesting/README.md:70` | SEC 5 req/s, Federal Register 1 req/s; 403/429 ends run without retry | requirement | link | `docs/ingestion/connectors.md`; `docs/operations/orchestration.md` | ING | living-docs-research | SEC trap ING-owned; panel-specific stop rule stated in panels with link |  |
-| M-RES-046 | `services/backtesting/README.md:74-81` | H10 index, cut, score, monthly read; one snapshot set per universe | requirement | move | panels | RES | living-docs-research | CHOICE 2026-10-15 Filing text change score |  |
-| M-RES-047 | `services/backtesting/README.md:76` | Quarterly index stored once per finished quarter | requirement | move | panels | RES | living-docs-research | |  |
-| M-RES-048 | `services/backtesting/README.md:78` | Change = 1 − cosine of term frequencies; known at later acceptance | requirement | move | panels | RES | living-docs-research | Tolerance values in code: D F6 trap |  |
-| M-RES-049 | `services/backtesting/README.md:99-109` | Hash lock, shape check, `admit()` gate, promotable roles, forward-check branches | requirement | move | evaluation | EVA | living-docs-research | See protocol.yaml table |  |
-| M-EVA-001 | `services/backtesting/README.md:101` | Locked files refused when changed; registry lines never edited | requirement | move | evaluation | EVA | living-docs-research | `test_preregistered_protocol.py`; `hypothesis.py` |  |
-| M-EVA-002 | `services/backtesting/README.md:103` | Event-only fields refused on a portfolio hypothesis | requirement | move | evaluation | EVA | living-docs-research | |  |
-| M-EVA-003 | `services/backtesting/README.md:104` | A hypothesis with `uses` is checked and promoted per use | requirement | move | evaluation | EVA | living-docs-research | |  |
-| M-EVA-004 | `services/backtesting/README.md:105` | `admit()` refuses family without budget, over budget, disallowed role, instrument ceiling | requirement | move | evaluation | EVA | living-docs-research | CHOICE 2026-10-09 Slow-signal pre-registration — details, item 7 |  |
-| M-EVA-005 | code `services/backtesting/src/auspex_backtesting/hypothesis.py:190-230` | Every evaluation path passes `admit()` and refuses `suspended` | requirement | divergent | evaluation | EVA | living-docs-research | `run_backtest` skips both. PENDING — `defects found while scoping`; D F3 |  |
-| M-EVA-006 | `services/backtesting/README.md:106` | Filters, diagnostics, descriptive hypotheses never promoted | requirement | move | evaluation | EVA | living-docs-research | CHOICE 2026-10-07 Pre-registration — hypothesis triage |  |
-| M-EVA-007 | `services/backtesting/README.md:108` | Forward check returns `invalid` on NaN/inf, negative SE, malformed months | requirement | move | evaluation | EVA | living-docs-research | archived `forward-check-input-validation` |  |
-| M-EVA-008 | `services/backtesting/README.md:109` | H9 trade-date rule and component fallback from registered file | requirement | move | panels | RES | living-docs-research | Rule values in `h9.yaml` |  |
-| M-EVA-009 | `services/backtesting/README.md:115` | Refusals before anything recorded: modified files, suspended, off-grid, no `N_BOOTSTRAP` | requirement | move | evaluation | EVA | living-docs-research | CHOICE 2026-10-10 Evaluation protocol — how the event evaluation reads the spec |  |
-| M-EVA-010 | `services/backtesting/README.md:116` | Cells reserved before any price read, under lock with family budget check | requirement | move | evaluation | EVA | living-docs-research | CHOICE 2026-10-10 Consolidated audit, item 3 |  |
-| M-EVA-011 | `services/backtesting/README.md:116` | Torn final ledger line dropped; other bad line stops reservations | requirement | move | evaluation | EVA | living-docs-research | |  |
-| M-EVA-012 | `services/backtesting/README.md:117` | Last `promotion.holdout_months` not read; released only for promotable primary cell | requirement | move | evaluation | EVA | living-docs-research | Value by key |  |
-| M-EVA-013 | `services/backtesting/README.md:118` | Market-model CAR vs benchmark, estimation window, clustered t, bootstrap | requirement | move | evaluation | EVA | living-docs-research | CHOICE 2026-10-07 Pre-registration — market-model; values in `abnormal_return.*`, `inference.*` |  |
-| M-EVA-014 | `services/backtesting/README.md:119` | Result: primary cell, all cells, kill verdicts, walk-forward, holdout | contract | move | evaluation | EVA | living-docs-research | |  |
-| M-EVA-015 | `services/backtesting/README.md:119` | Walk-forward segments are reported, never used for promotion | requirement | ratify | evaluation | EVA | living-docs-research | research ratification batch. Segment lengths in code: D F6 trap |  |
-| M-RES-050 | `services/backtesting/README.md:125` | Score snapshot contract: path, columns, `known_at_max` before rebalance open | contract | move | backtesting | RES | living-docs-research | CHOICE 2026-10-11 Cross-sectional portfolio backtest, items 1–2 |  |
-| M-RES-051 | `services/backtesting/README.md:128-129` | Hold bands, CIK tie-break, next-open fills, sells first, no borrowing | requirement | move | backtesting | RES | living-docs-research | |  |
-| M-RES-052 | `services/backtesting/README.md:130` | `EqualRiskSizer` capped; remainder is cash, never renormalised | requirement | move | backtesting | RES | living-docs-research | CHOICE 2026-10-10 Consolidated audit, item 4 |  |
-| M-RES-053 | `services/backtesting/README.md:131` | Four `CatalystGuard` modes; no data counted, never treated as clear | requirement | move | backtesting | RES | living-docs-research | |  |
-| M-RES-054 | `services/backtesting/README.md:132` | Orders costed at tier size; below minimum ticket skipped and counted | requirement | move | backtesting | RES | living-docs-research | |  |
-| M-RES-055 | `services/backtesting/README.md:133` | Delisted held name booked at −30% when prices stop early | requirement | move | backtesting | RES | living-docs-research | |  |
-| M-RES-056 | `services/backtesting/README.md:135` | `PortfolioResult` fields | contract | move | backtesting | RES | living-docs-research | |  |
-| M-EVA-016 | `services/backtesting/README.md:137-140` | Portfolio evaluation order: admit, reserve, tiers, verdict, holdout once | requirement | move | evaluation | EVA | living-docs-research | CHOICE 2026-10-11 Cross-sectional portfolio backtest, items 8–10 |  |
-| M-EVA-017 | `services/backtesting/README.md:138` | In-sample `portfolio_kill_criteria` applied | requirement | move | evaluation | EVA | living-docs-research | Values by key |  |
-| M-EVA-018 | `services/backtesting/README.md:139` | Deflated Sharpe with family trial count; only primary cell of promotable passes | requirement | move | evaluation | EVA | living-docs-research | |  |
-| M-EVA-019 | `services/backtesting/README.md:140` | Holdout read once per use; `HoldoutRecord` created exclusively | requirement | move | evaluation | EVA | living-docs-research | |  |
-| M-EVA-020 | `services/backtesting/README.md:140` | Final run refused until input manifests exist | requirement | move | evaluation | EVA | living-docs-research | `NoInputManifests`; `specs/research-input-archive.md` owns the change |  |
-| M-RES-057 | `services/backtesting/README.md:144-146` | Ownership reads as of an instant: `filing_accepted_at`, never period or trade date | requirement | move | panels | RES | living-docs-research | at-risk class #17 |  |
-| M-RES-058 | `services/backtesting/README.md:146` | Bulk data acceptance time = 22:00 US Eastern on filing date | requirement | move | panels | RES | living-docs-research | CHOICE 2026-10-09 SEC ownership — acceptance time from a filing date |  |
-| M-RES-059 | `services/backtesting/README.md:150-154` | Ownership readers and their missing reasons | contract | move | panels | RES | living-docs-research | |  |
-| M-RES-060 | `services/backtesting/README.md:156` | Shares restated to read date's split basis, else missing with reason | requirement | move | panels | RES | living-docs-research | archived `ownership-share-basis` |  |
-| M-RES-061 | `services/backtesting/README.md:158` | Healthcare specialist definition; thresholds from registered `h9.yaml` | requirement | move | panels | RES | living-docs-research | Target of the frozen `#SpecialistClassifier` pointer; CHOICE 2026-10-09 SEC ownership — specialist thresholds |  |
-| M-RES-062 | `services/backtesting/README.md:160-170` | Ownership object layout, write-once except share counts | contract | move | panels | RES | living-docs-research | |  |
-| M-RES-063 | `services/backtesting/README.md:168` | Daily Form 4 fills until data set exists; data set preferred, disagreement logged | requirement | move | panels | RES | living-docs-research | |  |
-| M-RES-064 | `services/backtesting/README.md:172` | Data sets labelled as SEC names them; CUSIP→CIK by name; unmapped counted | requirement | move | panels | RES | living-docs-research | CHOICE 2026-10-09 SEC ownership — how filings are counted |  |
-| M-RES-065 | `services/backtesting/README.md:174` | `fetch_ownership.py` backfills once; panels refreshed by script, not DAG | trap | move | panels (Known traps) | RES | living-docs-research | FLAG 2026-10-09 SEC ownership — panels refreshed by a script |  |
-| M-RES-066 | `services/backtesting/README.md:178-182` | Short interest known by end of FINRA publication day, never settlement | requirement | move | panels | RES | living-docs-research | at-risk class #17; CHOICE 2026-10-10 Short interest — publication dates |  |
-| M-RES-067 | `services/backtesting/README.md:183` | Share and change restated to one split basis or missing | requirement | move | panels | RES | living-docs-research | CHOICE 2026-10-11 Short interest — one split basis |  |
-| M-RES-068 | `services/backtesting/README.md:185` | `days_to_cover` exact ratio; `None` at zero volume; unreported stored `reported=false` | requirement | move | panels | RES | living-docs-research | |  |
-| M-RES-069 | `services/backtesting/README.md:187` | Periods only appended, never rewritten | requirement | move | panels | RES | living-docs-research | |  |
-| M-RES-070 | `services/backtesting/README.md:189` | Listed coverage from June 2021; H9 uses two-component variant before | requirement | move | panels | RES | living-docs-research | Start date value in `.env.example` (`SHORT_INTEREST_HISTORY_START`) |  |
-| M-RES-071 | `services/backtesting/README.md:193-203` | H9 components, floor, two-component minimum, write-once snapshots | requirement | move | panels | RES | living-docs-research | CHOICE 2026-10-15 Holdings composite score |  |
+| M-RES-046 | `services/backtesting/README.md:74-81` | H10 index, cut, score, monthly read; one snapshot set per universe | requirement | move | panels | RES | living-docs-research | CHOICE 2026-10-15 Filing text change score | RES-048 |
+| M-RES-047 | `services/backtesting/README.md:76` | Quarterly index stored once per finished quarter | requirement | move | panels | RES | living-docs-research | | RES-045 |
+| M-RES-048 | `services/backtesting/README.md:78` | Change = 1 − cosine of term frequencies; known at later acceptance | requirement | move | panels | RES | living-docs-research | Tolerance values in code: D F6 trap | RES-047 |
+| M-RES-049 | `services/backtesting/README.md:99-109` | Hash lock, shape check, `admit()` gate, promotable roles, forward-check branches | requirement | move | evaluation | EVA | living-docs-research | See protocol.yaml table | EVA-001 |
+| M-EVA-001 | `services/backtesting/README.md:101` | Locked files refused when changed; registry lines never edited | requirement | move | evaluation | EVA | living-docs-research | `test_preregistered_protocol.py`; `hypothesis.py` | EVA-001 |
+| M-EVA-002 | `services/backtesting/README.md:103` | Event-only fields refused on a portfolio hypothesis | requirement | move | evaluation | EVA | living-docs-research | | EVA-002 |
+| M-EVA-003 | `services/backtesting/README.md:104` | A hypothesis with `uses` is checked and promoted per use | requirement | move | evaluation | EVA | living-docs-research | | EVA-007 |
+| M-EVA-004 | `services/backtesting/README.md:105` | `admit()` refuses family without budget, over budget, disallowed role, instrument ceiling | requirement | move | evaluation | EVA | living-docs-research | CHOICE 2026-10-09 Slow-signal pre-registration — details, item 7 | EVA-008 |
+| M-EVA-005 | code `services/backtesting/src/auspex_backtesting/hypothesis.py:190-230` | Every evaluation path passes `admit()` and refuses `suspended` | requirement | divergent | evaluation | EVA | living-docs-research | `run_backtest` skips both. PENDING — `defects found while scoping`; D F3 | EVA-009 |
+| M-EVA-006 | `services/backtesting/README.md:106` | Filters, diagnostics, descriptive hypotheses never promoted | requirement | move | evaluation | EVA | living-docs-research | CHOICE 2026-10-07 Pre-registration — hypothesis triage | EVA-007 |
+| M-EVA-007 | `services/backtesting/README.md:108` | Forward check returns `invalid` on NaN/inf, negative SE, malformed months | requirement | move | evaluation | EVA | living-docs-research | archived `forward-check-input-validation` | EVA-027 |
+| M-EVA-008 | `services/backtesting/README.md:109` | H9 trade-date rule and component fallback from registered file | requirement | move | panels | RES | living-docs-research | Rule values in `h9.yaml` | RES-050 |
+| M-EVA-009 | `services/backtesting/README.md:115` | Refusals before anything recorded: modified files, suspended, off-grid, no `N_BOOTSTRAP` | requirement | move | evaluation | EVA | living-docs-research | CHOICE 2026-10-10 Evaluation protocol — how the event evaluation reads the spec | EVA-010 |
+| M-EVA-010 | `services/backtesting/README.md:116` | Cells reserved before any price read, under lock with family budget check | requirement | move | evaluation | EVA | living-docs-research | CHOICE 2026-10-10 Consolidated audit, item 3 | EVA-011 |
+| M-EVA-011 | `services/backtesting/README.md:116` | Torn final ledger line dropped; other bad line stops reservations | requirement | move | evaluation | EVA | living-docs-research | | EVA-012 |
+| M-EVA-012 | `services/backtesting/README.md:117` | Last `promotion.holdout_months` not read; released only for promotable primary cell | requirement | move | evaluation | EVA | living-docs-research | Value by key | EVA-020 |
+| M-EVA-013 | `services/backtesting/README.md:118` | Market-model CAR vs benchmark, estimation window, clustered t, bootstrap | requirement | move | evaluation | EVA | living-docs-research | CHOICE 2026-10-07 Pre-registration — market-model; values in `abnormal_return.*`, `inference.*` | EVA-017 |
+| M-EVA-014 | `services/backtesting/README.md:119` | Result: primary cell, all cells, kill verdicts, walk-forward, holdout | contract | move | evaluation | EVA | living-docs-research | | EVA-019 |
+| M-EVA-015 | `services/backtesting/README.md:119` | Walk-forward segments are reported, never used for promotion | requirement | ratify | evaluation | EVA | living-docs-research | research ratification batch. Segment lengths in code: D F6 trap | EVA-021 |
+| M-RES-050 | `services/backtesting/README.md:125` | Score snapshot contract: path, columns, `known_at_max` before rebalance open | contract | move | backtesting | RES | living-docs-research | CHOICE 2026-10-11 Cross-sectional portfolio backtest, items 1–2 | RES-075 |
+| M-RES-051 | `services/backtesting/README.md:128-129` | Hold bands, CIK tie-break, next-open fills, sells first, no borrowing | requirement | move | backtesting | RES | living-docs-research | | RES-076 |
+| M-RES-052 | `services/backtesting/README.md:130` | `EqualRiskSizer` capped; remainder is cash, never renormalised | requirement | move | backtesting | RES | living-docs-research | CHOICE 2026-10-10 Consolidated audit, item 4 | RES-077 |
+| M-RES-053 | `services/backtesting/README.md:131` | Four `CatalystGuard` modes; no data counted, never treated as clear | requirement | move | backtesting | RES | living-docs-research | | RES-078 |
+| M-RES-054 | `services/backtesting/README.md:132` | Orders costed at tier size; below minimum ticket skipped and counted | requirement | move | backtesting | RES | living-docs-research | | RES-079 |
+| M-RES-055 | `services/backtesting/README.md:133` | Delisted held name booked at −30% when prices stop early | requirement | move | backtesting | RES | living-docs-research | | RES-080 |
+| M-RES-056 | `services/backtesting/README.md:135` | `PortfolioResult` fields | contract | move | backtesting | RES | living-docs-research | | RES-081 |
+| M-EVA-016 | `services/backtesting/README.md:137-140` | Portfolio evaluation order: admit, reserve, tiers, verdict, holdout once | requirement | move | evaluation | EVA | living-docs-research | CHOICE 2026-10-11 Cross-sectional portfolio backtest, items 8–10 | EVA-023 |
+| M-EVA-017 | `services/backtesting/README.md:138` | In-sample `portfolio_kill_criteria` applied | requirement | move | evaluation | EVA | living-docs-research | Values by key | EVA-024 |
+| M-EVA-018 | `services/backtesting/README.md:139` | Deflated Sharpe with family trial count; only primary cell of promotable passes | requirement | move | evaluation | EVA | living-docs-research | | EVA-024 |
+| M-EVA-019 | `services/backtesting/README.md:140` | Holdout read once per use; `HoldoutRecord` created exclusively | requirement | move | evaluation | EVA | living-docs-research | | EVA-025 |
+| M-EVA-020 | `services/backtesting/README.md:140` | Final run refused until input manifests exist | requirement | move | evaluation | EVA | living-docs-research | `NoInputManifests`; `specs/research-input-archive.md` owns the change | EVA-026 |
+| M-RES-057 | `services/backtesting/README.md:144-146` | Ownership reads as of an instant: `filing_accepted_at`, never period or trade date | requirement | move | panels | RES | living-docs-research | at-risk class #17 | RES-031 |
+| M-RES-058 | `services/backtesting/README.md:146` | Bulk data acceptance time = 22:00 US Eastern on filing date | requirement | move | panels | RES | living-docs-research | CHOICE 2026-10-09 SEC ownership — acceptance time from a filing date | RES-031 |
+| M-RES-059 | `services/backtesting/README.md:150-154` | Ownership readers and their missing reasons | contract | move | panels | RES | living-docs-research | | RES-035 |
+| M-RES-060 | `services/backtesting/README.md:156` | Shares restated to read date's split basis, else missing with reason | requirement | move | panels | RES | living-docs-research | archived `ownership-share-basis` | RES-035 |
+| M-RES-061 | `services/backtesting/README.md:158` | Healthcare specialist definition; thresholds from registered `h9.yaml` | requirement | move | panels | RES | living-docs-research | Target of the frozen `#SpecialistClassifier` pointer; CHOICE 2026-10-09 SEC ownership — specialist thresholds | RES-033 |
+| M-RES-062 | `services/backtesting/README.md:160-170` | Ownership object layout, write-once except share counts | contract | move | panels | RES | living-docs-research | | RES-032 |
+| M-RES-063 | `services/backtesting/README.md:168` | Daily Form 4 fills until data set exists; data set preferred, disagreement logged | requirement | move | panels | RES | living-docs-research | | RES-034 |
+| M-RES-064 | `services/backtesting/README.md:172` | Data sets labelled as SEC names them; CUSIP→CIK by name; unmapped counted | requirement | move | panels | RES | living-docs-research | CHOICE 2026-10-09 SEC ownership — how filings are counted | RES-032 |
+| M-RES-065 | `services/backtesting/README.md:174` | `fetch_ownership.py` backfills once; panels refreshed by script, not DAG | trap | move | panels (Known traps) | RES | living-docs-research | FLAG 2026-10-09 SEC ownership — panels refreshed by a script | docs/research/panels.md#known-traps |
+| M-RES-066 | `services/backtesting/README.md:178-182` | Short interest known by end of FINRA publication day, never settlement | requirement | move | panels | RES | living-docs-research | at-risk class #17; CHOICE 2026-10-10 Short interest — publication dates | RES-037 |
+| M-RES-067 | `services/backtesting/README.md:183` | Share and change restated to one split basis or missing | requirement | move | panels | RES | living-docs-research | CHOICE 2026-10-11 Short interest — one split basis | RES-039 |
+| M-RES-068 | `services/backtesting/README.md:185` | `days_to_cover` exact ratio; `None` at zero volume; unreported stored `reported=false` | requirement | move | panels | RES | living-docs-research | | RES-038 |
+| M-RES-069 | `services/backtesting/README.md:187` | Periods only appended, never rewritten | requirement | move | panels | RES | living-docs-research | | RES-038 |
+| M-RES-070 | `services/backtesting/README.md:189` | Listed coverage from June 2021; H9 uses two-component variant before | requirement | move | panels | RES | living-docs-research | Start date value in `.env.example` (`SHORT_INTEREST_HISTORY_START`) | RES-040 |
+| M-RES-071 | `services/backtesting/README.md:193-203` | H9 components, floor, two-component minimum, write-once snapshots | requirement | move | panels | RES | living-docs-research | CHOICE 2026-10-15 Holdings composite score | RES-052 |
 | M-RES-072 | `services/backtesting/README.md:205-217` | Scripts table | command | keep | `services/backtesting/README.md` | — | living-docs-research | READMEs keep commands; docs link |  |
 | M-RES-073 | `services/backtesting/README.md:219-226` | Commands table | command | keep | `services/backtesting/README.md` | — | living-docs-research | |  |
 | M-RES-074 | `services/backtesting/README.md:3` | Module scope summary | status-note | keep | `services/backtesting/README.md` | — | living-docs-research | README becomes orientation plus a link per section to its RES/EVA file |  |
@@ -1381,38 +1381,38 @@ Written against: `develop` @ `e51f742`. Sources were read from `/home/claude/aus
 
 | Row | Source (path:line or §) | Rule or content (≤ 15 words) | Class | Disposition | Target | NS | Spec | Decision / note | ID |
 |---|---|---|---|---|---|---|---|---|---|
-| M-EVA-030 | CHOICE 2026-10-08 Control-surface — research config read-only | Hypotheses, protocol, strategy and model registries, universe rules: read-only, dated re-registration | requirement | move | evaluation | EVA | living-docs-research | at-risk class #11 owner. Trap: `registry.py:134-142` writes `config/strategies/versions/` |  |
+| M-EVA-030 | CHOICE 2026-10-08 Control-surface — research config read-only | Hypotheses, protocol, strategy and model registries, universe rules: read-only, dated re-registration | requirement | move | evaluation | EVA | living-docs-research | at-risk class #11 owner. Trap: `registry.py:134-142` writes `config/strategies/versions/` | EVA-006 |
 | M-EVA-031 | `config/hypotheses/protocol.yaml:4-11` | `abnormal_return.*` | value | keep | `protocol.yaml` | — | living-docs-research | EVA cites by key |  |
 | M-EVA-032 | `config/hypotheses/protocol.yaml:12-22` | `inference.*` | value | keep | `protocol.yaml` | — | living-docs-research | `N_BOOTSTRAP` vs `inference.bootstrap_draws`: D F6 trap |  |
 | M-EVA-033 | `config/hypotheses/protocol.yaml:23-32` | `trials.*` | value | keep | `protocol.yaml` | — | living-docs-research | |  |
-| M-EVA-034 | `config/hypotheses/protocol.yaml:33-34` comment | Family named by hypothesis; unlisted family has no budget | requirement | move | evaluation | EVA | living-docs-research | Enforced by `admit()` |  |
+| M-EVA-034 | `config/hypotheses/protocol.yaml:33-34` comment | Family named by hypothesis; unlisted family has no budget | requirement | move | evaluation | EVA | living-docs-research | Enforced by `admit()` | EVA-004 |
 | M-EVA-035 | `config/hypotheses/protocol.yaml:35-55` | `families.*`, budgets, roles, `default_event_family` | value | keep | `protocol.yaml` | — | living-docs-research | |  |
-| M-EVA-036 | `config/hypotheses/protocol.yaml:40-42` comment | H10 filter cells reserved when the filter is applied | requirement | divergent | evaluation | EVA | living-docs-research | `--filter-score` does not reserve. PENDING — `defects found while scoping`; D F5 |  |
+| M-EVA-036 | `config/hypotheses/protocol.yaml:40-42` comment | H10 filter cells reserved when the filter is applied | requirement | divergent | evaluation | EVA | living-docs-research | `--filter-score` does not reserve. PENDING — `defects found while scoping`; D F5 | EVA-015 |
 | M-EVA-037 | `config/hypotheses/protocol.yaml:56-67` | `portfolio_inference.*`; month is the unit | value | keep | `protocol.yaml` | — | living-docs-research | |  |
-| M-EVA-038 | `portfolio_inference.holdout_reads` | Trial ledger and holdout records durable and shared across checkouts | requirement | divergent | evaluation | EVA | living-docs-research | Untracked local files (`.gitignore:52`; `verdict.py:308-336`). PENDING — `trial ledger and holdout as untracked local files` |  |
+| M-EVA-038 | `portfolio_inference.holdout_reads` | Trial ledger and holdout records durable and shared across checkouts | requirement | divergent | evaluation | EVA | living-docs-research | Untracked local files (`.gitignore:52`; `verdict.py:308-336`). PENDING — `trial ledger and holdout as untracked local files` | EVA-016 |
 | M-EVA-039 | `config/hypotheses/protocol.yaml:68-72` | `promotion.*` | value | keep | `protocol.yaml` | — | living-docs-research | |  |
 | M-EVA-040 | `config/hypotheses/protocol.yaml:73-83` | `sizing.*` ceilings | value | keep | `protocol.yaml` | — | living-docs-strategy-and-dashboard | STR risk cites by key |  |
-| M-EVA-041 | `config/hypotheses/protocol.yaml:84-87` | Instruments are ceilings; enabling is re-registration, never `.env` | requirement | move | evaluation | EVA | living-docs-research | |  |
+| M-EVA-041 | `config/hypotheses/protocol.yaml:84-87` | Instruments are ceilings; enabling is re-registration, never `.env` | requirement | move | evaluation | EVA | living-docs-research | | EVA-005 |
 | M-EVA-042 | `config/hypotheses/protocol.yaml:88-164` | `kill_criteria`, `portfolio_kill_criteria` | value | keep | `protocol.yaml` | — | living-docs-research | |  |
 | M-EVA-043 | `config/hypotheses/h9.yaml:18` | Cites `specs/sec-ownership-datasets.md#SpecialistClassifier` | contract | keep | `h9.yaml` | — | living-docs-research | Frozen path; spec keeps an anchored pointer line. PENDING — `spec paths cited by hash-locked hypotheses` |  |
 | M-EVA-044 | `config/hypotheses/h11.yaml:8`, `config/hypotheses/h12.yaml:8` | Cite `specs/clinicaltrials-version-diffs.md`, `specs/catalyst-date-panel.md` | contract | keep | `h11.yaml`, `h12.yaml` | — | living-docs-research | Never moved or renamed (`spec paths cited by hash-locked hypotheses`) |  |
 | M-EVA-045 | `services/backtesting/tests/unit/test_preregistered_protocol.py:440` | Asserts the h9 spec string | contract | keep | test | — | living-docs-research | |  |
 | M-EVA-046 | `registry.jsonl` | Append-only hash registry | value | keep | `registry.jsonl` | — | living-docs-research | |  |
-| M-EVA-047 | raw-byte hash (`hypothesis.py`) | Whitespace edit is a new registration | trap | move | evaluation (Known traps) | EVA | living-docs-research | |  |
-| M-EVA-048 | CHOICE 2026-10-07 Second-wave — paper trading gates capital | No real capital until a forward check passes at a tier | requirement | move | evaluation | EVA | living-docs-research | Also CHOICE 2026-10-08 Edge research — portfolio paper-trading pass rule |  |
-| M-EVA-049 | FLAG 2026-09-19 Phase 4 v2 | Entity-only variant reported beside full variant in all research output | requirement | move | evaluation | EVA | living-docs-research | at-risk class #3 owner; archived `backtesting`, `performance-metrics` |  |
-| M-EVA-050 | CHOICE 2026-10-07 Pre-registration — trials as cells | Cells counted across the family; failed run still counts | requirement | move | evaluation | EVA | living-docs-research | |  |
-| M-EVA-051 | code `services/backtesting/src/auspex_backtesting/portfolio/rules.py:76-110` | Off-grid cells refused | requirement | divergent | evaluation | EVA | living-docs-research | Event runs `tested`; portfolio `divergent` (D F5). PENDING — `defects found while scoping` |  |
-| M-EVA-052 | code `services/backtesting/src/auspex_backtesting/evaluation/results.py:240-270` | Event holdout has a persistent read record | requirement | divergent | evaluation | EVA | living-docs-research | Under the `trial ledger and holdout as untracked local files` row M-EVA-038 |  |
+| M-EVA-047 | raw-byte hash (`hypothesis.py`) | Whitespace edit is a new registration | trap | move | evaluation (Known traps) | EVA | living-docs-research | | docs/research/evaluation-protocol.md#known-traps |
+| M-EVA-048 | CHOICE 2026-10-07 Second-wave — paper trading gates capital | No real capital until a forward check passes at a tier | requirement | move | evaluation | EVA | living-docs-research | Also CHOICE 2026-10-08 Edge research — portfolio paper-trading pass rule | EVA-028 |
+| M-EVA-049 | FLAG 2026-09-19 Phase 4 v2 | Entity-only variant reported beside full variant in all research output | requirement | move | evaluation | EVA | living-docs-research | at-risk class #3 owner; archived `backtesting`, `performance-metrics` | EVA-022 |
+| M-EVA-050 | CHOICE 2026-10-07 Pre-registration — trials as cells | Cells counted across the family; failed run still counts | requirement | move | evaluation | EVA | living-docs-research | | EVA-011 |
+| M-EVA-051 | code `services/backtesting/src/auspex_backtesting/portfolio/rules.py:76-110` | Off-grid cells refused | requirement | divergent | evaluation | EVA | living-docs-research | Event runs `tested`; portfolio `divergent` (D F5). PENDING — `defects found while scoping` | EVA-014 |
+| M-EVA-052 | code `services/backtesting/src/auspex_backtesting/evaluation/results.py:240-270` | Event holdout has a persistent read record | requirement | divergent | evaluation | EVA | living-docs-research | Under the `trial ledger and holdout as untracked local files` row M-EVA-038 | EVA-016 |
 
 ### config/universe/rules.yaml and us_small_mid.yaml (machine-locked; never edited)
 
 | Row | Source (path:line or §) | Rule or content (≤ 15 words) | Class | Disposition | Target | NS | Spec | Decision / note | ID |
 |---|---|---|---|---|---|---|---|---|---|
 | M-RES-080 | `config/universe/rules.yaml:1` | Cites `specs/point-in-time-universe.md` | contract | keep | `rules.yaml` | — | living-docs-research | Spec path frozen; spec stays at that path |  |
-| M-RES-081 | `config/universe/rules.yaml:2-3` | Edit after first build needs new version; build refuses | requirement | move | universe | RES | living-docs-research | Same as M-RES-036 (one ID). at-risk class #16 |  |
+| M-RES-081 | `config/universe/rules.yaml:2-3` | Edit after first build needs new version; build refuses | requirement | move | universe | RES | living-docs-research | Same as M-RES-036 (one ID). at-risk class #16 | RES-014 |
 | M-RES-082 | `config/universe/rules.yaml:5-10` comments | SIC meaning, exchange spelling, units | value | keep | `rules.yaml` | — | living-docs-research | |  |
-| M-RES-083 | `config/universe/rules.yaml:13-16` | `PRICE_HISTORY_START` ≥ 45 days before window; `end: null` = current month | requirement | move | universe | RES | living-docs-research | Same as M-RES-032 |  |
+| M-RES-083 | `config/universe/rules.yaml:13-16` | `PRICE_HISTORY_START` ≥ 45 days before window; `end: null` = current month | requirement | move | universe | RES | living-docs-research | Same as M-RES-032 | RES-019 |
 | M-RES-084 | `config/universe/us_small_mid.yaml:1-5` | Broad universe for H10; empty `sic_codes` admits all | value | keep | `us_small_mid.yaml` | — | living-docs-research | Semantics of empty list stated in universe |  |
 
 ### config/themes.yaml and config/strategies/registry.yaml
@@ -1434,7 +1434,7 @@ Written against: `develop` @ `e51f742`. Sources were read from `/home/claude/aus
 | M-STR-057 | `services/strategy/src/auspex_strategy/abc.py:18-24`; `services/strategy/src/auspex_strategy/runtime/context.py:52,70-72` | Records not yet known are hidden, never returned | requirement | move | contract | STR | living-docs-strategy-and-dashboard | Tested (`test_backtest_context_hides_records_not_yet_known`). PENDING — `as-of reads hide or raise`, default: hiding approved |  |
 | M-STR-058 | `services/strategy/src/auspex_strategy/abc.py:18-24` docstring | Docstring promises `AsOfViolationError` raise | stale | move | contract (Known traps) | STR | living-docs-strategy-and-dashboard | Fix in a follow-up spec under `defects found while scoping`; rollout changes no code |  |
 | M-STR-059 | CHOICE 2026-09-20 never see ingested_at | No context exposes `ingested_at` or `extracted_at` | requirement | move | contract | STR | living-docs-strategy-and-dashboard | at-risk class #4 STR side. a possible sixteenth invariant is written by the cutover only on the owner's CHOICE; PENDING — `processing time in as-of decisions` |  |
-| M-RES-090 | `services/backtesting/src/auspex_backtesting/alignment/aligner.py:10,32` | Joining on a processing-time field raises | requirement | move | backtesting | RES | living-docs-research | at-risk class #4 RES side; same `processing time in as-of decisions` note |  |
+| M-RES-090 | `services/backtesting/src/auspex_backtesting/alignment/aligner.py:10,32` | Joining on a processing-time field raises | requirement | move | backtesting | RES | living-docs-research | at-risk class #4 RES side; same `processing time in as-of decisions` note | RES-067 |
 | M-STR-060 | archived `decision-trace` | UUIDv5 intent ids over strategy, version, corroboration, `as_of`, position | requirement | move | trace | STR | living-docs-strategy-and-dashboard | at-risk class #14; CHOICE 2026-10-11 Decision trace item 2 |  |
 | M-STR-061 | `services/strategy/src/auspex_strategy/runtime/replay.py:93`; `services/strategy/src/auspex_strategy/runtime/context.py:53` | Replay and streaming expose the same signals | requirement | ratify | contract | STR | living-docs-strategy-and-dashboard | strategy-and-dashboard ratification batch (E F2) |  |
 | M-STR-062 | `services/strategy/src/auspex_strategy/runtime/main.py:151-152` | Live records carry ticker and source types | requirement | divergent | runtime | STR | living-docs-strategy-and-dashboard | FLAG 2026-10-10 Strategy runtime (E F5) |  |
@@ -1448,28 +1448,28 @@ Written against: `develop` @ `e51f742`. Sources were read from `/home/claude/aus
 
 | Row | Source (path:line or §) | Rule or content (≤ 15 words) | Class | Disposition | Target | NS | Spec | Decision / note | ID |
 |---|---|---|---|---|---|---|---|---|---|
-| M-RES-091 | `services/backtesting/src/auspex_backtesting/market_sim/fx.py:17-19` | FX rate for an order is a close known before the order | requirement | ratify | simulation | RES | living-docs-research | research ratification batch; code uses same-day close (D F14) |  |
-| M-RES-092 | `services/backtesting/src/auspex_backtesting/alignment/aligner.py:46-63` | Genuine `00:00:00 UTC` treated as date-only | requirement | ratify | backtesting | RES | living-docs-research | research ratification batch |  |
-| M-RES-093 | `run_portfolio_backtest.py` docstring | Score version matches cell's `floor` axis | requirement | ratify | backtesting | RES | living-docs-research | research ratification batch (D F5) |  |
-| M-RES-094 | `services/backtesting/src/auspex_backtesting/market_sim/costs.py:13` | Cost semantics attributed to `docs/strategy-research.md` | stale | move | simulation (Rationale) | RES | living-docs-research | simulation.md owns cost semantics; comment fix belongs in a follow-up under `defects found while scoping` |  |
-| M-RES-095 | D F6 | Result-affecting parameters outside registered files | trap | move | evaluation (Known traps) | EVA | living-docs-research | Cost vars, walk-forward, bound, threshold, H10 tolerances |  |
-| M-RES-096 | D F16 | `catalyst-date-panel` and `catalyst-calendar` are two planned catalyst sources | trap | move | panels (Known traps) | RES | living-docs-research | |  |
+| M-RES-091 | `services/backtesting/src/auspex_backtesting/market_sim/fx.py:17-19` | FX rate for an order is a close known before the order | requirement | ratify | simulation | RES | living-docs-research | research ratification batch; code uses same-day close (D F14) | RES-062 |
+| M-RES-092 | `services/backtesting/src/auspex_backtesting/alignment/aligner.py:46-63` | Genuine `00:00:00 UTC` treated as date-only | requirement | ratify | backtesting | RES | living-docs-research | research ratification batch | RES-070 |
+| M-RES-093 | `run_portfolio_backtest.py` docstring | Score version matches cell's `floor` axis | requirement | ratify | backtesting | RES | living-docs-research | research ratification batch (D F5) | RES-082 |
+| M-RES-094 | `services/backtesting/src/auspex_backtesting/market_sim/costs.py:13` | Cost semantics attributed to `docs/strategy-research.md` | stale | move | simulation (Rationale) | RES | living-docs-research | simulation.md owns cost semantics; comment fix belongs in a follow-up under `defects found while scoping` | RES-058 |
+| M-RES-095 | D F6 | Result-affecting parameters outside registered files | trap | move | evaluation (Known traps) | EVA | living-docs-research | Cost vars, walk-forward, bound, threshold, H10 tolerances | docs/research/evaluation-protocol.md#known-traps |
+| M-RES-096 | D F16 | `catalyst-date-panel` and `catalyst-calendar` are two planned catalyst sources | trap | move | panels (Known traps) | RES | living-docs-research | | docs/research/panels.md#known-traps |
 
 ### specs/point-in-time-universe.md (code-done; cut to Mac acceptance, path frozen)
 
 | Row | Source (path:line or §) | Rule or content (≤ 15 words) | Class | Disposition | Target | NS | Spec | Decision / note | ID |
 |---|---|---|---|---|---|---|---|---|---|
-| M-RES-100 | `specs/point-in-time-universe.md:31` | Rules file versioned like a hypothesis; edit is a new trial | requirement | move | universe | RES | living-docs-research | M-RES-036; PENDING — `code-done specs blocked on the Mac` |  |
-| M-RES-101 | `specs/point-in-time-universe.md:33-35` | Listing spans from filings; cap from filed counts × close; members on first session | requirement | move | universe | RES | living-docs-research | `code-done specs blocked on the Mac` |  |
-| M-RES-102 | `specs/point-in-time-universe.md:36` | Snapshots never overwritten | requirement | move | universe | RES | living-docs-research | `code-done specs blocked on the Mac` |  |
-| M-RES-103 | `specs/point-in-time-universe.md:37` | Delisted prices from free sources only, Yahoo then Stooq | requirement | move | market-data | RES | living-docs-research | CHOICE 2026-10-07 Second-wave — point-in-time universe scope |  |
-| M-RES-104 | `specs/point-in-time-universe.md:39-41` | Membership spans; bounded windows; universe not watchlist | requirement | move | backtesting | RES | living-docs-research | CHOICE 2026-10-08 Control-surface — watchlist, item 4 |  |
-| M-RES-105 | `specs/point-in-time-universe.md:42` | Backfill scope union from `BACKFILL_SCOPE_START` | requirement | move | universe | RES | living-docs-research | |  |
+| M-RES-100 | `specs/point-in-time-universe.md:31` | Rules file versioned like a hypothesis; edit is a new trial | requirement | move | universe | RES | living-docs-research | M-RES-036; PENDING — `code-done specs blocked on the Mac` | RES-014 |
+| M-RES-101 | `specs/point-in-time-universe.md:33-35` | Listing spans from filings; cap from filed counts × close; members on first session | requirement | move | universe | RES | living-docs-research | `code-done specs blocked on the Mac` | RES-015 RES-017 |
+| M-RES-102 | `specs/point-in-time-universe.md:36` | Snapshots never overwritten | requirement | move | universe | RES | living-docs-research | `code-done specs blocked on the Mac` | RES-020 |
+| M-RES-103 | `specs/point-in-time-universe.md:37` | Delisted prices from free sources only, Yahoo then Stooq | requirement | move | market-data | RES | living-docs-research | CHOICE 2026-10-07 Second-wave — point-in-time universe scope | RES-001 |
+| M-RES-104 | `specs/point-in-time-universe.md:39-41` | Membership spans; bounded windows; universe not watchlist | requirement | move | backtesting | RES | living-docs-research | CHOICE 2026-10-08 Control-surface — watchlist, item 4 | RES-022 |
+| M-RES-105 | `specs/point-in-time-universe.md:42` | Backfill scope union from `BACKFILL_SCOPE_START` | requirement | move | universe | RES | living-docs-research | | RES-021 |
 | M-RES-106 | `specs/point-in-time-universe.md:48-56` | Scope table values | value | link | `config/universe/rules.yaml` | — | living-docs-research | |  |
 | M-RES-107 | `specs/point-in-time-universe.md:56` | Backfill breadth: company-scoped EDGAR/CT.gov, topic-scoped others | requirement | link | `specs/historical-backfill.md` | — | living-docs-research | Not built; stays in the backfill spec |  |
-| M-RES-108 | `specs/point-in-time-universe.md:58-66` | Incomplete price history rules 1–5, bound, `survivorship_gap = material` | requirement | move | backtesting | RES | living-docs-research | at-risk class #20 |  |
-| M-RES-109 | `specs/point-in-time-universe.md:72` | Current SIC only; current ticker for renamed issuers | requirement | move | universe | RES | living-docs-research | Accepted limitation |  |
-| M-RES-110 | `specs/point-in-time-universe.md:80` | Every admitting field public before D; never period-end | requirement | move | universe | RES | living-docs-research | |  |
+| M-RES-108 | `specs/point-in-time-universe.md:58-66` | Incomplete price history rules 1–5, bound, `survivorship_gap = material` | requirement | move | backtesting | RES | living-docs-research | at-risk class #20 | RES-073 |
+| M-RES-109 | `specs/point-in-time-universe.md:72` | Current SIC only; current ticker for renamed issuers | requirement | move | universe | RES | living-docs-research | Accepted limitation | RES-023 |
+| M-RES-110 | `specs/point-in-time-universe.md:80` | Every admitting field public before D; never period-end | requirement | move | universe | RES | living-docs-research | | RES-015 |
 | M-RES-111 | `specs/point-in-time-universe.md:81` | Bulk archives for build; per-company ≤ 5 req/s | requirement | link | `docs/ingestion/connectors.md`; `docs/operations/orchestration.md` | ING | living-docs-research | |  |
 | M-RES-112 | `specs/point-in-time-universe.md:112-125` | First build, coverage record, `backfill_scope.yaml` commit | process | keep | spec `## Remaining acceptance` | — | living-docs-research | Closes PENDING `2026-10-08 Point-in-time universe — SEC bulk URLs and first build` |  |
 
@@ -1477,11 +1477,11 @@ Written against: `develop` @ `e51f742`. Sources were read from `/home/claude/aus
 
 | Row | Source (path:line or §) | Rule or content (≤ 15 words) | Class | Disposition | Target | NS | Spec | Decision / note | ID |
 |---|---|---|---|---|---|---|---|---|---|
-| M-RES-120 | `specs/sec-ownership-datasets.md:28` | 13F data sets downloaded once; universe holdings kept; unmapped counted | requirement | move | panels | RES | living-docs-research | `code-done specs blocked on the Mac` |  |
-| M-RES-121 | `specs/sec-ownership-datasets.md:29` | `SpecialistClassifier` rule | requirement | move | panels | RES | living-docs-research | List item, not a heading: replaced by an anchored one-line pointer. `spec paths cited by hash-locked hypotheses`; M-RES-061 |  |
-| M-RES-122 | `specs/sec-ownership-datasets.md:30-31` | Insider store fields; point-in-time readers | contract | move | panels | RES | living-docs-research | |  |
-| M-RES-123 | `specs/sec-ownership-datasets.md:37` | Insider-copying event trades dropped | rationale | move | panels (Rationale) | RES | living-docs-research | |  |
-| M-RES-124 | `specs/sec-ownership-datasets.md:43` | Joins use `filing_accepted_at`, never period or trade date | requirement | move | panels | RES | living-docs-research | M-RES-057 |  |
+| M-RES-120 | `specs/sec-ownership-datasets.md:28` | 13F data sets downloaded once; universe holdings kept; unmapped counted | requirement | move | panels | RES | living-docs-research | `code-done specs blocked on the Mac` | RES-032 |
+| M-RES-121 | `specs/sec-ownership-datasets.md:29` | `SpecialistClassifier` rule | requirement | move | panels | RES | living-docs-research | List item, not a heading: replaced by an anchored one-line pointer. `spec paths cited by hash-locked hypotheses`; M-RES-061 | RES-033 |
+| M-RES-122 | `specs/sec-ownership-datasets.md:30-31` | Insider store fields; point-in-time readers | contract | move | panels | RES | living-docs-research | | RES-034 |
+| M-RES-123 | `specs/sec-ownership-datasets.md:37` | Insider-copying event trades dropped | rationale | move | panels (Rationale) | RES | living-docs-research | | docs/research/panels.md#rationale |
+| M-RES-124 | `specs/sec-ownership-datasets.md:43` | Joins use `filing_accepted_at`, never period or trade date | requirement | move | panels | RES | living-docs-research | M-RES-057 | RES-031 |
 | M-RES-125 | `specs/sec-ownership-datasets.md:44-47` | SEC traps, URLs in config, UTC | requirement | link | ING / INV-6 / INV-9 | ING | living-docs-research | |  |
 | M-RES-126 | `specs/sec-ownership-datasets.md:69-78` | First backfill from 2013, coverage, layout points | process | keep | spec `## Remaining acceptance` | — | living-docs-research | Closes PENDING `2026-10-09 SEC ownership — first backfill` |  |
 
@@ -1489,51 +1489,51 @@ Written against: `develop` @ `e51f742`. Sources were read from `/home/claude/aus
 
 | Row | Source (path:line or §) | Rule or content (≤ 15 words) | Class | Disposition | Target | NS | Spec | Decision / note | ID |
 |---|---|---|---|---|---|---|---|---|---|
-| M-RES-130 | `specs/short-interest-snapshots.md:25-28` | Fetcher fields; store written once per period; derived features | requirement | move | panels | RES | living-docs-research | `code-done specs blocked on the Mac` |  |
+| M-RES-130 | `specs/short-interest-snapshots.md:25-28` | Fetcher fields; store written once per period; derived features | requirement | move | panels | RES | living-docs-research | `code-done specs blocked on the Mac` | RES-038 |
 | M-RES-131 | `specs/short-interest-snapshots.md:29` | Scheduled refresh belongs to `slow-signal-data-refresh` | status-note | keep | spec | — | living-docs-research | |  |
-| M-RES-132 | `specs/short-interest-snapshots.md:41` | `as_of()` never returns a record before its publication date | requirement | move | panels | RES | living-docs-research | M-RES-066 |  |
+| M-RES-132 | `specs/short-interest-snapshots.md:41` | `as_of()` never returns a record before its publication date | requirement | move | panels | RES | living-docs-research | M-RES-066 | RES-037 |
 | M-RES-133 | `specs/short-interest-snapshots.md:58-66` | FINRA credential and first fetch | process | keep | spec `## Remaining acceptance` | — | living-docs-research | Closes PENDING `2026-10-10 Short interest — first fetch` |  |
 
 ### specs/catalyst-date-panel.md (code-done; path frozen)
 
 | Row | Source (path:line or §) | Rule or content (≤ 15 words) | Class | Disposition | Target | NS | Spec | Decision / note | ID |
 |---|---|---|---|---|---|---|---|---|---|
-| M-RES-140 | `specs/catalyst-date-panel.md:24-27` | Extractor, notices, append-only panel, coverage script | requirement | move | panels | RES | living-docs-research | `code-done specs blocked on the Mac` |  |
+| M-RES-140 | `specs/catalyst-date-panel.md:24-27` | Extractor, notices, append-only panel, coverage script | requirement | move | panels | RES | living-docs-research | `code-done specs blocked on the Mac` | RES-041 |
 | M-RES-141 | `specs/catalyst-date-panel.md:31-34` | Readout guidance, live serving, outcomes out of scope | status-note | keep | spec | — | living-docs-research | Points to `catalyst-calendar` |  |
-| M-RES-142 | `specs/catalyst-date-panel.md:38` | Catalyst invisible before disclosure; revision never changes earlier read | requirement | move | panels | RES | living-docs-research | |  |
+| M-RES-142 | `specs/catalyst-date-panel.md:38` | Catalyst invisible before disclosure; revision never changes earlier read | requirement | move | panels | RES | living-docs-research | | RES-043 |
 | M-RES-143 | `specs/catalyst-date-panel.md:58-67` | Panel from 2014; 30-hit hand check, precision rule | process | keep | spec `## Remaining acceptance` | — | living-docs-research | Closes PENDING `2026-10-09 Catalyst date panel — sources unreachable` |  |
-| M-RES-144 | FLAG 2026-10-09 Catalyst date panel — not kept current | Panels not refreshed by the stack | trap | move | panels (Known traps) | RES | living-docs-research | |  |
+| M-RES-144 | FLAG 2026-10-09 Catalyst date panel — not kept current | Panels not refreshed by the stack | trap | move | panels (Known traps) | RES | living-docs-research | | docs/research/panels.md#known-traps |
 
 ### specs/filing-text-change-score.md (code-done)
 
 | Row | Source (path:line or §) | Rule or content (≤ 15 words) | Class | Disposition | Target | NS | Spec | Decision / note | ID |
 |---|---|---|---|---|---|---|---|---|---|
-| M-RES-150 | `specs/filing-text-change-score.md:20` | H10 as biotech filter and broad standalone test | rationale | move | panels (Rationale) | RES | living-docs-research | CHOICE 2026-10-08 Edge research — direction: both (history) |  |
-| M-RES-151 | `specs/filing-text-change-score.md:22` | Second universe; rules file a parameter | requirement | move | universe | RES | living-docs-research | M-RES-034 |  |
-| M-RES-152 | `specs/filing-text-change-score.md:26-30` | Index, archive, score, monthly read, panel build | requirement | move | panels | RES | living-docs-research | `code-done specs blocked on the Mac` |  |
-| M-RES-153 | `specs/filing-text-change-score.md:41` | Score never known before later acceptance; comparison accepted earlier | requirement | move | panels | RES | living-docs-research | |  |
-| M-RES-154 | `specs/filing-text-change-score.md:42` | Volume estimate | rationale | move | panels (Rationale) | RES | living-docs-research | |  |
+| M-RES-150 | `specs/filing-text-change-score.md:20` | H10 as biotech filter and broad standalone test | rationale | move | panels (Rationale) | RES | living-docs-research | CHOICE 2026-10-08 Edge research — direction: both (history) | docs/research/panels.md#rationale |
+| M-RES-151 | `specs/filing-text-change-score.md:22` | Second universe; rules file a parameter | requirement | move | universe | RES | living-docs-research | M-RES-034 | RES-013 |
+| M-RES-152 | `specs/filing-text-change-score.md:26-30` | Index, archive, score, monthly read, panel build | requirement | move | panels | RES | living-docs-research | `code-done specs blocked on the Mac` | RES-048 |
+| M-RES-153 | `specs/filing-text-change-score.md:41` | Score never known before later acceptance; comparison accepted earlier | requirement | move | panels | RES | living-docs-research | | RES-047 |
+| M-RES-154 | `specs/filing-text-change-score.md:42` | Volume estimate | rationale | move | panels (Rationale) | RES | living-docs-research | | docs/research/panels.md#rationale |
 | M-RES-155 | `specs/filing-text-change-score.md:72-83` | First build, coverage, 20-filing hand check | process | keep | spec `## Remaining acceptance` | — | living-docs-research | |  |
 
 ### specs/holdings-composite-score.md (code-done)
 
 | Row | Source (path:line or §) | Rule or content (≤ 15 words) | Class | Disposition | Target | NS | Spec | Decision / note | ID |
 |---|---|---|---|---|---|---|---|---|---|
-| M-RES-156 | `specs/holdings-composite-score.md:23-28` | Components, ranks, two-component minimum, `known_at_max` | requirement | move | panels | RES | living-docs-research | `code-done specs blocked on the Mac` |  |
-| M-RES-157 | `specs/holdings-composite-score.md:29` | Variant chosen from coverage dates only | requirement | move | panels | RES | living-docs-research | |  |
-| M-RES-158 | `specs/holdings-composite-score.md:40-42` | Validate every row; CIK tie-break; write once per version, floor, date | requirement | move | panels | RES | living-docs-research | |  |
+| M-RES-156 | `specs/holdings-composite-score.md:23-28` | Components, ranks, two-component minimum, `known_at_max` | requirement | move | panels | RES | living-docs-research | `code-done specs blocked on the Mac` | RES-052 |
+| M-RES-157 | `specs/holdings-composite-score.md:29` | Variant chosen from coverage dates only | requirement | move | panels | RES | living-docs-research | | RES-053 |
+| M-RES-158 | `specs/holdings-composite-score.md:40-42` | Validate every row; CIK tie-break; write once per version, floor, date | requirement | move | panels | RES | living-docs-research | | RES-054 |
 | M-RES-159 | `specs/holdings-composite-score.md:63-71` | First run on the Mac | process | keep | spec `## Remaining acceptance` | — | living-docs-research | |  |
 
 ### Archived specs cited for the at-risk classes classes 1–2 (archive unchanged)
 
 | Row | Source (path:line or §) | Rule or content (≤ 15 words) | Class | Disposition | Target | NS | Spec | Decision / note | ID |
 |---|---|---|---|---|---|---|---|---|---|
-| M-RES-160 | `specs/done/backtest-look-ahead-fix.md:20-22` | Date-only known after close; entry at next open; calendar-day windows | requirement | move | backtesting | RES | living-docs-research | at-risk class #1; CHOICE 2026-10-07 Backtest look-ahead — entry and holding-window timing |  |
-| M-RES-161 | CHOICE 2026-10-07 Backtest look-ahead — one event | One event per corroboration; weight from participants known at event | requirement | move | backtesting | RES | living-docs-research | at-risk class #2 |  |
-| M-RES-162 | CHOICE 2026-10-07 Market simulation — FillModel | `FillModel` never shifts entry dates | requirement | move | simulation | RES | living-docs-research | |  |
-| M-RES-163 | CHOICE 2026-10-07 Market simulation — fx_rate | `fx_rate` is EUR per USD | requirement | move | simulation | RES | living-docs-research | |  |
-| M-RES-164 | CHOICE 2026-10-07 Realistic cost model | Per-ticker spread, FX fee, volume cap, gap-through stops | requirement | move | simulation | RES | living-docs-research | Values in `.env.example` |  |
-| M-RES-165 | CHOICE 2026-09-20 New services/strategy | Strategy imports market simulation, never copies it | requirement | move | simulation | RES | living-docs-research | STR links |  |
+| M-RES-160 | `specs/done/backtest-look-ahead-fix.md:20-22` | Date-only known after close; entry at next open; calendar-day windows | requirement | move | backtesting | RES | living-docs-research | at-risk class #1; CHOICE 2026-10-07 Backtest look-ahead — entry and holding-window timing | RES-069 |
+| M-RES-161 | CHOICE 2026-10-07 Backtest look-ahead — one event | One event per corroboration; weight from participants known at event | requirement | move | backtesting | RES | living-docs-research | at-risk class #2 | RES-071 |
+| M-RES-162 | CHOICE 2026-10-07 Market simulation — FillModel | `FillModel` never shifts entry dates | requirement | move | simulation | RES | living-docs-research | | RES-056 |
+| M-RES-163 | CHOICE 2026-10-07 Market simulation — fx_rate | `fx_rate` is EUR per USD | requirement | move | simulation | RES | living-docs-research | | RES-061 |
+| M-RES-164 | CHOICE 2026-10-07 Realistic cost model | Per-ticker spread, FX fee, volume cap, gap-through stops | requirement | move | simulation | RES | living-docs-research | Values in `.env.example` | RES-058 |
+| M-RES-165 | CHOICE 2026-09-20 New services/strategy | Strategy imports market simulation, never copies it | requirement | move | simulation | RES | living-docs-research | STR links | RES-065 |
 
 ### DECISIONS.md CHOICE and FLAG entries in the domain (binding or history)
 
@@ -1557,70 +1557,70 @@ Written against: `develop` @ `e51f742`. Sources were read from `/home/claude/aus
 | M-DSH-032 | `DECISIONS.md:883` `## 2026-10-09 — Dashboard foundation — CHOICE — Next 16, Vitest 5 and Tailwind 4 to clear the advisories` | Framework versions | value | link | `VERSIONS.md` | — | living-docs-strategy-and-dashboard | |  |
 | M-DSH-033 | `DECISIONS.md:888` `## 2026-10-09 — Dashboard foundation — CHOICE — login endpoint, write-token failure mode, path layout` | Login, token failure mode, BFF paths | requirement | move | dashboard | DSH | living-docs-strategy-and-dashboard | binding; token half links HUB |  |
 | M-DSH-034 | `DECISIONS.md:778` `## 2026-10-08 — Control-surface scoping — CHOICE — Grafana for technical health, dashboard for using the application` | Split of surfaces | requirement | move | dashboard | DSH | living-docs-strategy-and-dashboard | binding |  |
-| M-DSH-035 | `DECISIONS.md:782` `## 2026-10-08 — Control-surface scoping — CHOICE — the watchlist is the single source for tracked tickers and terms` | Item 4: backtest universe not the watchlist | requirement | move | universe | RES | living-docs-research | History CHOICE (decisions table); its item 4 rule, backtest universe not the watchlist, still moves to RES; remaining items ING/HUB |  |
-| M-DSH-036 | `DECISIONS.md:791` `## 2026-10-08 — Control-surface scoping — CHOICE — research config is read-only in the dashboard` | Research config read-only | requirement | move | evaluation | EVA | living-docs-research | binding; M-EVA-030 |  |
+| M-DSH-035 | `DECISIONS.md:782` `## 2026-10-08 — Control-surface scoping — CHOICE — the watchlist is the single source for tracked tickers and terms` | Item 4: backtest universe not the watchlist | requirement | move | universe | RES | living-docs-research | History CHOICE (decisions table); its item 4 rule, backtest universe not the watchlist, still moves to RES; remaining items ING/HUB | RES-022 |
+| M-DSH-036 | `DECISIONS.md:791` `## 2026-10-08 — Control-surface scoping — CHOICE — research config is read-only in the dashboard` | Research config read-only | requirement | move | evaluation | EVA | living-docs-research | binding; M-EVA-030 | EVA-006 |
 | M-DSH-037 | `DECISIONS.md:795` `## 2026-10-08 — Control-surface scoping — CHOICE — dashboard runs in the stack behind its own server layer` | BFF; same origin; token; no CORS | requirement | move | dashboard | DSH | living-docs-strategy-and-dashboard | binding; token and CORS link HUB |  |
-| M-RES-170 | `DECISIONS.md:519` `## 2026-10-07 — Market simulation — CHOICE — PositionSizer \`fx_rate\` is EUR per USD` | EUR per USD | requirement | move | simulation | RES | living-docs-research | binding |  |
-| M-RES-171 | `DECISIONS.md:524` `## 2026-10-07 — Market simulation — CHOICE — FillModel does not shift entry dates` | No shift | requirement | move | simulation | RES | living-docs-research | binding |  |
+| M-RES-170 | `DECISIONS.md:519` ``## 2026-10-07 — Market simulation — CHOICE — PositionSizer `fx_rate` is EUR per USD`` | EUR per USD | requirement | move | simulation | RES | living-docs-research | binding | RES-061 |
+| M-RES-171 | `DECISIONS.md:524` `## 2026-10-07 — Market simulation — CHOICE — FillModel does not shift entry dates` | No shift | requirement | move | simulation | RES | living-docs-research | binding | RES-056 |
 | M-RES-172 | `DECISIONS.md:529` `## 2026-10-07 — Market simulation — CHOICE — 11 tests, not 10; \`scripts/fetch_prices.py\`` | Test count, script | history | keep | `DECISIONS.md` | — | living-docs-research | |  |
 | M-RES-173 | `DECISIONS.md:534` `## 2026-10-07 — Market simulation — PENDING — EURUSD=X and XBI not yet in MinIO` | First fetch pending | status-note | keep | `DECISIONS.md` | — | living-docs-research | Closed by first run |  |
-| M-RES-174 | `DECISIONS.md:562` `## 2026-10-07 — Startup data — CHOICE — data fills itself on \`up\`; prices refresh daily` | Prices fill on up, refresh daily | requirement | move | market-data | RES | living-docs-research | binding; DAG side OPS |  |
-| M-RES-175 | `DECISIONS.md:568` `## 2026-10-07 — Realistic cost model — CHOICE — per-ticker spread, FX fee, volume cap, gap-through stops` | Cost model | requirement | move | simulation | RES | living-docs-research | binding |  |
-| M-EVA-063 | `DECISIONS.md:577` `## 2026-10-07 — Pre-registration — CHOICE — evaluation protocol and kill criteria locked before the backfill` | Protocol locked; holdout and trials spent | requirement | move | evaluation | EVA | living-docs-research | binding |  |
-| M-EVA-064 | `DECISIONS.md:588` `## 2026-10-07 — Pre-registration — CHOICE — trials counted as cells across the hypothesis family, budget 64` | Cells across family | requirement | move | evaluation | EVA | living-docs-research | binding; budget value now per family |  |
-| M-EVA-065 | `DECISIONS.md:594` `## 2026-10-07 — Pre-registration — CHOICE — market-model abnormal returns against XBI with two-way clustered errors` | Market model | requirement | move | evaluation | EVA | living-docs-research | binding |  |
-| M-EVA-066 | `DECISIONS.md:600` `## 2026-10-07 — Pre-registration — CHOICE — hypothesis triage; versions 2 registered` | Roles and statuses | requirement | move | evaluation | EVA | living-docs-research | binding (role rule); version facts history |  |
+| M-RES-174 | `DECISIONS.md:562` ``## 2026-10-07 — Startup data — CHOICE — data fills itself on `up`; prices refresh daily`` | Prices fill on up, refresh daily | requirement | move | market-data | RES | living-docs-research | binding; DAG side OPS | RES-002 |
+| M-RES-175 | `DECISIONS.md:568` `## 2026-10-07 — Realistic cost model — CHOICE — per-ticker spread, FX fee, volume cap, gap-through stops` | Cost model | requirement | move | simulation | RES | living-docs-research | binding | RES-058 |
+| M-EVA-063 | `DECISIONS.md:577` `## 2026-10-07 — Pre-registration — CHOICE — evaluation protocol and kill criteria locked before the backfill` | Protocol locked; holdout and trials spent | requirement | move | evaluation | EVA | living-docs-research | binding | EVA-001 |
+| M-EVA-064 | `DECISIONS.md:588` `## 2026-10-07 — Pre-registration — CHOICE — trials counted as cells across the hypothesis family, budget 64` | Cells across family | requirement | move | evaluation | EVA | living-docs-research | binding; budget value now per family | EVA-011 |
+| M-EVA-065 | `DECISIONS.md:594` `## 2026-10-07 — Pre-registration — CHOICE — market-model abnormal returns against XBI with two-way clustered errors` | Market model | requirement | move | evaluation | EVA | living-docs-research | binding | EVA-017 |
+| M-EVA-066 | `DECISIONS.md:600` `## 2026-10-07 — Pre-registration — CHOICE — hypothesis triage; versions 2 registered` | Roles and statuses | requirement | move | evaluation | EVA | living-docs-research | binding (role rule); version facts history | EVA-007 |
 | M-EVA-067 | `DECISIONS.md:606` `## 2026-10-07 — Pre-registration — CHOICE — sizing ceilings: quarter Kelly, 5% per name, one position per theme, no hold through binary events` | Sizing ceilings | requirement | move | risk | STR | living-docs-strategy-and-dashboard | binding; values `protocol.yaml` `sizing` |  |
 | M-EVA-068 | `DECISIONS.md:612` `## 2026-10-07 — Pre-registration — VERIFIED — owner accepted the proposed thresholds` | Owner acceptance | history | keep | `DECISIONS.md` | — | living-docs-research | |  |
-| M-RES-176 | `DECISIONS.md:633` `## 2026-10-07 — Second-wave specs — CHOICE — short interest is a market-data snapshot, not a connector` | Snapshot, not connector | requirement | move | panels | RES | living-docs-research | binding |  |
-| M-RES-177 | `DECISIONS.md:648` `## 2026-10-07 — Second-wave specs — CHOICE — point-in-time universe scope` | Universe scope, free prices | requirement | move | universe | RES | living-docs-research | binding; values in rules file |  |
-| M-EVA-069 | `DECISIONS.md:653` `## 2026-10-07 — Second-wave specs — CHOICE — paper trading gates capital, run at several sizes` | Paper gates capital | requirement | move | evaluation | EVA | living-docs-research | binding (M-EVA-048) |  |
+| M-RES-176 | `DECISIONS.md:633` `## 2026-10-07 — Second-wave specs — CHOICE — short interest is a market-data snapshot, not a connector` | Snapshot, not connector | requirement | move | panels | RES | living-docs-research | binding | RES-030 |
+| M-RES-177 | `DECISIONS.md:648` `## 2026-10-07 — Second-wave specs — CHOICE — point-in-time universe scope` | Universe scope, free prices | requirement | move | universe | RES | living-docs-research | binding; values in rules file | RES-016 |
+| M-EVA-069 | `DECISIONS.md:653` `## 2026-10-07 — Second-wave specs — CHOICE — paper trading gates capital, run at several sizes` | Paper gates capital | requirement | move | evaluation | EVA | living-docs-research | binding (M-EVA-048) | EVA-028 |
 | M-RES-178 | `DECISIONS.md:658` `## 2026-10-07 — Backtest look-ahead fix — FLAG — variant returns counted signals that predate their corroboration` | Fixed defect | history | keep | `DECISIONS.md` | — | living-docs-research | |  |
-| M-RES-179 | `DECISIONS.md:663` `## 2026-10-07 — Backtest look-ahead fix — CHOICE — one backtest event per corroboration, not per superseding record` | One event | requirement | move | backtesting | RES | living-docs-research | binding; at-risk class #2 |  |
-| M-RES-180 | `DECISIONS.md:668` `## 2026-10-07 — Backtest look-ahead fix — CHOICE — entry and holding-window timing` | Entry timing | requirement | move | backtesting | RES | living-docs-research | binding; at-risk class #1 |  |
+| M-RES-179 | `DECISIONS.md:663` `## 2026-10-07 — Backtest look-ahead fix — CHOICE — one backtest event per corroboration, not per superseding record` | One event | requirement | move | backtesting | RES | living-docs-research | binding; at-risk class #2 | RES-071 |
+| M-RES-180 | `DECISIONS.md:668` `## 2026-10-07 — Backtest look-ahead fix — CHOICE — entry and holding-window timing` | Entry timing | requirement | move | backtesting | RES | living-docs-research | binding; at-risk class #1 | RES-069 |
 | M-EVA-070 | `DECISIONS.md:690` `## 2026-10-07 — Edge research scoping — CHOICE — edge research synthesis: the alpha path becomes slow monthly scores` | Alpha path direction | history | keep | `DECISIONS.md` | — | living-docs-research | Rationale; RES/EVA Rationale may link |  |
 | M-EVA-071 | `DECISIONS.md:709` FLAG 20-day volatility in strategy-research about three times too low | Stale number in rationale doc | stale | keep | `docs/strategy-research.md` | — | living-docs-research | Not corrected by any spec; reported |  |
-| M-EVA-072 | `DECISIONS.md:714` FLAG paper trading cannot prove a monthly portfolio's edge in 12 months | Forward-check design input | rationale | move | evaluation (Rationale) | EVA | living-docs-research | |  |
-| M-RES-181 | `DECISIONS.md:719` `## 2026-10-07 — Edge research scoping — CHOICE — ownership and insider data are snapshots, not connectors` | Panels are snapshots | requirement | move | panels | RES | living-docs-research | binding |  |
-| M-RES-182 | `DECISIONS.md:725` FLAG a hand-made specialist fund list is look-ahead | Specialist list derived, not hand-made | requirement | move | panels | RES | living-docs-research | binding |  |
+| M-EVA-072 | `DECISIONS.md:714` FLAG paper trading cannot prove a monthly portfolio's edge in 12 months | Forward-check design input | rationale | move | evaluation (Rationale) | EVA | living-docs-research | | docs/research/evaluation-protocol.md#rationale |
+| M-RES-181 | `DECISIONS.md:719` `## 2026-10-07 — Edge research scoping — CHOICE — ownership and insider data are snapshots, not connectors` | Panels are snapshots | requirement | move | panels | RES | living-docs-research | binding | RES-030 |
+| M-RES-182 | `DECISIONS.md:725` FLAG a hand-made specialist fund list is look-ahead | Specialist list derived, not hand-made | requirement | move | panels | RES | living-docs-research | binding | RES-033 |
 | M-EVA-073 | `DECISIONS.md:729` `## 2026-10-07 — Edge research scoping — CHOICE — deferred items` | Deferred items | history | keep | `DECISIONS.md` | — | living-docs-research | |  |
-| M-RES-183 | `DECISIONS.md:737` `## 2026-10-08 — Edge research scoping — CHOICE — quarterly banded rotation; catalysts as a guard, not a trigger` | Banded rotation; catalyst guard; cost defaults | requirement | move | backtesting; simulation | RES | living-docs-research | Partly binding (guard, defaults); rotation registered in `h9.yaml` |  |
-| M-EVA-074 | `DECISIONS.md:744` `## 2026-10-08 — Edge research scoping — CHOICE — two non-LLM panels before the LLM backfill` | Build order | requirement | move | `docs/research/backtesting.md` | RES | living-docs-research | Build order: the two non-LLM panels come before the LLM backfill; binding CHOICE |  |
-| M-RES-184 | `DECISIONS.md:749` `## 2026-10-08 — Point-in-time universe — CHOICE — how the monthly list is derived from free SEC data` | Derivation items 1–5 | requirement | move | universe | RES | living-docs-research | binding |  |
-| M-RES-185 | `DECISIONS.md:766` `## 2026-10-08 — Point-in-time universe — CHOICE — windows the prices do not cover` | Window rules 1–6 | requirement | move | backtesting | RES | living-docs-research | binding |  |
+| M-RES-183 | `DECISIONS.md:737` `## 2026-10-08 — Edge research scoping — CHOICE — quarterly banded rotation; catalysts as a guard, not a trigger` | Banded rotation; catalyst guard; cost defaults | requirement | move | backtesting; simulation | RES | living-docs-research | Partly binding (guard, defaults); rotation registered in `h9.yaml` | RES-076 |
+| M-EVA-074 | `DECISIONS.md:744` `## 2026-10-08 — Edge research scoping — CHOICE — two non-LLM panels before the LLM backfill` | Build order | requirement | move | `docs/research/backtesting.md` | RES | living-docs-research | Build order: the two non-LLM panels come before the LLM backfill; binding CHOICE | RES-066 |
+| M-RES-184 | `DECISIONS.md:749` `## 2026-10-08 — Point-in-time universe — CHOICE — how the monthly list is derived from free SEC data` | Derivation items 1–5 | requirement | move | universe | RES | living-docs-research | binding | RES-015 |
+| M-RES-185 | `DECISIONS.md:766` `## 2026-10-08 — Point-in-time universe — CHOICE — windows the prices do not cover` | Window rules 1–6 | requirement | move | backtesting | RES | living-docs-research | binding | RES-072 |
 | M-RES-186 | `DECISIONS.md:809` `## 2026-10-08 — First run on the stack machine — CHOICE — price history from 2013, set before the first \`up\`` | History start | value | link | `.env.example` `PRICE_HISTORY_START` | — | living-docs-research | Rule "never extended backwards by schedule" moves to market-data |  |
-| M-RES-187 | `DECISIONS.md:824` `## 2026-10-09 — Point-in-time universe — CHOICE — one universe from 2014, backfill scope from its own start` | One universe; scope start | requirement | move | universe | RES | living-docs-research | binding |  |
+| M-RES-187 | `DECISIONS.md:824` `## 2026-10-09 — Point-in-time universe — CHOICE — one universe from 2014, backfill scope from its own start` | One universe; scope start | requirement | move | universe | RES | living-docs-research | binding | RES-019 |
 | M-EVA-075 | `DECISIONS.md:834` `## 2026-10-08 — Edge research scoping — CHOICE — direction: both` | Direction both | history | keep | `DECISIONS.md` | — | living-docs-research | |  |
-| M-EVA-076 | `DECISIONS.md:839` `## 2026-10-08 — Edge research scoping — CHOICE — portfolio paper-trading pass rule` | Pass rule | requirement | move | evaluation | EVA | living-docs-research | binding |  |
+| M-EVA-076 | `DECISIONS.md:839` `## 2026-10-08 — Edge research scoping — CHOICE — portfolio paper-trading pass rule` | Pass rule | requirement | move | evaluation | EVA | living-docs-research | binding | EVA-027 |
 | M-EVA-077 | `DECISIONS.md:843` `## 2026-10-08 — Edge research scoping — CHOICE — build order` | Build order | history | keep | `DECISIONS.md` | — | living-docs-research | |  |
 | M-RES-188 | `DECISIONS.md:847` FLAG universe window | Window decision input | history | keep | `DECISIONS.md` | — | living-docs-research | Resolved by `:824` |  |
 | M-EVA-078 | `DECISIONS.md:896` `## 2026-10-09 — Pre-launch spec audit — CHOICE — gaps closed in the spec index` | Spec index gaps | history | keep | `DECISIONS.md` | — | living-docs-research | |  |
-| M-RES-189 | `DECISIONS.md:909` `## 2026-10-09 — Catalyst date panel — CHOICE — how documents become rows` | Catalyst rows | requirement | move | panels | RES | living-docs-research | binding |  |
-| M-EVA-079 | `DECISIONS.md:987` `## 2026-10-09 — Slow-signal pre-registration — CHOICE — one protocol and one version per hypothesis, H9–H12 registered` | One protocol; registry append-only | requirement | move | evaluation | EVA | living-docs-research | binding; one-time reset history |  |
-| M-EVA-080 | `DECISIONS.md:998` `## 2026-10-09 — Slow-signal pre-registration — CHOICE — details the spec left open` | Admission details | requirement | move | evaluation | EVA | living-docs-research | binding |  |
-| M-RES-190 | `DECISIONS.md:1030` `## 2026-10-09 — SEC ownership datasets — CHOICE — acceptance time from a filing date` | 22:00 Eastern | requirement | move | panels | RES | living-docs-research | binding |  |
-| M-RES-191 | `DECISIONS.md:1034` `## 2026-10-09 — SEC ownership datasets — CHOICE — how filings, amendments and trades are counted` | Counting rules | requirement | move | panels | RES | living-docs-research | binding |  |
-| M-RES-192 | `DECISIONS.md:1047` FLAG panels are refreshed by a script, not a DAG | Script refresh | trap | move | panels (Known traps) | RES | living-docs-research | |  |
-| M-RES-193 | `DECISIONS.md:1051` `## 2026-10-09 — SEC ownership datasets — CHOICE — specialist thresholds have one source, the registered H9` | Thresholds from h9 | requirement | move | panels | RES | living-docs-research | binding |  |
-| M-EVA-081 | `DECISIONS.md:1065` `## 2026-10-10 — Pre-launch spec audit — CHOICE — portfolio verdict and the remaining blockers` | Portfolio verdict item 1 | requirement | move | evaluation | EVA | living-docs-research | binding (item 1); blockers history |  |
-| M-EVA-082 | `DECISIONS.md:1100` `## 2026-10-10 — Consolidated code, strategy and BV audit — CHOICE — what becomes specs, what does not` | Items 3–4: ledger lock, cash remainder | requirement | move | evaluation; backtesting | EVA | living-docs-research | binding (items 3–4); others history |  |
-| M-RES-194 | `DECISIONS.md:1111` `## 2026-10-10 — Price finality and split availability — CHOICE — edges the spec leaves open` | Settle edges | requirement | move | market-data | RES | living-docs-research | binding |  |
-| M-EVA-083 | `DECISIONS.md:1125` `## 2026-10-10 — Evaluation protocol — CHOICE — how the event evaluation reads the spec` | Items 1–7 | requirement | move | evaluation | EVA | living-docs-research | binding |  |
-| M-EVA-084 | `DECISIONS.md:1136` `## 2026-10-10 — Evaluation protocol — CHOICE — the raw-return backtest reserves trial cells too` | Raw-return run reserves | requirement | move | evaluation | EVA | living-docs-research | binding |  |
-| M-RES-195 | `DECISIONS.md:1148` `## 2026-10-10 — Short interest snapshots — CHOICE — publication dates from FINRA's rule, published rows win` | FINRA rule; calendar wins | requirement | move | panels | RES | living-docs-research | binding |  |
+| M-RES-189 | `DECISIONS.md:909` `## 2026-10-09 — Catalyst date panel — CHOICE — how documents become rows` | Catalyst rows | requirement | move | panels | RES | living-docs-research | binding | RES-041 |
+| M-EVA-079 | `DECISIONS.md:987` `## 2026-10-09 — Slow-signal pre-registration — CHOICE — one protocol and one version per hypothesis, H9–H12 registered` | One protocol; registry append-only | requirement | move | evaluation | EVA | living-docs-research | binding; one-time reset history | EVA-001 EVA-003 |
+| M-EVA-080 | `DECISIONS.md:998` `## 2026-10-09 — Slow-signal pre-registration — CHOICE — details the spec left open` | Admission details | requirement | move | evaluation | EVA | living-docs-research | binding | EVA-008 |
+| M-RES-190 | `DECISIONS.md:1030` `## 2026-10-09 — SEC ownership datasets — CHOICE — acceptance time from a filing date` | 22:00 Eastern | requirement | move | panels | RES | living-docs-research | binding | RES-031 |
+| M-RES-191 | `DECISIONS.md:1034` `## 2026-10-09 — SEC ownership datasets — CHOICE — how filings, amendments and trades are counted` | Counting rules | requirement | move | panels | RES | living-docs-research | binding | RES-032 |
+| M-RES-192 | `DECISIONS.md:1047` FLAG panels are refreshed by a script, not a DAG | Script refresh | trap | move | panels (Known traps) | RES | living-docs-research | | docs/research/panels.md#known-traps |
+| M-RES-193 | `DECISIONS.md:1051` `## 2026-10-09 — SEC ownership datasets — CHOICE — specialist thresholds have one source, the registered H9` | Thresholds from h9 | requirement | move | panels | RES | living-docs-research | binding | RES-033 |
+| M-EVA-081 | `DECISIONS.md:1065` `## 2026-10-10 — Pre-launch spec audit — CHOICE — portfolio verdict and the remaining blockers` | Portfolio verdict item 1 | requirement | move | evaluation | EVA | living-docs-research | binding (item 1); blockers history | EVA-023 |
+| M-EVA-082 | `DECISIONS.md:1100` `## 2026-10-10 — Consolidated code, strategy and BV audit — CHOICE — what becomes specs, what does not` | Items 3–4: ledger lock, cash remainder | requirement | move | evaluation; backtesting | EVA | living-docs-research | binding (items 3–4); others history | EVA-011 |
+| M-RES-194 | `DECISIONS.md:1111` `## 2026-10-10 — Price finality and split availability — CHOICE — edges the spec leaves open` | Settle edges | requirement | move | market-data | RES | living-docs-research | binding | RES-004 |
+| M-EVA-083 | `DECISIONS.md:1125` `## 2026-10-10 — Evaluation protocol — CHOICE — how the event evaluation reads the spec` | Items 1–7 | requirement | move | evaluation | EVA | living-docs-research | binding | EVA-017 |
+| M-EVA-084 | `DECISIONS.md:1136` `## 2026-10-10 — Evaluation protocol — CHOICE — the raw-return backtest reserves trial cells too` | Raw-return run reserves | requirement | move | evaluation | EVA | living-docs-research | binding | EVA-011 |
+| M-RES-195 | `DECISIONS.md:1148` `## 2026-10-10 — Short interest snapshots — CHOICE — publication dates from FINRA's rule, published rows win` | FINRA rule; calendar wins | requirement | move | panels | RES | living-docs-research | binding | RES-037 |
 | M-STR-078 | `DECISIONS.md:1154` FLAG Strategy runtime — live data channel not fully served by core-hub | Live inputs missing | status-note | keep | `DECISIONS.md` | — | living-docs-strategy-and-dashboard | Cited by divergent rows M-STR-004/009/062 |  |
 | M-STR-079 | `DECISIONS.md:1162` `## 2026-10-10 — Strategy runtime — CHOICE — state placement, timing and the pass-through stub` | Items 1–5 | requirement | move | runtime | STR | living-docs-strategy-and-dashboard | binding; item 5 (no DLT) cited by divergent M-STR-005 |  |
-| M-RES-196 | `DECISIONS.md:1171` `## 2026-10-11 — Cross-sectional portfolio backtest — CHOICE — how the engine reads the spec` | Items 1–11 | requirement | move | backtesting; evaluation; simulation | RES | living-docs-research | binding |  |
+| M-RES-196 | `DECISIONS.md:1171` `## 2026-10-11 — Cross-sectional portfolio backtest — CHOICE — how the engine reads the spec` | Items 1–11 | requirement | move | backtesting; evaluation; simulation | RES | living-docs-research | binding | RES-075 |
 | M-STR-080 | `DECISIONS.md:1185` `## 2026-10-11 — Strategy metrics — CHOICE — where the spec left the metrics open` | Items 1–8 | requirement | move | runtime | STR | living-docs-strategy-and-dashboard | binding |  |
-| M-RES-197 | `DECISIONS.md:1196` `## 2026-10-11 — Short interest snapshots — CHOICE — short interest share and change on one split basis` | One split basis | requirement | move | panels | RES | living-docs-research | binding |  |
-| M-RES-198 | `DECISIONS.md:1199` `## 2026-10-15 — Filing text change score — CHOICE — how the panel reads EDGAR and where the second universe lives` | Panel and universe rules | requirement | move | panels; universe | RES | living-docs-research | binding |  |
+| M-RES-197 | `DECISIONS.md:1196` `## 2026-10-11 — Short interest snapshots — CHOICE — short interest share and change on one split basis` | One split basis | requirement | move | panels | RES | living-docs-research | binding | RES-039 |
+| M-RES-198 | `DECISIONS.md:1199` `## 2026-10-15 — Filing text change score — CHOICE — how the panel reads EDGAR and where the second universe lives` | Panel and universe rules | requirement | move | panels; universe | RES | living-docs-research | binding | RES-013 |
 | M-STR-081 | `DECISIONS.md:1210` `## 2026-10-11 — Decision trace — CHOICE — one document record per participant, deterministic intent ids, risk reviews per event` | Items 1–4 | requirement | move | trace; risk | STR | living-docs-strategy-and-dashboard | binding; at-risk class #14 |  |
 | M-STR-082 | `DECISIONS.md:1216` `## 2026-10-11 — Portfolio and risk — CHOICE — catalyst and short-interest sources, units and check order` | Items 1–9 | requirement | move | risk | STR | living-docs-strategy-and-dashboard | binding; at-risk class #15 |  |
 | M-STR-083 | `DECISIONS.md:1228` FLAG Portfolio and risk — pass-through stub | Runtime not wired to risk | status-note | keep | `DECISIONS.md` | — | living-docs-strategy-and-dashboard | Cited by divergent M-STR-014 |  |
-| M-RES-199 | `DECISIONS.md:1232` `## 2026-10-15 — Holdings composite score — CHOICE — where the spec left the H9 score open` | H9 score rules | requirement | move | panels | RES | living-docs-research | binding |  |
+| M-RES-199 | `DECISIONS.md:1232` `## 2026-10-15 — Holdings composite score — CHOICE — where the spec left the H9 score open` | H9 score rules | requirement | move | panels | RES | living-docs-research | binding | RES-050 |
 | M-STR-084 | `DECISIONS.md:964` `## 2026-10-10 — Single-source cleanup — CHOICE — one version of each pre-rollout artifact` | Strategy params only in hypotheses | requirement | move | contract | STR | living-docs-strategy-and-dashboard | binding (STR part); rest other domains |  |
 | M-EVA-085 | `DECISIONS.md:287` FLAG Phase 4 — directionality hindsight-exposed | Superseded by v2 | history | keep | `DECISIONS.md` | — | living-docs-research | |  |
-| M-EVA-086 | `DECISIONS.md:301` `## 2026-09-19 — Phase 4 — FLAG (v2, supersedes earlier Phase 4 note) — entity-only variant required in all Phase 4 output` | Entity-only variant | requirement | move | evaluation | EVA | living-docs-research | binding FLAG with an action; at-risk class #3 |  |
+| M-EVA-086 | `DECISIONS.md:301` `## 2026-09-19 — Phase 4 — FLAG (v2, supersedes earlier Phase 4 note) — entity-only variant required in all Phase 4 output` | Entity-only variant | requirement | move | evaluation | EVA | living-docs-research | binding FLAG with an action; at-risk class #3 | EVA-022 |
 | M-STR-085 | `DECISIONS.md:368` FLAG §0.1 flips at session 3 | §0.1 amendment | status-note | keep | `DECISIONS.md` | — | living-docs-strategy-and-dashboard | Gathered by `specs/live-trading.md` |  |
 | M-STR-086 | `DECISIONS.md:391` FLAG Belgian speculative classification | Advisor confirmation before shorts/live | status-note | keep | `DECISIONS.md`; `docs/PREREQUISITES.md` | — | living-docs-strategy-and-dashboard | |  |
 
@@ -1636,16 +1636,16 @@ Written against: `develop` @ `e51f742`. Sources were read from `/home/claude/aus
 
 | Row | Source (path:line or §) | Rule or content (≤ 15 words) | Class | Disposition | Target | NS | Spec | Decision / note | ID |
 |---|---|---|---|---|---|---|---|---|---|
-| M-RES-200 | at-risk class #1 | Date-only after close; next-open entry; calendar-day windows | requirement | move | backtesting | RES | living-docs-research | M-RES-160, M-RES-180 |  |
-| M-RES-201 | at-risk class #2 | One backtest event per corroboration | requirement | move | backtesting | RES | living-docs-research | M-RES-161, M-RES-179 |  |
-| M-EVA-090 | at-risk class #3 | Entity-only beside full variant | requirement | move | evaluation | EVA | living-docs-research | M-EVA-049, M-EVA-086 |  |
+| M-RES-200 | at-risk class #1 | Date-only after close; next-open entry; calendar-day windows | requirement | move | backtesting | RES | living-docs-research | M-RES-160, M-RES-180 | RES-069 |
+| M-RES-201 | at-risk class #2 | One backtest event per corroboration | requirement | move | backtesting | RES | living-docs-research | M-RES-161, M-RES-179 | RES-071 |
+| M-EVA-090 | at-risk class #3 | Entity-only beside full variant | requirement | move | evaluation | EVA | living-docs-research | M-EVA-049, M-EVA-086 | EVA-022 |
 | M-STR-092 | at-risk class #4 (STR/RES side) | No processing time in as-of decisions | requirement | move | contract; backtesting | STR | living-docs-strategy-and-dashboard | M-STR-059, M-RES-090; a possible sixteenth invariant is written by the cutover only on the owner's CHOICE |  |
-| M-EVA-091 | at-risk class #11 | Research config read-only | requirement | move | evaluation | EVA | living-docs-research | M-EVA-030 |  |
+| M-EVA-091 | at-risk class #11 | Research config read-only | requirement | move | evaluation | EVA | living-docs-research | M-EVA-030 | EVA-006 |
 | M-STR-093 | at-risk class #14 | Deterministic ids; DocumentRecord per participant; every check | requirement | move | trace | STR | living-docs-strategy-and-dashboard | M-STR-016, M-STR-060, M-STR-013 |  |
 | M-STR-094 | at-risk class #15 | Check order, units, kill before review, unmapped theme rejected | requirement | move | risk | STR | living-docs-strategy-and-dashboard | M-STR-031, M-STR-025, M-STR-050 |  |
-| M-RES-202 | at-risk class #16 | Universe rules version lock | requirement | move | universe | RES | living-docs-research | M-RES-036, M-RES-081 |  |
-| M-RES-203 | at-risk class #17 | Publication-date rules for slow data | requirement | move | panels | RES | living-docs-research | M-RES-057/058/066 |  |
-| M-RES-204 | at-risk class #20 | Code-done blocked specs' requirements | requirement | move | universe; panels; backtesting | RES | living-docs-research | PENDING — `code-done specs blocked on the Mac`; tables above |  |
+| M-RES-202 | at-risk class #16 | Universe rules version lock | requirement | move | universe | RES | living-docs-research | M-RES-036, M-RES-081 | RES-014 |
+| M-RES-203 | at-risk class #17 | Publication-date rules for slow data | requirement | move | panels | RES | living-docs-research | M-RES-057/058/066 | RES-026 |
+| M-RES-204 | at-risk class #20 | Code-done blocked specs' requirements | requirement | move | universe; panels; backtesting | RES | living-docs-research | PENDING — `code-done specs blocked on the Mac`; tables above | RES-015 RES-031 RES-072 |
 
 ### File-level roles
 

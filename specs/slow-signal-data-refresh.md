@@ -1,17 +1,9 @@
 # Slow-Signal Data Refresh
 
 **Status:** blocked
-**Blocked by:**
-1. `specs/sec-ownership-datasets.md`: the ownership panels and `fetch_ownership.py`'s job, which this spec puts behind an endpoint.
-2. `specs/catalyst-date-panel.md`: `CatalystPanelBuild`, which this spec puts behind an endpoint.
-3. `specs/short-interest-snapshots.md`: `ShortInterestFetcher` and `ShortInterestStore`.
-4. `specs/filing-text-change-score.md`: the filing panel and `RiskFactorChangeScore`.
-5. `specs/holdings-composite-score.md`: `HoldingsCompositeScore`.
-6. `specs/infrastructure-observability.md`: the alert provisioning and `test_stack_alert_expressions.py` that the stale-input alert joins.
-
-Every item above is a code dependency, not a stack run. Tests use fakes of each job.
-
+**Blocked by:** None outstanding: the panel code it wraps is merged (RES-026…RES-054).
 **Branch:** `feature/slow-signal-data-refresh`
+**Docs impact:** `RES-new` for the refresh endpoints and the members' daily prices ([docs/research/market-data.md](../docs/research/market-data.md), [docs/research/panels.md](../docs/research/panels.md)); `OPS-new` for the DAGs and the staleness alert ([docs/operations/orchestration.md](../docs/operations/orchestration.md), [docs/operations/observability.md](../docs/operations/observability.md)).
 
 ---
 
@@ -19,7 +11,7 @@ Every item above is a code dependency, not a stack run. Tests use fakes of each 
 
 The slow-signal path (H9 holdings composite with H10 as its exclusion filter, `config/hypotheses/`) is built from panels that only backfill scripts fill today: `scripts/fetch_ownership.py`, `scripts/build_catalyst_panel.py`, `scripts/fetch_short_interest.py`, `scripts/build_filing_panel.py`, `scripts/compute_holdings_scores.py`. That is enough for a backtest. It is not enough for forward paper trading (`specs/forward-paper-trading.md`). On each quarterly trade date, `PortfolioRebalance` reads the latest `ScoreSnapshot`, and a snapshot, universe snapshot or closing price that was not available before that session's open is a **data gap**. A 12-month forward check with a gap fails.
 
-Root `CLAUDE.md` ("Where work can run") says data that must stay current belongs in an Airflow DAG calling a service HTTP API, never in a script run by hand. Two specs flagged the missing schedule in `DECISIONS.md` on 2026-10-09: the catalyst date panel FLAG "not kept current by the stack" and the SEC ownership datasets FLAG "panels are refreshed by a script, not a DAG".
+Data that must stay current belongs in an Airflow DAG calling a service HTTP API ([docs/operations/orchestration.md](../docs/operations/orchestration.md)), never in a script run by hand ([docs/operations/topology.md](../docs/operations/topology.md)). Two specs flagged the missing schedule in `DECISIONS.md` on 2026-10-09: the catalyst date panel FLAG "not kept current by the stack" and the SEC ownership datasets FLAG "panels are refreshed by a script, not a DAG".
 
 The pattern to follow already exists in `services/backtesting`:
 - `src/auspex_backtesting/api.py`: the price service (Flask, gunicorn) with `POST /prices/refresh` and `POST /universe/build`. Each route builds its job from `.env` (`refresher_from_env()`, `universe_job_from_env()`) and maps a source outage (`OSError`) to 502, so the DAG retries.
@@ -54,12 +46,12 @@ The pattern to follow already exists in `services/backtesting`:
 
 ## Constraints
 
-- Invariant 1 and 2: the price service writes only MinIO (`auspex-prices`). Nothing here touches the scraper, Postgres or Neo4j.
-- Invariant 3: DAGs contain only the HTTP call. No panel logic in DAG code.
-- Invariant 6: URLs, schedules, lags and universe ids come from `.env`. Update `.env.example` and `SETUP.md` only if a value has no safe default.
-- Invariant 9: schedules and timestamps in UTC.
-- SEC traps (root `CLAUDE.md`): shared ≤ 5 req/s limiter across the ownership, filings and catalyst jobs, because they share SEC's 10 req/s per-IP bucket. A 403/429 ends the run with 502, with no in-process retry, and the DAG's retry comes after the block window (`retry_delay` ≥ 15 minutes).
-- Point-in-time: a refresh appends; it never rewrites a stored period (each panel's own rule). `/scores/build` writes each snapshot once.
+- INV-1 and INV-2: the price service writes only MinIO (`auspex-prices`). Nothing here touches the scraper, Postgres or Neo4j.
+- INV-3: DAGs contain only the HTTP call. No panel logic in DAG code.
+- INV-6: URLs, schedules, lags and universe ids come from `.env`. Update `.env.example` and `SETUP.md` only if a value has no safe default.
+- INV-9: schedules and timestamps in UTC.
+- SEC traps ([docs/ingestion/connectors.md](../docs/ingestion/connectors.md); the DAG retry in [docs/operations/orchestration.md](../docs/operations/orchestration.md)): shared ≤ 5 req/s limiter across the ownership, filings and catalyst jobs, because they share SEC's 10 req/s per-IP bucket. A 403/429 ends the run with 502, with no in-process retry, and the DAG's retry comes after the block window (`retry_delay` ≥ 15 minutes).
+- A refresh appends; it never rewrites a stored period: RES-027. `/scores/build` writes each snapshot once.
 - `pytest-socket` in unit tests; jobs are fakes.
 
 ## Required tests

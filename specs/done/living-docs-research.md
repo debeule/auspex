@@ -1,6 +1,6 @@
 # Living docs: research and evaluation protocol
 
-**Status:** blocked
+**Status:** done
 **Blocked by:**
 1. `specs/docs-check-tooling.md`. It provides `python3 -m tools.docs_check` (checks A–H, J–M), `docs-check.toml` and the integration branch `feature/living-docs-integration`. None of these exist at `e51f742`.
 2. `specs/living-docs-system-and-contracts.md`. It merges `docs/README.md`, `docs/system/invariants.md` (INV-1…15) and `docs/system/contracts.md` (CON IDs) into the integration branch, so this spec can cite real INV and CON numbers.
@@ -810,3 +810,16 @@ If later specs already cite RES or EVA IDs, revert those citations in the same P
 - **Matrix ownership.** `specs/living-docs-cutover-matrix.md` belongs to the cutover spec. Check M needs each domain spec to write its IDs into it, so this spec edits only the cells §6 names.
 - **Event path parked.** H1, H4 and H6 are suspended. Documenting the event backtest as current behaviour is still correct, because the code runs. `backtesting.md` Scope says the path is parked.
 - **Trap while writing.** `listings.parquet` and `coverage.json` make reruns differ. State that as current behaviour, not as a requirement that reruns are reproducible. Reproducibility is the EVA manifest requirement.
+- **As built.**
+  - **IDs.** RES-001…RES-082 in five docs (`market-data.md` RES-001…012, `universe.md` RES-013…025, `panels.md` RES-026…054, `simulation.md` RES-055…065, `backtesting.md` RES-066…082) and EVA-001…EVA-028 in `evaluation-protocol.md`. The fetch-once ID is RES-029; the shared panel IDs are RES-026 (known-at) and RES-027 (append-only); the `SpecialistClassifier` pointer names RES-033; the backfill ordering gate is RES-066; the EVA read-only ID is EVA-006 and the durability ID EVA-016 (`divergent`).
+  - **Off-grid cells split.** The off-grid refusal is two IDs, one row each: EVA-013 (event runs, `tested`) and EVA-014 (portfolio runs, `divergent`), because the two paths have different statuses.
+  - **RES-061 is `untested`.** Only the missing FX bar is asserted; no test checks that `fx_rate` is EUR per USD rather than its inverse.
+  - **Ratification batch.** Exactly the six rows §2 lists (RES-008, RES-012, RES-062, RES-070, RES-082, EVA-021); no further code-only requirement was found. Approving RES-062 as written makes `fx.py` divergent, which the batch entry says.
+  - **Dropped Definition-of-done lines.** Besides the two the spec names (the `CLAUDE.md` naming table and `.env.example`), the README and `docs/PREREQUISITES.md` update lines of `point-in-time-universe`, `sec-ownership-datasets` and `short-interest-snapshots` were dropped: `services/backtesting/README.md` and `docs/PREREQUISITES.md` belong to `specs/legacy-docs-retirement.md`.
+  - **`pytest-socket` constraints** in the edited specs cite ENG-004, the engineering ID that owns the rule.
+  - **Two matrix Source cells reformatted.** M-RES-170 and M-RES-174 cited headings that contain backticks as `\``-escaped single-backtick spans; check M read each span as ending at the backslash, so no doc could match it. Both are now double-backtick spans with the same text. No other non-ID cell changed.
+  - **IDs cells separated by spaces,** as the existing ENG and CON cells are; the checker accepts commas too.
+  - **Notes of the reduced specs** keep only run traps: ordering against other SEC runs (from `specs/first-run-on-stack-machine.md`), resuming a stopped run, the unmapped-CUSIP flag and the unresolved-ticker list.
+  - **File-level links still waiting for an ID** (planned domains): `docs/ingestion/connectors.md` (SEC traps, clinical-trials trap; six specs and `backtesting.md`, `panels.md`, `universe.md`), `docs/ingestion/extraction.md` (catalyst-calendar, `evaluation-protocol.md`), `docs/core-hub/storage.md` and `docs/core-hub/http-api.md` (catalyst-calendar), `docs/core-hub/corroboration.md` (`backtesting.md`), `docs/operations/orchestration.md`, `docs/operations/topology.md` and `docs/operations/observability.md` (slow-signal-data-refresh, `market-data.md`, `universe.md`), `docs/strategy/risk.md` and `docs/dashboard.md` (`simulation.md`, `evaluation-protocol.md`).
+  - **Value patterns used** for the no-registered-values check: `9999`, `\[-250, ?-30\]`, `budget_cells`, `\$?500k`, `\$?50M`, `\$?500M`, `\$?10B`, `\$?2M`, `0\.95`, `holdout_months: `. A rules-file value written as prose ("twenty sessions") was replaced by its key `liquidity_sessions`.
+  - **`slow-signal-data-refresh`** keeps status `blocked` in `TODO.md`; its Blocked by now says nothing is outstanding, so the owner can set it `ready`.

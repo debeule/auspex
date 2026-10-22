@@ -1659,3 +1659,14 @@ The summary lists every source in `sources.yaml`. A source with a run in the las
 **Why it matters:** until approved, these rules are written down but not yet the owner's; the cutover lists every `pending-decision` row.
 **Options considered:** A: approve the batch as written. B: approve it with named items struck or reworded; a struck item is retired by a follow-up change.
 **Action:** default A. When the owner approves, the owner appends `## <date> — Living docs — CHOICE — operations ratification batch`; the cutover's decision step then flips these rows to their real status and Source. Not blocking.
+## 2026-10-22 — Living docs — PENDING — research ratification batch
+**What:** These research requirements in `docs/research/` have no approval in requirements §, a `CHOICE` entry, an archived spec or an invariant: their only source is code, a service README or a script docstring. Each is written with status `pending-decision` and cites this heading. Paths are at `feature/living-docs-integration` @ 616b808.
+- **RES-008** — every price refresh covers the protocol's benchmark ticker and the EUR/USD pair, each once, beside the configured tickers. `services/backtesting/src/auspex_backtesting/prices/price_refresher.py` (`price_universe`).
+- **RES-012** — the price service answers `GET /health` with `{"status": "ok"}` while it runs. `services/backtesting/src/auspex_backtesting/api.py`.
+- **RES-062** — the FX rate used for an order is a close known before that order. `services/backtesting/src/auspex_backtesting/market_sim/fx.py`: `eur_per_usd(d)` reads day d's close, so an order at d's open uses a close not yet known; approving the rule as written makes the code `divergent` and needs a fix spec.
+- **RES-070** — a timestamp of exactly `00:00:00` UTC is read as date-only, known after that day's close. `services/backtesting/src/auspex_backtesting/alignment/aligner.py`.
+- **RES-082** — the score version a portfolio run reads matches its trial cell's `floor` axis. `services/backtesting/scripts/run_portfolio_backtest.py` docstring; nothing checks `--score-version` against the cell today.
+- **EVA-021** — walk-forward segments are a reported validation check, never an input to promotion. `services/backtesting/README.md`; `services/backtesting/src/auspex_backtesting/evaluation/walk_forward.py`.
+**Why it matters:** until approved, these rules are written down but not yet the owner's; the cutover lists every `pending-decision` row, and RES-062 and RES-082 describe behaviour the code does not yet enforce.
+**Options considered:** A: approve the batch as written. B: approve it with named items struck or reworded (for RES-062, accepting the same-day close instead).
+**Action:** default A. When the owner approves, the owner appends `## <date> — Living docs — CHOICE — research ratification batch`; the cutover's decision step then flips these rows to their real status and Source. Not blocking.
