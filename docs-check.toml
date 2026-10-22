@@ -1,0 +1,318 @@
+# Configuration of the docs checker (`python3 -m tools.docs_check`). A key not listed here is a usage error.
+
+# Requirement ID namespaces. `invariant` IDs carry one or two digits in root CLAUDE.md numbering; the rest three.
+# frozen_paths: files other artifacts cite by path; check A fails if one disappears.
+[namespaces]
+invariant = "INV"
+ids = ["SYS", "CON", "ING", "EXT", "HUB", "COR", "RES", "EVA", "STR", "DSH", "OPS", "ENG"]
+
+frozen_paths = [
+  "SETUP.md", "VERSIONS.md", "README.md", "CLAUDE.md", "docker/README.md", "docker/CLAUDE.md",
+  "docs/backup-restore.md", "docs/strategy-research.md", "docs/local-model-runbook.md",
+  "specs/sec-ownership-datasets.md", "specs/clinicaltrials-version-diffs.md", "specs/catalyst-date-panel.md",
+  "specs/point-in-time-universe.md", "specs/first-run-on-stack-machine.md", "docs/requirements.md",
+]
+
+# Living docs: where requirement IDs are defined (checks C, C2, E, K). non_normative files are read but define nothing.
+[living_docs]
+include = ["docs/**/*.md"]
+non_normative = [
+  "docs/README.md", "docs/requirements.md", "docs/strategy-research.md", "docs/local-model-runbook.md",
+  "docs/backup-restore.md", "docs/PREREQUISITES.md", "docs/HISTORY.md", "docs/soak-test-report.md",
+]
+required_sections = ["Scope", "Requirements", "Verification", "Retired requirements"]
+
+# Active and hold specs: header fields and sections (check E); statuses also checked against TODO.md (check J).
+[specs]
+include = ["specs/*.md", "specs/hold/*.md"]
+exclude = ["specs/README.md", "specs/_template.md", "specs/living-docs-cutover-matrix.md",
+           "specs/living-docs-cutover-design.md"]
+statuses = ["draft", "ready", "blocked", "hold", "done"]
+required_fields = ["Status", "Branch", "Docs impact"]
+required_sections = ["Context", "What this builds", "Out of scope", "Constraints", "Required tests", "Definition of done"]
+
+# Check A: relative links and anchors.
+[checks.A]
+include = ["docs/**/*.md", "specs/*.md", "specs/hold/*.md", "**/README.md", "**/AGENTS.md", "**/CLAUDE.md",
+           "SETUP.md", "VERSIONS.md", ".github/pull_request_template.md"]
+exclude = ["specs/done/**", "DECISIONS.md", "tools/docs_check/tests/**"]
+
+# Check D: ID references, placeholders, decision citations, register numbers.
+[checks.D]
+include = ["docs/**/*.md", "specs/*.md", "specs/hold/*.md", "**/AGENTS.md", "**/CLAUDE.md", "**/README.md",
+           "SETUP.md", "VERSIONS.md"]
+exclude = ["specs/done/**", "specs/living-docs-cutover-matrix.md", "specs/living-docs-cutover-design.md", "DECISIONS.md",
+           "tools/docs_check/tests/**"]   # the two cutover companions quote IDs, placeholders and register numbers as history
+
+# Check B: backticked paths that start with a tracked prefix.
+[checks.B]
+include = ["docs/**/*.md", "**/AGENTS.md", "**/CLAUDE.md"]
+exclude = ["tools/docs_check/tests/**"]
+prefixes = ["services/", "config/", "docker/", "docs/", "specs/", ".github/", "tools/"]
+
+# Check H: the legacy requirements file, reduced to a banner and an index table.
+[checks.H]
+file = "docs/requirements.md"
+
+# Check J: the spec index.
+[checks.J]
+index = "TODO.md"
+exclude = ["specs/done/living-docs-cutover-matrix.md", "specs/done/living-docs-cutover-design.md"]
+
+# Check K: verification rows.
+[checks.K]
+bare_test_dirs = ["services/dashboard/src/__tests__"]   # where a `file.test.ts::name` token with no directory is looked up
+
+# Check L: agent instruction file sizes in bytes.
+[budgets]
+root_agents_bytes = 6144
+nested_agents_bytes = 3072
+chain_bytes = 16384
+claude_md_bytes = 512
+
+# Optional table: living-docs-cutover deletes it. Without it the checker runs as if planned_domains were empty
+# (no notices, every owner doc required) and the check M modes exit 2 ("no [rollout] table").
+[rollout]
+base = "b7582c3aace88a19009c24a96fbbee815e0d3bed"   # develop when the integration branch was cut; updated by living-docs-cutover
+# Seeded with every domain. Each domain spec removes only its own domain(s), as the last step of its
+# definition of done. The cutover gate requires the list to be empty.
+planned_domains = ["system", "ingestion", "core-hub", "research", "strategy", "dashboard", "operations", "engineering"]
+matrix = "specs/living-docs-cutover-matrix.md"
+
+# Domains: the ID namespaces each owns and its owner docs (checks F and G).
+[domains.system]
+namespaces = ["INV", "SYS", "CON"]
+owners = ["docs/README.md", "docs/system/overview.md", "docs/system/invariants.md", "docs/system/contracts.md"]
+[domains.ingestion]
+namespaces = ["ING", "EXT"]
+owners = ["docs/ingestion/connectors.md", "docs/ingestion/pipeline.md", "docs/ingestion/extraction.md"]
+[domains.core-hub]
+namespaces = ["HUB", "COR"]
+owners = ["docs/core-hub/consumption.md", "docs/core-hub/storage.md", "docs/core-hub/corroboration.md", "docs/core-hub/http-api.md"]
+[domains.research]
+namespaces = ["RES", "EVA"]
+owners = ["docs/research/market-data.md", "docs/research/universe.md", "docs/research/panels.md",
+          "docs/research/simulation.md", "docs/research/backtesting.md", "docs/research/evaluation-protocol.md"]
+[domains.strategy]
+namespaces = ["STR"]
+owners = ["docs/strategy/contract.md", "docs/strategy/runtime.md", "docs/strategy/risk.md", "docs/strategy/decision-trace.md"]
+[domains.dashboard]
+namespaces = ["DSH"]
+owners = ["docs/dashboard.md"]
+[domains.operations]
+namespaces = ["OPS"]
+owners = ["docs/operations/topology.md", "docs/operations/orchestration.md", "docs/operations/observability.md", "docs/operations/backup.md"]
+[domains.engineering]
+namespaces = ["ENG"]
+owners = ["docs/engineering/verification.md", "docs/engineering/change-workflow.md", "docs/engineering/conventions.md"]
+[domains.decisions]
+namespaces = []
+owners = ["docs/**/*.md"]            # any living doc; non_normative files do not count
+
+# Ownership (check F, check G, --owners). A path's domains are the union of every matching rule; a matching rule with
+# `override = true` replaces the domains of all matching rules without it. An unowned_ok path needs no Docs impact.
+[ownership]
+# No domain, no Docs impact needed: orientation, agent files, the index, specs, docs themselves, placeholders.
+unowned_ok = ["**/README.md", "**/AGENTS.md", "**/CLAUDE.md", "TODO.md", "specs/**", "docs/**",
+              "**/.gitkeep", "**/.gitignore", ".github/pull_request_template.md"]
+
+[[ownership.rules]]
+# src, tests incl. golden and fixtures, prompts, pyproject.toml, uv.lock, config/sources.yaml
+glob = "services/ingestion-scraper/**"
+domains = ["ingestion"]
+
+[[ownership.rules]]
+# wire models
+glob = "services/ingestion-scraper/src/auspex_ingest/models.py"
+domains = ["ingestion", "system"]
+
+[[ownership.rules]]
+# event_id
+glob = "services/ingestion-scraper/src/auspex_ingest/identity.py"
+domains = ["ingestion", "system"]
+
+[[ownership.rules]]
+# Kafka producer
+glob = "services/ingestion-scraper/src/auspex_ingest/messaging/**"
+domains = ["ingestion", "system"]
+
+[[ownership.rules]]
+# generates the signal fixture
+glob = "services/ingestion-scraper/tests/unit/test_contract_fixture.py"
+domains = ["ingestion", "system"]
+
+[[ownership.rules]]
+# adds operations to the service's domain
+glob = "services/*/dags/**"
+domains = ["operations"]
+
+[[ownership.rules]]
+glob = "services/*/Dockerfile*"
+domains = ["operations"]
+
+[[ownership.rules]]
+glob = "services/*/.dockerignore"
+domains = ["operations"]
+
+[[ownership.rules]]
+# single-process rule
+glob = "services/*/config/gunicorn.conf.py"
+domains = ["operations"]
+
+[[ownership.rules]]
+# reads core-hub stores
+glob = "services/ingestion-scraper/scripts/sample_corroborations.py"
+domains = ["ingestion", "core-hub"]
+
+[[ownership.rules]]
+# corroboration review gate
+glob = "services/ingestion-scraper/scripts/score_corroboration_review.py"
+domains = ["ingestion", "core-hub"]
+
+[[ownership.rules]]
+# docker policy tests run in the scraper job
+glob = "services/ingestion-scraper/tests/unit/test_stack_*.py"
+domains = ["operations"]
+override = true
+
+[[ownership.rules]]
+glob = "services/ingestion-scraper/tests/unit/test_dashboard_stack_config.py"
+domains = ["operations", "dashboard"]
+override = true
+
+[[ownership.rules]]
+# .env.example, topic prefix
+glob = "services/ingestion-scraper/tests/unit/test_repo_scaffolding.py"
+domains = ["operations", "system"]
+override = true
+
+[[ownership.rules]]
+# CI script test
+glob = "services/ingestion-scraper/tests/unit/test_commit_identity_check.py"
+domains = ["engineering"]
+override = true
+
+[[ownership.rules]]
+# src incl. Flyway, Gradle files, wrapper
+glob = "services/core-hub/**"
+domains = ["core-hub"]
+
+[[ownership.rules]]
+# listeners, DLT resolver
+glob = "services/core-hub/src/main/java/dev/auspex/corehub/kafka/**"
+domains = ["core-hub", "system"]
+
+[[ownership.rules]]
+# signal record
+glob = "services/core-hub/src/main/java/dev/auspex/corehub/signal/**"
+domains = ["core-hub", "system"]
+
+[[ownership.rules]]
+# raw pointer consumer
+glob = "services/core-hub/src/main/java/dev/auspex/corehub/audit/**"
+domains = ["core-hub", "system"]
+
+[[ownership.rules]]
+# generated fixture
+glob = "services/core-hub/src/test/resources/contract/**"
+domains = ["core-hub", "system"]
+
+[[ownership.rules]]
+# fixture consumer test
+glob = "services/core-hub/src/test/java/dev/auspex/corehub/model/**"
+domains = ["core-hub", "system"]
+
+[[ownership.rules]]
+glob = "services/backtesting/**"
+domains = ["research"]
+
+[[ownership.rules]]
+# startup one-shot
+glob = "services/backtesting/src/auspex_backtesting/stack_bootstrap.py"
+domains = ["research", "operations"]
+
+[[ownership.rules]]
+glob = "services/strategy/**"
+domains = ["strategy"]
+
+[[ownership.rules]]
+glob = "services/backup/**"
+domains = ["operations"]
+
+[[ownership.rules]]
+glob = "services/dashboard/**"
+domains = ["dashboard"]
+
+[[ownership.rules]]
+glob = "config/hypotheses/**"
+domains = ["research"]
+
+[[ownership.rules]]
+glob = "config/universe/**"
+domains = ["research"]
+
+[[ownership.rules]]
+glob = "config/short_interest/**"
+domains = ["research"]
+
+[[ownership.rules]]
+glob = "config/models/**"
+domains = ["ingestion"]
+
+[[ownership.rules]]
+glob = "config/strategies/**"
+domains = ["strategy"]
+
+[[ownership.rules]]
+glob = "config/themes.yaml"
+domains = ["strategy"]
+
+[[ownership.rules]]
+# compose, exporters, Grafana, Prometheus, init scripts
+glob = "docker/**"
+domains = ["operations"]
+
+[[ownership.rules]]
+glob = "docker/topics.yaml"
+domains = ["operations", "system"]
+
+[[ownership.rules]]
+glob = ".env.example"
+domains = ["operations"]
+
+[[ownership.rules]]
+glob = "SETUP.md"
+domains = ["operations"]
+
+[[ownership.rules]]
+# smoke test
+glob = "verify_pipeline.sh"
+domains = ["operations", "engineering"]
+
+[[ownership.rules]]
+# workflows, identity script
+glob = ".github/**"
+domains = ["engineering"]
+
+[[ownership.rules]]
+# union merge driver
+glob = ".gitattributes"
+domains = ["engineering"]
+
+[[ownership.rules]]
+# pins
+glob = "VERSIONS.md"
+domains = ["engineering"]
+
+[[ownership.rules]]
+glob = "tools/**"
+domains = ["engineering"]
+
+[[ownership.rules]]
+glob = "docs-check.toml"
+domains = ["engineering"]
+
+[[ownership.rules]]
+# only an added CHOICE heading triggers check G
+glob = "DECISIONS.md"
+domains = ["decisions"]

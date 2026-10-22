@@ -1,7 +1,6 @@
 # Docs check tooling
 
-**Status:** blocked
-**Blocked by:** the owner's answer to `## 2026-10-15 — Living docs — PENDING — rollout branch model`, which creates `feature/living-docs-integration`, the branch this spec merges into. The tool also implements the defaults of `## 2026-10-15 — Living docs — PENDING — docs impact field and Docs unchanged line`, `## 2026-10-15 — Living docs — PENDING — fate of docs/requirements.md` and `## 2026-10-15 — Living docs — PENDING — agent instruction files`; a different answer to any of those changes one check (G, H or L) before this spec starts. No prior spec.
+**Status:** done
 **Branch:** `feature/living-docs-checker` (PR into `feature/living-docs-integration`, never into `develop`)
 **Docs impact:** none in `docs/` — this spec builds the checker that later specs use to write `docs/`. It creates `tools/docs_check/`, `docs-check.toml` and `.github/workflows/docs.yml`, and changes `.github/workflows/commit-identity.yml`. The engineering requirements describing the checker are written by `living-docs-engineering-workflow`.
 
@@ -626,3 +625,5 @@ On the integration branch: one PR from a branch off `feature/living-docs-integra
 - **H finds one line, not hundreds.** Reporting every legacy line would bury every other finding during the rollout.
 - **Why G treats `tests/**` as owned.** Test-only changes usually need `Docs unchanged: <domain> — test-only`; that is the intended prompt, and the reviewer judges whether it is true.
 - A finding class nobody anticipated during the rollout is fixed in the owning doc, never by weakening a check.
+- **Dry run at completion** (`feature/living-docs-checker` on develop @ b7582c3, default mode, no `--base`): exit 1, 58 findings and 315 notices. A=2: two links in `specs/legacy-docs-retirement.md:80` and `specs/living-docs-operations.md:85` quote text meant for `docs/*.md`, so from `specs/` they resolve to `specs/research/…` and `specs/operations/…`. B=1: `CLAUDE.md:213` → `specs/edgar-efts-fixture-alignment.md`. C=0, K=0. D=0 findings and 315 notices: 309 invariant references or aliases while `system` is planned, 4 placeholders (`CON-?` ×3, `OPS-?`), and one `ENG` and one `RES` reference without a definition. All 238 decision citations in D scope resolve. 0 register numbers. E=33: 30 active and hold specs lack `**Docs impact:**`; `live-trading` lacks `## What this builds`; `research-results-view` lacks `## What this builds` and `## Required tests`. F=0. G skipped (no PR body). H=1 (268 offending lines). J=0. L=21: no root `AGENTS.md`, and for each of the five `CLAUDE.md` files no sibling `AGENTS.md`, a first line that is not `@AGENTS.md`, over 512 B, and a rule word.
+- **Ownership rules are `[[ownership.rules]]`.** TOML cannot hold an `[ownership]` table (for `unowned_ok`) and an `[[ownership]]` array under the same key, so the rules are an array inside the table.
