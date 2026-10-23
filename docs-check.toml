@@ -76,7 +76,7 @@ claude_md_bytes = 512
 base = "b7582c3aace88a19009c24a96fbbee815e0d3bed"   # develop when the integration branch was cut; updated by living-docs-cutover
 # Seeded with every domain. Each domain spec removes only its own domain(s), as the last step of its
 # definition of done. The cutover gate requires the list to be empty.
-planned_domains = ["strategy", "dashboard"]
+planned_domains = []
 matrix = "specs/living-docs-cutover-matrix.md"
 
 # Domains: the ID namespaces each owns and its owner docs (checks F and G).
