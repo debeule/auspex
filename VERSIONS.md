@@ -125,11 +125,11 @@ Managed with **npm**; `package-lock.json` is committed and authoritative. Exact 
 
 | Package | Pinned version |
 |---|---|
-| next | 16.4.0 |
+| next | 16.4.2 (resolved 2026-10-23 for GHSA-2464-fhr4-w9xw, GHSA-p3m5-59mp-jv5r and GHSA-673q-mjm6-r5xr; security patch taken before two weeks) |
 | react / react-dom | 19.3.0 |
 | bcryptjs | 3.0.3 |
 | typescript | 5.8.3 |
-| eslint / eslint-config-next | 9.39.1 / 16.4.0 |
+| eslint / eslint-config-next | 9.39.1 / 16.4.2 |
 | tailwindcss / @tailwindcss/postcss | 4.3.3 |
 | vitest | 5.0.3 |
 | vite / @vitejs/plugin-react | 8.3.4 / 6.1.2 |
