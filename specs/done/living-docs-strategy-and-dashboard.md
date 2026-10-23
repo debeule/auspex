@@ -1,6 +1,6 @@
 # Living docs: strategy layer and dashboard
 
-**Status:** blocked
+**Status:** done
 **Blocked by:**
 1. `specs/docs-check-tooling.md`. It provides `python3 -m tools.docs_check`, `docs-check.toml` and the integration branch `feature/living-docs-integration`.
 2. `specs/living-docs-system-and-contracts.md`. It provides:
@@ -620,3 +620,16 @@ If a later spec (`specs/agent-instruction-hierarchy.md` or `specs/legacy-docs-re
 - **Strategy metrics have no file of their own.** They go in `runtime.md`, next to the metrics API. If `runtime.md` grows past one subject, split metrics out in a later change spec.
 - **`themes.yaml` covers only the watched tickers.** Portfolio strategies use the protocol sizer, not this risk layer. But any event strategy on a universe ticker is still rejected `THEME_UNMAPPED`. This is recorded as a trap, not as a requirement change.
 - **Cite line numbers from the code at the rollout base.** Earlier analysis notes gave slightly different line numbers; for example, `PassThroughRiskManager` is at `runtime/main.py:150` at `e51f742`.
+- **As built.** Where the build differs from the text above:
+  - **Owner answers.** All four PENDING headings in Blocked by item 5 have a `## 2026-10-17 — Living docs — CHOICE — <same suffix>` with the defaults. The docs cite the CHOICE and write its option: STR-004 hides and is `tested`, with the stale `abc.py` docstring under Known traps; STR-020 is `divergent` under INV-11; STR-006 records that the processing-time CHOICE adopted option A, so the cutover writes the sixteenth invariant; every `divergent` row on a defect cites the defects-found PENDING heading together with its CHOICE.
+  - **IDs.** STR-001…STR-061: `contract.md` STR-001…015, `runtime.md` STR-016…040, `risk.md` STR-041…054, `decision-trace.md` STR-055…061. DSH-001…DSH-018 in `docs/dashboard.md`. `docs/README.md` is not edited, as §8 says.
+  - **Key layout.** The `funnel/` and `risk/catalyst_holds.jsonl` keys are not in the ratification batch. `## 2026-10-11 — Strategy metrics — CHOICE — where the spec left the metrics open` (item 2) and `## 2026-10-11 — Portfolio and risk — CHOICE — catalyst and short-interest sources, units and check order` (item 9) approve them, so STR-017 cites them and is `tested`. The batch entry says so.
+  - **Batch additions.** STR-037 (a break-even trade counts as a loss) has no approved source, so it is in the batch as `pending-decision`, beside the six items §6 lists.
+  - **Price rule.** STR-005 rests on archived `specs/done/strategy-framework.md` ("a strategy cannot request data from the future"); no CHOICE states it.
+  - **Kill-switch trap.** The single-writer trap names `append_line` in `services/strategy/src/auspex_strategy/runtime/store.py`, which the kill switch and `trace/store.py` share; the read-then-put is there, not in `trace/store.py` alone.
+  - **Splits.** Position limits (STR-045) are their own ID beside the check order (STR-043); the protocol's short rejection (STR-048) is separate from the short guard (STR-049); header stripping (DSH-008) is separate from the token half (DSH-009). Each has its own tests.
+  - **Statuses.** STR-042 (units) and DSH-001 (no health pages) are `untested`: no test asserts either. DSH-001 is a requirement, not only a Scope line, so the binding Grafana decision has a DSH ID. Research config read-only is a Scope link to EVA-006, not a DSH ID, since M-DSH-018 is a link row.
+  - **Matrix.** The Source cell of M-STR-070 used `\`` escapes, which check M's reference parser cut at the first escape; it is now the double-backtick form of the same heading. The Decisions-table heading cell for that decision is unchanged. M-STR-058 (class `stale`) maps to STR-004, since a Known traps anchor is accepted only on trap and rationale rows.
+  - **Edited specs.** `specs/live-trading.md` Blocked by item 1 cited `specs/done/cross-sectional-portfolio-backtest.md`, which the done-blockers test forbids; it now cites EVA-024. `specs/research-results-view.md` names the done producers by ID (EVA-019, EVA-024, STR-027, STR-058) instead of their specs. `specs/forward-paper-trading.md` keeps its "Invariant 2/9/14" wording; its "Point-in-time" line now cites STR-003, STR-004 and RES-069. `specs/pipeline-control-view.md` keeps "§12: cursor position is visible", which §7 does not list. `signal-browse-views` and `pipeline-control-view` keep Status `blocked` with "None outstanding"; the owner can set them `ready`.
+  - **File-level links still waiting for an ID:** `docs/core-hub/http-api.md` for the per-input health provider (STR-023); `docs/operations/observability.md` for Grafana (DSH Scope); `docs/ingestion/pipeline.md` in the pipeline-control-view Docs impact.
+  - **Value pattern list** (`no_registered_value_restated_in_strategy_docs`): `0\.25|0\.05|max_kelly_fraction: |min_trades_for_kelly: |small_cap_biotech`.

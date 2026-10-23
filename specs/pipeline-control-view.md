@@ -1,8 +1,9 @@
 # Pipeline Control View
 
 **Status:** blocked
-**Blocked by:** `specs/dashboard-foundation.md` (BFF, login, API client) and `specs/done/graph-and-connector-wiring-fixes.md` (every source reachable through the scraper API).
+**Blocked by:** None outstanding.
 **Branch:** `feature/pipeline-control-view`
+**Docs impact:** `DSH-new` ([docs/dashboard.md](../docs/dashboard.md)): the runs, trigger, pause, cursor, run-count and dead-letter views. `OPS-new` ([docs/operations/orchestration.md](../docs/operations/orchestration.md)): the Airflow API user and the re-extraction DAG. ING (`docs/ingestion/pipeline.md`): the run counts the views read.
 
 ---
 
@@ -15,7 +16,7 @@ What exists:
 - Airflow's REST API `/api/v2` is up (the healthcheck uses it), but no user is set up for machine access; standalone generates its own admin password.
 - The scraper's `POST /reextract` runs synchronously inside the request.
 - Dead-lettered records sit on the `*.dlt` topics with diagnostic headers. core-hub counts them (`CountingDeadLetterRecoverer`), and Grafana shows totals, but nothing lists individual records.
-- Requirements §5: the DAG task owns the cursor, `catchup=False`, `max_active_runs=1`, and a backfill never writes the live cursor. §12: cursor position is visible.
+- ING-026, OPS-032 and OPS-035: the DAG task owns the cursor, `catchup=False`, `max_active_runs=1`, and a backfill never writes the live cursor. §12: cursor position is visible.
 
 ## What this builds
 
@@ -38,10 +39,10 @@ What exists:
 ## Constraints
 
 - Invariant 3: DAGs only call scraper HTTP endpoints; the re-extraction DAG holds no extraction logic.
-- §5: run, trigger and re-extraction never write `cursor:{source_type}` except through the existing ingestion task on success. A triggered ingestion run uses the same task, so it advances the cursor exactly as a scheduled one does.
+- ING-026 and OPS-032: run, trigger and re-extraction never write `cursor:{source_type}` except through the existing ingestion task on success. A triggered ingestion run uses the same task, so it advances the cursor exactly as a scheduled one does.
 - Invariant 6: Airflow credentials only in `.env` and the BFF's server env.
 - Invariant 11: the dead-letter reader is read-only. It uses its own consumer group with auto-commit off and never commits, so it cannot move the DLT position seen by any other consumer.
-- Requirements §3.3: no `raw_content` in any response.
+- CON-005: no `raw_content` in any response.
 
 ## Required tests
 

@@ -1,8 +1,9 @@
 # Ingestion Config UI
 
 **Status:** blocked
-**Blocked by:** `specs/managed-ingestion-config.md` (config API, versions, vocabulary validation) and `specs/dashboard-foundation.md` (BFF, login, API client).
+**Blocked by:** `specs/managed-ingestion-config.md` (config API, versions, vocabulary validation).
 **Branch:** `feature/ingestion-config-ui`
+**Docs impact:** `DSH-new` ([docs/dashboard.md](../docs/dashboard.md)): the companies, sources, history and research-config pages. The config API they call is HUB and ING, owned by `specs/managed-ingestion-config.md`.
 
 ---
 
@@ -33,7 +34,7 @@ Locked research config lives in the repo: `config/hypotheses/*.yaml` with `regis
 ## Constraints
 
 - Invariant 2: every write goes through core-hub.
-- Pre-registration: `/research-config` reads and hashes files, never writes; `verify_hypothesis` runs per request, never cached across file changes.
+- EVA-006: `/research-config` reads and hashes files, never writes; `verify_hypothesis` runs per request, never cached across file changes.
 - Invariant 9: times shown in UTC.
 - TSDoc conventions; the shared API client from the dashboard foundation.
 

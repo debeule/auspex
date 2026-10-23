@@ -1,8 +1,9 @@
 # Lineage Trace View
 
 **Status:** blocked
-**Blocked by:** `specs/signal-browse-views.md` (signal, corroboration and company views the trace links into) and `specs/done/graph-and-connector-wiring-fixes.md`.
+**Blocked by:** `specs/signal-browse-views.md` (signal, corroboration and company views the trace links into).
 **Branch:** `feature/lineage-trace-view`
+**Docs impact:** `DSH-new` ([docs/dashboard.md](../docs/dashboard.md)): the `/trace` view. `HUB-new` ([docs/core-hub/http-api.md](../docs/core-hub/http-api.md)): the lineage endpoints. `COR-new` ([docs/core-hub/corroboration.md](../docs/core-hub/corroboration.md)): the evidence tables and the reproducible score (COR-013).
 
 ---
 
@@ -19,7 +20,7 @@ What is stored today, joinable on `raw_object_key` and `event_id`:
 
 What is missing:
 - No endpoint fetches by `event_id`, `raw_object_key` or corroboration key, and none serves the raw document or extraction history.
-- **Why** a corroboration formed is not stored: which entity the participants share, which signal triggered the scan, the window applied, the gaps between publication dates. Entities skipped by the degree cap (§4.2) are dropped silently.
+- **Why** a corroboration formed is not stored: which entity the participants share, which signal triggered the scan, the window applied, the gaps between publication dates. Entities skipped by the degree cap (COR-009) are dropped silently.
 - `CorroborationScorer.score` reads the wall clock, so the same corroboration scores differently on different days and a past score can't be reproduced.
 
 ## What this builds
@@ -43,9 +44,9 @@ What is missing:
 
 - Invariant 2: core-hub writes the evidence tables; the scraper's `/raw` only reads MinIO.
 - Invariant 5: evidence is written inside the existing `CorroborationService` implementation; `CorroborationServiceContractTest` passes unmodified.
-- Invariant 10 and §3.7: evidence is keyed by the corroboration's natural key `(entity_key, participants_hash)`, `DO NOTHING` on conflict.
+- INV-10 and CON-025: evidence is keyed by the corroboration's natural key `(entity_key, participants_hash)`, `DO NOTHING` on conflict.
 - Invariant 12: lineage endpoints bind every parameter; `event_id` must parse as a UUID; `entity_key` and `participants_hash` are validated against their formats; the raw key against the archive pattern (no path traversal).
-- §4.1: the trace may show superseded corroborations, labelled as superseded, because it explains history. The browse views still exclude them.
+- COR-007: the trace may show superseded corroborations, labelled as superseded, because it explains history. The browse views still exclude them.
 - Invariant 9: all times UTC.
 
 ## Required tests
