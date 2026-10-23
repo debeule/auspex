@@ -13,18 +13,21 @@ docker compose --profile app -f docker/docker-compose.yml --env-file .env up -d 
 | On every `up` | How | When it is a no-op |
 |---|---|---|
 | Kafka topics from `docker/topics.yaml` | `kafka-init` one-shot | topic already exists |
-| MinIO buckets `auspex-raw`, `auspex-prices` | `minio-init` one-shot | bucket already exists |
+| MinIO buckets `auspex-raw`, `auspex-prices`, `auspex-strategy` | `minio-init` one-shot | bucket already exists |
 | Price history for the watchlist, `XBI` and `EURUSD=X` from `PRICE_HISTORY_START` | `price-bootstrap` one-shot | snapshot is current |
 | Postgres databases and roles | `postgres-init/` | volume already initialised |
 | Postgres schema | Flyway on `core-hub` start | migrations applied |
 | Log retention, Grafana dashboards and alerts | `elasticsearch-setup`, Grafana provisioning | already applied |
 | Read-only Postgres role for monitoring | `postgres-monitor-role` one-shot | role exists; its password is reset to `.env`'s |
+| Airflow metadata role | `airflow-db-role` one-shot | role exists; its password is reset to `.env`'s |
+| Airflow state volume (the admin password file) writable for Airflow's user | `airflow-state-init` one-shot | ownership already set |
 
 | On a schedule | How |
 |---|---|
 | New daily bars for the same tickers, Mon–Fri 22:30 UTC | Airflow DAG `auspex_price_refresh`, active from the first start |
 | Point-in-time stock universe (`config/universe/rules.yaml`), first week of each month 06:00 UTC and on the first start | Airflow DAG `auspex_universe_build`, active from the first start. The first run downloads SEC's bulk archives (a few GB, deleted afterwards) and every member's price history, so it takes a while; later runs only add the new month. |
 | Backup of Postgres, Neo4j and MinIO into `BACKUP_HOST_DIR`, daily 03:00 UTC | Airflow DAG `auspex_backup`, active from the first start; `last_success.json` there says when it last fully succeeded. Restoring: `docs/backup-restore.md` |
+| Health summary of the last day, daily 07:00 UTC, sent where alerts go | Airflow DAG `auspex_daily_health`, active from the first start |
 | Source ingestion | Airflow DAGs `auspex_<source>`, paused until step 5 |
 
 `up --wait` fails if a ticker has no price data at all after `price-bootstrap` (`docker logs auspex-price-bootstrap` names it). Yahoo rate limits are the usual cause; run the same `up` again later. A ticker added to `WATCHED_TICKERS` is filled on the next `up`.

@@ -1,26 +1,31 @@
 # ingestion-scraper
 
-Pulls documents from 5 public biotech sources, archives raw content to MinIO (unconditionally, before any other side effect), pre-filters on vocabulary, runs LLM extraction via instructor/OpenAI, and publishes `ResearchSignalEvent` to Kafka. Stateless — no database access; cursor state lives in Airflow Variables.
+Pulls documents from public biotech sources, archives each one to MinIO, pre-filters on a vocabulary, extracts signals with a language model, and publishes `ResearchSignalEvent` to Kafka. Airflow calls it over HTTP (`POST /ingest/<source_type>`), one source per run. Its requirements are owned by [docs/ingestion/](../../docs/ingestion/): [connectors.md](../../docs/ingestion/connectors.md), [pipeline.md](../../docs/ingestion/pipeline.md) and [extraction.md](../../docs/ingestion/extraction.md); its payloads by [docs/system/contracts.md](../../docs/system/contracts.md).
+
+Commands: [AGENTS.md](AGENTS.md).
 
 ---
 
-## Pipeline stages
+## Layout
 
-1. `fetch_since(cursor)` — connector fetches and maps to `RawDocument`
-2. MinIO archive — unconditional write; returns `(key, is_new)`
-3. Raw pointer — Kafka `auspex.raw.ingested`, one per newly archived object (`is_new`), before any filter or extraction, so core-hub's `raw_fetch_audit` records every fetch. A failed publish fails the document.
-4. Unchanged re-fetch check — when the pipeline has an `extraction_identity` (model + prompt; the live API sets it), a document whose identical content was already fully processed under that identity and prefilter version is skipped (requirements §7.1 step 3). Markers live under `dedup/processed/` and are written only after Kafka delivery is confirmed, so failed documents are retried and a new model re-extracts.
-5. Pre-filter — vocabulary gate; skips LLM cost on irrelevant docs
-6. Canonical dedup check — skips re-extraction when content hash has been seen before
-7. LLM extract — `instructor` + OpenAI returns `ResearchSignalEvent | None`, including the company-level fields (`event_type`, `primary_company`, `program_identifiers`, `trial_ids`; NCT IDs validated)
-8. Normalize — `HgncEntityNormalizer` resolves gene aliases and company tickers
-9. Publish — Kafka `auspex.signals.extracted` (signals only)
+| Path | Holds |
+|---|---|
+| `src/auspex_ingest/` | the package: API, pipeline, extractor, identity, models |
+| `src/auspex_ingest/connectors/` | one module per source, the shared `RateLimitedClient` and the connector registry |
+| `src/auspex_ingest/messaging/` | the Kafka producer |
+| `src/auspex_ingest/storage/` | the MinIO archive client |
+| `config/sources.yaml` | one entry per source |
+| `prompts/extraction/` | versioned extraction prompts |
+| `dags/` | the ingestion DAGs and the daily health summary |
+| `scripts/` | developer and evaluation scripts (below) |
+| `tests/unit/` | unit tests, no network |
+| `tests/integration/` | Testcontainers tests (LocalStack's S3 API standing in for MinIO, Kafka) |
+| `tests/golden/` | hand-labelled documents for extraction quality (see `FORMAT.txt`) |
+| `tests/fixtures/` | saved API responses the unit tests stub HTTP with |
 
-A run sends at most `max_documents_per_run` documents to extraction (documents skipped as already processed don't count) and reports `next_cursor`, the cursor the DAG saves. It is the earliest `published_date` among documents that failed, so they are fetched again; otherwise the latest date processed. A run that stopped at the cap, or whose Kafka delivery could not be confirmed, reports the cursor it was given, and the processed markers carry the next run past what it finished. `/ingest/<source_type>` refuses a second run of a source while one is in progress (HTTP 409).
+## Pipeline
 
-## Scheduling
-
-Each `sources.yaml` entry gets a DAG in `dags/auspex_dags.py`. Live sources start an hour apart from 00:30 UTC; `mock` has no schedule. Ingestion tasks share Airflow pool `ingestion` (1 slot, created by the airflow service's start command), so one run at a time uses the model server. A task retries twice, 15 minutes apart, with a 3 h timeout that its HTTP request shares. When documents failed, the task saves the `next_cursor` and then fails, so the run shows red and retries; a request that errors (5xx, 409, timeout) leaves the cursor untouched.
+The stages and their order are ING-022 in [pipeline.md](../../docs/ingestion/pipeline.md); what a run returns, the extraction cap and the cursor it reports are ING-025 to ING-027 there. Scheduling, retries and the cursor Variable are in [docs/operations/orchestration.md](../../docs/operations/orchestration.md).
 
 ---
 
@@ -30,12 +35,13 @@ Each `sources.yaml` entry gets a DAG in `dags/auspex_dags.py`. Live sources star
 |---|---|---|---|
 | bioRxiv | `BiorxivConnector` | `biorxiv` | Active |
 | PubMed | `PubmedConnector` | `pubmed` | Active |
-| ClinicalTrials.gov | `ClinicalTrialConnector` | `clinicaltrials` | Active — `raw_content` includes the lead sponsor |
-| SEC EDGAR | `SecEdgarConnector` | `edgar` | Active — 8-Ks with items 2.02, 7.01 or 8.01; Exhibit 99.1 press release plus cover text, found via the filing's `-index.htm`; `published_date` is the acceptance time |
-| openFDA approvals | `FdaApprovalConnector` | `fda_approval` | Active |
-| EPO OPS patents | `EpoOpsConnector` | `epo_ops` | Blocked — needs EPO OPS credentials |
+| ClinicalTrials.gov | `ClinicalTrialConnector` | `clinicaltrials` | Active |
+| SEC EDGAR | `SecEdgarConnector` | `edgar` | Active |
+| EPO OPS patents | `EpoOpsConnector` | `epo_ops` | Active |
+| openFDA approvals | `FdaApprovalConnector` | `fda_approval` | Approved source, not configured yet: no `sources.yaml` entry ([ING-020](../../docs/ingestion/connectors.md#ING-020)) |
+| Test double | `MockConnector` | `mock` | Unscheduled; runs only when triggered |
 
----
+What each connector fetches and how it dates a document is in [connectors.md](../../docs/ingestion/connectors.md); the `sources.yaml` fields, the verified host limits and the known API constraints are there too.
 
 ## Adding a connector
 
@@ -43,48 +49,7 @@ Each `sources.yaml` entry gets a DAG in `dags/auspex_dags.py`. Live sources star
 2. In the same module, register a builder: `@REGISTRY.register("<source_type>", rate_limit_host="<api host>")` on a function taking a `BuildContext` (shared rate-limited client, the `sources.yaml` entry, the environment for credentials) and returning the connector.
 3. Add an entry to `config/sources.yaml`.
 
-`default_registry()` imports every module in `connectors/`, so the scraper API and `scripts/run_pipeline.py` pick the connector up with no change to shared code. A `source_type` with no registered builder fails with `UnknownSourceTypeError` listing the registered ones.
-
----
-
-## Configuration — `sources.yaml` schema
-
-| Field | Type | Description |
-|---|---|---|
-| `source_type` | `str` | Unique connector identifier (e.g. `biorxiv`, `epo_ops`). |
-| `schedule` | `str \| null` | Airflow 3 schedule expression in UTC (e.g. `30 0 * * *`). `null` (or omitted): the DAG only runs when triggered. Live sources start at least 30 minutes apart (test-enforced). |
-| `rate_limit_rps` | `float` | Maximum requests per second to the connector's registered `rate_limit_host` (subdomains share the bucket). Requests are spaced evenly with no burst, and a request waits for its turn rather than failing. Limits per requirements §6.5: bioRxiv and ClinicalTrials.gov 1, PubMed 3, EPO 2, SEC at most 5. |
-| `initial_lookback` | `int` | Days of history to fetch on first run (no cursor Variable yet). |
-| `max_documents_per_run` | `int` | Most documents one run sends to extraction, sized so a capped run fits the DAG's 3 h task timeout. Already-processed documents don't count. |
-| `prefilter_vocabulary` | `list[str]` | Terms the pre-filter checks before spending LLM calls. |
-| `source_config` | `dict` | Connector-specific configuration (base URLs, filters, etc.). |
-| `min_confidence_to_publish` | `float` | Optional, default `0.0` (off). Events scoring below it are counted in `below_threshold` instead of published (requirements §11). |
-
-Unknown fields are rejected at parse time (`extra = "forbid"`).
-
----
-
-## Development commands
-
-```bash
-uv sync --all-extras                                          # install
-uv run pytest tests/unit -q                                   # inner loop — fast, no containers
-uv run pytest tests/unit/test_ingestion_pipeline.py -q        # one file
-uv run pytest -q                                              # everything
-uv run ruff check . && uv run mypy src                        # lint + types
-uv run python scripts/run_pipeline.py --days 30 --sources clinicaltrials pubmed
-```
-
----
-
-## Testing layout
-
-| Path | What runs | Tool |
-|---|---|---|
-| `tests/unit/` | pytest-socket disables network; respx stubs all HTTP; 138+ tests | `pytest tests/unit -q` |
-| `tests/integration/` | testcontainers (LocalStack's S3 API standing in for MinIO, Kafka); self-contained; no running stack needed | `pytest -m integration` |
-| `tests/golden/` | 50 hand-labelled docs for extraction quality evaluation (see FORMAT.txt) | `scripts/score_extraction.py` |
-| `tests/fixtures/` | Saved API responses used by respx for unit test stubs | — |
+`default_registry()` imports every module in `connectors/`, so the scraper API and `scripts/run_pipeline.py` pick the connector up with no change to shared code. The rule is ING-002 in [connectors.md](../../docs/ingestion/connectors.md).
 
 ---
 
@@ -92,21 +57,14 @@ uv run python scripts/run_pipeline.py --days 30 --sources clinicaltrials pubmed
 
 | Script | Purpose |
 |---|---|
-| `scripts/run_pipeline.py` | Run one source from CLI without Airflow |
-| `scripts/score_extraction.py` | Precision/recall against the golden set (writes gate record) |
+| `scripts/run_pipeline.py` | Developer tool: run one source from the command line without Airflow |
+| `scripts/reextract.py` | Re-extract archived documents under a new model or prompt |
+| `scripts/score_extraction.py` | Precision and recall against the golden set; writes the gate record |
 | `scripts/evaluate_model.py` | Candidate comparison: precision, latency, feasibility; writes `config/models/latency/<slug>.json` |
-| `scripts/check_leakage.py` | Leakage canary: flags months ≥70% correct after claimed cutoff |
+| `scripts/check_leakage.py` | Leakage canary for a model's claimed cutoff |
 | `scripts/compare_models.py` | Cross-model agreement: Jaccard, directionality, confidence correlation |
 | `scripts/register_local_model.py` | Add a pulled Ollama model to `config/models/registry.yaml` with its live digest (fields from `config/models/local_candidates.yaml`) |
-| `scripts/sample_corroborations.py` | Pull N corroborations from live DB for review |
-| `scripts/score_corroboration_review.py` | Score completed review JSONL against 0.85 gate |
+| `scripts/sample_corroborations.py` | Pull a sample of corroborations from the live stores for review |
+| `scripts/score_corroboration_review.py` | Score a completed corroboration review |
 
----
-
-## Known API constraints
-
-- **SEC** blocks IPs at 10 req/s aggregate across all `*.sec.gov` (including `data.sec.gov`), and every request during a block extends it, so a 403 stops the EDGAR run (`SecRequestRefused`) and the DAG retries later. EDGAR ingestion runs at 4 req/s and the universe build's filing-index lookups at 5, so the two together stay under 10. Descriptive `User-Agent` is mandatory (403 without it). Filing documents are found on `Archives/edgar/data/{company_cik}/{accession_nodash}/{accession}-index.htm`, whose document table carries the type (`8-K`, `EX-99.1`) and whose `Accepted` field is the acceptance time in US Eastern time; the `index.json` directory endpoint has no type metadata, and `data.sec.gov/submissions` only lists recent filings (about a year or 1,000 filings), too few for a backfill. Use the company CIK from `ciks[0]`, not the accession prefix, which names the filing agent for most large filers. Inline-XBRL documents link as `/ix?doc=/Archives/...`. Full-text search may return a hit per filed document, so hits are deduplicated by accession. The EFTS `_source` schema uses `adsh`/`ciks`/`display_names` — not `accession_no`/`entity_id`/`entity_name`.
-- **EPO OPS**: OAuth2 client credentials, free standard tier at 2.5 req/s. Register at developers.epo.org.
-- **openFDA**: 1,000 requests/day without key; key raises limit significantly. No designations endpoint (no Fast Track/RMAT/orphan data).
-- **ClinicalTrials API v2**: uses `filter.advanced=AREA[LastUpdatePostDate]RANGE[start,end]` syntax — the `filter.lastUpdatePostDate` param was removed.
-- **Patents**: `filed_date` is NOT the public disclosure date. A US application publishes ~18 months after filing. Use the pre-grant publication date.
+What the evaluation scripts gate on is in [extraction.md](../../docs/ingestion/extraction.md).

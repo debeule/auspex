@@ -1,5 +1,7 @@
 # Strategy Research — Foundation Layer
 
+Rationale, not authoritative. Registered hypotheses, their roles, statuses and trial budgets are in `config/hypotheses/` (`h*.yaml`, `protocol.yaml`); the rules that apply them are in [docs/research/evaluation-protocol.md](research/evaluation-protocol.md).
+
 **Purpose:** Identify and rank tradeable hypotheses derivable from Auspex corroboration data. Each H-number maps to a pre-registered file in `config/hypotheses/` (hypothesis-registry spec). This document is the reference for those registrations — not a backtest plan or trading strategy.
 
 **Session:** Strategy layer session 1 of 3. Sessions 2 and 3 cover the strategy framework runtime and live trading UI respectively.
@@ -8,7 +10,7 @@
 
 ## Constraints and parameters
 
-These are invariants for all hypotheses. They determine which hypotheses are survivable and how results must be reported.
+These were the working constraints when the hypotheses were written. They determine which hypotheses are survivable and how results must be reported.
 
 ### Capital and friction
 - Capital: few thousand EUR (working assumption: €5,000 deployed)
@@ -25,8 +27,7 @@ These are invariants for all hypotheses. They determine which hypotheses are sur
 - Effective all-in break-even (below €10k CGT exemption): ~3.2% per trade (2.5% friction + 0.70% TOB; negligible CGT below threshold).
 
 ### Benchmark
-- Primary: XBI (SPDR S&P Biotech ETF) — sector-matched, liquid, fetchable via yfinance same as OHLCV data
-- Secondary (where sample permits): size-matched basket of gene-therapy companies not in the watchlist
+The benchmark is `abnormal_return.benchmark` in `config/hypotheses/protocol.yaml`.
 
 ### Entry timing
 Per `specs/done/point-in-time-alignment.md`: join on `corroborated_at` (the maximum `published_date` of the two corroborating signals). Never join on `ingested_at` or `retrieved_at`. A configurable known-at delay (default 1 business day) is added to simulate realistic ingestion-to-trade latency; sensitivity analysis over 0, 1, 3, 5 days required (see evaluation-protocol spec).
@@ -210,16 +211,7 @@ For each hypothesis, the table covers: mechanism, signal definition (in Auspex f
 
 The edge feasibility audit found that gene-target corroboration does not map to a company, and that the price reaction to trial and FDA news finishes within one or two days. Each hypothesis has a `role` and `status`, under the evaluation protocol locked in `config/hypotheses/protocol.yaml`.
 
-| Hypothesis | Role | Status | Call |
-|---|---|---|---|
-| H3 — Pre-announcement drift | diagnostic | pre-registered | Run first. If the pre-window carries the move, the `lagging_signal` kill criterion retires gene-target corroboration as a trading trigger. |
-| H2 — Time decay | diagnostic | pre-registered | Free diagnostic on H1 events; never promoted. |
-| H1 — Structural convergence | promotable | suspended | Re-register on a company-level event definition. Primary cell fixed now: 20 days, known-at delay 1, entity-only; 32 trial cells. |
-| H4 — Directional premium | promotable | suspended | Rework around typed company events (readout positive or negative, CRL, clinical hold). |
-| H8 — Negative-event veto | filter | pre-registered | No entry, and held names exit for 20 trading days, after a negative readout, CRL, clinical hold or halted trial. Judged by the loss it avoids in a host portfolio; never promoted, never a short. |
-| H6 — Gene target novelty | promotable | suspended | Defer; the version worth testing is a first-time company-program event. |
-| H5 — Source-type composition | descriptive | pre-registered | Reported as a table; no significance test. |
-| H7 — Confidence gradient | descriptive | pre-registered | Reported only; confidence may be used as a declared entry filter. |
+The values are the `role` and `status` fields of each `config/hypotheses/h*.yaml`.
 
 Every subgroup below about 50 events is noise at biotech volatility.
 
@@ -227,14 +219,7 @@ Every subgroup below about 50 events is noise at biotech volatility.
 
 Monthly cross-sectional scores on structured data, evaluated as portfolios (monthly net excess return, Newey-West t, deflated Sharpe, a holdout read once) rather than as event studies.
 
-| Hypothesis | Role | Family | Call |
-|---|---|---|---|
-| H9 — Biotech holdings composite | promotable | `holdings_panel` | Specialist 13F ownership, net insider buying, days to cover; scored monthly, traded quarterly after the 13F deadline with 15/30 hold bands. In-sample 2014–2021, holdout 2022–2025. 32 trial cells. |
-| H10 — Risk-factor change | filter in biotech, promotable on broad small and mid caps | `holdings_panel` / `filing_text_panel` | Excludes the most-changed Item 1A quintile from H9 (4 cells); standalone test holds the universe minus the changers (4 cells). |
-| H11 — Quiet registry edits | diagnostic | `registry_panel` | Returns after ClinicalTrials.gov edits with no prior 8-K, both directions. May become a veto only after it is read. |
-| H12 — Pre-catalyst run-up | diagnostic | `catalyst_panel` | CAR[-30,-1] before PDUFA dates and AdComs; settles whether catalyst-timed entry is worth registering. |
-
-Trial budgets are per corpus family: `event_backfill` 64, `holdings_panel` 36, `filing_text_panel` 8; the registry and catalyst families hold diagnostics only. Promotable and filter hypotheses count their declared cells; diagnostic and descriptive ones never count.
+The values are the `role`, `status` and `family` fields of each `config/hypotheses/h*.yaml`; each family's trial budget is `families.<name>.budget_cells` in `config/hypotheses/protocol.yaml`.
 
 ---
 
