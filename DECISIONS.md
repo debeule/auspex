@@ -1727,3 +1727,8 @@ The `funnel/` and `risk/catalyst_holds.jsonl` keys of the `auspex-strategy` layo
 **Choice:** option A, approve the batch as written. Owner questions take their defaults: the capital allocator stays intended (STR-054 stays `divergent` until built), and `live-confirm`/`live-auto` keep trading on paper (STR-014).
 **Source:** the owner, in the living-docs thread on 2026-10-24, choosing "Approve all" on the card "Approve all seven ratification batches with their recorded defaults?".
 **Action:** the cutover's decision step flips this batch's `pending-decision` rows to their real status and adds this heading to their Source.
+
+## 2026-10-24 — Living docs — FLAG — nested CLAUDE.md imports only expand in the launch directory
+**What:** the Mac load check (agent-instruction-hierarchy §8) passed 27 of 28 cells. Claude Code 2.1.286 launched in `services/core-hub/` read the root and `services` `CLAUDE.md` files but did not expand their `@AGENTS.md` imports; only the launch directory's own import expanded, so the root hard rules and `services/AGENTS.md` were not in context. Codex 0.162.0 loaded the full chain.
+**Why it matters:** `## 2026-10-17 — Living docs — CHOICE — agent instruction files` says every `CLAUDE.md` is only `@AGENTS.md`; read literally, a Claude session started in a service directory would miss the root rules.
+**Action:** each nested `CLAUDE.md` imports its `AGENTS.md` chain, root first, own file last (`services/core-hub/CLAUDE.md`: `@../../AGENTS.md`, `@../AGENTS.md`, `@AGENTS.md`). `AGENTS.md` stays the only content and imports nothing, so the choice's intent holds; check L enforces the exact chain. The failed cell is re-run on the Mac before the `VERIFIED` entry. Not blocking unless the owner prefers another fix.

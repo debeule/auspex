@@ -1,5 +1,7 @@
 """Check L: agent instruction files. `AGENTS.md` carries the content within byte budgets and never imports;
-every `CLAUDE.md` is a short `@AGENTS.md` shim beside one, with no rule words of its own.
+every `CLAUDE.md` is a short shim beside one that imports the `AGENTS.md` chain from the root down to its own
+directory, with no rule words of its own. Claude Code expands imports only in the launch directory's
+`CLAUDE.md`, so a nested shim has to import its ancestors itself.
 """
 
 import posixpath
@@ -25,6 +27,15 @@ def _ancestors(directory: str) -> list[str]:
     for end in range(1, len(parts) + 1):
         chain.append("/".join(parts[:end]))
     return chain
+
+
+def _expected_imports(directory: str, agents: dict[str, str]) -> list[str]:
+    """`@` lines a `CLAUDE.md` in `directory` carries: every ancestor `AGENTS.md`, root first, then its own."""
+    lines = []
+    for ancestor in _ancestors(directory)[:-1] if directory else []:
+        if ancestor in agents:
+            lines.append("@" + posixpath.relpath(agents[ancestor], directory))
+    return lines + ["@AGENTS.md"]
 
 
 def run(ctx: Context) -> list[Finding]:
@@ -53,9 +64,10 @@ def run(ctx: Context) -> list[Finding]:
         text = ctx.repo.text(path)
         if _directory(path) not in agents:
             found.append(Finding("L", path, 0, "no AGENTS.md beside this CLAUDE.md"))
-        first = text.splitlines()[0] if text else ""
-        if first.strip() != "@AGENTS.md":
-            found.append(Finding("L", path, 1, "first line is not @AGENTS.md"))
+        imports = [line.strip() for line in text.splitlines() if line.strip()]
+        expected = _expected_imports(_directory(path), agents)
+        if imports != expected:
+            found.append(Finding("L", path, 1, "imports are not the AGENTS.md chain " + ", ".join(expected)))
         size = ctx.repo.size(path)
         if size > budgets["claude_md_bytes"]:
             found.append(Finding("L", path, 0, f"{size} bytes, over the {budgets['claude_md_bytes']}-byte budget"))

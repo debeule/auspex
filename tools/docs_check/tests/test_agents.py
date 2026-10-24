@@ -51,6 +51,16 @@ class ClaudeFileTest(CheckerCase):
             lambda t: t.write("services/CLAUDE.md", "See AGENTS.md\n"), "L services/CLAUDE.md:", "--only", "L"
         )
 
+    def test_nested_claude_md_without_its_ancestor_imports_is_reported(self):
+        self.assertSeeded(
+            lambda t: t.write("services/CLAUDE.md", "@AGENTS.md\n"), "L services/CLAUDE.md:", "--only", "L"
+        )
+
+    def test_claude_md_with_ancestors_out_of_order_is_reported(self):
+        self.assertSeeded(
+            lambda t: t.write("services/CLAUDE.md", "@AGENTS.md\n@../AGENTS.md\n"), "L services/CLAUDE.md:", "--only", "L"
+        )
+
     def test_claude_md_with_must_is_reported(self):
         self.assertSeeded(
             lambda t: t.append("CLAUDE.md", "You MUST read it first.\n"), "L CLAUDE.md:", "--only", "L"
