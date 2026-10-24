@@ -136,7 +136,7 @@ Metrics named by a third-party exporter or library keep their upstream names and
 | OPS-058 | `## 2026-10-10 — Pipeline alerting gaps — CHOICE — Source Silence reads the last run over 7 days, and no data alerts` | `services/ingestion-scraper/tests/unit/test_stack_observability_config.py::test_source_silence_counts_missing_data_as_alerting`; `services/ingestion-scraper/tests/unit/test_stack_alert_expressions.py::test_source_silence_fires_when_the_run_gauge_has_been_missing_for_thirty_hours` | tested |
 | OPS-059 | `## 2026-10-10 — Pipeline alerting gaps — CHOICE — which sources the daily summary lists`; `specs/done/pipeline-alerting-gaps.md`; requirements §12 [`health_summary.py`; `docker/README.md`] | `services/ingestion-scraper/tests/unit/test_daily_health_summary.py::test_daily_summary_lists_every_live_source_with_its_counts`; `services/ingestion-scraper/tests/unit/test_daily_health_summary.py::test_daily_summary_marks_a_source_without_a_run_in_twenty_six_hours`; `services/ingestion-scraper/tests/unit/test_daily_health_summary.py::test_summary_is_emailed_to_every_address`; `services/ingestion-scraper/tests/unit/test_daily_health_summary.py::test_summary_is_posted_to_the_webhook`; `services/ingestion-scraper/tests/unit/test_stack_observability_config.py::test_daily_health_summary_reaches_prometheus_and_the_alert_contact` | tested |
 
-"design §2" is a section of `specs/living-docs-cutover-design.md`. A bracketed Source part is where the text came from; the part before it is the approval.
+"design §2" is a section of `specs/done/living-docs-cutover-design.md`. A bracketed Source part is where the text came from; the part before it is the approval.
 
 ## Known traps
 

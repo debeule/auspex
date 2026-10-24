@@ -1,5 +1,7 @@
 # Living docs migration matrix
 
+> Archived. Not authoritative: current behaviour is in docs/ (see docs/README.md).
+
 Companion to `specs/living-docs-cutover.md`. It is **not a spec**: `docs-check.toml` excludes it from checks E and J, and it moves to `specs/done/` with the cutover spec.
 
 Written against: develop @ e51f742. It was assembled from five domain fragments (engineering, system and contracts, ingestion and core-hub, research and strategy, operations), and every row cites its source as `path:line` or a requirements §.

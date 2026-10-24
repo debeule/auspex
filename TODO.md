@@ -2,7 +2,7 @@
 
 Each line links to a self-contained spec in `specs/`. Open the spec and read it in full before starting — it has everything needed.
 
-**Session start:** find the first `ready` spec. If none are ready, pick a `draft` spec to scope (see `specs/README.md`).
+**Session start:** see root `AGENTS.md` (the spec you were assigned, else the first `ready` spec).
 
 ---
 
@@ -101,7 +101,8 @@ Each line links to a self-contained spec in `specs/`. Open the spec and read it 
 | [Living docs: engineering workflow](specs/done/living-docs-engineering-workflow.md) | `done` | 54 ENG requirements in `docs/engineering/` (verification, change workflow, conventions); specs/README + template (Docs impact, hold, citing decisions, Handoff); PR template; engineering ratification batch PENDING; matrix ENG cells filled |
 | [Agent instruction hierarchy](specs/agent-instruction-hierarchy.md) | `blocked` | Rollout part; cloud part done: root + 8 nested `AGENTS.md`, every `CLAUDE.md` = `@AGENTS.md`, within budgets, check L clean; only the manual Claude Code + Codex load check on the Mac remains (28 cells) |
 | [Legacy docs retirement](specs/done/legacy-docs-retirement.md) | `done` | Rollout part; `docs/requirements.md` → § index of 107 rows, READMEs trimmed to orientation and links, SETUP, PREREQUISITES, VERSIONS and strategy-research fixes, eight stale TODO blockers dropped, `down -v` guard reads every `AGENTS.md` and `docs/operations/` |
-| [Living docs cutover](specs/living-docs-cutover.md) | `blocked` | Last rollout part: freeze, reconcile, apply the owner's decisions, archive banners, final gate, enforcement, PR into develop, `pre-living-docs` tag, ff develop; companions `specs/living-docs-cutover-matrix.md` (migration matrix) and `specs/living-docs-cutover-design.md` (design) |
+| [Living docs cutover](specs/done/living-docs-cutover.md) | `done` | Last rollout part: 80 ratified rows flipped, INV-16, 30 CHOICE headings classified, banners on every archived spec, check M and `[rollout]` removed, `docs.yml` enforcing; the freeze, the PR into develop, the `pre-living-docs` tag and the develop fast-forward are the owner's (steps 1, 8, 9); companions `specs/done/living-docs-cutover-matrix.md` (migration matrix) and `specs/done/living-docs-cutover-design.md` (design) |
+| Docs drift audit (no spec yet) | `draft` | Later audit of `docs/` against the code at a `develop` commit: re-reads each owner doc, updates `Last reviewed against`, files `divergent` rows as fix specs; check I (archive immutability) is decided there |
 | [Raw pointer contract fix](specs/done/raw-pointer-contract-fix.md) | `done` | Defect C1 fixed: pointer per archived document right after the archive; core-hub reads `retrieved_at`; `InvalidRawPointerException` dead-letters without retry; generated `raw_pointer_v1.json`; 6 Python + 4 Java unit + 2 IT |
 
 ---
@@ -192,3 +193,4 @@ Each line links to a self-contained spec in `specs/`. Open the spec and read it 
 | 2026-10-23 | Living docs: strategy and dashboard | Done — STR-001…STR-061 and DSH-001…DSH-018; checks A–E, K and M (STR, DSH, decisions) clean on own files; 164 strategy unit green, unchanged; batch awaits owner approval | No |
 | 2026-10-23 | Agent instruction hierarchy | Cloud part done — root `AGENTS.md` (5,246 B) + 8 nested (≤ 2,296 B), 9 `CLAUDE.md` = `@AGENTS.md`; checker L findings gone (A=1, H=1 left, both outside agent files), every definition-of-done check OK, 6 seeded defects caught; Mac load check pending | Yes (Mac load check) |
 | 2026-10-23 | Legacy docs retirement | Done — `docs/requirements.md` a 107-row § index (39 KB → 16 KB), nine READMEs to orientation and links, SETUP, PREREQUISITES, VERSIONS, strategy-research and eight TODO notes fixed; full checker 0 findings, every definition-of-done check ok, down -v guard red then green, 11 mutants caught, 438 scraper unit green | No |
+| 2026-10-24 | Living docs cutover | Prepared on `feature/living-docs-cutover-prep` — 80 ratified rows flipped, INV-16, decisions table complete, 66 archive banners, gate block clean, check M and `[rollout]` removed, `docs.yml` enforcing, 117 checker tests green; waits on the Mac `VERIFIED` load check, the freeze and the owner-run activation | Yes (owner: Mac check, freeze, activation) |

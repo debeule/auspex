@@ -53,7 +53,7 @@ Not here:
 | ENG-016 | `## 2026-10-22 — Living docs — PENDING — engineering ratification batch`, approved by `## 2026-10-24 — Living docs — CHOICE — engineering ratification batch` [`CLAUDE.md`; `specs/README.md`] | check J (index statuses and links) | enforced |
 | ENG-017 | `## 2026-10-22 — Living docs — PENDING — engineering ratification batch`, approved by `## 2026-10-24 — Living docs — CHOICE — engineering ratification batch` [`CLAUDE.md`; `specs/README.md`] | check E (required fields) | untested |
 | ENG-018 | `## 2026-10-17 — Living docs — CHOICE — docs impact field and Docs unchanged line` [`specs/README.md`] | check E (`Docs impact` in `docs-check.toml` `[specs]`) | enforced |
-| ENG-019 | `## 2026-10-17 — Living docs — CHOICE — docs impact field and Docs unchanged line` [`CLAUDE.md`] | check G in `.github/workflows/docs.yml` (report-only until the cutover) | enforced |
+| ENG-019 | `## 2026-10-17 — Living docs — CHOICE — docs impact field and Docs unchanged line` [`CLAUDE.md`] | check G in `.github/workflows/docs.yml` | enforced |
 | ENG-020 | `## 2026-10-22 — Living docs — PENDING — engineering ratification batch`, approved by `## 2026-10-24 — Living docs — CHOICE — engineering ratification batch` [`CLAUDE.md`; `specs/README.md`] | checks C, C2 | untested |
 | ENG-021 | `## 2026-10-22 — Living docs — PENDING — engineering ratification batch`, approved by `## 2026-10-24 — Living docs — CHOICE — engineering ratification batch` [design §5.2] | checks C, C2, D | enforced |
 | ENG-022 | `## 2026-10-22 — Living docs — PENDING — engineering ratification batch`, approved by `## 2026-10-24 — Living docs — CHOICE — engineering ratification batch` [design §5.2] | check C | enforced |
@@ -75,7 +75,7 @@ Not here:
 | ENG-038 | `## 2026-10-22 — Living docs — PENDING — engineering ratification batch`, approved by `## 2026-10-24 — Living docs — CHOICE — engineering ratification batch` [design §10.2] | — | untested |
 | ENG-039 | `## 2026-10-22 — Living docs — PENDING — engineering ratification batch`, approved by `## 2026-10-24 — Living docs — CHOICE — engineering ratification batch` [design §10.2] | check E (the SHA is an ancestor of HEAD) | untested |
 
-"design §n" is a section of `specs/living-docs-cutover-design.md`. A bracketed Source part is where the text came from; the part before it is the approval.
+"design §n" is a section of `specs/done/living-docs-cutover-design.md`. A bracketed Source part is where the text came from; the part before it is the approval.
 
 ## Rationale
 

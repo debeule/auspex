@@ -1,5 +1,7 @@
 # Living docs cutover: design
 
+> Archived. Not authoritative: current behaviour is in docs/ (see docs/README.md).
+
 > Companion to `specs/living-docs-cutover.md`, archived with it. It is the design the eleven rollout specs implement. It is not a spec (checks E and J skip it) and not an authority: once the rollout lands, `docs/engineering/` owns the rules described here, and this file is history.
 
 Written against: `develop` @ `e51f74201fda30dd9a28af318cc74b824e39dafc` (2026-10-15). Decision references name `DECISIONS.md` headings dated 2026-10-15 and prefixed `Living docs — PENDING — `, given here by their suffix in quotes.

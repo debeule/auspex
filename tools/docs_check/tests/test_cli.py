@@ -4,7 +4,7 @@ import re
 import tempfile
 import unittest
 
-from tools.docs_check.tests.fixture_tree import MATRIX, CheckerCase, run_checker
+from tools.docs_check.tests.fixture_tree import CheckerCase, run_checker
 
 FINDING_LINE = re.compile(r"^[A-M]2? \S+:\d+ .+$")
 
@@ -53,9 +53,6 @@ class ConfigErrorTest(CheckerCase):
 
         tree.write("docs/beta.md", EMPTY_LIVING_DOC.replace("{SEED}", tree.git("rev-list", "--max-parents=0", "HEAD")))
         self.assertClean(tree.run())
-        missing = tree.run("--matrix", MATRIX, "--domain", "AAA")
-        self._assert_usage_error(missing)
-        self.assertIn("no [rollout] table", missing.stderr)
 
     def test_unresolvable_base_exits_2(self):
         self._assert_usage_error(self.tree().run("--base", "nosuchref"))

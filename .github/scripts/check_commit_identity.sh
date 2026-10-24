@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Fails if any commit in the given range is attributed to Claude: as author, as committer,
 # or through a Co-Authored-By / Claude-Session trailer. Commits carry the identity of the
-# person driving the work (root CLAUDE.md, Git).
+# person driving the work (root AGENTS.md, Hard rules).
 # Usage: check_commit_identity.sh <base>..<head>
 set -euo pipefail
 

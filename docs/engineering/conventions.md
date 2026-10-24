@@ -59,7 +59,7 @@ Not here:
 | ENG-053 | requirements §1 (Kotlin DSL, committed wrapper, version catalog); the plugin and toolchain clauses: `## 2026-10-22 — Living docs — PENDING — engineering ratification batch`, approved by `## 2026-10-24 — Living docs — CHOICE — engineering ratification batch` [`services/core-hub/CLAUDE.md`] | — | untested |
 | ENG-054 | requirements §1 [`services/core-hub/CLAUDE.md`] | — | untested |
 
-"design §n" is a section of `specs/living-docs-cutover-design.md`. A bracketed Source part is where the text came from; the part before it is the approval.
+"design §n" is a section of `specs/done/living-docs-cutover-design.md`. A bracketed Source part is where the text came from; the part before it is the approval.
 
 ## Known traps
 

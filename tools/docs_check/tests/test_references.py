@@ -143,7 +143,6 @@ class ReferencesTest(CheckerCase):
         for text in (tree.read("specs/first.md"), tree.read("docs/alpha.md"), tree.read(MATRIX)):
             self.assertIn(f"``{HEADING_SIZER}``", text.replace("``## ", "``"))
         self.assertClean(tree.run("--only", "D,K"))
-        self.assertClean(tree.run("--matrix", MATRIX, "--decisions"))
         tree.replace("specs/first.md", "PositionSizer `fx_rate` is EUR", "PositionSizer `fx_rate` is USD")
         self.assertFinding(tree.run("--only", "D"), "D specs/first.md:")
 

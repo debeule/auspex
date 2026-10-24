@@ -3,7 +3,7 @@
 import re
 import unittest
 
-from tools.docs_check.tests.fixture_tree import BLOCKING_LIST, MATRIX, REPO_ROOT, CheckerCase, run_checker
+from tools.docs_check.tests.fixture_tree import REPO_ROOT, CheckerCase, run_checker
 
 FINDING_LINE = re.compile(r"^[A-M]2? \S+:\d+ .+$")
 
@@ -19,10 +19,6 @@ class ValidTreeTest(CheckerCase):
         result = tree.run("--base", base, "--pr-body", tree.body(""))
         self.assertClean(result)
         self.assertNotIn("G skipped", result.stderr)
-        self.assertClean(tree.run("--matrix", MATRIX, "--domain", "AAA"))
-        self.assertClean(tree.run("--matrix", MATRIX, "--decisions"))
-        self.assertClean(tree.run("--matrix", MATRIX, "--decisions", "--domain", "AAA"))
-        self.assertClean(tree.run("--pending", "--blocking-list", BLOCKING_LIST))
 
     def test_dry_run_over_repository_completes_without_usage_error(self):
         result = run_checker(REPO_ROOT)

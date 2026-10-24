@@ -62,7 +62,7 @@ Not here:
 | ENG-014 | `## 2026-10-09 — CI — CHOICE — one prefix for every test image` (the two earlier CI image choices in Rationale) | job `env` in `.github/workflows/python.yml` and `.github/workflows/java.yml` | enforced |
 | ENG-015 | `## 2026-10-22 — Living docs — PENDING — engineering ratification batch`, approved by `## 2026-10-24 — Living docs — CHOICE — engineering ratification batch` [`.github/workflows/docs.yml`] | `.github/workflows/docs.yml` | enforced |
 
-"design §n" is a section of `specs/living-docs-cutover-design.md`. A bracketed Source part is where the text came from; the part before it is the approval.
+"design §n" is a section of `specs/done/living-docs-cutover-design.md`. A bracketed Source part is where the text came from; the part before it is the approval.
 
 ## Known traps
 

@@ -11,7 +11,7 @@ import sys
 from pathlib import Path
 
 from . import globs
-from .checks import Context, Finding, agents, ids, index, legacy, links, matrix, ownership, paths, references
+from .checks import Context, Finding, agents, ids, index, legacy, links, ownership, paths, references
 from .checks import structure, verification
 from .config import ConfigError, load
 from .repo import GitError, Repo, is_top_of_work_tree
@@ -49,17 +49,11 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("--pr-body")
     parser.add_argument("--next", metavar="NS")
     parser.add_argument("--owners", nargs="+", metavar="PATH")
-    parser.add_argument("--matrix", metavar="FILE")
-    parser.add_argument("--domain", metavar="NS")
-    parser.add_argument("--decisions", action="store_true")
-    parser.add_argument("--pending", action="store_true")
-    parser.add_argument("--blocking-list", metavar="FILE")
     return parser
 
 
 def _mode(args) -> str:
-    modes = [name for name, on in (("next", args.next is not None), ("owners", args.owners is not None),
-                                   ("matrix", args.matrix is not None), ("pending", args.pending)) if on]
+    modes = [name for name, on in (("next", args.next is not None), ("owners", args.owners is not None)) if on]
     if len(modes) > 1:
         raise ConfigError(f"conflicting modes: {', '.join('--' + m for m in modes)}")
     mode = modes[0] if modes else "default"
@@ -67,12 +61,6 @@ def _mode(args) -> str:
                                     ("--pr-body", args.pr_body)) if v is not None]
     if mode != "default" and default_flags:
         raise ConfigError(f"--{mode} cannot be combined with {', '.join(default_flags)}")
-    if (args.domain is not None or args.decisions) and mode != "matrix":
-        raise ConfigError("--domain and --decisions need --matrix")
-    if mode == "matrix" and args.domain is None and not args.decisions:
-        raise ConfigError("--matrix needs --domain or --decisions")
-    if (args.blocking_list is None) != (not args.pending):
-        raise ConfigError("--pending and --blocking-list go together")
     return mode
 
 
@@ -112,7 +100,7 @@ def _emit(found: list[Finding], path_globs: list[str] | None) -> int:
         counts = {}
         for finding in findings:
             counts[finding.check] = counts.get(finding.check, 0) + 1
-        detail = ", ".join(f"{check}={counts[check]}" for check in ORDER + ["M"] if check in counts)
+        detail = ", ".join(f"{check}={counts[check]}" for check in ORDER if check in counts)
         print(f"docs_check: {len(findings)} findings ({detail})", file=sys.stderr)
         return 1
     print("docs_check: clean", file=sys.stderr)
@@ -142,19 +130,6 @@ def run(argv: list[str]) -> int:
         lines, unowned = ownership.owners_lines(Context(cfg, repo, label), args.owners)
         print("\n".join(lines))
         return 1 if unowned else 0
-    if mode in ("matrix", "pending"):
-        if cfg.rollout is None:
-            raise ConfigError("no [rollout] table")
-        ctx = Context(cfg, repo, label)
-        if mode == "pending":
-            _require_file(repo, args.blocking_list, "blocking list")
-            return _emit(matrix.check_pending(ctx, args.blocking_list), None)
-        _require_file(repo, args.matrix, "matrix")
-        if args.domain is not None and args.domain not in cfg.namespaces:
-            raise ConfigError(f"unknown namespace {args.domain!r}")
-        if args.decisions:
-            return _emit(matrix.check_decisions(ctx, args.matrix, args.domain), None)
-        return _emit(matrix.check_domain(ctx, args.matrix, args.domain), None)
 
     checks = _selected_checks(args)
     base = None
