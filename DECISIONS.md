@@ -1533,3 +1533,241 @@ The summary lists every source in `sources.yaml`. A source with a run in the las
 **Alternatives:** parsed tables plus source hashes only (under 1 GB, but a parser bug cannot be found by rebuilding); every bulk ZIP whole at every build (about 3 GB per download, 40–100 GB a year, mostly bytes no parser reads).
 **Sizes:** 13F data sets from 2013 total 2.9 GB in 54 files, Form 3/4/5 from 2013 0.56 GB in 55 files (SEC listings, 2026-10-17). The bulk pair is estimated at about 1.5 + 1.3 GB compressed, unmeasured because cloud sessions cannot reach sec.gov. `us_small_mid` parses every submissions member. Raw 10-Ks add an estimated 10–15 GB. Year one is about 20–25 GB, later years 6–8 GB; the first run on the stack machine replaces these estimates.
 **Why:** byte-exact rebuilds of everything the builds read, including the Item 1A cut, without keeping bytes no parser reads. The nightly backup mirrors `auspex-prices` to `BACKUP_HOST_DIR`, so the archive takes its size twice on the Mac: about 100 GB after five years, inside the 150 GB the user allows.
+
+## 2026-10-22 — Living docs — PENDING — system ratification batch
+**What:** Rules that `docs/system/` states with no approved source other than code, a README, a nested agent file or a non-invariant section of the root `CLAUDE.md`. Each is written in the docs as approved text with status `pending-decision`, or as a pending scope or exception line under its invariant.
+- **Pending requirements and lines:**
+  - **INV-1, read-only scope line:** reading Postgres or Neo4j is within INV-1, which restricts writes. `services/ingestion-scraper/scripts/sample_corroborations.py` reads both stores (SELECT and MATCH only). This replaces the stricter wording of `services/CLAUDE.md:45` ("No DB access, ever") and `services/ingestion-scraper/CLAUDE.md:19` ("No Postgres, no Neo4j").
+  - **INV-4, exception placement:** the ClinicalTrials.gov watchlist preview (`services/core-hub/src/main/java/dev/auspex/corehub/watchlist/WatchlistService.java`) is approved by `## 2026-09-20 — Watchlist backend — CHOICE — core-hub calls ClinicalTrials.gov directly`; writing it as an exception under INV-4 is what needs approval.
+  - **INV-15, exception:** the scaffolding exemption from test-first (`CLAUDE.md:138`).
+  - **SYS-001:** the project is named Auspex; components keep descriptive names (`CLAUDE.md:31`).
+  - **SYS-002:** the naming-table identifiers are fixed; a rename changes the authority file and the table in one PR (`CLAUDE.md:18-29`).
+  - **SYS-003:** no legacy system; Flyway scripts create the schema on an empty database (`CLAUDE.md:46-47`).
+  - **CON-015:** `directionality` is one of `positive`, `negative`, `neutral` (values only in `services/ingestion-scraper/prompts/extraction/v1.txt:29`).
+  - **CON-033:** a corroborated event is delivered at least once and consumers treat `(entity_key, participants_hash)` as its identity (`ScheduledCorroborationService` sends before the scan's commit).
+- **Partly sourced here** (the row's status follows its tested half, so they are not `pending-decision`):
+  - **CON-030:** consumers read `schema_version` from the record's field, not the header.
+  - **CON-037:** a dead letter's value is the original bytes after a deserialization failure, else snake_case JSON (the DLT template map in `KafkaConfig.java`; `## 2026-08-16 — Step 1.3 — VERIFIED — DeadLetterPublishingRecoverer with Spring Kafka 4.1`), and its header names (`## 2026-08-16 — Step 1.3 — VERIFIED — Spring Kafka 4.1 DLT header names`).
+**Why it matters:** the conversion rule lets no rule enter `docs/` as approved on code alone. Each item above matches today's code; only its approval is missing.
+**Options considered:**
+- A: approve the batch as written.
+- B: reject or reword single items; each rejected item is then retired or rewritten by a follow-up change.
+**Action:** default A. Owner to answer by appending `## <date> — Living docs — CHOICE — system ratification batch`. The cutover's decision-application step then flips the rows above from `pending-decision` to their real status and the pending lines to cite that `CHOICE`. Not blocking.
+
+## 2026-10-22 — Living docs — FLAG — invariant conflicts found while writing the system docs
+**What:** Three places where the code does not meet an invariant as `docs/system/` states it. Each is recorded `divergent` in the docs; no code changes in the rollout.
+- **INV-6 (credential, URL and port defaults in source).** `services/core-hub/src/main/resources/application.yml` (lines 6-8 and 21-27) gives `${VAR:default}` fallbacks for the Postgres URL, user and password, the Neo4j URI, user and password, and the Kafka bootstrap servers; `WatchlistService.java:46` defaults the ClinicalTrials.gov base URL; `services/ingestion-scraper/scripts/sample_corroborations.py:90` defaults the Neo4j URI. `test_no_credential_has_a_source_default` does not look at these files.
+- **INV-11 (strategy runtime has no DLT).** The strategy runtime logs, counts (`auspex_strategy_rejected_events_total`) and skips an unreadable record on `auspex.signals.corroborated`, with no dead letter (`services/strategy/src/auspex_strategy/runtime/streaming.py`; item 5 of `## 2026-10-10 — Strategy runtime — CHOICE — state placement, timing and the pass-through stub`). `## 2026-10-17 — Living docs — CHOICE — can a DECISIONS entry narrow an invariant` says a decision entry alone cannot narrow an invariant, so it is not an exception.
+- **INV-7 / CON-010 (one-sided symmetry check).** The Java test deserializes the generated fixture with unknown properties ignored, so a field the Python model has and the Java record lacks passes silently.
+**Options considered (per item):**
+- INV-6: a fix spec removes the defaults (and extends the scaffolding test to them), or an exception under INV-6 for local-development defaults, with the owner's word.
+- INV-11: a fix spec publishes unreadable corroborated records to `auspex.signals.corroborated.dlt`, or an exception under INV-11 for the runtime's skip-and-count, with the owner's word.
+- CON-010: a fix spec adds a Java test that compares the fixture's key set with the record's components.
+**Action:** owner to choose per item. Until then INV-6, INV-11 and CON-010 stay `divergent`, citing this entry.
+## 2026-10-22 — Living docs — PENDING — engineering ratification batch
+**What:** These engineering requirements in `docs/engineering/` have no approval in requirements §, a `CHOICE` entry, an archived spec or an invariant: their only source is a root `CLAUDE.md` section, `specs/README.md`, `VERSIONS.md`, `TODO.md`, the `DECISIONS.md` header, a service `CLAUDE.md`, a workflow or the rollout design (`specs/living-docs-cutover-design.md`). Each is written with status `pending-decision` and cites this heading. Line numbers are at `feature/living-docs-integration` @ e09eca0.
+- **ENG-001** — a new test is first seen failing for the right reason (Python import, attribute or assertion error; Java compile error accepted, assertion preferred); red output in the PR description. `CLAUDE.md:104-110`.
+- **ENG-002** — a red-green cycle runs the spec's tests, then the unit suite; container suites at spec completion. `CLAUDE.md:111-115`.
+- **ENG-003** — `--strict-markers` with registered markers, `failOnNoDiscoveredTests = true` on every Gradle `Test` task, CI Gradle with `--rerun-tasks`. `CLAUDE.md:100`; `services/core-hub/build.gradle.kts:95,101-102`; `.github/workflows/java.yml:61`.
+- **ENG-012** — docs are not proof: `tested` means a named test exists, CI shows it passes, a mutation check shows it can fail; reviews cite code or execution. design §9.2.
+- **ENG-015** — the `Docs` workflow runs the checker's tests and the checker on every PR into `develop` and every push to it. `.github/workflows/docs.yml`.
+- **ENG-016** — statuses `draft`, `ready`, `blocked`, `hold`, `done`; `hold` lives in `specs/hold/`; `done` moves to `specs/done/` with its `TODO.md` row in the same PR. `CLAUDE.md:44`; `specs/README.md:51-58`.
+- **ENG-017** — a spec is self-contained, one deliverable, named after what it does, `ready` only with the required fields; scoping fills tests and the definition of done. `CLAUDE.md:41`; `specs/README.md:9-13,60`.
+- **ENG-020** — a behaviour change edits its owner doc in the same PR; IDs from `--next`, rewording keeps the ID, a change of meaning retires it. `CLAUDE.md:119`; design §5.2.
+- **ENG-021** — ID format, invariant numbering and in-place amendment, define once, never reuse, retirement entries, a new namespace changes `docs-check.toml` and `docs/README.md` together. design §5.2.
+- **ENG-022** — on an ID collision the later PR renumbers. design §5.2.
+- **ENG-023** — conflict precedence: locked machine authorities, other machine authorities, `docs/`, an active spec for its own work, `DECISIONS.md`, agent files and READMEs, then archives and `TODO.md` notes. design §9.1; requirements §14 heading.
+- **ENG-024** — code that disagrees with `docs/` is marked `divergent` with a `FLAG`; the owner fixes the code or ratifies. design §9.1.
+- **ENG-025** — a behaviour-changing `CHOICE` lands with its doc edit. design §9.1.
+- **ENG-026** — decisions are cited by heading in backticks; register numbers never appear. design §5.5; `specs/README.md` (new section).
+- **ENG-027** — conversion provenance and ratification batches. design §8.5.
+- **ENG-028** — the `## Handoff` section and its seven lines. design §8.3.
+- **ENG-029** — Git Flow branches. `CLAUDE.md:158-164`.
+- **ENG-030**, the `python3 -m tools.docs_check --base origin/develop` step of the merge recipe only (the rest is approved by `## 2026-10-09 — Guideline setup — CHOICE — merge flow, merge bar and shared-log conflicts written into the repo`). design §5.2.
+- **ENG-033** — `DECISIONS.md` is append-only in its header's format; `BLOCKED` stops the work. `DECISIONS.md:3,10,17`.
+- **ENG-034** — `TODO.md` is the spec index and a one-line-per-session log; notes carry status, never rules. `TODO.md:1-5`.
+- **ENG-035** — commit only when the spec's tests pass; secrets, build outputs, virtualenvs, caches and volumes never committed. `CLAUDE.md:192-193`.
+- **ENG-037**, **ENG-038**, **ENG-039** — the PR template record, the review by someone who did not write the change, and the `Last reviewed against` rule. design §10.2.
+- **ENG-040**, **ENG-041**, **ENG-042** — one owner per fact, content by kind, requirements as present-tense testable statements. design §3, §7.2.
+- **ENG-043** to **ENG-046** — the code comment rules. `CLAUDE.md:141-146`.
+- **ENG-047** — a test name is a falsifiable claim. `specs/README.md:39-45`.
+- **ENG-048**, except exact pins and the committed lock file (requirements §1) — `VERSIONS.md` as the single pin list, *resolve at install*, re-verifying version-sensitive claims. `VERSIONS.md:3,102`.
+- **ENG-049** — no plan step in any name. `CLAUDE.md:33`; `specs/README.md:47`.
+- **ENG-050** — the living-doc format. design §5.1.
+- **ENG-051** — a Python service configures logging once, in `create_app()`. `services/ingestion-scraper/CLAUDE.md:36`.
+- **ENG-052** — the comment form per stack. `services/CLAUDE.md:32-40`; `CLAUDE.md:140-146`.
+- **ENG-053**, the plugin and toolchain clauses only (Kotlin DSL, wrapper and version catalog are requirements §1) — no `io.spring.dependency-management`, the Java toolchain set explicitly. `services/core-hub/CLAUDE.md:21-25`.
+**Why it matters:** until approved, these rules are written down but not yet the owner's; the cutover lists every `pending-decision` row.
+**Options considered:** A: approve the batch as written. B: approve it with named items struck or reworded.
+**Action:** default A. When the owner approves, the owner appends `## <date> — Living docs — CHOICE — engineering ratification batch`; the cutover's decision step then flips these rows to their real status and Source. Not blocking.
+
+## 2026-10-22 — Living docs — PENDING — ingestion ratification batch
+**What:** Rules that `docs/ingestion/` states whose only source is code, `services/ingestion-scraper/README.md`, a `CLAUDE.md` trap or a config comment, plus one retirement with no decision behind it. Each requirement below is written as approved text and cites this heading in its verification `Source`. Line numbers are at `feature/living-docs-integration` @ 616b808.
+- **Pending requirements** (status `pending-decision`):
+  - **ING-002** — an unregistered `source_type` raises `UnknownSourceTypeError` naming the registered types (`services/ingestion-scraper/src/auspex_ingest/connectors/registry.py:49`; scraper README line 45).
+  - **ING-003** — `sources.yaml` is parsed strictly: unknown fields and duplicate `source_type`s are rejected at load (`services/ingestion-scraper/src/auspex_ingest/sources.py:9-27`; scraper README line 62).
+  - **ING-028** — a second concurrent run of the same source is refused with 409, without blocking other sources (`services/ingestion-scraper/src/auspex_ingest/api.py:37,60-62`; scraper README line 18; `specs/done/ingestion-run-reliability.md`).
+  - **ING-039** — the scraper HTTP API's routes and status codes: 404 for an unconfigured source, 500 with the error text on a pipeline exception (`services/ingestion-scraper/src/auspex_ingest/api.py:39-102`).
+  - **EXT-009** — the registry's required fields, refusal of an unknown model or moving alias, and the deprecation warning (`services/ingestion-scraper/src/auspex_ingest/extraction_backend.py:50-69,317-323`; `config/models/registry.yaml:11`).
+  - **EXT-016** — the leakage canary: months at least `_FLAG_THRESHOLD` correct after the claimed cutoff are flagged, deterministic given a seed (`services/ingestion-scraper/scripts/check_leakage.py:18`; scraper README line 97).
+  - **EXT-017** — cross-model comparison by Jaccard, directionality and confidence correlation, deterministic given a seed (`services/ingestion-scraper/scripts/compare_models.py`; scraper README line 98).
+  - **EXT-018** — the corroboration-review gate: precision of at least 0.85, `score_corroboration_review.py` exits non-zero below it (`services/ingestion-scraper/scripts/score_corroboration_review.py:23,81`; scraper README lines 100-101; `docs/HISTORY.md:96`).
+- **Partly sourced here** (the row's status follows its approved half, so it is not `pending-decision`):
+  - **ING-008** — the `fda:` canonical prefix (`services/ingestion-scraper/src/auspex_ingest/models.py:6`).
+  - **ING-017** — EDGAR details beyond `2026-10-07 — EDGAR press-release content — CHOICE — filing index replaces the submissions lookup`: inline-XBRL viewer links are followed, and search hits are deduplicated by accession (`services/ingestion-scraper/src/auspex_ingest/connectors/sec_edgar.py:165-166,207-234`; scraper README line 107).
+  - **ING-022** — the exact position of the cross-source canonical check and of the extraction cap in the stage order (`services/ingestion-scraper/src/auspex_ingest/pipeline.py:100-125`).
+  - **ING-037** — the pre-filter matches `raw_content`, which carries title and body alike; requirements §6.6 says "title or content" (`services/ingestion-scraper/src/auspex_ingest/prefilter.py:17-20`).
+  - **ING-038** — production wires the identity `EntityNormalizer` (`services/ingestion-scraper/src/auspex_ingest/pipeline_factory.py:52`).
+  - **EXT-003** — the `---BEGIN DOCUMENT---` / `---END DOCUMENT---` markers (`services/ingestion-scraper/src/auspex_ingest/extraction_backend.py:199`). The "data, never instruction" half stays `divergent`.
+  - **EXT-010** — the digest is read from the model server's `/api/tags` listing (`services/ingestion-scraper/src/auspex_ingest/extraction_backend.py:96-102`). The root `CLAUDE.md` trap says `ollama show`, which is stale.
+  - **EXT-020** — `EXTRACTION_BASE_URL` names the OpenAI-compatible endpoint (`build_extractor_from_env` in `services/ingestion-scraper/src/auspex_ingest/extraction_backend.py`).
+- **Known traps without an ID** in `docs/ingestion/connectors.md`: the EPO OPS token refresh and `Retry-After` handling (`services/ingestion-scraper/src/auspex_ingest/connectors/epo_ops.py:2`), and the ClinicalTrials.gov `filter.advanced` range syntax (`services/ingestion-scraper/src/auspex_ingest/connectors/clinicaltrials.py:45`; scraper README line 110).
+- **Retirement:** **ING-021**, the optional `fda_designation` source of requirements §6.9. openFDA has no designations endpoint (§6.9) and the source was never built.
+**Why it matters:** the conversion rule lets no rule enter `docs/` as approved on code or a README alone. Each item above matches today's code; only its approval is missing.
+**Options considered:**
+- A: approve the batch as written.
+- B: reject or reword single items; each rejected item is then retired or rewritten by a follow-up change.
+**Action:** default A. Owner to answer by appending `## <date> — Living docs — CHOICE — ingestion ratification batch`. The cutover's decision-application step then flips the `pending-decision` rows above to their real status and cites that `CHOICE`. Not blocking.
+## 2026-10-22 — Living docs — PENDING — core-hub ratification batch
+**What:** These core-hub requirements in `docs/core-hub/` have no approval in a requirements §, a `CHOICE` entry, an archived spec or an invariant: their only source is the code, `services/core-hub/README.md`, a nested agent file or a root `CLAUDE.md` trap. Each matches the code at develop @ b7582c3 and is written with status `pending-decision`, citing this heading. Line numbers are at that commit.
+- **HUB-017** — a DLT replay covers only the records on the topic when the call starts, drops the `kafka_dlt-*` and serializer type headers, and is at-least-once (a crash between send and commit replays a record again; idempotent writes absorb it). `services/core-hub/README.md:73` and `specs/done/dead-letter-recovery.md` say "at most once"; the code commits after the send (`DltReplayService.java`).
+- **HUB-020** — an applied Flyway migration is never edited, comments included. `CLAUDE.md:146`.
+- **HUB-023** — `MERGE`, never `CREATE`, for `Signal` nodes, entity nodes and relationships, beyond the node rows of requirements §3.7's table. `services/core-hub/README.md:123`; `services/core-hub/CLAUDE.md:34`.
+- **HUB-025** — a record that dead-letters after its Neo4j write leaves a graph-only `Signal`; redelivery or replay converges, and nothing else repairs it (two stores written in sequence, no outbox).
+- **HUB-035** — company names are matched to SEC titles after `CompanyNameNormalizer` (lower case, punctuation stripped, trailing corporate suffixes dropped). `services/core-hub/README.md:47`.
+- **HUB-040 (retirement)** — requirements §3.8's "JPA and Neo4j repositories live in separate base packages with explicit `@EnableJpaRepositories`/`@EnableNeo4jRepositories`" is retired: core-hub has no repositories and writes through `JdbcTemplate` and the Neo4j `Driver`.
+- **HUB-042** — the write token is compared in constant time (`MessageDigest.isEqual` in `WriteTokenInterceptor.java`).
+- **HUB-045** — `GET /api/v1/signals/{ticker}` answers 200 with empty lists for a valid ticker no signal reaches. `services/core-hub/README.md:78` says 404, which is stale; `SignalRestIT.test_unknown_ticker_returns_empty_lists_not_500` asserts 200.
+- **HUB-049** — every error answer is a JSON body with a message and the status, never a stack trace (`GlobalExceptionHandler.java`).
+- **HUB-051** — actuator exposes only `health`, `info` and `prometheus`, outside `/api`, read-only (`application.yml` `management.endpoints.web.exposure.include`).
+- **COR-004** — the only corroboration kind is shared-entity corroboration over `GeneTarget` and `Mechanism`, with `entity_key` = normalized name + `:` + label (`CorroborationScanner.java`).
+- **COR-013** — the scorer formula, `0.7 × diversity + 0.3 × recency` clamped to [0, 1], with `diversity = min(1, (n − 1) / 4)` and recency linear over 90 days after `corroborated_at`, computed at read time against the service clock and never stored or published. `services/core-hub/README.md:57-59` is the only prose source; the code is `CorroborationScorer.java`.
+**Why it matters:** the conversion rule lets no rule enter `docs/` as approved on code alone; until approved, these are written down but not yet the owner's.
+**Options considered:**
+- A: approve the batch as written.
+- B: reject or reword single items; each rejected item is then retired or rewritten by a follow-up change.
+**Action:** default A. Owner to answer by appending `## <date> — Living docs — CHOICE — core-hub ratification batch`. The cutover's decision-application step then flips the rows above from `pending-decision` to their real status and cites that `CHOICE`. Not blocking.
+## 2026-10-22 — Living docs — PENDING — operations ratification batch
+**What:** These operations requirements in `docs/operations/` have no approval in a requirements §, a `CHOICE` entry, an archived spec or an invariant: their only source is code, a README, a root `CLAUDE.md` trap, a config comment or the rollout design (`specs/living-docs-cutover-design.md`). Each is written as approved text with status `pending-decision` and cites this heading. Each matches today's code.
+- **OPS-002** — the scraper reaches the host's model server as `host.docker.internal` through compose `extra_hosts` with `host-gateway`. `docker/docker-compose.yml` (service `ingestion-scraper`); `docker/README.md:211-224`.
+- **OPS-007** — `.env.example` configures compose and the host scripts alike: every variable compose reads is in it, not every variable in it is read by compose. `.env.example` header comment and the host scripts that read it.
+- **OPS-021** — the scraper serves from one gunicorn process with threads. Root `CLAUDE.md` known trap; `services/ingestion-scraper/config/gunicorn.conf.py` comment; tested by `test_gunicorn_serves_from_one_process_so_metrics_are_not_split_across_workers`.
+- **OPS-022** — price-service and backup each serve from one gunicorn process with threads. `services/backtesting/config/gunicorn.conf.py`, `services/backup/config/gunicorn.conf.py`; untested.
+- **OPS-031** — the non-ingestion DAGs retry, and those that call a service fail on any HTTP error status. `services/backtesting/dags/price_refresh.py`, `services/backtesting/dags/universe_build.py`, `services/backup/dags/backup.py`, `services/ingestion-scraper/dags/daily_health.py`; only the backup DAG is tested.
+- **OPS-053** — renaming a catalogued metric changes the catalogue row, the emitter and every consumer in one PR. design §2 (rollout rule).
+- **OPS-068** — `POST /backup` answers 409 while a run is in progress. `services/backup/src/auspex_backup/api.py:33`; `services/backup/README.md:8`; untested.
+**Why it matters:** until approved, these rules are written down but not yet the owner's; the cutover lists every `pending-decision` row.
+**Options considered:** A: approve the batch as written. B: approve it with named items struck or reworded; a struck item is retired by a follow-up change.
+**Action:** default A. When the owner approves, the owner appends `## <date> — Living docs — CHOICE — operations ratification batch`; the cutover's decision step then flips these rows to their real status and Source. Not blocking.
+## 2026-10-22 — Living docs — PENDING — research ratification batch
+**What:** These research requirements in `docs/research/` have no approval in requirements §, a `CHOICE` entry, an archived spec or an invariant: their only source is code, a service README or a script docstring. Each is written with status `pending-decision` and cites this heading. Paths are at `feature/living-docs-integration` @ 616b808.
+- **RES-008** — every price refresh covers the protocol's benchmark ticker and the EUR/USD pair, each once, beside the configured tickers. `services/backtesting/src/auspex_backtesting/prices/price_refresher.py` (`price_universe`).
+- **RES-012** — the price service answers `GET /health` with `{"status": "ok"}` while it runs. `services/backtesting/src/auspex_backtesting/api.py`.
+- **RES-062** — the FX rate used for an order is a close known before that order. `services/backtesting/src/auspex_backtesting/market_sim/fx.py`: `eur_per_usd(d)` reads day d's close, so an order at d's open uses a close not yet known; approving the rule as written makes the code `divergent` and needs a fix spec.
+- **RES-070** — a timestamp of exactly `00:00:00` UTC is read as date-only, known after that day's close. `services/backtesting/src/auspex_backtesting/alignment/aligner.py`.
+- **RES-082** — the score version a portfolio run reads matches its trial cell's `floor` axis. `services/backtesting/scripts/run_portfolio_backtest.py` docstring; nothing checks `--score-version` against the cell today.
+- **EVA-021** — walk-forward segments are a reported validation check, never an input to promotion. `services/backtesting/README.md`; `services/backtesting/src/auspex_backtesting/evaluation/walk_forward.py`.
+**Why it matters:** until approved, these rules are written down but not yet the owner's; the cutover lists every `pending-decision` row, and RES-062 and RES-082 describe behaviour the code does not yet enforce.
+**Options considered:** A: approve the batch as written. B: approve it with named items struck or reworded (for RES-062, accepting the same-day close instead).
+**Action:** default A. When the owner approves, the owner appends `## <date> — Living docs — CHOICE — research ratification batch`; the cutover's decision step then flips these rows to their real status and Source. Not blocking.
+## 2026-10-23 — Living docs — PENDING — strategy-and-dashboard ratification batch
+**What:** These strategy and dashboard requirements in `docs/strategy/` and `docs/dashboard.md` have no approval in a requirements §, a `CHOICE` entry, an archived spec or an invariant: their only source is code or a service README. Each is written as approved text with status `pending-decision` and cites this heading. Paths are at `feature/living-docs-integration` @ 02441f2.
+- **STR-007** — a replay and the streaming runtime expose the same signals to a strategy. `services/strategy/src/auspex_strategy/runtime/replay.py` passes the signals it was given and the streaming runtime passes none; `services/strategy/src/auspex_strategy/runtime/context.py` filters signals on `published_at` with no known-at delay. Approving the rule as written makes the code `divergent` and needs a fix spec.
+- **STR-014** — `live-confirm` and `live-auto` are reserved: no broker exists, so a strategy at either status trades only virtual books. `services/strategy/src/auspex_strategy/runtime/slots.py` maps both to paper books filled by `PaperBroker`; `BookMode.LIVE` in `runtime/book.py` is unused.
+- **STR-037** — a trade with zero net P&L counts as a loss, not a win. `services/strategy/src/auspex_strategy/metrics/trades.py`; tested by `test_a_break_even_trade_counts_as_a_loss_not_a_win`.
+- **DSH-015** — the BFF abandons an upstream request after a fixed timeout and answers 502. `services/dashboard/src/lib/bff.ts` (`UPSTREAM_TIMEOUT_MS`); untested.
+- **DSH-016** — the credential check compares the password hash even for an unknown username. `services/dashboard/src/lib/credentials.ts`; untested.
+- **DSH-017** — scraper and price-service writes are forwarded without a bearer token, under the localhost-only threat model. `services/dashboard/src/lib/bff.ts`; `services/dashboard/README.md`; archived `specs/done/dashboard-foundation.md` lists the token for those services as out of scope without approving their absence.
+The `funnel/` and `risk/catalyst_holds.jsonl` keys of the `auspex-strategy` layout (STR-017) are not in this batch: `## 2026-10-11 — Strategy metrics — CHOICE — where the spec left the metrics open` (item 2) and `## 2026-10-11 — Portfolio and risk — CHOICE — catalyst and short-interest sources, units and check order` (item 9) approve them.
+**Owner questions:**
+1. Is the capital allocator of `## 2026-09-20 — Strategy layer session 2 — CHOICE — Equal risk budget per promoted strategy; correlation-aware cap` still intended (STR-054, `divergent`)? If not, STR-054 is retired on the owner's word.
+2. Should the runtime refuse `live-confirm` and `live-auto` until live trading exists, instead of trading them on paper (STR-014)?
+**Why it matters:** until approved, these rules are written down but not yet the owner's; the cutover lists every `pending-decision` row, and STR-007 describes behaviour the code does not have.
+**Options considered:** A: approve the batch as written, keep the allocator (STR-054 stays `divergent` until built) and keep paper fills for the `live-*` statuses. B: approve it with named items struck or reworded, retire STR-054, or make the runtime refuse `live-*` statuses (a fix spec).
+**Action:** default A. When the owner approves, the owner appends `## <date> — Living docs — CHOICE — strategy-and-dashboard ratification batch`; the cutover's decision step then flips these rows to their real status and Source. Not blocking.
+
+## 2026-10-24 — Living docs — CHOICE — system ratification batch
+**Answers:** `## 2026-10-22 — Living docs — PENDING — system ratification batch`.
+**Choice:** option A, approve the batch as written.
+**Source:** the owner, in the living-docs thread on 2026-10-24, choosing "Approve all" on the card "Approve all seven ratification batches with their recorded defaults?".
+**Action:** the cutover's decision step flips this batch's `pending-decision` rows to their real status and adds this heading to their Source.
+
+## 2026-10-24 — Living docs — CHOICE — engineering ratification batch
+**Answers:** `## 2026-10-22 — Living docs — PENDING — engineering ratification batch`.
+**Choice:** option A, approve the batch as written.
+**Source:** the owner, in the living-docs thread on 2026-10-24, choosing "Approve all" on the card "Approve all seven ratification batches with their recorded defaults?".
+**Action:** the cutover's decision step flips this batch's `pending-decision` rows to their real status and adds this heading to their Source.
+
+## 2026-10-24 — Living docs — CHOICE — ingestion ratification batch
+**Answers:** `## 2026-10-22 — Living docs — PENDING — ingestion ratification batch`.
+**Choice:** option A, approve the batch as written.
+**Source:** the owner, in the living-docs thread on 2026-10-24, choosing "Approve all" on the card "Approve all seven ratification batches with their recorded defaults?".
+**Action:** the cutover's decision step flips this batch's `pending-decision` rows to their real status and adds this heading to their Source.
+
+## 2026-10-24 — Living docs — CHOICE — core-hub ratification batch
+**Answers:** `## 2026-10-22 — Living docs — PENDING — core-hub ratification batch`.
+**Choice:** option A, approve the batch as written.
+**Source:** the owner, in the living-docs thread on 2026-10-24, choosing "Approve all" on the card "Approve all seven ratification batches with their recorded defaults?".
+**Action:** the cutover's decision step flips this batch's `pending-decision` rows to their real status and adds this heading to their Source.
+
+## 2026-10-24 — Living docs — CHOICE — operations ratification batch
+**Answers:** `## 2026-10-22 — Living docs — PENDING — operations ratification batch`.
+**Choice:** option A, approve the batch as written.
+**Source:** the owner, in the living-docs thread on 2026-10-24, choosing "Approve all" on the card "Approve all seven ratification batches with their recorded defaults?".
+**Action:** the cutover's decision step flips this batch's `pending-decision` rows to their real status and adds this heading to their Source.
+
+## 2026-10-24 — Living docs — CHOICE — research ratification batch
+**Answers:** `## 2026-10-22 — Living docs — PENDING — research ratification batch`.
+**Choice:** option A, approve the batch as written.
+**Source:** the owner, in the living-docs thread on 2026-10-24, choosing "Approve all" on the card "Approve all seven ratification batches with their recorded defaults?".
+**Action:** the cutover's decision step flips this batch's `pending-decision` rows to their real status and adds this heading to their Source.
+
+## 2026-10-24 — Living docs — CHOICE — strategy-and-dashboard ratification batch
+**Answers:** `## 2026-10-23 — Living docs — PENDING — strategy-and-dashboard ratification batch`.
+**Choice:** option A, approve the batch as written. Owner questions take their defaults: the capital allocator stays intended (STR-054 stays `divergent` until built), and `live-confirm`/`live-auto` keep trading on paper (STR-014).
+**Source:** the owner, in the living-docs thread on 2026-10-24, choosing "Approve all" on the card "Approve all seven ratification batches with their recorded defaults?".
+**Action:** the cutover's decision step flips this batch's `pending-decision` rows to their real status and adds this heading to their Source.
+
+## 2026-10-24 — Living docs — FLAG — nested CLAUDE.md imports only expand in the launch directory
+**What:** the Mac load check (agent-instruction-hierarchy §8) passed 27 of 28 cells. Claude Code 2.1.286 launched in `services/core-hub/` read the root and `services` `CLAUDE.md` files but did not expand their `@AGENTS.md` imports; only the launch directory's own import expanded, so the root hard rules and `services/AGENTS.md` were not in context. Codex 0.162.0 loaded the full chain.
+**Why it matters:** `## 2026-10-17 — Living docs — CHOICE — agent instruction files` says every `CLAUDE.md` is only `@AGENTS.md`; read literally, a Claude session started in a service directory would miss the root rules.
+**Action:** each nested `CLAUDE.md` imports its `AGENTS.md` chain, root first, own file last (`services/core-hub/CLAUDE.md`: `@../../AGENTS.md`, `@../AGENTS.md`, `@AGENTS.md`). `AGENTS.md` stays the only content and imports nothing, so the choice's intent holds; check L enforces the exact chain. The failed cell is re-run on the Mac before the `VERIFIED` entry. Not blocking unless the owner prefers another fix.
+
+## 2026-10-24 — Living docs — FLAG — Claude Code external-imports approval needed for nested AGENTS.md
+**What:** supersedes `## 2026-10-24 — Living docs — FLAG — nested CLAUDE.md imports only expand in the launch directory`. The cause was not where imports expand: Claude Code loads a `CLAUDE.md` import that resolves outside the launch folder only after the project approves external imports (`hasClaudeMdExternalIncludesApproved` in `~/.claude.json`), asked once in an interactive session and never in `claude -p`. With the owner's approval given on the Mac on 2026-10-24, the one-line `@AGENTS.md` shims load root, `services` and `core-hub` `AGENTS.md` in order from `services/core-hub`.
+**Action:** the chained-import change is reverted, so every `CLAUDE.md` stays `@AGENTS.md` as `## 2026-10-17 — Living docs — CHOICE — agent instruction files` says. `SETUP.md` host settings gain the one-time approval per checkout. Not blocking.
+
+## 2026-10-24 — Living docs — VERIFIED — agent instruction loading on the stack machine
+**What:** the manual load check of `specs/done/agent-instruction-hierarchy.md` §8 passed all 28 cells on the owner's Mac, on `feature/living-docs-cutover-prep` @ `040e676`.
+**Setup:** Claude Code 2.1.286; codex-cli 0.162.0-alpha.17.2 (the copy bundled in ChatGPT.app, not on PATH). No `AGENTS.override.md` or `CLAUDE.local.md` in the repo; no `~/.codex/AGENTS.md` and no `~/.claude/CLAUDE.md`; `~/.codex/config.toml` sets neither `project_doc_max_bytes` nor `project_doc_fallback_filenames`. External imports approved for one `~/.claude.json` project entry, the repo root (`hasClaudeMdExternalIncludesApproved: true`, per `SETUP.md`). Each cell set is one fresh session (`claude -p` with `--session-id` then `--resume` of that id; `codex exec` then `exec resume` of that thread), read-only tools.
+**Provenance:** the Claude `services/core-hub/` cells and Claude root P1 come from the run on `040e676`; the other cells come from the first run on `972c132`, whose agent files are the same. Codex root P5 counts as a pass because it quotes the line it read in P4.
+**Cells:**
+- Claude root P1 — pass: `@AGENTS.md`, `# Auspex — agent instructions`, nothing else.
+- Claude root P2 — pass: does not know without opening `TODO.md`.
+- Claude root P3 — pass: does not know without opening `VERSIONS.md`.
+- Claude root P4 — pass: names `services/core-hub/AGENTS.md` via the routing line; quotes `# core-hub` and Commands exactly.
+- Claude root P5 — pass: quotes the last line from its P4 read, equal to `tail -n 1`.
+- Claude root P6 — pass: no to both, citing root `AGENTS.md`.
+- Claude root P7 — pass: `docs/system/invariants.md`; stop, append to `DECISIONS.md`, ask.
+- Claude core-hub P1 — pass: `@AGENTS.md`/`# Auspex — agent instructions`, `@AGENTS.md`/`# services`, `@AGENTS.md`/`# core-hub`, in that order.
+- Claude core-hub P2 — pass: does not know.
+- Claude core-hub P3 — pass: does not know (notes Boot 4 from the trap pointer, no version).
+- Claude core-hub P4 — pass: `services/core-hub/AGENTS.md`; quotes `# core-hub` and Commands exactly.
+- Claude core-hub P5 — pass: byte-equal to `tail -n 1 services/core-hub/AGENTS.md`.
+- Claude core-hub P6 — pass: no to both, citing root `AGENTS.md`.
+- Claude core-hub P7 — pass: `docs/system/invariants.md`; stop, append to `DECISIONS.md`, ask.
+- Codex root P1 — pass: `# Auspex — agent instructions` only.
+- Codex root P2 — pass: does not know.
+- Codex root P3 — pass: does not know.
+- Codex root P4 — pass: opens `services/core-hub/AGENTS.md`; quotes `# core-hub` and Commands exactly.
+- Codex root P5 — pass: quotes the line read in P4, equal to `tail -n 1`.
+- Codex root P6 — pass: no to both.
+- Codex root P7 — pass: `docs/system/invariants.md`; stop, append to `DECISIONS.md`, ask.
+- Codex core-hub P1 — pass: `# Auspex — agent instructions`, `# services`, `# core-hub`, in that order.
+- Codex core-hub P2 — pass: does not know.
+- Codex core-hub P3 — pass: does not know.
+- Codex core-hub P4 — pass: `services/core-hub/AGENTS.md`; quotes `# core-hub` and Commands exactly.
+- Codex core-hub P5 — pass: byte-equal to `tail -n 1`.
+- Codex core-hub P6 — pass: no to both.
+- Codex core-hub P7 — pass: `docs/system/invariants.md`; stop, append to `DECISIONS.md`, ask.
+**Action:** `specs/agent-instruction-hierarchy.md` is `done` and moves to `specs/done/`.

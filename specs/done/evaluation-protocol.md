@@ -1,5 +1,7 @@
 # Evaluation Protocol
 
+> Archived. Not authoritative: current behaviour is in docs/ (see docs/README.md).
+
 **Status:** done
 **Blocked by:** none for the code and its required tests. Both code prerequisites are done: `specs/done/market-simulation.md` (`CostModel`, `CurrencyConverter`) and `specs/done/performance-metrics.md` (entity-only variant). Only the end-to-end run under "Definition of done" waits on `specs/historical-backfill.md`; it is recorded later and is not a merge condition.
 

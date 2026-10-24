@@ -1,16 +1,17 @@
 # Soak test run
 
 **Status:** blocked
-**Blocked by:** the stack machine (this spec runs only on the owner's Mac, started there by name in Claude Code); `specs/first-run-on-stack-machine.md` done through its model gate (step 6), so a local model is registered and gated; and `specs/ingestion-run-reliability.md`, `specs/done/dead-letter-recovery.md`, `specs/container-limits-and-log-rotation.md`, `specs/pipeline-alerting-gaps.md` and `specs/infrastructure-observability.md` done on `develop`
+**Blocked by:** the stack machine (this spec runs only on the owner's Mac, started there by name in Claude Code); `specs/first-run-on-stack-machine.md` done through its model gate (step 6), so a local model is registered and gated; and `specs/done/ingestion-run-reliability.md`, `specs/done/dead-letter-recovery.md`, `specs/done/container-limits-and-log-rotation.md`, `specs/done/pipeline-alerting-gaps.md` and `specs/done/infrastructure-observability.md` done on `develop`
 **Branch:** `feature/soak-test-run`
+**Docs impact:** none — operational acceptance only; cites OPS IDs
 
 ---
 
 ## Context
 
-Auspex is meant to run unattended for weeks on the owner's MacBook Pro (Apple M4 Pro, 24 GB): the Docker stack in Docker Desktop's VM capped at 8 GB, and the local model in Ollama on the host. Startup data comes from compose one-shots; refreshes come from Airflow DAGs (ingestion per source, `auspex_price_refresh` on NYSE weekdays at 22:30 UTC, `auspex_universe_build` on days 1–7 at 06:00 UTC, `auspex_daily_health` at 07:00 UTC). Grafana alerts and the daily health summary go to the contact point in `.env`.
+Auspex is meant to run unattended for weeks on the owner's MacBook Pro (Apple M4 Pro, 24 GB): the Docker stack in Docker Desktop's VM capped at 8 GB, and the local model in Ollama on the host. Startup data comes from compose one-shots (OPS-009); refreshes come from the Airflow DAGs in the orchestration catalogue, OPS-024 (schedules in each DAG file and `sources.yaml`). Grafana alerts and the daily health summary go to the contact point in `.env`.
 
-The soak-test readiness audit (2026-10-09) estimated, before any measurement: Docker VM disk growth of 5 to 20 GB over 21 days, mostly logs; long-running container limits summing to 7,680 MB; Ollama with Llama 3.1 8B Q8 using 9 to 10 GB while loaded (it unloads after 5 idle minutes); so the Mac sits at 21 to 24 GB of 24 GB during extraction.
+The soak-test readiness audit (2026-10-09) estimated, before any measurement: Docker VM disk growth of 5 to 20 GB over 21 days, mostly logs; long-running container limits summing to the long-running memory budget (OPS-014; values in `.env.example`); Ollama with Llama 3.1 8B Q8 using 9 to 10 GB while loaded (it unloads after 5 idle minutes); so the Mac sits at 21 to 24 GB of 24 GB during extraction.
 
 This run proves the stack keeps working, recovers and stays inside its resources for 21 days without anyone touching it, and records the numbers the estimates were missing.
 
@@ -30,9 +31,9 @@ This run proves the stack keeps working, recovers and stays inside its resources
 
 - Never print secrets: check `.env` keys with `grep -c '^KEY=.\+'`, never `cat .env`. Never commit `.env`.
 - `.env` values (limits, thresholds) may be changed on the Mac; tracked files only through this spec's PR (the report, `DECISIONS.md`, `TODO.md`).
-- Commits by the owner's identity, no Claude trailers, message style per root `CLAUDE.md`.
-- `docker compose down -v`, `docker system prune --volumes` and Docker Desktop's "Clean / Purge data" are forbidden: they delete price history and the pinned universe.
-- Invariant 9: every recorded time in UTC.
+- Commits by the owner's identity, no Claude trailers, message style per root `AGENTS.md`.
+- `docker compose down -v` (it destroys all data), `docker system prune --volumes` and Docker Desktop's "Clean / Purge data" are forbidden: they delete price history and the pinned universe (OPS-019).
+- INV-9: every recorded time in UTC.
 
 ## Steps
 
@@ -53,7 +54,7 @@ Record, with UTC time: `docker system df -v`, per-volume sizes (the volume-usage
 **Check:** every service healthy, every Prometheus target up, the first scheduled run of each source starts at its staggered time.
 
 ### 3. Measure day 1 and adjust
-Over the first 24 hours read from Grafana: peak memory per container (cAdvisor), VM memory p95, Mac swap, and extraction latency p50, p95 and p99. Set each container's `*_MEM_LIMIT` in `.env` to at least 1.3× its peak while the total stays within the 7,680 MB budget; set the local model's extraction timeout and each source's `max_documents_per_run` so a capped run fits the task timeout. Re-`up` once if anything changed.
+Over the first 24 hours read from Grafana: peak memory per container (cAdvisor), VM memory p95, Mac swap, and extraction latency p50, p95 and p99. Set each container's `*_MEM_LIMIT` in `.env` to at least 1.3× its peak while the total stays within the long-running memory budget (OPS-014; values in `.env.example`); set the local model's extraction timeout and each source's `max_documents_per_run` so a capped run fits the task timeout. Re-`up` once if anything changed.
 
 **Check:** no container above 90% of its limit; the numbers and the changes recorded in the report.
 

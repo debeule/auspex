@@ -7,6 +7,7 @@
 3. Backfill timing decision: this spec changes the extraction schema and prompt. If it lands after the historical backfill, the in-window 8-Ks must be re-extracted (reextraction CLI) to populate catalyst dates. Logged in `DECISIONS.md` 2026-10-07.
 
 **Branch:** `feature/catalyst-calendar`
+**Docs impact:** changed: CON-008, CON-009, CON-028 and CON-031 ([docs/system/contracts.md](../docs/system/contracts.md)) for the event schema change; HUB and EXT requirements for storage, the calendar endpoint and the prompt ([docs/core-hub/storage.md](../docs/core-hub/storage.md), [docs/core-hub/http-api.md](../docs/core-hub/http-api.md), [docs/ingestion/extraction.md](../docs/ingestion/extraction.md)), as `HUB-new` and `EXT-new`. Its relation to the RES catalyst panel (RES-041…RES-044) is decided at scoping: see the two-planned-sources trap in [docs/research/panels.md](../docs/research/panels.md#known-traps).
 
 ---
 
@@ -37,10 +38,10 @@ What exists or is specified:
 
 ## Constraints
 
-- Invariant 7: Python model, Java record and the generated fixture change together; `FAIL_ON_UNKNOWN_PROPERTIES=false` keeps older consumers working.
-- Invariant 10: declared natural key above; add it to requirements §3.7's table.
-- Invariant 12: parameterized queries; injection tests on the new endpoint.
-- Invariant 14: `event_id` unchanged by the schema bump; re-extraction creates new `extraction_id`s only.
+- INV-7, CON-008, CON-009, CON-031: Python model, Java record and the generated fixture change together; CON-029 keeps older consumers working.
+- INV-10: the declared natural key above, added beside CON-021…CON-025.
+- INV-12: parameterized queries; injection tests on the new endpoint.
+- INV-14, CON-018, CON-019: `event_id` unchanged by the schema bump; re-extraction creates new `extraction_id`s only.
 - Point-in-time: a catalyst is known from its disclosing document's `published_date`, never from the catalyst date and never from a later revision.
 - `date_precision` matters: "PDUFA in the second half of 2026" must not become 2026-07-01.
 

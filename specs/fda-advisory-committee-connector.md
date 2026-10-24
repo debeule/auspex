@@ -6,6 +6,7 @@
 2. `specs/catalyst-calendar.md` — the `catalysts` extraction fields and the core-hub calendar this connector's events land in.
 
 **Branch:** `feature/fda-advisory-committee-connector`
+**Docs impact:** adds a connector to [connectors.md](../docs/ingestion/connectors.md): its `published_date` rule next to ING-009 to ING-015 and a row in the verified source APIs table; applies ING-001, ING-002 and ING-005.
 
 ---
 
@@ -13,7 +14,7 @@
 
 FDA advisory committee meetings on a specific application are scheduled binary events: the committee's vote often moves the sponsor's stock more than the later approval decision. They are announced as notices in the Federal Register, typically weeks before the meeting. The 2026-10-07 edge feasibility audit lists advisory committee dates among the free company-level sources to add (row 9).
 
-The Federal Register publishes a free JSON API without a key: `https://www.federalregister.gov/api/v1/documents.json`, filterable by agency (`food-and-drug-administration`), document type (`NOTICE`), search term, and publication date range, with each document's full text at a linked URL. Not reachable from the scoping session (proxy-blocked); verify the endpoint, parameters and rate expectations at the start of the session and record them in `DECISIONS.md` and the requirements §6.8 table.
+The Federal Register publishes a free JSON API without a key: `https://www.federalregister.gov/api/v1/documents.json`, filterable by agency (`food-and-drug-administration`), document type (`NOTICE`), search term, and publication date range, with each document's full text at a linked URL. Not reachable from the scoping session (proxy-blocked); verify the endpoint, parameters and rate expectations at the start of the session and record them in `DECISIONS.md` and the [verified source APIs](../docs/ingestion/connectors.md#verified-source-apis) section of `docs/ingestion/connectors.md`.
 
 Notice text names the committee, meeting date and, for product-specific meetings, the application number, product and sponsor, in prose. Mapping that prose to a company and program needs the LLM path, so this is a regular (LLM-extracted) connector, not a structured one.
 
@@ -31,7 +32,7 @@ Notice text names the committee, meeting date and, for product-specific meetings
 
 ## Constraints
 
-- Invariants 1, 3, 4, 6, 9, 13. The base URL lives in `sources.yaml` `source_config`, not in code.
+- INV-1, INV-3, INV-4, INV-6, INV-9, INV-13. The base URL lives in `sources.yaml` `source_config`, not in code.
 - Known-at date is the Federal Register publication date; the meeting date is the catalyst date, never the known-at date.
 - Requests through `RateLimitedClient`; configure 1 req/s (no published limit).
 - Unit tests on saved fixtures; `pytest-socket` blocks the network.

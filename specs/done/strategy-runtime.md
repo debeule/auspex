@@ -1,5 +1,7 @@
 # Strategy Runtime
 
+> Archived. Not authoritative: current behaviour is in docs/ (see docs/README.md).
+
 **Status:** done
 **Blocked by:** none. Both prerequisites are done: `specs/done/strategy-framework.md` (`Strategy` ABC, `AsOfContext`, `TradeIntent`, `StrategyRegistry`) and `specs/done/market-simulation.md` (`FillModel`, `CostModel`, `CurrencyConverter` for virtual book P&L).
 

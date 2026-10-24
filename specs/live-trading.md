@@ -2,11 +2,12 @@
 
 **Status:** draft
 **Blocked by:**
-1. `specs/forward-paper-trading.md`: a `pass` forward-check verdict at a capital tier for at least one hypothesis. For a portfolio hypothesis, the backtest's `PortfolioVerdict` must also be `promoted` (`specs/done/cross-sectional-portfolio-backtest.md`). This spec is scoped after that verdict, at that tier. Its tests and definition of done are written then, not now.
+1. `specs/forward-paper-trading.md`: a `pass` forward-check verdict at a capital tier for at least one hypothesis. For a portfolio hypothesis, the backtest's `PortfolioVerdict` must also be `promoted` (EVA-024). This spec is scoped after that verdict, at that tier. Its tests and definition of done are written then, not now.
 2. User actions in `docs/PREREQUISITES.md` ("Strategy layer — required before live trading"): Belgian tax advisor consultation, and an IBKR account opened and funded.
 3. The `requirements.md §0.1` amendment (`DECISIONS.md` 2026-09-20 FLAG "requirements.md §0.1 assumption flips at session 3"). It is the first step of scoping this spec, before any live-trading code.
 
 **Branch:** `feature/live-trading`
+**Docs impact:** `STR-new` (a `docs/strategy/` live-trading doc, created when this spec is implemented): order tickets, reconciliation and live kill switches. Retires or changes STR-014 (`live-confirm` and `live-auto` reserved, `docs/strategy/contract.md`); uses EVA-028 (no real capital before a passing forward check).
 
 ---
 
@@ -15,12 +16,14 @@
 This draft gathers, in one place on the spec index, pre-live work that today exists only in `DECISIONS.md` and `docs/PREREQUISITES.md`. It does not start any of it early. Paper trading gates real capital (`DECISIONS.md` 2026-10-07 CHOICE "paper trading gates capital, run at several sizes"). The 2026-10-07 CHOICE "deferred items" says the IBKR mechanics belong in a live-trading spec written after a forward check passes.
 
 What exists or is specified:
-- `services/strategy`: strategy `status` runs `research` → `paper` → `live-confirm` → `live-auto`. `VirtualBook` with a `mode=live` book (`specs/done/strategy-runtime.md`).
+- `services/strategy`: strategy `status` runs `research` → `paper` → `live-confirm` → `live-auto`. A `live` book mode exists but is unused: `live-confirm` and `live-auto` trade only virtual books (STR-014).
 - `specs/forward-paper-trading.md`: paper ledger per capital tier, `PortfolioRebalance` intents, tracking check.
 - `specs/done/portfolio-and-risk.md`: kill switches and exposure limits, written for event strategies.
 - Cost model with IBKR commission schedules and Belgian TOB (`specs/done/cross-sectional-portfolio-backtest.md`, `specs/done/realistic-cost-model.md`).
 
-## What this builds (to be scoped)
+## What this builds
+
+To be scoped.
 
 Items already decided or named, to be turned into required tests when scoped:
 1. **`requirements.md §0.1` amendment** and a review of the sections that assume research-only use: §0.1, §0.4 and any others the FLAG lists.
@@ -35,7 +38,7 @@ Shorts and options, which the protocol disables (`instruments` in `protocol.yaml
 
 ## Constraints
 
-To be completed when scoped. At least these apply: Invariant 2 (no application-DB writes outside core-hub), Invariant 6 (broker credentials only in `.env` and Airflow Connections), and Invariant 9.
+To be completed when scoped. At least these apply: Invariant 2 (no application-DB writes outside core-hub), INV-6 (no credentials, URLs or ports in source; credentials, the broker's included, live in `.env` only and are read by the service that uses them), and Invariant 9.
 
 ## Required tests
 

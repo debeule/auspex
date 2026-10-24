@@ -2,18 +2,13 @@
 
 **Status:** blocked
 **Blocked by:**
-1. `specs/done/strategy-runtime.md` — `StreamingRuntime`, `VirtualBook` (paper mode) and `BacktestReplayRunner` must exist.
-2. Met: backtest look-ahead fix (`specs/done/backtest-look-ahead-fix.md`) — the paper ledger and the backtest must build events the same way (one event per corroboration record as of `corroborated_at`, NYSE calendar, after-close timing), or the forward results cannot be compared with the backtest.
-3. ~~Pre-registration and kill criteria~~ — done 2026-10-07 (`config/hypotheses/`, `DECISIONS.md`): the hypotheses, trial ledger, clustered standard errors and the "forward check" kill criterion must be recorded before any forward trade is logged; a hypothesis edited after paper trading starts is a new trial.
-4. ~~Realistic trading costs~~ — done (`specs/done/realistic-cost-model.md`): per-ticker spread (`SpreadEstimator`), FX conversion fee, average-daily-volume cap and gap risk. The capital tiers below are only meaningful with size-dependent costs.
-5. Met: `specs/done/slow-signal-preregistration.md` — the portfolio branch of the forward check and the `evaluation: portfolio` hypotheses.
-6. For portfolio strategies only: `specs/done/cross-sectional-portfolio-backtest.md` (`ScoreSnapshot`, `PortfolioRule`, `EqualRiskSizer`, and the replay the tracking check compares against). Portfolio strategies do not need `StreamingRuntime`; event strategies do.
-7. `specs/golden-set-expansion.md` — calibrated publish thresholds. The user decided on 2026-10-09 that the uncalibrated `min_confidence_to_publish` default of 0.0 must be corrected before launch, so no event strategy's ledger starts until every source it reads has a current calibration (`config/models/scores/calibration.json`, enforced by `test_every_live_source_has_a_current_calibration_matching_its_publish_threshold`). An `uncalibrated` source is excluded from paper inputs, logged, not silently used.
-8. For portfolio strategies only: `specs/slow-signal-data-refresh.md` — the DAGs that write each rebalance date's `ScoreSnapshot` and keep its input panels and universe-member prices current. Without them every rebalance session is a data gap.
-9. For portfolio strategies only: `specs/catalyst-date-panel.md` — the point-in-time PDUFA and AdCom dates `CatalystGuard` reads on each trade date (kept current by the data refresh above).
-10. Recommended, not a hard blocker: `specs/company-program-corroboration.md`. Paper trading can start on gene-target corroboration, but the audit expects company-program events to be the ones worth testing; starting earlier only buys calendar time.
+1. `specs/golden-set-expansion.md` — calibrated publish thresholds. The user decided on 2026-10-09 that the uncalibrated `min_confidence_to_publish` default of 0.0 must be corrected before launch, so no event strategy's ledger starts until every source it reads has a current calibration (`config/models/scores/calibration.json`, enforced by `test_every_live_source_has_a_current_calibration_matching_its_publish_threshold`). An `uncalibrated` source is excluded from paper inputs, logged, not silently used.
+2. For portfolio strategies only: `specs/slow-signal-data-refresh.md` — the DAGs that write each rebalance date's `ScoreSnapshot` and keep its input panels and universe-member prices current. Without them every rebalance session is a data gap.
+3. For portfolio strategies only: `specs/catalyst-date-panel.md` — the point-in-time PDUFA and AdCom dates `CatalystGuard` reads on each trade date (kept current by the data refresh above).
+4. Recommended, not a hard blocker: `specs/company-program-corroboration.md`. Paper trading can start on gene-target corroboration, but the audit expects company-program events to be the ones worth testing; starting earlier only buys calendar time.
 
 **Branch:** `feature/forward-paper-trading`
+**Docs impact:** `STR-new` ([docs/strategy/runtime.md](../docs/strategy/runtime.md)): the paper ledger, daily close-out, heartbeats, gap detection and the per-tier books. Changes STR-021 (restart idempotency, `docs/strategy/runtime.md`) and STR-053 (the runtime reviews intents through the risk layer, `docs/strategy/risk.md`). Uses the forward-check requirements EVA-027 and EVA-028 (`docs/research/evaluation-protocol.md`).
 
 ---
 
@@ -24,7 +19,7 @@ The 2026-10-07 edge feasibility audit (row 7) calls forward paper trading "the o
 What exists or is specified:
 - `services/strategy` (`auspex_strategy`): `Strategy` ABC, `AsOfContext`, `TradeIntent`, `StrategyRegistry`, strategy `status` (`research` → `paper` → `live-confirm` → `live-auto`), `SubscriptionType.CALENDAR_TICK`.
 - `specs/done/strategy-runtime.md`: `StreamingRuntime` consumes `auspex.signals.corroborated` and runs `paper`-or-above strategies; `VirtualBook` is append-only Parquet in MinIO per strategy and mode; runtime state lives in MinIO, not Postgres (Invariant 2). It does not define a daily close-out, a gap check, or a report.
-- `specs/decision-trace.md`: full `TraceRecord`. This spec needs only the subset listed below and must not block on the full trace.
+- `specs/done/decision-trace.md`: full `TraceRecord`. This spec needs only the subset listed below and must not block on the full trace.
 - `services/backtesting`: `PriceSnapshotStore` (MinIO Parquet), `MarketCalendar`, `CostModel`, `FillModel`, `CurrencyConverter`; `config/hypotheses/` with `verify_hypothesis()`.
 - Daily price refresh: price snapshots are "fetch once" for history; the forward ledger needs each new session's close for its tickers, XBI and `EURUSD=X`.
 
@@ -52,7 +47,7 @@ In `services/strategy/src/auspex_strategy/paper/`:
 
 - Real orders or broker connectivity (live trading, session 3).
 - Risk checks and sizing beyond the pass-through stub `strategy-runtime` already allows (`specs/done/portfolio-and-risk.md`).
-- The full `TraceRecord` and `TraceValidator` (`specs/decision-trace.md`); the ledger's `intent` rows carry the chain of custody needed now.
+- The full `TraceRecord` and `TraceValidator` (`specs/done/decision-trace.md`); the ledger's `intent` rows carry the chain of custody needed now.
 - Changing hypotheses, kill criteria or the evaluation statistics (pre-registration work and `specs/done/evaluation-protocol.md`).
 - Intraday marks.
 
@@ -62,7 +57,7 @@ In `services/strategy/src/auspex_strategy/paper/`:
 - Invariant 9: sessions and timestamps in UTC; session dates from `MarketCalendar`.
 - Invariant 14: intents reference documents by `event_id`/`raw_object_key`, never by a re-derived identity.
 - Append-only: no ledger row is ever edited or deleted.
-- Point-in-time: an intent's `as_of` is the runtime's known-at time; entry is the next session's open after `as_of`, using the same rule as the backtest (look-ahead fix). The ledger must never record a fill price from a session before the intent existed.
+- STR-003, STR-004 and RES-069: an intent's `as_of` is the runtime's known-at time, and entry is the next session's open after `as_of`, by the backtest's rule. The ledger must never record a fill price from a session before the intent existed.
 - `pytest-socket` blocks network in unit tests; Kafka, MinIO and prices are fakes.
 - Invariant 6: schedule offsets, MinIO and price settings from `.env`.
 

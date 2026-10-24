@@ -1,5 +1,7 @@
 # Ownership share basis
 
+> Archived. Not authoritative: current behaviour is in docs/ (see docs/README.md).
+
 **Status:** done
 **Blocked by:** none (price-finality-and-split-availability is done)
 **Branch:** `feature/ownership-share-basis`

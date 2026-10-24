@@ -15,7 +15,7 @@ Verified current as of **2026-08-15**. Anything marked *resolve at install* must
 | Kafka | `apache/kafka:4.3.0` | KRaft, no Zookeeper. |
 | PostgreSQL | `postgres:18.6` | 18 is current; **19 is in beta — do not use.** |
 | Neo4j | `neo4j:2026.05-community` | Neo4j moved to calendar versioning; the 5.x line ended at 5.26 LTS. **See open question 4.** |
-| MinIO | `quay.io/minio/minio:RELEASE.2025-09-07T16-13-09Z` | The stack's object store (`auspex-raw`, `auspex-prices`). Compose only: quay.io requires auth, so integration tests use LocalStack's S3 API instead. |
+| MinIO | `quay.io/minio/minio:RELEASE.2025-09-07T16-13-09Z` | The stack's object store. Compose only: quay.io requires auth, so integration tests use LocalStack's S3 API instead. |
 | LocalStack (testcontainers) | `localstack/localstack:4.9.2` | Integration tests only; CI pulls it through `mirror.gcr.io` (`TESTCONTAINERS_HUB_IMAGE_NAME_PREFIX`). S3 stand-in for MinIO in integration tests only (minio/minio left Docker Hub; quay.io requires auth); the stack itself runs MinIO. **Do not move to calendar-versioned tags (`2026.x`)** — from 2026.03 the image exits with code 55 unless `LOCALSTACK_AUTH_TOKEN` is set. 4.9.2 is the last tag verified to start without a licence (2026-10-07). |
 | Airflow | `apache/airflow:3.3.1` | Orchestration (ingestion, price refresh, universe build DAGs). Python 3.14 compatible. |
 | Ollama (host, not a container) | *resolve at install* | Local extraction model server. Record `ollama --version` here when installed (`docs/local-model-runbook.md`). Model weights are pinned by digest in `config/models/registry.yaml`, not here. |
@@ -125,11 +125,11 @@ Managed with **npm**; `package-lock.json` is committed and authoritative. Exact 
 
 | Package | Pinned version |
 |---|---|
-| next | 16.4.0 |
+| next | 16.4.2 (resolved 2026-10-23 for GHSA-2464-fhr4-w9xw, GHSA-p3m5-59mp-jv5r and GHSA-673q-mjm6-r5xr; security patch taken before two weeks) |
 | react / react-dom | 19.3.0 |
 | bcryptjs | 3.0.3 |
 | typescript | 5.8.3 |
-| eslint / eslint-config-next | 9.39.1 / 16.4.0 |
+| eslint / eslint-config-next | 9.39.1 / 16.4.2 |
 | tailwindcss / @tailwindcss/postcss | 4.3.3 |
 | vitest | 5.0.3 |
 | vite / @vitejs/plugin-react | 8.3.4 / 6.1.2 |

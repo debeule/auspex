@@ -3,18 +3,19 @@
 **Status:** hold
 **Blocked by:** the backtest must show a real repeatable signal before notifications are worth building.
 **Branch:** `feature/watchlist-alerts`
+**Docs impact:** adds HUB IDs for the notification transport and the watchlist notification (`docs/core-hub/http-api.md`, next to the health reporter HUB-052, which gains emission through the transport); COR-007 and COR-012 stay unchanged. Retires nothing.
 
 ---
 
 ## Context
 
-`core-hub` publishes to `auspex.signals.corroborated` (via `ScheduledCorroborationService.runCorroboration()`). Requirements §12 specifies a health reporter that, from Phase 5, emits through a notification transport. This spec wires both concerns — new-corroboration notifications and health alerts — to Discord webhooks.
+`core-hub` publishes to `auspex.signals.corroborated` (via `ScheduledCorroborationService.runCorroboration()`). The health reporter (HUB-052 in `docs/core-hub/http-api.md`) exports DLT depth and per-source signal age; requirements §12 has it emit through a notification transport once one exists. This spec wires both concerns — new-corroboration notifications and health alerts — to Discord webhooks.
 
 Existing infrastructure: Postgres, Flyway, `@Scheduled`, `JdbcTemplate`, all in `core-hub`. No new service is introduced.
 
 ## What this builds
 
-**Watchlist lookup:** No new watchlist table. The watchlist is `watchlist` joined to `watchlist_gene_target` (Flyway V3), maintained through the watchlist API. A corroboration's entity key is `<normalised name>:<label>` (`CorroborationScanner`), for example `BCL11A:GeneTarget`. An event is watched when its label is `GeneTarget` and its name matches a `watchlist_gene_target.gene_target` (stored upper-cased) case-insensitively:
+**Watchlist lookup:** No new watchlist table. The watchlist is `watchlist` joined to `watchlist_gene_target` (Flyway V3), maintained through the watchlist API. A corroboration's entity key is defined by COR-004 (`docs/core-hub/corroboration.md`), for example `BCL11A:GeneTarget`. An event is watched when its label is `GeneTarget` and its name matches a `watchlist_gene_target.gene_target` (stored upper-cased) case-insensitively:
 
 ```sql
 SELECT w.ticker FROM watchlist_gene_target g JOIN watchlist w ON w.id = g.watchlist_id
@@ -45,7 +46,7 @@ Rate-of-change alerts, price alerts.
 
 - Invariant 2 holds: `core-hub` is still the sole writer. No new service.
 - Transport failure never blocks the corroboration pipeline. Exceptions from `NotificationTransport` are caught inside `WatchlistNotificationService`; the caller (`runCorroboration()`) does not see them.
-- Deduplication on `participants_hash`, not `entity_key` alone — a new evidence set (new hash) for the same entity must notify; a re-processed identical evidence set must not.
+- Deduplication on `participants_hash`, not `entity_key` alone (the record of COR-005 and COR-007, published at least once per COR-012) — a new evidence set (new hash) for the same entity must notify; a re-processed identical evidence set must not.
 - Every `@Transactional` stays qualified. The notification insert uses `jpaTransactionManager`.
 - `DISCORD_WEBHOOK_URL` is required. If absent, `WatchlistNotificationService` logs a startup warning and becomes a no-op — it does not prevent the application from starting.
 
@@ -82,7 +83,7 @@ Integration test passes.
 cd services/core-hub && ./gradlew check --rerun-tasks
 ```
 
-Full suite green. `CorroborationServiceContractTest` passes unmodified (the notification side effect in `runCorroboration()` must not break any existing contract test).
+Full suite green. The contract test passes unmodified (COR-001; the notification side effect in `runCorroboration()` must not break any existing contract test).
 
 ## Notes
 

@@ -150,10 +150,29 @@ def test_airflow_db_role_script_alters_the_role_from_env_and_creates_it_if_missi
 
 
 def test_docs_never_offer_down_v_as_a_fix() -> None:
-    for doc in ("README.md", "CLAUDE.md", "SETUP.md", "docker/README.md", "docker/CLAUDE.md"):
-        for n, line in enumerate((REPO_ROOT / doc).read_text(encoding="utf-8").splitlines(), 1):
+    # A missing AGENTS.md raises in read_text, so deleting an agent file fails here rather than
+    # shrinking the list. Not `**/AGENTS.md`: that would walk services/dashboard/node_modules.
+    operations = sorted((REPO_ROOT / "docs" / "operations").glob("*.md"))
+    agents = [
+        REPO_ROOT / "AGENTS.md",
+        REPO_ROOT / "services" / "AGENTS.md",
+        REPO_ROOT / "docker" / "AGENTS.md",
+        *sorted((REPO_ROOT / "services").glob("*/AGENTS.md")),
+    ]
+    assert len(operations) >= 4, "docs/operations/*.md not found; the guard would be vacuous"
+    docs = [
+        *(
+            REPO_ROOT / d
+            for d in ("README.md", "CLAUDE.md", "SETUP.md", "docker/README.md", "docker/CLAUDE.md")
+        ),
+        *agents,
+        *operations,
+    ]
+    for path in docs:
+        for n, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
             if "down -v" in line:
-                assert "destroys all data" in line, f"{doc}:{n} mentions down -v without warning"
+                where = f"{path.relative_to(REPO_ROOT)}:{n}"
+                assert "destroys all data" in line, f"{where} mentions down -v without warning"
 
 
 def test_new_secrets_are_documented_in_setup() -> None:

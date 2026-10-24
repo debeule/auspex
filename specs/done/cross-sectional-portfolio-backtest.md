@@ -1,5 +1,7 @@
 # Cross-Sectional Portfolio Backtest
 
+> Archived. Not authoritative: current behaviour is in docs/ (see docs/README.md).
+
 **Status:** done
 **Blocked by:**
 1. Met in code: `specs/point-in-time-universe.md` (PR #21, #22) — monthly `UniverseSnapshot`s with `exited_on`, `exit_reason` and `price_coverage`. Runs on the stack need its first build.

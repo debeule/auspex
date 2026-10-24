@@ -1,5 +1,7 @@
 # Scraper HTTP API
 
+> Archived. Not authoritative: current behaviour is in docs/ (see docs/README.md).
+
 **Status:** done
 **Blocked by:** [Centralised logging](centralised-logging.md) — structlog must be configured before the API starts emitting logs
 **Branch:** `feature/scraper-api`

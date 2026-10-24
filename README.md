@@ -2,29 +2,29 @@
 
 Local biotech signal research pipeline. Convergence of evidence across sources is the signal — no single document is.
 
+Requirements, by domain and with their owners: [docs/README.md](docs/README.md).
+
 ---
 
 ## Architecture
 
-Five public sources feed into `ingestion-scraper` (Python), which archives raw documents to MinIO and publishes extracted signals to Kafka. `core-hub` (Java/Spring) is the sole database writer: it consumes from Kafka, writes to Postgres (audit trail, signal state, corroborations) and Neo4j (signal graph), runs windowed corroboration, and exposes a REST API. `price-service` and the backtesting jobs (`services/backtesting`) keep price snapshots, the point-in-time universe, ownership and catalyst panels as Parquet in a second MinIO bucket. `strategy-runtime` (`services/strategy`) consumes corroborations from Kafka, runs the registered strategies at `paper` status or above, keeps their virtual books in a third bucket, and serves per-version strategy metrics computed from those books. The `dashboard` (Next.js) is the application's interface: the browser talks only to the dashboard's own server, which checks the single-user session and forwards to core-hub, the scraper and price-service. core-hub accepts writes only with the dashboard's bearer token and serves no CORS headers.
-
-**Hard boundary:** `ingestion-scraper` writes only to MinIO and Kafka — never the database. `core-hub` is the only process that touches Postgres or Neo4j.
+Public sources feed `ingestion-scraper` (Python), which archives raw documents to MinIO and publishes extracted signals to Kafka. `core-hub` (Java/Spring) consumes them, keeps the signal state, the signal graph and the corroborations, and serves a REST API. `price-service` and the backtesting jobs keep price snapshots and research panels in MinIO. `strategy-runtime` runs the registered strategies on corroborations into virtual books. The `dashboard` (Next.js) is the interface: the browser talks only to the dashboard's own server, which forwards to the backend services. Airflow schedules the ingestion, price, universe, backup and health DAGs. The full picture is [docs/system/overview.md](docs/system/overview.md); the rules every component keeps are the invariants in [docs/system/invariants.md](docs/system/invariants.md).
 
 ---
 
 ## Services
 
-| Service | Stack | Role |
+| Service | Directory | Role |
 |---|---|---|
-| [`ingestion-scraper`](services/ingestion-scraper/README.md) | Python 3.14, uv, Airflow-scheduled | Fetch → archive → pre-filter → LLM extract → publish. Stateless — no DB access. 5 connectors. |
-| [`core-hub`](services/core-hub/README.md) | Java 25, Spring Boot 4.1 | Kafka consumer, sole DB writer, corroboration engine, confidence scoring, REST API. |
-| [`dashboard`](services/dashboard/README.md) | Node 24, Next.js 16 | Control and research UI behind a single-user login; its route handlers forward to the backend services. Holds no data. |
+| ingestion-scraper | [`services/ingestion-scraper/`](services/ingestion-scraper/README.md) | Fetch, archive, pre-filter, extract and publish, over an HTTP API the ingestion DAGs call |
+| core-hub | [`services/core-hub/`](services/core-hub/README.md) | Kafka consumer, signal store and graph, corroboration, REST API |
+| price-service and backtesting | [`services/backtesting/`](services/backtesting/README.md) | Price snapshots, universe and research panels; backtests and the evaluation protocol |
+| strategy-runtime | [`services/strategy/`](services/strategy/README.md) | Strategy framework, runtime, risk layer and decision traces |
+| backup | [`services/backup/`](services/backup/README.md) | Nightly backup of Postgres, Neo4j and MinIO; restore into empty stores |
+| dashboard | [`services/dashboard/`](services/dashboard/README.md) | Control and research UI behind a single-user login |
+| Airflow DAGs | `services/*/dags/`, see [orchestration/README.md](orchestration/README.md) | Ingestion per source, price refresh, universe build, backup, daily health summary |
 
----
-
-## Infrastructure
-
-Kafka 4.3 (KRaft, no Zookeeper), PostgreSQL 18, Neo4j 2026.05, MinIO, Airflow 3.3. All local, all via Docker Compose. See [`docker/README.md`](docker/README.md) for details.
+The stack around them (Kafka, Postgres, Neo4j, MinIO, Airflow, logging and metrics) is described in [docker/README.md](docker/README.md); pinned versions are in [VERSIONS.md](VERSIONS.md).
 
 ---
 
@@ -33,36 +33,27 @@ Kafka 4.3 (KRaft, no Zookeeper), PostgreSQL 18, Neo4j 2026.05, MinIO, Airflow 3.
 ```bash
 cp .env.example .env          # fill in secrets and API keys — see SETUP.md
 docker compose --profile app -f docker/docker-compose.yml --env-file .env up -d --build --wait
-cd services/ingestion-scraper && uv sync --all-extras
-uv run python scripts/run_pipeline.py --days 30 --sources clinicaltrials pubmed
-curl http://localhost:8080/api/v1/signals/BEAM
 ```
+
+[SETUP.md](SETUP.md) lists the manual steps in order. The dashboard is then at `http://localhost:3001` (`DASHBOARD_PORT` in `.env`).
 
 ---
 
-## Development commands
+## Stack commands
 
 | Purpose | Command |
 |---|---|
-| Bring up infra | `docker compose -f docker/docker-compose.yml --env-file .env up -d --wait` |
+| Bring up infra only | `docker compose -f docker/docker-compose.yml --env-file .env up -d --wait` |
+| Bring up the full stack | `docker compose --profile app -f docker/docker-compose.yml --env-file .env up -d --wait` |
 | Tear down (keep volumes) | `docker compose -f docker/docker-compose.yml --env-file .env down` |
 | Tear down and wipe volumes (destroys all data: price history, the pinned universe, the raw archive and every signal) | `docker compose -f docker/docker-compose.yml --env-file .env down -v` |
-| Python: install | `cd services/ingestion-scraper && uv sync --all-extras` |
-| Python: unit tests | `cd services/ingestion-scraper && uv run pytest tests/unit -q` |
-| Python: full suite | `cd services/ingestion-scraper && uv run pytest -q` |
-| Python: lint + types | `cd services/ingestion-scraper && uv run ruff check . && uv run mypy src` |
-| Java: unit tests | `cd services/core-hub && ./gradlew test` |
-| Java: container tests | `cd services/core-hub && ./gradlew integrationTest` |
-| Java: everything | `cd services/core-hub && ./gradlew check` |
-| Backtesting: unit tests | `cd services/backtesting && uv run pytest tests/unit -q` |
-| Backtesting: integration tests (Docker) | `cd services/backtesting && uv run pytest tests/integration -q` |
-| Strategy: lint, types, unit tests | `cd services/strategy && uv run ruff check . && uv run mypy src && uv run pytest tests/unit -q` |
-| Kill switch: stop new intents (all, or `--strategy <name>`; `--reset` to lift) | `cd services/strategy && MINIO_ENDPOINT=localhost:9000 MINIO_ACCESS_KEY=... MINIO_SECRET_KEY=... uv run python -m auspex_strategy kill --reason "<why>"` |
-| Backup: lint, types, unit tests | `cd services/backup && uv run ruff check . && uv run mypy src && uv run pytest tests/unit -q` |
-| Restore a nightly backup into empty stores | `docker compose --profile restore -f docker/docker-compose.yml --env-file .env run --rm restore --date YYYY-MM-DD` (`docs/backup-restore.md`) |
-| Dashboard: lint, types, tests | `cd services/dashboard && npm ci && npm run lint && npx tsc --noEmit && npm run test:ci` |
-| Dashboard: build + bundle secret check | `cd services/dashboard && npm run build && npm run test:bundle` |
-| Smoke test | `./verify_pipeline.sh` |
+| Restore one nightly backup into empty stores ([docs/backup-restore.md](docs/backup-restore.md)) | `docker compose --profile restore -f docker/docker-compose.yml --env-file .env run --rm restore --date YYYY-MM-DD` |
+| core-hub REST smoke check: two REST requests, not proof that the pipeline works | `./verify_pipeline.sh` |
+| Grafana provisioning check: dashboards, alert rules, contact point, scrape targets and probes | `GRAFANA_ADMIN_PASSWORD=... sh docker/grafana/test_provisioning.sh` |
+
+Stop all strategies: the kill switch in [`services/strategy/AGENTS.md`](services/strategy/AGENTS.md).
+
+Service commands: the `AGENTS.md` in each service directory.
 
 ---
 
@@ -71,37 +62,28 @@ curl http://localhost:8080/api/v1/signals/BEAM
 ```
 auspex/
 ├── services/
-│   ├── ingestion-scraper/   Python scraper — fetch, archive, extract, publish
-│   ├── core-hub/            Java Spring Boot — sole DB writer, corroboration, REST
-│   └── backtesting/         Prices, market simulation, backtests; price refresh API
-├── orchestration/          Airflow notes (DAGs live with their services)
-├── docker/                  Docker Compose stack + startup data bootstrap
-├── docs/                    Reference docs: requirements, prerequisites, runbooks
-├── SETUP.md                 The manual steps, in order; everything else fills itself on `up`
-├── CLAUDE.md                Claude Code operational context (auto-loaded)
-├── PROGRESS.md              Execution ledger (test counts, step status)
-├── VERSIONS.md              Pinned versions — single source of truth
-└── DECISIONS.md             Append-only flag/choice log
+│   ├── ingestion-scraper/   Python scraper: fetch, archive, extract, publish
+│   ├── core-hub/            Java Spring Boot: signal store, graph, corroboration, REST
+│   ├── backtesting/         price-service, universe, panels, backtests, evaluation
+│   ├── strategy/            strategy framework, strategy-runtime, risk, traces
+│   ├── backup/              nightly backup and restore
+│   └── dashboard/           Next.js control and research UI
+├── config/                  hypotheses, universe rules, models, strategies, themes
+├── docker/                  Docker Compose stack, startup one-shots, monitoring
+├── orchestration/           pointer to the DAGs (they live with their services)
+├── docs/                    requirements by domain, runbooks, history
+├── specs/                   proposed changes; specs/done/ is history
+├── tools/                   docs checker
+├── .github/                 CI workflows and scripts
+├── AGENTS.md                agent instructions (CLAUDE.md imports it)
+├── SETUP.md                 the manual steps, in order; everything else fills itself on `up`
+├── TODO.md                  spec index and session log
+├── VERSIONS.md              pinned versions
+└── DECISIONS.md             append-only log of flags, choices and decisions
 ```
-
----
-
-## Current status
-
-Phase 3 complete. Extraction precision 100% (golden set, 50 docs). Corroboration precision 86.7% (30 live samples, seed=42). Phase 4 (historical backfill + backtesting) is next. Step 2.3 (EPO OPS patent connector) blocked on credentials — register at developers.epo.org.
-
----
-
-## Key constraints
-
-- `ingestion-scraper` writes **only** to MinIO and Kafka — never the database
-- `core-hub` is the **sole** writer to Postgres and Neo4j
-- The MinIO archive is **unconditional and first** — before any other side effect
-- Write order in `core-hub`: Neo4j → Postgres → acknowledge (ack-mode RECORD)
-- Every `@Transactional` must be qualified — two transaction managers are on the classpath
 
 ---
 
 ## Watched tickers
 
-SRPT, SPRB, BEAM, CRSP, CAPR, ABVX, RCKT, QURE (gene therapy / editing focus)
+The watched tickers are `WATCHED_TICKERS` in [.env.example](.env.example).

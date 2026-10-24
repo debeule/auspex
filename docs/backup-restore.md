@@ -1,4 +1,5 @@
 # Backup and restore
+Why and what is backed up: [docs/operations/backup.md](operations/backup.md).
 
 The stack backs itself up every night at 03:00 UTC (Airflow DAG `auspex_backup`, which calls the
 `backup` service). Everything goes into `BACKUP_HOST_DIR`, a folder on the Mac that Time Machine

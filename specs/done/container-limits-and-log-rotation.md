@@ -1,5 +1,7 @@
 # Container limits and log rotation
 
+> Archived. Not authoritative: current behaviour is in docs/ (see docs/README.md).
+
 **Status:** done
 **Branch:** `feature/container-limits-and-log-rotation`
 

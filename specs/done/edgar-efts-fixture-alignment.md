@@ -1,5 +1,7 @@
 # EDGAR EFTS Fixture Alignment
 
+> Archived. Not authoritative: current behaviour is in docs/ (see docs/README.md).
+
 **Status:** done
 **Branch:** `feature/edgar-efts-fixture-alignment`
 

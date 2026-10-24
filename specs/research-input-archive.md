@@ -3,6 +3,7 @@
 **Status:** ready
 **Blocked by:** —
 **Branch:** `feature/research-input-archive`
+**Docs impact:** changed: EVA-026 ([docs/research/evaluation-protocol.md](../docs/research/evaluation-protocol.md#EVA-026)), the input-manifest requirement, from refusing every manifest to verifying one; whether EVA-016 (durable trial ledger and holdout records) is changed here or by its own fix spec is decided at this spec's scoping.
 
 ---
 
@@ -43,7 +44,7 @@ When done, every universe month, ownership panel, share-count reference and scor
 - FINRA short interest: its snapshots are the API response already. Referenced by key and content hash only.
 - Raw scraped documents, which `auspex-raw` already archives (invariant 13), and catalyst documents, which `catalysts/fetch.py`'s `DocumentCache` already keeps.
 - A size cap, a budget alert and pruning. The user allows up to 150 GB on the stack machine and needs no guards (2026-10-17); the archive keeps everything the builds read.
-- Any change to universe rules, registered hypotheses or what a build selects.
+- Any change to universe rules, registered hypotheses or what a build selects (research config is read-only: EVA-006).
 
 ## Constraints
 

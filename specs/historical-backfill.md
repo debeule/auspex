@@ -3,19 +3,16 @@
 **Status:** blocked
 **Blocked by:**
 1. Budget approval — run the dry run first, get sign-off before execution. See `docs/PREREQUISITES.md`.
-2. Local model selection — `model-evaluation` spec must pass a local candidate at ≥0.85 precision and its gate record must be written before the backfill can run. Chosen model recorded in DECISIONS.md `2026-09-19 CHOICE`.
-3. `extraction-backend` spec must be done first: the cutoff guard reads the model registry, the gate record check runs at startup, and the lineage report requires pinned `extraction_model` values in `signal_extraction_history`.
-4. `model-evaluation` spec must be done first: dry-run wall-clock estimate for local backends reads the latency record from `evaluate_model.py`.
+2. Local model selection — a local model passes the gate (EXT-013) and its gate record is written before the backfill can run. Chosen model recorded in DECISIONS.md under the rule of EXT-014.
 5. `golden-set-expansion` spec must be done first: gate records for the chosen model on the expanded (multi-gene-target) golden set must exist before running at scale.
 6. **Human project review** — the live run (any invocation without `--dry-run`) is gated on explicit human sign-off. The dry run may be executed freely; the live run must not be started until the review has concluded and continuation is confirmed. See `DECISIONS.md` 2026-09-20 BLOCKED.
-
 7. **Universe scope** — decided 2026-10-07 (`DECISIONS.md` CHOICE "point-in-time universe scope"); `specs/point-in-time-universe.md` lists it. The universe decides which companies' filings and trials are backfilled (company-scoped EDGAR and ClinicalTrials.gov queries read `config/universe/backfill_scope.yaml` when it exists). The universe build itself is not a blocker; settling its scope is.
-
-**Recommended before starting (not a hard blocker but significantly affects signal yield):** `edgar-content-fix` spec — without it, EDGAR 8-K documents in the backfill window will produce metadata-only `raw_content` and no extractable signals (8 of 13 Phase 2 FNs were this failure mode).
+8. **Two non-LLM panels first** (`2026-10-08 — Edge research scoping — CHOICE — two non-LLM panels before the LLM backfill`): the LLM backfill waits until the catalyst-date and ClinicalTrials.gov version-diff diagnostics have run and show whether catalyst windows or registry edits carry return. The research requirement for this gate is in [backtesting.md](../docs/research/backtesting.md).
 
 **Pre-registration (in place since 2026-10-07):** `config/hypotheses/protocol.yaml` and hypothesis versions 2 are registered before any backfill data exists. Do not change either after the live run starts without a new registration and a `DECISIONS.md` entry saying the change was made after the corpus was visible.
 
 **Branch:** `feature/historical-backfill`
+**Docs impact:** none until built. Cites ING-032 (processed markers), ING-006 (per-host rates), EXT-013 (the gate), EXT-014 (the model decision rule), EXT-019 (re-extraction) and INV-1, INV-3, INV-10, INV-13. The runner and its live-cursor rule are new work this spec owns; when built, the backfill runner is added to [pipeline.md](../docs/ingestion/pipeline.md) or the research docs by this spec.
 
 ---
 
@@ -34,7 +31,7 @@ Forward-only collection at realistic biotech signal density yields single-digit 
 
 FDA is not included: low event density for the 8 watched companies over 24 months, and the daily quota constraint makes bulk queries slow.
 
-**Lineage constraint**: the whole backtest corpus must come from one model. Documents already extracted live (under `gpt-4o-mini` or any subsequent model) are skipped by content-hash dedup (§7.1) on re-fetch. If the backfill model differs from those live extractions, the corpus is silently mixed. The overlap must be re-extracted under the backfill model via the reextraction-cli (§10.4) before the backtest runs. The dry run reports how many in-window documents are already extracted and under which model identifiers.
+**Lineage constraint**: the whole backtest corpus must come from one model. Documents already extracted live (under `gpt-4o-mini` or any subsequent model) are skipped by their processed markers (ING-032) on re-fetch. If the backfill model differs from those live extractions, the corpus is silently mixed. The overlap must be re-extracted under the backfill model via re-extraction (EXT-019) before the backtest runs. The dry run reports how many in-window documents are already extracted and under which model identifiers.
 
 **Local test-period extractions**: if live extraction has run under a local model during the test period, those events carry the local model's pinned identifier. They may be part of the backfill corpus only if the local model is also the chosen backfill model (same registry entry, same prompt and prefilter versions). Otherwise they must be excluded from the backtest corpus via re-extraction under the backfill model.
 
@@ -59,15 +56,12 @@ New connectors. Changes to `IngestionPipeline`. Modification of the live schedul
 
 ## Constraints
 
-- Invariant 1: runner writes only to MinIO and Kafka (via the pipeline).
-- Invariant 3: runner calls `IngestionPipeline.run()` — no ingestion logic in the runner.
-- Invariant 13: MinIO archive is unconditional and first (unchanged inside the pipeline).
-- Invariant 10: idempotent — a document already ingested live reuses its `event_id`.
+- INV-1, INV-3, INV-13, INV-10 apply: the runner writes through the pipeline only and holds no ingestion logic, and a document already ingested live reuses its `event_id`.
 - Cutoff guard lives in the runner. `IngestionPipeline` must accept any cursor.
 - Lineage decision is Option A (DECISIONS.md 2026-09-19 CHOICE): the backfill model is the local model selected by spec 2a. The dry-run overlap report must show zero in-window documents under a different model identifier before the live run proceeds, OR those documents must be re-extracted under the backfill model via the reextraction-cli first. A mixed-lineage corpus is not acceptable — do not proceed to Phase 4 until `SELECT DISTINCT extraction_model FROM signal_extraction_history WHERE published_date >= backfill_start` returns exactly one identifier.
 - `BACKFILL_BUDGET_CEILING` absent without `--dry-run` → fail loudly.
 - EPO OPS: CQL date-range syntax `pd within "YYYYMMDD,YYYYMMDD"` confirmed (DECISIONS.md 2026-09-17); 2,000-result per-window limit requires date-window splitting for high-density CPC classes.
-- PubMed: NCBI rate limit is 3 req/s without key, 10 with (key configured per PREREQUISITES.md); use `datetype=pdat&mindate=YYYY/MM/DD&maxdate=YYYY/MM/DD`.
+- PubMed: the host limit and configured rate follow ING-005 and ING-006 (key configured per PREREQUISITES.md); use `datetype=pdat&mindate=YYYY/MM/DD&maxdate=YYYY/MM/DD`.
 
 ## Required tests
 

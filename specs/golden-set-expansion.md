@@ -1,8 +1,9 @@
 # Golden Set Expansion
 
 **Status:** blocked
-**Blocked by:** the local model gate in `specs/first-run-on-stack-machine.md` step 5 ("Gate the candidates"), which runs on the stack machine. The local model must be selected (≥0.85 precision gate, DECISIONS.md CHOICE entry written) before gate records can be re-established for the expanded set under the chosen model. The scoring scripts it uses are done (`specs/done/model-evaluation.md`).
+**Blocked by:** the local model gate in `specs/first-run-on-stack-machine.md` step 5 ("Gate the candidates"), which runs on the stack machine. The local model must be selected (the gate of EXT-013 passed, DECISIONS.md CHOICE entry written under EXT-014) before gate records can be re-established for the expanded set under the chosen model. The scoring scripts it uses are done (`specs/done/model-evaluation.md`).
 **Branch:** `feature/golden-set-expansion`
+**Docs impact:** completing it turns EXT-021 (calibrated publish thresholds before launch) `tested` in [extraction.md](../docs/ingestion/extraction.md) and adds the `epo_ops` coverage that EXT-015 lacks; cites EXT-002 and EXT-013.
 
 ---
 
@@ -32,10 +33,10 @@ Both gate records must be present with `passed: true` before `historical-backfil
 
 ### Confidence calibration and publish thresholds
 
-`min_confidence_to_publish` ships at 0.0 (off) because requirements §11.1 forbids a threshold the score's calibration has not measured. The user decided on 2026-10-09 that this must be corrected before launch, so this spec measures it:
+`min_confidence_to_publish` ships at 0.0 (off) because EXT-002 keeps the threshold off until the score's calibration is measured. The user decided on 2026-10-09 that this must be corrected before launch, so this spec measures it:
 
 - `score_extraction.py --calibrate` scores the chosen local model's `confidence_score` against the hand labels: for each `source_type` in `sources.yaml` that is not a fixture source, it bins the extracted signals by confidence (5 equal-width bins on [0, 1]) and reports per-bin count and precision (share labelled `is_signal: true`).
-- The calibrated threshold for a source is the lowest bin edge from which every higher bin meets the 0.85 gate precision. If every bin meets it, the threshold is 0.0, now recorded on evidence instead of by default.
+- The calibrated threshold for a source is the lowest bin edge from which every higher bin meets the gate precision of EXT-013. If every bin meets it, the threshold is 0.0, now recorded on evidence instead of by default.
 - A source with fewer than 30 extracted signals in the set is reported `uncalibrated`, not given a threshold.
 - The result is written to `config/models/scores/calibration.json` (model key, `prompt_version`, `prefilter_version`, per source: bins, threshold or `uncalibrated`), and each calibrated threshold is set as `min_confidence_to_publish` on that source's `sources.yaml` entry in the same commit.
 - A model or `prompt_version` change makes the calibration stale, like a gate record.
@@ -77,7 +78,7 @@ cd services/ingestion-scraper && uv run pytest tests/unit/test_confidence_calibr
 Expected: 4 passed, then 5 passed (the fifth calibration test lands with the calibration run below).
 
 Then:
-- `score_extraction.py --model <local_model_key>` completes at ≥0.85 precision; gate record committed to `config/models/scores/`.
+- `score_extraction.py --model <local_model_key>` passes the gate of EXT-013; gate record committed to `config/models/scores/`.
 - `score_extraction.py --model gpt-4o-mini-2024-07-18` completes; gate record file updated.
 - Both gate record files committed.
 - Precision scores on the expanded set for both models recorded in `DECISIONS.md`.
@@ -87,4 +88,4 @@ Then:
 
 The labelling effort is significant: ~100 additional documents, each requiring inspection and a binary label. Prioritise source types already in the MinIO archive (ClinicalTrials.gov, PubMed, bioRxiv) — documents are already fetched and can be re-read from `auspex-raw`. Query `signal_extraction_history` for the gene targets with the most in-window documents to prioritise which targets to label first.
 
-If the local model scores below 0.85 on the expanded set after passing the DMD-only set, investigate whether the failure is gene-target-specific before concluding the model is unsuitable. A failure on a single gene target may be addressable via prompt tuning on a small in-context example — but that changes `prompt_version` and requires re-scoring all registered models.
+If the local model falls below the gate of EXT-013 on the expanded set after passing the DMD-only set, investigate whether the failure is gene-target-specific before concluding the model is unsuitable. A failure on a single gene target may be addressable via prompt tuning on a small in-context example — but that changes `prompt_version` and requires re-scoring all registered models.

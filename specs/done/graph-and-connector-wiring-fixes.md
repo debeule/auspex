@@ -1,5 +1,7 @@
 # Graph and Connector Wiring Fixes
 
+> Archived. Not authoritative: current behaviour is in docs/ (see docs/README.md).
+
 **Status:** done
 **Branch:** `feature/graph-and-connector-wiring-fixes`
 

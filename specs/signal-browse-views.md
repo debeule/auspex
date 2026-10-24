@@ -1,8 +1,9 @@
 # Signal Browse Views
 
 **Status:** blocked
-**Blocked by:** `specs/done/graph-and-connector-wiring-fixes.md` (mechanism links and `Company.ticker`, without which these views show missing data) and `specs/dashboard-foundation.md` (BFF, login, API client).
+**Blocked by:** None outstanding.
 **Branch:** `feature/signal-browse-views`
+**Docs impact:** `DSH-new` ([docs/dashboard.md](../docs/dashboard.md)): the signal, corroboration, company and entity views. `HUB-new` ([docs/core-hub/http-api.md](../docs/core-hub/http-api.md)): the paged browse endpoints.
 
 ---
 
@@ -16,7 +17,7 @@ The data exists:
 - Neo4j: `Signal` linked to `GeneTarget`, `Mechanism` and `Company`.
 - `CorroborationScorer` computes a confidence at read time.
 
-Requirements §4.1: a superseded corroboration row is excluded from REST responses. §3.11: bind parameters everywhere and allowlist validation at the controller boundary.
+COR-007 and HUB-046: a superseded corroboration is excluded from REST responses. INV-12 and HUB-044: bind parameters everywhere and validation at the controller boundary.
 
 ## What this builds
 
@@ -36,8 +37,8 @@ Requirements §4.1: a superseded corroboration row is excluded from REST respons
 
 ## Constraints
 
-- Invariant 12 and §3.11: every filter is a bind parameter. Enum filters (`source_type`, `event_type`, `directionality`, entity `label`) are validated against allowlists; `q` is escaped for `LIKE`; dates parse as ISO-8601 UTC or return 400.
-- §4.1: superseded corroborations never appear in these responses.
+- INV-12 and HUB-044: every filter is a bind parameter. Enum filters (`source_type`, `event_type`, `directionality`, entity `label`) are validated against allowlists; `q` is escaped for `LIKE`; dates parse as ISO-8601 UTC or return 400.
+- COR-007 and HUB-046: superseded corroborations never appear in these responses.
 - Invariant 9: all timestamps in responses are UTC ISO-8601.
 - Keyset pagination is stable under concurrent inserts: a row inserted while paging never duplicates or skips an already-returned row.
 

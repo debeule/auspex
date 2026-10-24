@@ -6,6 +6,7 @@
 2. Met: `specs/done/slow-signal-preregistration.md` — H11 registered as a diagnostic before any registry edit is joined to returns.
 
 **Branch:** `feature/clinicaltrials-version-diffs`
+**Docs impact:** `RES-new` ([docs/research/panels.md](../docs/research/panels.md)): the registry-history panel, under the shared panel rules RES-026…RES-030.
 
 ---
 
@@ -41,9 +42,9 @@ In `services/backtesting/src/auspex_backtesting/registry/`:
 
 ## Constraints
 
-- Point-in-time: an edit is known at its version's `last_update_posted`, never at the date it says the change took effect. `first_submitted_date` is private (known trap). With monthly archives, an edit is never dated earlier than it was posted.
-- Invariant 6: source URLs and any database credentials in `.env`. Invariant 9: UTC.
-- Requirements §8 pattern: each archive or history page is fetched once.
+- Point-in-time: RES-026; an edit is known at its version's `last_update_posted`, never at the date it says the change took effect, and with monthly archives an edit is never dated earlier than it was posted. `first_submitted_date` is private: the clinical-trials trap in [docs/ingestion/connectors.md](../docs/ingestion/connectors.md).
+- INV-6: source URLs and any database credentials in `.env`. INV-9: UTC.
+- Each archive or history page is fetched once: RES-029.
 - `pytest-socket` in unit tests, with fixture versions.
 
 ## Required tests

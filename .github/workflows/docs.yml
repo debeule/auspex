@@ -1,0 +1,51 @@
+name: Docs
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, edited]
+    branches:
+      - develop
+  push:
+    branches:
+      - develop
+
+jobs:
+  docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python 3.14
+        uses: actions/setup-python@v7
+        with:
+          python-version: '3.14'
+
+      # Not report-only: a broken checker must fail the job.
+      - name: Checker tests
+        run: |
+          set -o pipefail
+          python3 -m unittest discover -s tools/docs_check/tests -t . -v 2>&1 | tee "$RUNNER_TEMP/unittest.log"
+          grep -qE '^Ran ([1-9][0-9]*) tests?' "$RUNNER_TEMP/unittest.log"
+
+      - name: Write PR body
+        if: github.event_name == 'pull_request'
+        env:
+          PR_BODY: ${{ github.event.pull_request.body }}
+        run: printf '%s' "$PR_BODY" > "$RUNNER_TEMP/pr_body.md"
+
+      - name: Docs check
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          BASE_REF: ${{ github.base_ref }}
+          BEFORE: ${{ github.event.before }}
+        run: |
+          if [ "$EVENT_NAME" = pull_request ]; then
+            python3 -m tools.docs_check --base "origin/$BASE_REF" --pr-body "$RUNNER_TEMP/pr_body.md"
+          elif [ -z "$BEFORE" ] || [ "$BEFORE" = 0000000000000000000000000000000000000000 ]; then
+            echo "::notice::new branch: C2 and G skipped"
+            python3 -m tools.docs_check
+          else
+            python3 -m tools.docs_check --base "$BEFORE"
+          fi

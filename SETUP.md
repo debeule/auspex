@@ -13,18 +13,21 @@ docker compose --profile app -f docker/docker-compose.yml --env-file .env up -d 
 | On every `up` | How | When it is a no-op |
 |---|---|---|
 | Kafka topics from `docker/topics.yaml` | `kafka-init` one-shot | topic already exists |
-| MinIO buckets `auspex-raw`, `auspex-prices` | `minio-init` one-shot | bucket already exists |
+| MinIO buckets `auspex-raw`, `auspex-prices`, `auspex-strategy` | `minio-init` one-shot | bucket already exists |
 | Price history for the watchlist, `XBI` and `EURUSD=X` from `PRICE_HISTORY_START` | `price-bootstrap` one-shot | snapshot is current |
 | Postgres databases and roles | `postgres-init/` | volume already initialised |
 | Postgres schema | Flyway on `core-hub` start | migrations applied |
 | Log retention, Grafana dashboards and alerts | `elasticsearch-setup`, Grafana provisioning | already applied |
 | Read-only Postgres role for monitoring | `postgres-monitor-role` one-shot | role exists; its password is reset to `.env`'s |
+| Airflow metadata role | `airflow-db-role` one-shot | role exists; its password is reset to `.env`'s |
+| Airflow state volume (the admin password file) writable for Airflow's user | `airflow-state-init` one-shot | ownership already set |
 
 | On a schedule | How |
 |---|---|
 | New daily bars for the same tickers, Mon–Fri 22:30 UTC | Airflow DAG `auspex_price_refresh`, active from the first start |
 | Point-in-time stock universe (`config/universe/rules.yaml`), first week of each month 06:00 UTC and on the first start | Airflow DAG `auspex_universe_build`, active from the first start. The first run downloads SEC's bulk archives (a few GB, deleted afterwards) and every member's price history, so it takes a while; later runs only add the new month. |
 | Backup of Postgres, Neo4j and MinIO into `BACKUP_HOST_DIR`, daily 03:00 UTC | Airflow DAG `auspex_backup`, active from the first start; `last_success.json` there says when it last fully succeeded. Restoring: `docs/backup-restore.md` |
+| Health summary of the last day, daily 07:00 UTC, sent where alerts go | Airflow DAG `auspex_daily_health`, active from the first start |
 | Source ingestion | Airflow DAGs `auspex_<source>`, paused until step 5 |
 
 `up --wait` fails if a ticker has no price data at all after `price-bootstrap` (`docker logs auspex-price-bootstrap` names it). Yahoo rate limits are the usual cause; run the same `up` again later. A ticker added to `WATCHED_TICKERS` is filled on the next `up`.
@@ -60,6 +63,7 @@ Fill in what only you have, group by group as `.env.example` lists them, and che
 - **macOS:** Docker Desktop → Settings → Resources → Memory: **8 GB**, so a local model fits next to the stack on 24 GB.
 - **macOS:** `brew install node_exporter && brew services start node_exporter`. Prometheus reads the Mac's own CPU, memory and disk from it at `host.docker.internal:9100`; inside Docker only the VM is visible, not Ollama's memory or the Mac's disk. Optional: without it the Mac panels on the Auspex Infrastructure dashboard stay empty and one info alert fires.
 - **Docker Hub (optional):** `docker login` with a free Docker Hub account. The first `up` pulls about ten images, and Docker Hub limits anonymous pulls per IP.
+- **Claude Code (each checkout):** run `claude` once in the checkout and accept the "external imports" prompt. Each `CLAUDE.md` imports the `AGENTS.md` beside it, and a session started in a subfolder such as `services/core-hub` loads the parent folders' `AGENTS.md` only after this approval; without it those rules are skipped silently. A `git worktree` is a separate checkout and needs it again.
 - **Linux:** `sudo sysctl -w vm.max_map_count=262144` and persist it in `/etc/sysctl.d/99-elasticsearch.conf`; Elasticsearch will not start without it.
 
 Then run the `up` command above. The dashboard is at `http://localhost:3001` (`DASHBOARD_PORT`). Airflow is at `http://localhost:8082`; its `admin` password is in `docker exec auspex-airflow cat /opt/airflow/state/simple_auth_manager_passwords.json`, and stays the same across recreates.

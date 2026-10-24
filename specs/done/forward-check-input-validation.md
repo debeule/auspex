@@ -1,5 +1,7 @@
 # Forward-check input validation
 
+> Archived. Not authoritative: current behaviour is in docs/ (see docs/README.md).
+
 **Status:** done
 **Branch:** `feature/forward-check-input-validation`
 
