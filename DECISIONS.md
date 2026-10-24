@@ -1685,3 +1685,45 @@ The `funnel/` and `risk/catalyst_holds.jsonl` keys of the `auspex-strategy` layo
 **Why it matters:** until approved, these rules are written down but not yet the owner's; the cutover lists every `pending-decision` row, and STR-007 describes behaviour the code does not have.
 **Options considered:** A: approve the batch as written, keep the allocator (STR-054 stays `divergent` until built) and keep paper fills for the `live-*` statuses. B: approve it with named items struck or reworded, retire STR-054, or make the runtime refuse `live-*` statuses (a fix spec).
 **Action:** default A. When the owner approves, the owner appends `## <date> — Living docs — CHOICE — strategy-and-dashboard ratification batch`; the cutover's decision step then flips these rows to their real status and Source. Not blocking.
+
+## 2026-10-24 — Living docs — CHOICE — system ratification batch
+**Answers:** `## 2026-10-22 — Living docs — PENDING — system ratification batch`.
+**Choice:** option A, approve the batch as written.
+**Source:** the owner, in the living-docs thread on 2026-10-24, choosing "Approve all" on the card "Approve all seven ratification batches with their recorded defaults?".
+**Action:** the cutover's decision step flips this batch's `pending-decision` rows to their real status and adds this heading to their Source.
+
+## 2026-10-24 — Living docs — CHOICE — engineering ratification batch
+**Answers:** `## 2026-10-22 — Living docs — PENDING — engineering ratification batch`.
+**Choice:** option A, approve the batch as written.
+**Source:** the owner, in the living-docs thread on 2026-10-24, choosing "Approve all" on the card "Approve all seven ratification batches with their recorded defaults?".
+**Action:** the cutover's decision step flips this batch's `pending-decision` rows to their real status and adds this heading to their Source.
+
+## 2026-10-24 — Living docs — CHOICE — ingestion ratification batch
+**Answers:** `## 2026-10-22 — Living docs — PENDING — ingestion ratification batch`.
+**Choice:** option A, approve the batch as written.
+**Source:** the owner, in the living-docs thread on 2026-10-24, choosing "Approve all" on the card "Approve all seven ratification batches with their recorded defaults?".
+**Action:** the cutover's decision step flips this batch's `pending-decision` rows to their real status and adds this heading to their Source.
+
+## 2026-10-24 — Living docs — CHOICE — core-hub ratification batch
+**Answers:** `## 2026-10-22 — Living docs — PENDING — core-hub ratification batch`.
+**Choice:** option A, approve the batch as written.
+**Source:** the owner, in the living-docs thread on 2026-10-24, choosing "Approve all" on the card "Approve all seven ratification batches with their recorded defaults?".
+**Action:** the cutover's decision step flips this batch's `pending-decision` rows to their real status and adds this heading to their Source.
+
+## 2026-10-24 — Living docs — CHOICE — operations ratification batch
+**Answers:** `## 2026-10-22 — Living docs — PENDING — operations ratification batch`.
+**Choice:** option A, approve the batch as written.
+**Source:** the owner, in the living-docs thread on 2026-10-24, choosing "Approve all" on the card "Approve all seven ratification batches with their recorded defaults?".
+**Action:** the cutover's decision step flips this batch's `pending-decision` rows to their real status and adds this heading to their Source.
+
+## 2026-10-24 — Living docs — CHOICE — research ratification batch
+**Answers:** `## 2026-10-22 — Living docs — PENDING — research ratification batch`.
+**Choice:** option A, approve the batch as written.
+**Source:** the owner, in the living-docs thread on 2026-10-24, choosing "Approve all" on the card "Approve all seven ratification batches with their recorded defaults?".
+**Action:** the cutover's decision step flips this batch's `pending-decision` rows to their real status and adds this heading to their Source.
+
+## 2026-10-24 — Living docs — CHOICE — strategy-and-dashboard ratification batch
+**Answers:** `## 2026-10-23 — Living docs — PENDING — strategy-and-dashboard ratification batch`.
+**Choice:** option A, approve the batch as written. Owner questions take their defaults: the capital allocator stays intended (STR-054 stays `divergent` until built), and `live-confirm`/`live-auto` keep trading on paper (STR-014).
+**Source:** the owner, in the living-docs thread on 2026-10-24, choosing "Approve all" on the card "Approve all seven ratification batches with their recorded defaults?".
+**Action:** the cutover's decision step flips this batch's `pending-decision` rows to their real status and adds this heading to their Source.
