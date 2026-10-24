@@ -355,7 +355,7 @@ TREE = {
     "- The decisions log: `DECISIONS.md`.\n",
     "CLAUDE.md": "@AGENTS.md\n",
     "services/AGENTS.md": "# Services\n\nService notes.\n",
-    "services/CLAUDE.md": "@../AGENTS.md\n@AGENTS.md\n",
+    "services/CLAUDE.md": "@AGENTS.md\n",
     "services/alpha/app.py": "VALUE = 1\n",
     "services/alpha/messaging/producer.py": "TOPIC = 'alpha'\n",
     "services/alpha/tests/test_app.py": "def test_alpha_one():\n    assert True\n\n\ndef test_alpha_two():\n"

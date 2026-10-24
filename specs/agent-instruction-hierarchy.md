@@ -3,7 +3,7 @@
 **Status:** blocked
 **Blocked by:** only the manual load check on the owner's Mac (§8: Claude Code and Codex, 28 cells, the `VERIFIED` entry in `DECISIONS.md`); Claude Code and Codex are not installed in cloud sessions. The cloud part of the definition of done passes on `feature/living-docs-agent-instructions`. Everything else it waited on is in place: the domain docs, check L and check D, `## 2026-10-17 — Living docs — CHOICE — agent instruction files`, `## 2026-10-17 — Living docs — CHOICE — rollout branch model` and `## 2026-10-17 — Living docs — CHOICE — docs impact field and Docs unchanged line`.
 **Branch:** `feature/living-docs-agent-instructions` (PR into `feature/living-docs-integration`)
-**Docs impact:** no `docs/` requirement added, changed or retired. Creates root `AGENTS.md` and eight nested `AGENTS.md`; reduces the five existing `CLAUDE.md` files to import shims (the `AGENTS.md` chain from the root down to their own directory) and adds four new ones; changes no other file outside this spec's own `TODO.md` row and its move to `specs/done/`. Appends one `VERIFIED` entry to `DECISIONS.md` after the Mac check.
+**Docs impact:** no `docs/` requirement added, changed or retired. Creates root `AGENTS.md` and eight nested `AGENTS.md`; reduces the five existing `CLAUDE.md` files to `@AGENTS.md` and adds four new ones; changes no other file outside this spec's own `TODO.md` row and its move to `specs/done/`. Appends one `VERIFIED` entry to `DECISIONS.md` after the Mac check.
 
 ---
 
@@ -40,7 +40,7 @@ When this spec is done, Claude Code and Codex get the same instructions from one
 ### 1. Structure (default option of `## 2026-10-15 — Living docs — PENDING — agent instruction files`)
 
 * `AGENTS.md` is canonical at every level. Nothing is imported into it; it names files as plain paths for the agent to open.
-* Every `CLAUDE.md` is exactly the import lines of its `AGENTS.md` chain, root first and its own `@AGENTS.md` last (root: `@AGENTS.md`; `services/core-hub/`: `@../../AGENTS.md`, `@../AGENTS.md`, `@AGENTS.md`), at most 512 B, no "must", "never" or "always". Claude Code expands imports only in the launch directory's `CLAUDE.md`, so a nested shim imports its ancestors itself.
+* Every `CLAUDE.md` is exactly `@AGENTS.md` plus a newline: first line `@AGENTS.md`, at most 512 B, no "must", "never" or "always".
 * `TODO.md` and `VERSIONS.md` stop auto-loading. Root `AGENTS.md` tells the agent to open `TODO.md` at session start and `VERSIONS.md` only when touching a dependency.
 * Pairs (`AGENTS.md` + `CLAUDE.md`) at: repo root, `services/`, `services/core-hub/`, `services/ingestion-scraper/`, `services/backtesting/`, `services/strategy/`, `services/backup/`, `services/dashboard/`, `docker/`.
 
@@ -223,7 +223,7 @@ Optional, if the CLI offers it: the command that lists loaded instruction files 
 **Checker assertions:**
 
 * `agent_files_within_budget` — check L: root ≤ 6 KB, each nested ≤ 3 KB, every root → leaf chain ≤ 16 KB.
-* `claude_md_is_agents_import_only` — check L: every `CLAUDE.md` is exactly its `AGENTS.md` chain imports, root first, is ≤ 512 B, and contains no must/never/always.
+* `claude_md_is_agents_import_only` — check L: every `CLAUDE.md` starts with `@AGENTS.md`, is ≤ 512 B, and contains no must/never/always.
 * `no_at_import_in_agents_md` — check L: no `AGENTS.md` has an `@` immediately followed by a path ending in a file extension, at line start or after whitespace. The root opening line "Nothing is imported into this file" passes.
 * `agent_file_ids_and_headings_resolve` — check D reports nothing for agent files: every `NS-NNN`/`INV-N` cited resolves; no placeholder; no register number.
 * `agent_file_paths_exist` — checks A and B report nothing for agent files: every backticked path and link exists.
@@ -235,7 +235,7 @@ Optional, if the CLI offers it: the command that lists loaded instruction files 
 * `agent_file_first_lines_are_the_load_check_headings` — `head -1` of each `AGENTS.md` equals the heading in §5 (root: `# Auspex — agent instructions`). The Mac check depends on these.
 * `agent_file_ids_are_active` — for every ID token in an agent file, its anchor `<a id="ID">` is found in `docs/` above that file's `## Retired requirements` heading (the DoD snippet). Fails on a reference to a retired ID.
 * `every_hard_rule_lands_in_agents_md` — for each row of the hard-rule landing table in §4, `grep -cF '<phrase>' <file>` is at least 1 Fails if a rule moved out of a `CLAUDE.md` did not land.
-* `todo_and_versions_not_imported` — `git grep -n '^@' -- '*CLAUDE.md' '*AGENTS.md'` lists only `<dir>/CLAUDE.md:<n>:@AGENTS.md` lines with an optional `../` prefix (the chain imports).
+* `todo_and_versions_not_imported` — `git grep -n '^@' -- '*CLAUDE.md' '*AGENTS.md'` lists only `<dir>/CLAUDE.md:1:@AGENTS.md` lines.
 * `nested_agents_md_has_only_allowed_sections_and_id_bullets` — for each nested file: every H2 is in {Owners, Commands, Layout, Requirements that bite here, Trap pointers}, and every bullet under the last two starts with an ID matching the checker's ID regex.
 * `no_invariant_text_restated_in_agent_files` — for N in 1–15, the text of `INV-N` from `docs/system/invariants.md` (first 40 characters after the em dash) does not occur in any agent file.
 * `every_claude_md_section_has_a_destination` — every `## ` heading of `git show e51f742:CLAUDE.md` appears in the destination table of §6 of this spec, and every destination file named there exists.
@@ -256,7 +256,7 @@ Cloud part (in the integration branch checkout):
 ```bash
 python3 -m tools.docs_check | grep -E '^[A-Z][0-9]? ([^ ]*/)?(AGENTS|CLAUDE)\.md' ; test $? -eq 1 && echo AGENTS-CLEAN
 test "$(git ls-files '*AGENTS.md' '*CLAUDE.md' | wc -l)" -eq 18 && echo PAIRS-OK
-git grep -n '^@' -- '*CLAUDE.md' '*AGENTS.md' | grep -v -E 'CLAUDE.md:[0-9]+:@(\.\./)*AGENTS.md$' ; test $? -eq 1 && echo IMPORTS-OK
+git grep -n '^@' -- '*CLAUDE.md' '*AGENTS.md' | grep -v 'CLAUDE.md:1:@AGENTS.md$' ; test $? -eq 1 && echo IMPORTS-OK
 for d in . services services/core-hub; do wc -c < $d/AGENTS.md; done | awk '{s+=$1} END {print (s<=16384 ? "CHAIN-OK " s : "CHAIN-OVER " s)}'
 while IFS='|' read -r phrase file; do grep -qF -- "$phrase" "$file" || echo "MISSING $file: $phrase"; done <<'EOF'
 executes zero tests is a failure|AGENTS.md
@@ -325,4 +325,4 @@ On the integration branch: revert the range `<integration-branch tip before this
 * **As built: where the spec's checks live.** The spec-specific checks were run from a script kept outside the repository, with the definition-of-done block, since this spec changes no file but the agent files, its `TODO.md` row and itself. `every_claude_md_section_has_a_destination` matches a heading to §6 after dropping its parenthetical and a leading "The" ("Rule that matters most", "Naming").
 * **As built: root `AGENTS.md` extras.** "Where things are" also lists `docs/HISTORY.md` (from the old file map), and the hard rules carry two lines of the old Git section the landing table does not list: cloud sessions cannot delete GitHub branches, and GitHub comments stay rare.
 * **As built: after the cutover prep.** The Mac check runs on `feature/living-docs-cutover-prep`, and two required checks were reworded for the state after the cutover: `matrix_claude_rows_resolved` records that it passed before check M was removed, and `commit_identity_check_unchanged` ignores the comment line the cutover repoints.
-* **As built: chain imports after the first Mac check.** The first load check on 2026-10-24 passed 27 of 28 cells: Claude Code launched in `services/core-hub/` loaded the parent `CLAUDE.md` files but did not expand their `@AGENTS.md`, so the root and `services` files never loaded. Each nested `CLAUDE.md` now imports its whole chain (`## 2026-10-24 — Living docs — FLAG — nested CLAUDE.md imports only expand in the launch directory`), check L requires exactly that chain, and the failed cell is re-run before the `VERIFIED` entry. Codex's P5 at the root is counted a pass when it quotes the line it already read in P4, as for Claude.
+* **As built: external-imports approval.** The first Mac check failed Claude core-hub P1 because Claude Code loads a parent folder's `@AGENTS.md` only after the project approves external imports, a one-time interactive prompt that `claude -p` never shows. A chained-import workaround was tried and reverted: with the approval given on 2026-10-24, the one-line `@AGENTS.md` shims load the full chain. The approval is a `SETUP.md` host step (`## 2026-10-24 — Living docs — FLAG — Claude Code external-imports approval needed for nested AGENTS.md`).
