@@ -265,13 +265,14 @@ Expected:
   2. Open one PR from a branch off `develop` with one commit, `living docs rollback: revert to pre-living-docs`, made by:
      - `git revert --no-commit pre-living-docs..<cutover tip>`;
      - `git checkout HEAD -- DECISIONS.md`;
+     - `git checkout HEAD -- services/dashboard/package.json services/dashboard/package-lock.json`, and keep the `next` row of `VERSIONS.md`, so the Next.js 16.4.2 security patch (`next security patch: next and eslint-config-next 16.4.2 for three critical advisories`, also in PR #79) is not reverted;
      - appending `## <date> — Living docs — FLAG — cutover rolled back` with the reason.
 
      No force push.
 - **Clean-revert window.** The revert is clean only until the first post-cutover PR touches `docs/`, an agent file, a README or `TODO.md`. After that, either port those later changes back into the old files by hand, or forward-fix instead.
   - The cutover PR states this window.
   - The owner decides in `DECISIONS.md`, within the first two weeks, whether the rollout stands.
-- **No data, schema or runtime rollback is needed:** there are no application code, configuration or migration changes.
+- **No data, schema or runtime rollback is needed:** there are no application code, configuration or migration changes. The one dependency change, the Next.js security patch, stays in place on a rollback.
 
 ## Blocking decisions
 

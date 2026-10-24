@@ -26,8 +26,8 @@ Before editing under a directory that has its own `AGENTS.md`, open that file: i
 - A test run that executes zero tests is a failure, not a pass: read the reported test count.
 - Gradle reports `UP-TO-DATE` and runs nothing when inputs are unchanged. To prove a test ran, use `--rerun-tasks` or read the count in `build/reports/tests/`.
 - Test-first is INV-15. The TDD loop, merge bar and mutation check are ENG-001, ENG-002, ENG-010 and ENG-011 in `docs/engineering/verification.md`.
-- Never push to `develop` or `main`: push the spec's feature branch and open a PR. Merge only when the owner says so; the merge recipe is ENG-030.
-- Commits carry the git identity of the person driving the work, as author and committer, never Claude's or a tool's default. No `Co-Authored-By`, `Claude-Session` or other Claude trailers; the Commit identity check (`.github/scripts/check_commit_identity.sh`) fails a PR that has one.
+- Never push to `develop` or `main`: push the spec's feature branch and open a PR. Get CI green before asking the owner to merge, and merge only when the owner says so; the merge recipe is ENG-030.
+- Commits carry the git identity of the person driving the work, as author and committer, never Claude's or a tool's default; a session with no human identity configured uses the identity of the person who requested the work, or asks. No `Co-Authored-By`, `Claude-Session` or other Claude trailers; the Commit identity check (`.github/scripts/check_commit_identity.sh`) fails a PR that has one.
 - No Claude footers on GitHub: leave "Generated with Claude Code" and claude.ai session links out of PR bodies and comments, and check the PR body after creating it. Keep GitHub comments rare.
 - Commit messages are a subject line only, lowercase, `subject: detail1, detail2`, with no body.
 - No plan-step names (`step_3_2`, `phase_2`) in files, functions, tests, variables, branches or commit messages (ENG-049).

@@ -50,13 +50,13 @@ Not here:
 
 | ID | Source | Verified by | Status |
 |---|---|---|---|
-| ENG-016 | `## 2026-10-22 — Living docs — PENDING — engineering ratification batch`, approved by `## 2026-10-24 — Living docs — CHOICE — engineering ratification batch` [`CLAUDE.md`; `specs/README.md`] | check J (index statuses and links) | enforced |
+| ENG-016 | `## 2026-10-22 — Living docs — PENDING — engineering ratification batch`, approved by `## 2026-10-24 — Living docs — CHOICE — engineering ratification batch` [`CLAUDE.md`; `specs/README.md`] | check J (index statuses and links) | untested |
 | ENG-017 | `## 2026-10-22 — Living docs — PENDING — engineering ratification batch`, approved by `## 2026-10-24 — Living docs — CHOICE — engineering ratification batch` [`CLAUDE.md`; `specs/README.md`] | check E (required fields) | untested |
 | ENG-018 | `## 2026-10-17 — Living docs — CHOICE — docs impact field and Docs unchanged line` [`specs/README.md`] | check E (`Docs impact` in `docs-check.toml` `[specs]`) | enforced |
 | ENG-019 | `## 2026-10-17 — Living docs — CHOICE — docs impact field and Docs unchanged line` [`CLAUDE.md`] | check G in `.github/workflows/docs.yml` | enforced |
 | ENG-020 | `## 2026-10-22 — Living docs — PENDING — engineering ratification batch`, approved by `## 2026-10-24 — Living docs — CHOICE — engineering ratification batch` [`CLAUDE.md`; `specs/README.md`] | checks C, C2 | untested |
-| ENG-021 | `## 2026-10-22 — Living docs — PENDING — engineering ratification batch`, approved by `## 2026-10-24 — Living docs — CHOICE — engineering ratification batch` [design §5.2] | checks C, C2, D | enforced |
-| ENG-022 | `## 2026-10-22 — Living docs — PENDING — engineering ratification batch`, approved by `## 2026-10-24 — Living docs — CHOICE — engineering ratification batch` [design §5.2] | check C | enforced |
+| ENG-021 | `## 2026-10-22 — Living docs — PENDING — engineering ratification batch`, approved by `## 2026-10-24 — Living docs — CHOICE — engineering ratification batch` [design §5.2] | checks C, C2, D | untested |
+| ENG-022 | `## 2026-10-22 — Living docs — PENDING — engineering ratification batch`, approved by `## 2026-10-24 — Living docs — CHOICE — engineering ratification batch` [design §5.2] | check C | untested |
 | ENG-023 | `## 2026-10-22 — Living docs — PENDING — engineering ratification batch`, approved by `## 2026-10-24 — Living docs — CHOICE — engineering ratification batch` [design §9.1; requirements §14] | — | untested |
 | ENG-024 | `## 2026-10-22 — Living docs — PENDING — engineering ratification batch`, approved by `## 2026-10-24 — Living docs — CHOICE — engineering ratification batch` [design §9.1] | check K (a `divergent` row cites a decision) | untested |
 | ENG-025 | `## 2026-10-22 — Living docs — PENDING — engineering ratification batch`, approved by `## 2026-10-24 — Living docs — CHOICE — engineering ratification batch` [design §9.1] | check G (a `CHOICE` heading touches `decisions`) | untested |
@@ -68,7 +68,7 @@ Not here:
 | ENG-031 | `## 2026-10-09 — Guideline setup — CHOICE — merge flow, merge bar and shared-log conflicts written into the repo` [`CLAUDE.md`] | — | untested |
 | ENG-032 | `## 2026-10-09 — Guideline setup — CHOICE — merge flow, merge bar and shared-log conflicts written into the repo` [`CLAUDE.md`] | `.gitattributes`; check J (duplicate `TODO.md` rows) | enforced |
 | ENG-033 | `## 2026-10-22 — Living docs — PENDING — engineering ratification batch`, approved by `## 2026-10-24 — Living docs — CHOICE — engineering ratification batch` [`DECISIONS.md`] | — | untested |
-| ENG-034 | `## 2026-10-22 — Living docs — PENDING — engineering ratification batch`, approved by `## 2026-10-24 — Living docs — CHOICE — engineering ratification batch` [`TODO.md`] | check J | enforced |
+| ENG-034 | `## 2026-10-22 — Living docs — PENDING — engineering ratification batch`, approved by `## 2026-10-24 — Living docs — CHOICE — engineering ratification batch` [`TODO.md`] | check J | untested |
 | ENG-035 | `## 2026-10-22 — Living docs — PENDING — engineering ratification batch`, approved by `## 2026-10-24 — Living docs — CHOICE — engineering ratification batch` [`CLAUDE.md`] | `.gitignore` (list only) | untested |
 | ENG-036 | `## 2026-10-17 — Living docs — CHOICE — archive policy for specs/done` [`specs/README.md`] | — | untested |
 | ENG-037 | `## 2026-10-22 — Living docs — PENDING — engineering ratification batch`, approved by `## 2026-10-24 — Living docs — CHOICE — engineering ratification batch` [design §10.2] | — | untested |
