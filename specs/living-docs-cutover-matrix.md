@@ -64,7 +64,7 @@ Scoping listed these classes of normative statements whose only home is an archi
 | `## 2026-09-20 — Strategy layer — CHOICE — XBI as primary benchmark` | history |  | M-EVA-060 |
 | `## 2026-09-20 — Strategy layer — CHOICE — Known-at delay default: 1 business day after corroborated_at` | history |  | M-EVA-061 |
 | `## 2026-09-20 — Strategy layer — CHOICE — Holdout: last 3 months sealed` | history |  | M-EVA-062 |
-| `## 2026-09-20 — Strategy layer session 2 — CHOICE — New `services/strategy/` service (not extending backtesting)` | binding | STR-016 | M-STR-070 |
+| ``## 2026-09-20 — Strategy layer session 2 — CHOICE — New `services/strategy/` service (not extending backtesting)`` | binding | STR-016 | M-STR-070 |
 | `## 2026-09-20 — Strategy layer session 2 — CHOICE — MinIO for virtual books and traces; strategy service serves metrics API` | binding | STR-017 | M-STR-071 |
 | `## 2026-09-20 — Strategy layer session 2 — CHOICE — Event-driven Kafka consumer for the strategy runtime` | binding | CON-002 STR-019 | M-CON-082,M-STR-072 |
 | `## 2026-09-20 — Strategy layer session 2 — CHOICE — Strategies never see ingested_at or extracted_at; InputHealthMonitor handles model downtime` | binding | STR-006 STR-022 | M-STR-073 |
@@ -73,11 +73,11 @@ Scoping listed these classes of normative statements whose only home is an archi
 | `## 2026-09-19 — Dashboard — CHOICE — Node 22 LTS (Phase 5 resolution)` | history |  | M-ENG-128 |
 | `## 2026-09-25 — Watchlist backend — CHOICE — live preview smoke test deferred` | history |  | M-HUB-075 |
 | `## 2026-10-07 — Live ingestion — CHOICE — unchanged re-fetch skip with retry-safe markers` | binding | ING-032 | M-ING-124 |
-| `## 2026-10-07 — Market simulation — CHOICE — PositionSizer `fx_rate` is EUR per USD` | binding | RES-061 | M-RES-170 |
+| ``## 2026-10-07 — Market simulation — CHOICE — PositionSizer `fx_rate` is EUR per USD`` | binding | RES-061 | M-RES-170 |
 | `## 2026-10-07 — Market simulation — CHOICE — FillModel does not shift entry dates` | binding | RES-056 | M-RES-171 |
-| `## 2026-10-07 — Market simulation — CHOICE — 11 tests, not 10; `scripts/fetch_prices.py`` | history |  | M-ENG-129 |
+| ``## 2026-10-07 — Market simulation — CHOICE — 11 tests, not 10; `scripts/fetch_prices.py` `` | history |  | M-ENG-129 |
 | `## 2026-10-07 — Local model integration — CHOICE — gate threshold and version labels aligned` | binding | EXT-007 EXT-013 | M-EXT-046 |
-| `## 2026-10-07 — Startup data — CHOICE — data fills itself on `up`; prices refresh daily` | binding | OPS-009 OPS-026 RES-002 RES-003 RES-005 RES-009 RES-011 | M-SYS-186,M-RES-174,M-OPS-252 |
+| ``## 2026-10-07 — Startup data — CHOICE — data fills itself on `up`; prices refresh daily`` | binding | OPS-009 OPS-026 RES-002 RES-003 RES-005 RES-009 RES-011 | M-SYS-186,M-RES-174,M-OPS-252 |
 | `## 2026-10-07 — Realistic cost model — CHOICE — per-ticker spread, FX fee, volume cap, gap-through stops` | binding | RES-057 RES-058 RES-059 RES-060 | M-RES-175 |
 | `## 2026-10-07 — Pre-registration — CHOICE — evaluation protocol and kill criteria locked before the backfill` | binding | EVA-001 EVA-016 EVA-019 | M-EVA-063 |
 | `## 2026-10-07 — Pre-registration — CHOICE — trials counted as cells across the hypothesis family, budget 64` | binding | EVA-004 EVA-011 | M-EVA-064 |
@@ -103,7 +103,7 @@ Scoping listed these classes of normative statements whose only home is an archi
 | `## 2026-10-08 — Control-surface scoping — CHOICE — the watchlist is the single source for tracked tickers and terms` | history |  | M-ING-127,M-DSH-035 |
 | `## 2026-10-08 — Control-surface scoping — CHOICE — research config is read-only in the dashboard` | binding | EVA-006 | M-DSH-036 |
 | `## 2026-10-08 — Control-surface scoping — CHOICE — dashboard runs in the stack behind its own server layer` | binding | HUB-041 HUB-043 DSH-002 | M-SYS-184,M-HUB-076,M-DSH-037 |
-| `## 2026-10-08 — First run on the stack machine — CHOICE — price history from 2013, set before the first `up`` | history |  | M-RES-186 |
+| ``## 2026-10-08 — First run on the stack machine — CHOICE — price history from 2013, set before the first `up` `` | history |  | M-RES-186 |
 | `## 2026-10-08 — First run on the stack machine — CHOICE — local model decision rule, fixed before the gate runs` | binding | EXT-014 | M-EXT-048 |
 | `## 2026-10-09 — Guideline setup — CHOICE — merge flow, merge bar and shared-log conflicts written into the repo` | binding | ENG-010 ENG-011 ENG-030 ENG-031 ENG-032 | M-ENG-130,M-SYS-185 |
 | `## 2026-10-09 — Point-in-time universe — CHOICE — one universe from 2014, backfill scope from its own start` | binding | RES-011 RES-017 RES-019 RES-021 RES-025 | M-RES-187 |
@@ -164,6 +164,36 @@ Scoping listed these classes of normative statements whose only home is an archi
 | `## 2026-10-11 — Decision trace — CHOICE — one document record per participant, deterministic intent ids, risk reviews per event` | binding | STR-018 STR-031 STR-052 STR-055 STR-057 STR-058 STR-059 STR-061 | M-STR-081 |
 | `## 2026-10-11 — Portfolio and risk — CHOICE — catalyst and short-interest sources, units and check order` | binding | STR-015 STR-017 STR-041 STR-042 STR-043 STR-044 STR-045 STR-047 STR-048 STR-049 STR-050 | M-STR-082 |
 | `## 2026-10-15 — Holdings composite score — CHOICE — where the spec left the H9 score open` | binding | RES-028 RES-036 RES-050 RES-051 RES-052 RES-053 RES-054 | M-RES-199 |
+| `## 2026-10-17 — Living docs — CHOICE — raw-pointer contract` | binding | CON-005 CON-006 CON-007 HUB-010 HUB-038 | — (classified at cutover) |
+| `## 2026-10-17 — Living docs — CHOICE — as-of reads hide or raise` | binding | STR-004 | — (classified at cutover) |
+| `## 2026-10-17 — Living docs — CHOICE — restore exception to invariant 2` | binding | INV-2 | — (classified at cutover) |
+| `## 2026-10-17 — Living docs — CHOICE — invariant 6 wording` | binding | INV-6 | — (classified at cutover) |
+| `## 2026-10-17 — Living docs — CHOICE — initial_lookback value` | binding | ING-004 OPS-034 | — (classified at cutover) |
+| `## 2026-10-17 — Living docs — CHOICE — fda_approval source` | binding | ING-015 ING-020 | — (classified at cutover) |
+| `## 2026-10-17 — Living docs — CHOICE — spec paths cited by hash-locked hypotheses` | binding | RES-033 | — (classified at cutover) |
+| `## 2026-10-17 — Living docs — CHOICE — code-done specs blocked on the Mac` | binding | RES-014 RES-015 RES-016 RES-017 RES-020 RES-021 RES-022 RES-023 RES-024 RES-026 RES-027 RES-028 RES-029 RES-031 RES-032 RES-033 RES-034 RES-035 RES-037 RES-038 RES-040 RES-041 RES-042 RES-043 RES-044 RES-045 RES-046 RES-047 RES-048 RES-049 RES-050 RES-051 RES-052 RES-053 RES-054 RES-072 RES-073 | — (classified at cutover) |
+| `## 2026-10-17 — Living docs — CHOICE — archive policy for specs/done` | binding | ENG-036 | — (classified at cutover) |
+| `## 2026-10-17 — Living docs — CHOICE — historical-instrument amendment out of scope` | history |  | — (classified at cutover) |
+| `## 2026-10-17 — Living docs — CHOICE — closed sets on the wire` | binding | CON-017 HUB-009 | — (classified at cutover) |
+| `## 2026-10-17 — Living docs — CHOICE — can a DECISIONS entry narrow an invariant` | binding | STR-020 | — (classified at cutover) |
+| `## 2026-10-17 — Living docs — CHOICE — RunResult counters` | binding | ING-025 | — (classified at cutover) |
+| `## 2026-10-17 — Living docs — CHOICE — trial ledger and holdout as untracked local files` | history |  | — (classified at cutover) |
+| `## 2026-10-17 — Living docs — CHOICE — fate of docs/requirements.md` | history |  | — (classified at cutover) |
+| `## 2026-10-17 — Living docs — CHOICE — merge freeze around the cutover` | history |  | — (classified at cutover) |
+| `## 2026-10-17 — Living docs — CHOICE — agent instruction files` | history |  | — (classified at cutover) |
+| `## 2026-10-17 — Living docs — CHOICE — rollout branch model` | history |  | — (classified at cutover) |
+| `## 2026-10-17 — Living docs — CHOICE — docs impact field and Docs unchanged line` | binding | ENG-018 ENG-019 | — (classified at cutover) |
+| `## 2026-10-17 — Living docs — CHOICE — defects found while scoping` | binding | CON-007 CON-034 COR-012 EXT-003 EXT-005 EXT-015 EXT-019 HUB-007 HUB-008 HUB-009 HUB-010 HUB-011 HUB-014 HUB-025 HUB-027 HUB-038 ING-008 ING-011 ING-016 ING-034 ING-035 ING-040 STR-012 STR-021 STR-023 STR-053 STR-054 STR-061 | — (classified at cutover) |
+| `## 2026-10-17 — Living docs — CHOICE — run_pipeline.py support` | history |  | — (classified at cutover) |
+| `## 2026-10-17 — Living docs — CHOICE — processing time in as-of decisions` | binding | INV-16 RES-067 STR-006 | — (classified at cutover) |
+| `## 2026-10-17 — Research input archive — CHOICE — keep the bytes each parser read and the raw 10-Ks, no size cap` | history |  | — (classified at cutover) |
+| `## 2026-10-24 — Living docs — CHOICE — system ratification batch` | binding | CON-015 CON-030 CON-033 CON-037 HUB-021 INV-1 INV-4 INV-15 SYS-001 SYS-002 SYS-003 | — (classified at cutover) |
+| `## 2026-10-24 — Living docs — CHOICE — engineering ratification batch` | binding | ENG-001 ENG-002 ENG-003 ENG-012 ENG-015 ENG-016 ENG-017 ENG-020 ENG-021 ENG-022 ENG-023 ENG-024 ENG-025 ENG-026 ENG-027 ENG-028 ENG-029 ENG-030 ENG-033 ENG-034 ENG-035 ENG-037 ENG-038 ENG-039 ENG-040 ENG-041 ENG-042 ENG-043 ENG-044 ENG-045 ENG-046 ENG-047 ENG-048 ENG-049 ENG-050 ENG-051 ENG-052 ENG-053 | — (classified at cutover) |
+| `## 2026-10-24 — Living docs — CHOICE — ingestion ratification batch` | binding | EXT-003 EXT-009 EXT-010 EXT-016 EXT-017 EXT-018 EXT-020 ING-002 ING-003 ING-008 ING-017 ING-022 ING-028 ING-037 ING-038 ING-039 | — (classified at cutover) |
+| `## 2026-10-24 — Living docs — CHOICE — core-hub ratification batch` | binding | COR-004 COR-013 HUB-017 HUB-020 HUB-023 HUB-025 HUB-035 HUB-042 HUB-045 HUB-049 HUB-051 | — (classified at cutover) |
+| `## 2026-10-24 — Living docs — CHOICE — operations ratification batch` | binding | OPS-002 OPS-007 OPS-021 OPS-022 OPS-031 OPS-053 OPS-068 | — (classified at cutover) |
+| `## 2026-10-24 — Living docs — CHOICE — research ratification batch` | binding | EVA-021 RES-008 RES-012 RES-062 RES-070 RES-082 | — (classified at cutover) |
+| `## 2026-10-24 — Living docs — CHOICE — strategy-and-dashboard ratification batch` | binding | DSH-015 DSH-016 DSH-017 STR-007 STR-014 STR-037 STR-054 | — (classified at cutover) |
 
 ## Engineering (ENG)
 
@@ -728,7 +758,7 @@ Row prefixes: `M-INV` invariant rows, `M-CON` contract rows, `M-SYS` everything 
 | M-SYS-183 | `## 2026-09-20 — Watchlist backend — CHOICE — No user_id column; …` | Single-user installation | requirement | move | SYS #4; schema half `docs/core-hub/storage.md` | SYS | living-docs-system-and-contracts, living-docs-core-hub | **binding** | SYS-004 |
 | M-INV-035 | `## 2026-09-20 — Watchlist backend — CHOICE — core-hub calls ClinicalTrials.gov directly` | Direct CT.gov call for watchlist preview | invariant | move | Exception under `#INV-4` | INV | living-docs-system-and-contracts | **binding**; placement under INV-4 in batch | INV-4 |
 | M-CON-082 | `## 2026-09-20 — Strategy layer session 2 — CHOICE — Event-driven Kafka consumer …` | Strategy runtime consumes corroborated topic; no new topics | contract | move | CON #2; group and checkpoints → STR | CON | living-docs-system-and-contracts, living-docs-strategy-and-dashboard | **binding** | CON-002 |
-| M-INV-036 | `## 2026-09-20 — Strategy layer session 2 — CHOICE — Strategies never see ingested_at …` | No processing time in as-of decisions | invariant | link | STR contract requirement (M-STR-059/M-STR-092); a sixteenth invariant only if the owner adopts it | — | living-docs-system-and-contracts | **binding** (via M-STR-073); at-risk class #4; The cutover's decision application writes a sixteenth invariant if the CHOICE on `processing time in as-of decisions` adopts it |  |
+| M-INV-036 | `## 2026-09-20 — Strategy layer session 2 — CHOICE — Strategies never see ingested_at …` | No processing time in as-of decisions | invariant | move | `docs/system/invariants.md` INV-16 (adopted by `## 2026-10-17 — Living docs — CHOICE — processing time in as-of decisions`); STR-006 and RES-067 apply it | INV | living-docs-cutover | **binding** (via M-STR-073); at-risk class #4; The cutover's decision application writes a sixteenth invariant if the CHOICE on `processing time in as-of decisions` adopts it | INV-16 |
 | M-CON-083 | `## 2026-10-07 — Company-level extraction — CHOICE — … (schema 1.1)` | Items 1, 3: direction in `directionality`; unknown → `other`; trial_ids validated | contract | move | CON #13, #16 | CON | living-docs-system-and-contracts | **binding** for items 1–3; "schema 1.1", "prompt v1.1" **history** (superseded by Single-source cleanup); item 4 HUB; item 5 ING | CON-013 CON-016 |
 | M-CON-084 | `## 2026-10-10 — Single-source cleanup — CHOICE — one version of each pre-rollout artifact` | Schema 1.0; company fields required in Java, only `primary_company` nullable | contract | move | CON #8 | CON | living-docs-system-and-contracts | **binding** (event half); other items to their domains | CON-008 |
 | M-INV-037 | `## 2026-10-09 — Stack backup — CHOICE — nightly backup to a folder on the Mac` | Backup only reads; restore one-shot refuses non-empty, core-hub stopped | invariant | move | Exception under `#INV-2` | INV | living-docs-system-and-contracts | **binding** (Boundary paragraph); rest OPS | INV-2 |
@@ -749,7 +779,7 @@ Row prefixes: `M-INV` invariant rows, `M-CON` contract rows, `M-SYS` everything 
 
 | Row | Source | Rule or content (≤ 15 words) | Class | Disposition | Target | NS | Spec | Decision / note | ID |
 |---|---|---|---|---|---|---|---|---|---|
-| M-INV-042 | at-risk class #4 | Strategies/backtests never use `ingested_at`/`extracted_at` for as-of | invariant | link | STR contract requirement (M-STR-059/M-STR-092); a sixteenth invariant only if the owner adopts it | — | living-docs-system-and-contracts | = M-INV-036; The cutover's decision application writes a sixteenth invariant if the CHOICE on `processing time in as-of decisions` adopts it |  |
+| M-INV-042 | at-risk class #4 | Strategies/backtests never use `ingested_at`/`extracted_at` for as-of | invariant | move | `docs/system/invariants.md` INV-16 (adopted by `## 2026-10-17 — Living docs — CHOICE — processing time in as-of decisions`); STR-006 and RES-067 apply it | INV | living-docs-cutover | = M-INV-036; The cutover's decision application writes a sixteenth invariant if the CHOICE on `processing time in as-of decisions` adopts it | INV-16 |
 | M-SYS-188 | at-risk class #10 | core-hub non-GET needs write token; no CORS | requirement | link | `docs/core-hub/http-api.md`; SYS component map links | HUB | living-docs-core-hub | Owner elsewhere |  |
 | M-SYS-189 | at-risk class #12 | Single-user installation, no `user_id` | requirement | move | SYS #4 + HUB storage | SYS | living-docs-system-and-contracts, living-docs-core-hub | = M-SYS-183 | SYS-004 |
 | M-INV-043 | at-risk class #13 | core-hub calls ClinicalTrials.gov directly | invariant | move | Exception under `#INV-4` | INV | living-docs-system-and-contracts | = M-INV-035 | INV-4 |

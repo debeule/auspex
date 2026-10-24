@@ -56,9 +56,9 @@ Each identifier kind is fixed by SYS-002 and set in its authority. Names are rea
 
 | ID | Source | Verified by | Status |
 |---|---|---|---|
-| SYS-001 | `## 2026-10-22 — Living docs — PENDING — system ratification batch` (`CLAUDE.md:31`) | — | `pending-decision` |
-| SYS-002 | `## 2026-10-22 — Living docs — PENDING — system ratification batch` (`CLAUDE.md:18-29`) | — | `pending-decision` |
-| SYS-003 | `## 2026-10-22 — Living docs — PENDING — system ratification batch` (`CLAUDE.md:46-47`) | — | `pending-decision` |
+| SYS-001 | `## 2026-10-22 — Living docs — PENDING — system ratification batch`, approved by `## 2026-10-24 — Living docs — CHOICE — system ratification batch` (`CLAUDE.md:31`) | — | `untested` |
+| SYS-002 | `## 2026-10-22 — Living docs — PENDING — system ratification batch`, approved by `## 2026-10-24 — Living docs — CHOICE — system ratification batch` (`CLAUDE.md:18-29`) | — | `untested` |
+| SYS-003 | `## 2026-10-22 — Living docs — PENDING — system ratification batch`, approved by `## 2026-10-24 — Living docs — CHOICE — system ratification batch` (`CLAUDE.md:46-47`) | — | `untested` |
 | SYS-004 | `## 2026-09-20 — Watchlist backend — CHOICE — No user_id column; single-user installation, extensible`; `## 2026-10-08 — Control-surface scoping — CHOICE — dashboard runs in the stack behind its own server layer` | no test asserts the absence of per-user data | `untested` |
 
 ## Glossary

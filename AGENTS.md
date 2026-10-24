@@ -6,7 +6,7 @@ Before editing under a directory that has its own `AGENTS.md`, open that file: i
 
 ## Authority
 
-- `docs/` is approved current behaviour, one owner per requirement, IDs like `ING-NNN`; `docs/README.md` maps domains to owners. The invariants are INV-1 to INV-15 in `docs/system/invariants.md`.
+- `docs/` is approved current behaviour, one owner per requirement, IDs like `ING-NNN`; `docs/README.md` maps domains to owners. The invariants are INV-1 to INV-16 in `docs/system/invariants.md`.
 - `specs/` holds proposed changes; each governs only its own work until merged. `specs/done/` is history, never authority.
 - Values live in machine-readable files; docs explain them and never copy them.
 - On a conflict follow the conflict policy in `docs/engineering/change-workflow.md` (ENG-023, ENG-024). Never edit a doc to match code without the owner's decision; agent files never win against `docs/`.

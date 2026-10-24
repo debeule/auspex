@@ -50,36 +50,36 @@ Not here:
 
 | ID | Source | Verified by | Status |
 |---|---|---|---|
-| ENG-016 | `## 2026-10-22 — Living docs — PENDING — engineering ratification batch` [`CLAUDE.md`; `specs/README.md`] | check J (index statuses and links) | pending-decision |
-| ENG-017 | `## 2026-10-22 — Living docs — PENDING — engineering ratification batch` [`CLAUDE.md`; `specs/README.md`] | check E (required fields) | pending-decision |
+| ENG-016 | `## 2026-10-22 — Living docs — PENDING — engineering ratification batch`, approved by `## 2026-10-24 — Living docs — CHOICE — engineering ratification batch` [`CLAUDE.md`; `specs/README.md`] | check J (index statuses and links) | enforced |
+| ENG-017 | `## 2026-10-22 — Living docs — PENDING — engineering ratification batch`, approved by `## 2026-10-24 — Living docs — CHOICE — engineering ratification batch` [`CLAUDE.md`; `specs/README.md`] | check E (required fields) | untested |
 | ENG-018 | `## 2026-10-17 — Living docs — CHOICE — docs impact field and Docs unchanged line` [`specs/README.md`] | check E (`Docs impact` in `docs-check.toml` `[specs]`) | enforced |
 | ENG-019 | `## 2026-10-17 — Living docs — CHOICE — docs impact field and Docs unchanged line` [`CLAUDE.md`] | check G in `.github/workflows/docs.yml` (report-only until the cutover) | enforced |
-| ENG-020 | `## 2026-10-22 — Living docs — PENDING — engineering ratification batch` [`CLAUDE.md`; `specs/README.md`] | checks C, C2 | pending-decision |
-| ENG-021 | `## 2026-10-22 — Living docs — PENDING — engineering ratification batch` [design §5.2] | checks C, C2, D | pending-decision |
-| ENG-022 | `## 2026-10-22 — Living docs — PENDING — engineering ratification batch` [design §5.2] | check C | pending-decision |
-| ENG-023 | `## 2026-10-22 — Living docs — PENDING — engineering ratification batch` [design §9.1; requirements §14] | — | pending-decision |
-| ENG-024 | `## 2026-10-22 — Living docs — PENDING — engineering ratification batch` [design §9.1] | check K (a `divergent` row cites a decision) | pending-decision |
-| ENG-025 | `## 2026-10-22 — Living docs — PENDING — engineering ratification batch` [design §9.1] | check G (a `CHOICE` heading touches `decisions`) | pending-decision |
-| ENG-026 | `## 2026-10-22 — Living docs — PENDING — engineering ratification batch` [`specs/README.md`] | check D | pending-decision |
-| ENG-027 | `## 2026-10-22 — Living docs — PENDING — engineering ratification batch` [design §8.5] | check K | pending-decision |
-| ENG-028 | `## 2026-10-22 — Living docs — PENDING — engineering ratification batch` [design §8.3] | — | pending-decision |
-| ENG-029 | `## 2026-10-22 — Living docs — PENDING — engineering ratification batch` [`CLAUDE.md`] | — | pending-decision |
-| ENG-030 | `## 2026-10-09 — Guideline setup — CHOICE — merge flow, merge bar and shared-log conflicts written into the repo` [`CLAUDE.md`]; the `--base` check step: `## 2026-10-22 — Living docs — PENDING — engineering ratification batch` | — | untested |
+| ENG-020 | `## 2026-10-22 — Living docs — PENDING — engineering ratification batch`, approved by `## 2026-10-24 — Living docs — CHOICE — engineering ratification batch` [`CLAUDE.md`; `specs/README.md`] | checks C, C2 | untested |
+| ENG-021 | `## 2026-10-22 — Living docs — PENDING — engineering ratification batch`, approved by `## 2026-10-24 — Living docs — CHOICE — engineering ratification batch` [design §5.2] | checks C, C2, D | enforced |
+| ENG-022 | `## 2026-10-22 — Living docs — PENDING — engineering ratification batch`, approved by `## 2026-10-24 — Living docs — CHOICE — engineering ratification batch` [design §5.2] | check C | enforced |
+| ENG-023 | `## 2026-10-22 — Living docs — PENDING — engineering ratification batch`, approved by `## 2026-10-24 — Living docs — CHOICE — engineering ratification batch` [design §9.1; requirements §14] | — | untested |
+| ENG-024 | `## 2026-10-22 — Living docs — PENDING — engineering ratification batch`, approved by `## 2026-10-24 — Living docs — CHOICE — engineering ratification batch` [design §9.1] | check K (a `divergent` row cites a decision) | untested |
+| ENG-025 | `## 2026-10-22 — Living docs — PENDING — engineering ratification batch`, approved by `## 2026-10-24 — Living docs — CHOICE — engineering ratification batch` [design §9.1] | check G (a `CHOICE` heading touches `decisions`) | untested |
+| ENG-026 | `## 2026-10-22 — Living docs — PENDING — engineering ratification batch`, approved by `## 2026-10-24 — Living docs — CHOICE — engineering ratification batch` [`specs/README.md`] | check D | enforced |
+| ENG-027 | `## 2026-10-22 — Living docs — PENDING — engineering ratification batch`, approved by `## 2026-10-24 — Living docs — CHOICE — engineering ratification batch` [design §8.5] | check K | untested |
+| ENG-028 | `## 2026-10-22 — Living docs — PENDING — engineering ratification batch`, approved by `## 2026-10-24 — Living docs — CHOICE — engineering ratification batch` [design §8.3] | — | untested |
+| ENG-029 | `## 2026-10-22 — Living docs — PENDING — engineering ratification batch`, approved by `## 2026-10-24 — Living docs — CHOICE — engineering ratification batch` [`CLAUDE.md`] | — | untested |
+| ENG-030 | `## 2026-10-09 — Guideline setup — CHOICE — merge flow, merge bar and shared-log conflicts written into the repo` [`CLAUDE.md`]; the `--base` check step: `## 2026-10-22 — Living docs — PENDING — engineering ratification batch`, approved by `## 2026-10-24 — Living docs — CHOICE — engineering ratification batch` | — | untested |
 | ENG-031 | `## 2026-10-09 — Guideline setup — CHOICE — merge flow, merge bar and shared-log conflicts written into the repo` [`CLAUDE.md`] | — | untested |
 | ENG-032 | `## 2026-10-09 — Guideline setup — CHOICE — merge flow, merge bar and shared-log conflicts written into the repo` [`CLAUDE.md`] | `.gitattributes`; check J (duplicate `TODO.md` rows) | enforced |
-| ENG-033 | `## 2026-10-22 — Living docs — PENDING — engineering ratification batch` [`DECISIONS.md`] | — | pending-decision |
-| ENG-034 | `## 2026-10-22 — Living docs — PENDING — engineering ratification batch` [`TODO.md`] | check J | pending-decision |
-| ENG-035 | `## 2026-10-22 — Living docs — PENDING — engineering ratification batch` [`CLAUDE.md`] | `.gitignore` (list only) | pending-decision |
+| ENG-033 | `## 2026-10-22 — Living docs — PENDING — engineering ratification batch`, approved by `## 2026-10-24 — Living docs — CHOICE — engineering ratification batch` [`DECISIONS.md`] | — | untested |
+| ENG-034 | `## 2026-10-22 — Living docs — PENDING — engineering ratification batch`, approved by `## 2026-10-24 — Living docs — CHOICE — engineering ratification batch` [`TODO.md`] | check J | enforced |
+| ENG-035 | `## 2026-10-22 — Living docs — PENDING — engineering ratification batch`, approved by `## 2026-10-24 — Living docs — CHOICE — engineering ratification batch` [`CLAUDE.md`] | `.gitignore` (list only) | untested |
 | ENG-036 | `## 2026-10-17 — Living docs — CHOICE — archive policy for specs/done` [`specs/README.md`] | — | untested |
-| ENG-037 | `## 2026-10-22 — Living docs — PENDING — engineering ratification batch` [design §10.2] | — | pending-decision |
-| ENG-038 | `## 2026-10-22 — Living docs — PENDING — engineering ratification batch` [design §10.2] | — | pending-decision |
-| ENG-039 | `## 2026-10-22 — Living docs — PENDING — engineering ratification batch` [design §10.2] | check E (the SHA is an ancestor of HEAD) | pending-decision |
+| ENG-037 | `## 2026-10-22 — Living docs — PENDING — engineering ratification batch`, approved by `## 2026-10-24 — Living docs — CHOICE — engineering ratification batch` [design §10.2] | — | untested |
+| ENG-038 | `## 2026-10-22 — Living docs — PENDING — engineering ratification batch`, approved by `## 2026-10-24 — Living docs — CHOICE — engineering ratification batch` [design §10.2] | — | untested |
+| ENG-039 | `## 2026-10-22 — Living docs — PENDING — engineering ratification batch`, approved by `## 2026-10-24 — Living docs — CHOICE — engineering ratification batch` [design §10.2] | check E (the SHA is an ancestor of HEAD) | untested |
 
 "design §n" is a section of `specs/living-docs-cutover-design.md`. A bracketed Source part is where the text came from; the part before it is the approval.
 
 ## Rationale
 
-- The `union` driver was chosen over one file per decision entry, which would have changed every link to the log (`## 2026-10-09 — Guideline setup — CHOICE — merge flow, merge bar and shared-log conflicts written into the repo`). That entry also said the `TODO.md` session log is dropped; the log is still kept, and ENG-034 describes it as practised (defect A3 under `## 2026-10-15 — Living docs — PENDING — defects found while scoping`).
+- The `union` driver was chosen over one file per decision entry, which would have changed every link to the log (`## 2026-10-09 — Guideline setup — CHOICE — merge flow, merge bar and shared-log conflicts written into the repo`). That entry also said the `TODO.md` session log is dropped; the log is still kept, and ENG-034 describes it as practised (defect A3 under `## 2026-10-15 — Living docs — PENDING — defects found while scoping`, answered by `## 2026-10-17 — Living docs — CHOICE — defects found while scoping`).
 - `Last reviewed against` names a `develop` commit because feature-branch SHAs do not survive the rebase-and-fast-forward flow (design §5.1).
 
 ## Retired requirements

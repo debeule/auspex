@@ -43,20 +43,20 @@ Not here:
 
 | ID | Source | Verified by | Status |
 |---|---|---|---|
-| ENG-040 | `## 2026-10-22 — Living docs — PENDING — engineering ratification batch` [design §3, §7.2] | — | pending-decision |
-| ENG-041 | `## 2026-10-22 — Living docs — PENDING — engineering ratification batch` [design §3, §7.2] | — | pending-decision |
-| ENG-042 | `## 2026-10-22 — Living docs — PENDING — engineering ratification batch` [design §3, §7.2] | — | pending-decision |
-| ENG-043 | `## 2026-10-22 — Living docs — PENDING — engineering ratification batch` [`CLAUDE.md`] | — | pending-decision |
-| ENG-044 | `## 2026-10-22 — Living docs — PENDING — engineering ratification batch` [`CLAUDE.md`] | — | pending-decision |
-| ENG-045 | `## 2026-10-22 — Living docs — PENDING — engineering ratification batch` [`CLAUDE.md`] | — | pending-decision |
-| ENG-046 | `## 2026-10-22 — Living docs — PENDING — engineering ratification batch` [`CLAUDE.md`] | — | pending-decision |
-| ENG-047 | `## 2026-10-22 — Living docs — PENDING — engineering ratification batch` [`specs/README.md`] | — | pending-decision |
-| ENG-048 | requirements §1 (exact pins, committed lock file); the rest: `## 2026-10-22 — Living docs — PENDING — engineering ratification batch` [`VERSIONS.md`] | `services/ingestion-scraper/tests/unit/test_stack_observability_config.py::test_every_new_image_is_pinned_to_an_exact_tag` for image tags only | pending-decision |
-| ENG-049 | `## 2026-10-22 — Living docs — PENDING — engineering ratification batch` [`CLAUDE.md`; `specs/README.md`] | — | pending-decision |
-| ENG-050 | `## 2026-10-22 — Living docs — PENDING — engineering ratification batch` [design §5.1] | checks E, K | pending-decision |
-| ENG-051 | `## 2026-10-22 — Living docs — PENDING — engineering ratification batch` [`services/ingestion-scraper/CLAUDE.md`] | — | pending-decision |
-| ENG-052 | `## 2026-10-22 — Living docs — PENDING — engineering ratification batch` [`services/CLAUDE.md`, Comment conventions per stack; `CLAUDE.md`, Code comments] | — | pending-decision |
-| ENG-053 | requirements §1 (Kotlin DSL, committed wrapper, version catalog); the plugin and toolchain clauses: `## 2026-10-22 — Living docs — PENDING — engineering ratification batch` [`services/core-hub/CLAUDE.md`] | — | pending-decision |
+| ENG-040 | `## 2026-10-22 — Living docs — PENDING — engineering ratification batch`, approved by `## 2026-10-24 — Living docs — CHOICE — engineering ratification batch` [design §3, §7.2] | — | untested |
+| ENG-041 | `## 2026-10-22 — Living docs — PENDING — engineering ratification batch`, approved by `## 2026-10-24 — Living docs — CHOICE — engineering ratification batch` [design §3, §7.2] | — | untested |
+| ENG-042 | `## 2026-10-22 — Living docs — PENDING — engineering ratification batch`, approved by `## 2026-10-24 — Living docs — CHOICE — engineering ratification batch` [design §3, §7.2] | — | untested |
+| ENG-043 | `## 2026-10-22 — Living docs — PENDING — engineering ratification batch`, approved by `## 2026-10-24 — Living docs — CHOICE — engineering ratification batch` [`CLAUDE.md`] | — | untested |
+| ENG-044 | `## 2026-10-22 — Living docs — PENDING — engineering ratification batch`, approved by `## 2026-10-24 — Living docs — CHOICE — engineering ratification batch` [`CLAUDE.md`] | — | untested |
+| ENG-045 | `## 2026-10-22 — Living docs — PENDING — engineering ratification batch`, approved by `## 2026-10-24 — Living docs — CHOICE — engineering ratification batch` [`CLAUDE.md`] | — | untested |
+| ENG-046 | `## 2026-10-22 — Living docs — PENDING — engineering ratification batch`, approved by `## 2026-10-24 — Living docs — CHOICE — engineering ratification batch` [`CLAUDE.md`] | — | untested |
+| ENG-047 | `## 2026-10-22 — Living docs — PENDING — engineering ratification batch`, approved by `## 2026-10-24 — Living docs — CHOICE — engineering ratification batch` [`specs/README.md`] | — | untested |
+| ENG-048 | requirements §1 (exact pins, committed lock file); the rest: `## 2026-10-22 — Living docs — PENDING — engineering ratification batch`, approved by `## 2026-10-24 — Living docs — CHOICE — engineering ratification batch` [`VERSIONS.md`] | `services/ingestion-scraper/tests/unit/test_stack_observability_config.py::test_every_new_image_is_pinned_to_an_exact_tag` for image tags only | untested |
+| ENG-049 | `## 2026-10-22 — Living docs — PENDING — engineering ratification batch`, approved by `## 2026-10-24 — Living docs — CHOICE — engineering ratification batch` [`CLAUDE.md`; `specs/README.md`] | — | untested |
+| ENG-050 | `## 2026-10-22 — Living docs — PENDING — engineering ratification batch`, approved by `## 2026-10-24 — Living docs — CHOICE — engineering ratification batch` [design §5.1] | checks E, K | enforced |
+| ENG-051 | `## 2026-10-22 — Living docs — PENDING — engineering ratification batch`, approved by `## 2026-10-24 — Living docs — CHOICE — engineering ratification batch` [`services/ingestion-scraper/CLAUDE.md`] | — | untested |
+| ENG-052 | `## 2026-10-22 — Living docs — PENDING — engineering ratification batch`, approved by `## 2026-10-24 — Living docs — CHOICE — engineering ratification batch` [`services/CLAUDE.md`, Comment conventions per stack; `CLAUDE.md`, Code comments] | — | untested |
+| ENG-053 | requirements §1 (Kotlin DSL, committed wrapper, version catalog); the plugin and toolchain clauses: `## 2026-10-22 — Living docs — PENDING — engineering ratification batch`, approved by `## 2026-10-24 — Living docs — CHOICE — engineering ratification batch` [`services/core-hub/CLAUDE.md`] | — | untested |
 | ENG-054 | requirements §1 [`services/core-hub/CLAUDE.md`] | — | untested |
 
 "design §n" is a section of `specs/living-docs-cutover-design.md`. A bracketed Source part is where the text came from; the part before it is the approval.

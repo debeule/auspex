@@ -46,9 +46,9 @@ Not here:
 
 | ID | Source | Verified by | Status |
 |---|---|---|---|
-| ENG-001 | `## 2026-10-22 — Living docs — PENDING — engineering ratification batch` [`CLAUDE.md`] | — | pending-decision |
-| ENG-002 | `## 2026-10-22 — Living docs — PENDING — engineering ratification batch` [`CLAUDE.md`] | — | pending-decision |
-| ENG-003 | `## 2026-10-22 — Living docs — PENDING — engineering ratification batch` [`CLAUDE.md`; requirements §13] | `services/core-hub/build.gradle.kts`, `services/*/pyproject.toml`, `.github/workflows/java.yml` (configuration, no test) | pending-decision |
+| ENG-001 | `## 2026-10-22 — Living docs — PENDING — engineering ratification batch`, approved by `## 2026-10-24 — Living docs — CHOICE — engineering ratification batch` [`CLAUDE.md`] | — | untested |
+| ENG-002 | `## 2026-10-22 — Living docs — PENDING — engineering ratification batch`, approved by `## 2026-10-24 — Living docs — CHOICE — engineering ratification batch` [`CLAUDE.md`] | — | untested |
+| ENG-003 | `## 2026-10-22 — Living docs — PENDING — engineering ratification batch`, approved by `## 2026-10-24 — Living docs — CHOICE — engineering ratification batch` [`CLAUDE.md`; requirements §13] | `services/core-hub/build.gradle.kts`, `services/*/pyproject.toml`, `.github/workflows/java.yml` (configuration, no test) | enforced |
 | ENG-004 | requirements §13 [`services/ingestion-scraper/CLAUDE.md`] | backtesting and strategy `addopts`; backup `services/backup/tests/unit/conftest.py`; ingestion-scraper has no socket guard (defect H3) | divergent, citing `## 2026-10-15 — Living docs — PENDING — defects found while scoping` and `## 2026-10-17 — Living docs — CHOICE — defects found while scoping` |
 | ENG-005 | requirements §13 [`services/ingestion-scraper/CLAUDE.md`; `services/core-hub/CLAUDE.md`] | — | untested |
 | ENG-006 | requirements §13, §14, §1 [`services/ingestion-scraper/CLAUDE.md`; `services/core-hub/CLAUDE.md`] | — | untested |
@@ -57,10 +57,10 @@ Not here:
 | ENG-009 | requirements §13 | — | untested |
 | ENG-010 | `## 2026-10-09 — Guideline setup — CHOICE — merge flow, merge bar and shared-log conflicts written into the repo` [`CLAUDE.md`] | — | untested |
 | ENG-011 | `## 2026-10-09 — Guideline setup — CHOICE — merge flow, merge bar and shared-log conflicts written into the repo` [`CLAUDE.md`] | — | untested |
-| ENG-012 | `## 2026-10-22 — Living docs — PENDING — engineering ratification batch` [design §9.1–§9.2] | check K | pending-decision |
+| ENG-012 | `## 2026-10-22 — Living docs — PENDING — engineering ratification batch`, approved by `## 2026-10-24 — Living docs — CHOICE — engineering ratification batch` [design §9.1–§9.2] | check K | untested |
 | ENG-013 | `## 2026-09-19 — CI/CD pipeline — CHOICE — GitHub-hosted runners` | `runs-on` in `.github/workflows/*.yml` | enforced |
 | ENG-014 | `## 2026-10-09 — CI — CHOICE — one prefix for every test image` (the two earlier CI image choices in Rationale) | job `env` in `.github/workflows/python.yml` and `.github/workflows/java.yml` | enforced |
-| ENG-015 | `## 2026-10-22 — Living docs — PENDING — engineering ratification batch` [`.github/workflows/docs.yml`] | `.github/workflows/docs.yml` | pending-decision |
+| ENG-015 | `## 2026-10-22 — Living docs — PENDING — engineering ratification batch`, approved by `## 2026-10-24 — Living docs — CHOICE — engineering ratification batch` [`.github/workflows/docs.yml`] | `.github/workflows/docs.yml` | enforced |
 
 "design §n" is a section of `specs/living-docs-cutover-design.md`. A bracketed Source part is where the text came from; the part before it is the approval.
 

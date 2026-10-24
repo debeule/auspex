@@ -16,7 +16,7 @@ Living docs, one owner per subject:
 
 - [README.md](README.md) — this index.
 - [system/overview.md](system/overview.md) — SYS: component map, naming table, single-user premise, no legacy system, glossary.
-- [system/invariants.md](system/invariants.md) — INV: the fifteen invariants, with their scope, amendments and the only text of each approved exception.
+- [system/invariants.md](system/invariants.md) — INV: the sixteen invariants, with their scope, amendments and the only text of each approved exception.
 - [system/contracts.md](system/contracts.md) — CON: everything that crosses a process boundary on Kafka.
 - [ingestion/connectors.md](ingestion/connectors.md) — ING: the connector contract, source configuration, per-source timestamps and rates.
 - [ingestion/pipeline.md](ingestion/pipeline.md) — ING: stage order, archive, deduplication and precedence, run result, cursor rule, scraper HTTP API.
