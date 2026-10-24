@@ -1,7 +1,9 @@
 # Agent instruction hierarchy
 
-**Status:** blocked
-**Blocked by:** only the manual load check on the owner's Mac (§8: Claude Code and Codex, 28 cells, the `VERIFIED` entry in `DECISIONS.md`); Claude Code and Codex are not installed in cloud sessions. The cloud part of the definition of done passes on `feature/living-docs-agent-instructions`. Everything else it waited on is in place: the domain docs, check L and check D, `## 2026-10-17 — Living docs — CHOICE — agent instruction files`, `## 2026-10-17 — Living docs — CHOICE — rollout branch model` and `## 2026-10-17 — Living docs — CHOICE — docs impact field and Docs unchanged line`.
+> Archived. Not authoritative: current behaviour is in docs/ (see docs/README.md).
+
+**Status:** done
+**Blocked by:** —
 **Branch:** `feature/living-docs-agent-instructions` (PR into `feature/living-docs-integration`)
 **Docs impact:** no `docs/` requirement added, changed or retired. Creates root `AGENTS.md` and eight nested `AGENTS.md`; reduces the five existing `CLAUDE.md` files to `@AGENTS.md` and adds four new ones; changes no other file outside this spec's own `TODO.md` row and its move to `specs/done/`. Appends one `VERIFIED` entry to `DECISIONS.md` after the Mac check.
 

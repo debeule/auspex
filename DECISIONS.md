@@ -1736,3 +1736,38 @@ The `funnel/` and `risk/catalyst_holds.jsonl` keys of the `auspex-strategy` layo
 ## 2026-10-24 — Living docs — FLAG — Claude Code external-imports approval needed for nested AGENTS.md
 **What:** supersedes `## 2026-10-24 — Living docs — FLAG — nested CLAUDE.md imports only expand in the launch directory`. The cause was not where imports expand: Claude Code loads a `CLAUDE.md` import that resolves outside the launch folder only after the project approves external imports (`hasClaudeMdExternalIncludesApproved` in `~/.claude.json`), asked once in an interactive session and never in `claude -p`. With the owner's approval given on the Mac on 2026-10-24, the one-line `@AGENTS.md` shims load root, `services` and `core-hub` `AGENTS.md` in order from `services/core-hub`.
 **Action:** the chained-import change is reverted, so every `CLAUDE.md` stays `@AGENTS.md` as `## 2026-10-17 — Living docs — CHOICE — agent instruction files` says. `SETUP.md` host settings gain the one-time approval per checkout. Not blocking.
+
+## 2026-10-24 — Living docs — VERIFIED — agent instruction loading on the stack machine
+**What:** the manual load check of `specs/done/agent-instruction-hierarchy.md` §8 passed all 28 cells on the owner's Mac, on `feature/living-docs-cutover-prep` @ `040e676`.
+**Setup:** Claude Code 2.1.286; codex-cli 0.162.0-alpha.17.2 (the copy bundled in ChatGPT.app, not on PATH). No `AGENTS.override.md` or `CLAUDE.local.md` in the repo; no `~/.codex/AGENTS.md` and no `~/.claude/CLAUDE.md`; `~/.codex/config.toml` sets neither `project_doc_max_bytes` nor `project_doc_fallback_filenames`. External imports approved for one `~/.claude.json` project entry, the repo root (`hasClaudeMdExternalIncludesApproved: true`, per `SETUP.md`). Each cell set is one fresh session (`claude -p` with `--session-id` then `--resume` of that id; `codex exec` then `exec resume` of that thread), read-only tools.
+**Provenance:** the Claude `services/core-hub/` cells and Claude root P1 come from the run on `040e676`; the other cells come from the first run on `972c132`, whose agent files are the same. Codex root P5 counts as a pass because it quotes the line it read in P4.
+**Cells:**
+- Claude root P1 — pass: `@AGENTS.md`, `# Auspex — agent instructions`, nothing else.
+- Claude root P2 — pass: does not know without opening `TODO.md`.
+- Claude root P3 — pass: does not know without opening `VERSIONS.md`.
+- Claude root P4 — pass: names `services/core-hub/AGENTS.md` via the routing line; quotes `# core-hub` and Commands exactly.
+- Claude root P5 — pass: quotes the last line from its P4 read, equal to `tail -n 1`.
+- Claude root P6 — pass: no to both, citing root `AGENTS.md`.
+- Claude root P7 — pass: `docs/system/invariants.md`; stop, append to `DECISIONS.md`, ask.
+- Claude core-hub P1 — pass: `@AGENTS.md`/`# Auspex — agent instructions`, `@AGENTS.md`/`# services`, `@AGENTS.md`/`# core-hub`, in that order.
+- Claude core-hub P2 — pass: does not know.
+- Claude core-hub P3 — pass: does not know (notes Boot 4 from the trap pointer, no version).
+- Claude core-hub P4 — pass: `services/core-hub/AGENTS.md`; quotes `# core-hub` and Commands exactly.
+- Claude core-hub P5 — pass: byte-equal to `tail -n 1 services/core-hub/AGENTS.md`.
+- Claude core-hub P6 — pass: no to both, citing root `AGENTS.md`.
+- Claude core-hub P7 — pass: `docs/system/invariants.md`; stop, append to `DECISIONS.md`, ask.
+- Codex root P1 — pass: `# Auspex — agent instructions` only.
+- Codex root P2 — pass: does not know.
+- Codex root P3 — pass: does not know.
+- Codex root P4 — pass: opens `services/core-hub/AGENTS.md`; quotes `# core-hub` and Commands exactly.
+- Codex root P5 — pass: quotes the line read in P4, equal to `tail -n 1`.
+- Codex root P6 — pass: no to both.
+- Codex root P7 — pass: `docs/system/invariants.md`; stop, append to `DECISIONS.md`, ask.
+- Codex core-hub P1 — pass: `# Auspex — agent instructions`, `# services`, `# core-hub`, in that order.
+- Codex core-hub P2 — pass: does not know.
+- Codex core-hub P3 — pass: does not know.
+- Codex core-hub P4 — pass: `services/core-hub/AGENTS.md`; quotes `# core-hub` and Commands exactly.
+- Codex core-hub P5 — pass: byte-equal to `tail -n 1`.
+- Codex core-hub P6 — pass: no to both.
+- Codex core-hub P7 — pass: `docs/system/invariants.md`; stop, append to `DECISIONS.md`, ask.
+**Action:** `specs/agent-instruction-hierarchy.md` is `done` and moves to `specs/done/`.
