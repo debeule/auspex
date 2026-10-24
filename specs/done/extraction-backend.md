@@ -1,5 +1,7 @@
 # Extraction Backend
 
+> Archived. Not authoritative: current behaviour is in docs/ (see docs/README.md).
+
 **Status:** done
 **Branch:** `feature/extraction-backend`
 

@@ -1,5 +1,7 @@
 # Price finality and split availability
 
+> Archived. Not authoritative: current behaviour is in docs/ (see docs/README.md).
+
 **Status:** done
 **Branch:** `feature/price-finality-and-split-availability`
 

@@ -1,5 +1,7 @@
 # Grafana Dashboards
 
+> Archived. Not authoritative: current behaviour is in docs/ (see docs/README.md).
+
 **Status:** done
 **Blocked by:** [Metrics](metrics.md) — Prometheus must be populated before metric panels are buildable; [Centralised logging](centralised-logging.md) — Elasticsearch must be populated before log panels are buildable
 **Branch:** `feature/grafana-dashboards`

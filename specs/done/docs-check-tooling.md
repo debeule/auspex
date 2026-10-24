@@ -1,5 +1,7 @@
 # Docs check tooling
 
+> Archived. Not authoritative: current behaviour is in docs/ (see docs/README.md).
+
 **Status:** done
 **Branch:** `feature/living-docs-checker` (PR into `feature/living-docs-integration`, never into `develop`)
 **Docs impact:** none in `docs/` — this spec builds the checker that later specs use to write `docs/`. It creates `tools/docs_check/`, `docs-check.toml` and `.github/workflows/docs.yml`, and changes `.github/workflows/commit-identity.yml`. The engineering requirements describing the checker are written by `living-docs-engineering-workflow`.

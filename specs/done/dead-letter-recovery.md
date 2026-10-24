@@ -1,5 +1,7 @@
 # Dead-letter recovery
 
+> Archived. Not authoritative: current behaviour is in docs/ (see docs/README.md).
+
 **Status:** done
 **Branch:** `feature/dead-letter-recovery`
 

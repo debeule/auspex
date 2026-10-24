@@ -1,5 +1,7 @@
 # Living docs: operations
 
+> Archived. Not authoritative: current behaviour is in docs/ (see docs/README.md).
+
 **Status:** done
 **Blocked by:** `docs-check-tooling` and `living-docs-system-and-contracts`, both merged into `feature/living-docs-integration` (INV IDs, `docs/system/contracts.md` and `docs/README.md` must exist before this spec links to them). Decisions: `## 2026-10-15 — Living docs — PENDING — restore exception to invariant 2` (only the wording of INV-2 that `backup.md` links to) and `## 2026-10-15 — Living docs — PENDING — rollout branch model`. The ratification batch this spec appends (`## <date> — Living docs — PENDING — operations ratification batch`, dated the day it is appended) does not block the merge into the integration branch; it blocks the cutover gate.
 **Branch:** `feature/living-docs-operations` (from and into `feature/living-docs-integration`)

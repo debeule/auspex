@@ -1,5 +1,7 @@
 # Centralised Logging
 
+> Archived. Not authoritative: current behaviour is in docs/ (see docs/README.md).
+
 **Status:** done
 **Blocked by:** —
 **Branch:** `feature/centralised-logging`

@@ -1,5 +1,7 @@
 # Living docs: strategy layer and dashboard
 
+> Archived. Not authoritative: current behaviour is in docs/ (see docs/README.md).
+
 **Status:** done
 **Blocked by:**
 1. `specs/docs-check-tooling.md`. It provides `python3 -m tools.docs_check`, `docs-check.toml` and the integration branch `feature/living-docs-integration`.

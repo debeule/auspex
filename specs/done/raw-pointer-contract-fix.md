@@ -1,5 +1,7 @@
 # Raw pointer contract fix
 
+> Archived. Not authoritative: current behaviour is in docs/ (see docs/README.md).
+
 **Status:** done
 **Branch:** `feature/raw-pointer-contract-fix`
 

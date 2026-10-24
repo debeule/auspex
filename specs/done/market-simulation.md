@@ -1,5 +1,7 @@
 # Market Simulation
 
+> Archived. Not authoritative: current behaviour is in docs/ (see docs/README.md).
+
 **Status:** done
 **Blocked by:** — (backtesting entity-only variant done 2026-09-25)
 

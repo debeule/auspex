@@ -1,5 +1,7 @@
 # Living docs: system, invariants and contracts
 
+> Archived. Not authoritative: current behaviour is in docs/ (see docs/README.md).
+
 **Status:** done
 **Blocked by:** `docs-check-tooling` (checks A–F, K and M, run in the definition of done); the integration branch `feature/living-docs-integration` existing (`## 2026-10-15 — Living docs — PENDING — rollout branch model`); owner answers, appended as `CHOICE` entries, to `## 2026-10-15 — Living docs — PENDING — raw-pointer contract`, `## 2026-10-15 — Living docs — PENDING — restore exception to invariant 2` and `## 2026-10-15 — Living docs — PENDING — invariant 6 wording` (these three set the text written here). Not blocking, default written until answered: `## 2026-10-15 — Living docs — PENDING — can a DECISIONS entry narrow an invariant` (default: no), `## 2026-10-15 — Living docs — PENDING — closed sets on the wire` (default: an unknown value is invalid), `## 2026-10-15 — Living docs — PENDING — defects found while scoping` (default: fix specs after the rollout).
 **Branch:** `feature/living-docs-system-and-contracts` (from and PR into `feature/living-docs-integration`, never `develop`)

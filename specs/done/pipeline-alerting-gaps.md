@@ -1,5 +1,7 @@
 # Pipeline alerting gaps
 
+> Archived. Not authoritative: current behaviour is in docs/ (see docs/README.md).
+
 **Status:** done
 **Branch:** `feature/pipeline-alerting-gaps`
 

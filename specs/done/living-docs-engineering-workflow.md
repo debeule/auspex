@@ -1,5 +1,7 @@
 # Living docs: engineering workflow
 
+> Archived. Not authoritative: current behaviour is in docs/ (see docs/README.md).
+
 **Status:** done
 **Blocked by:** `docs-check-tooling` (merged into `feature/living-docs-integration`). Decisions: `## 2026-10-15 — Living docs — PENDING — rollout branch model`, `## 2026-10-15 — Living docs — PENDING — agent instruction files`, `## 2026-10-15 — Living docs — PENDING — docs impact field and Docs unchanged line`, `## 2026-10-15 — Living docs — PENDING — archive policy for specs/done`. Only the first blocks the start; the others are written as their recommended defaults with status `pending-decision`.
 **Branch:** `feature/living-docs-engineering-workflow` (PR into `feature/living-docs-integration`)

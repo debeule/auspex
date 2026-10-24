@@ -1,5 +1,7 @@
 # Legacy docs retirement
 
+> Archived. Not authoritative: current behaviour is in docs/ (see docs/README.md).
+
 **Status:** done
 **Blocked by:** `living-docs-system-and-contracts`, `living-docs-ingestion`, `living-docs-core-hub`, `living-docs-research`, `living-docs-strategy-and-dashboard`, `living-docs-operations`, `living-docs-engineering-workflow` (every requirement must have its owner in `docs/` before its old text is cut), and `agent-instruction-hierarchy` (service READMEs link to the service `AGENTS.md` files it creates, and the extended guard reads them), all merged into `feature/living-docs-integration`. Decisions: `## 2026-10-17 — Living docs — CHOICE — fate of docs/requirements.md` (option A: reduce it to a non-normative § → ID index), `## 2026-10-17 — Living docs — CHOICE — run_pipeline.py support` (option A: keep it as a developer tool listed in the scraper README scripts table; the root README stops presenting it as a way to run ingestion), `## 2026-10-17 — Living docs — CHOICE — rollout branch model` (option A: integration branch `feature/living-docs-integration`; each part PRs into it and merges on the owner's word).
 **Branch:** `feature/legacy-docs-retirement` (from and into `feature/living-docs-integration`)

@@ -1,5 +1,7 @@
 # Watchlist UI
 
+> Archived. Not authoritative: current behaviour is in docs/ (see docs/README.md).
+
 **Status:** done
 **Branch:** `feature/watchlist-ui`
 

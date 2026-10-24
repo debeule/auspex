@@ -1,5 +1,7 @@
 # Slow-Signal Pre-registration
 
+> Archived. Not authoritative: current behaviour is in docs/ (see docs/README.md).
+
 **Status:** done
 **Blocked by:** none. The direction decision was taken 2026-10-08 (`DECISIONS.md`, "direction: both"): H9 in biotech with H10 as its filter, and the standalone H10 test on broad US small and mid caps.
 

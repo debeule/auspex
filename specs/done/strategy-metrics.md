@@ -1,5 +1,7 @@
 # Strategy Metrics
 
+> Archived. Not authoritative: current behaviour is in docs/ (see docs/README.md).
+
 **Status:** done
 **Blocked by:**
 1. Met: `specs/done/strategy-framework.md` — strategy registry and version tracking must exist

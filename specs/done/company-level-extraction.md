@@ -1,5 +1,7 @@
 # Company-Level Event Extraction
 
+> Archived. Not authoritative: current behaviour is in docs/ (see docs/README.md).
+
 **Status:** done
 **Branch:** `feature/company-level-extraction`
 

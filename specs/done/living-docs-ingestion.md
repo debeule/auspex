@@ -1,5 +1,7 @@
 # Living docs: ingestion and extraction
 
+> Archived. Not authoritative: current behaviour is in docs/ (see docs/README.md).
+
 **Status:** done
 **Blocked by:**
 1. `specs/docs-check-tooling.md` merged into `feature/living-docs-integration`: `python3 -m tools.docs_check` with `--next`, `--paths`, check M (`--matrix … --domain NS` and `--matrix … --decisions`) and `docs-check.toml` with `[rollout] planned_domains`.
