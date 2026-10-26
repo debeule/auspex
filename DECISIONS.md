@@ -1771,3 +1771,8 @@ The `funnel/` and `risk/catalyst_holds.jsonl` keys of the `auspex-strategy` layo
 - Codex core-hub P6 — pass: no to both.
 - Codex core-hub P7 — pass: `docs/system/invariants.md`; stop, append to `DECISIONS.md`, ask.
 **Action:** `specs/agent-instruction-hierarchy.md` is `done` and moves to `specs/done/`.
+
+## 2026-10-26 — Living docs — CHOICE — cutover complete
+**What:** `docs/` is the canonical authority from `develop` @ `d031f1c` (the cutover tip, PR #81), fast-forwarded from `b7582c3` on the owner's "merge" of 2026-10-26. The rollback point is the tag `pre-living-docs` at `b7582c3`.
+**Gate:** `python3 -m tools.docs_check --base origin/develop` on `d031f1c` prints `docs_check: clean`, exit 0. The post-activation block of `specs/done/living-docs-cutover.md` printed only `tag below develop`: no `continue-on-error` in `.github/workflows/docs.yml`, no archived spec changed beyond its banner, no file under `config/`, `services/*/src/` or the Flyway migrations changed.
+**Action:** the clean-revert window and the two-week decision on whether the rollout stands are in the cutover spec's Rollback section. Open PRs from before the cutover (#8, #60) add a `Docs impact` field or a `Docs unchanged:` line before `docs` passes.
