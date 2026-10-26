@@ -9,3 +9,33 @@ models:
     seed: 42
     structured_output_mode: "JSON"
     # deprecation_date: "YYYY-MM-DD"  # set when OpenAI announces EOL
+  llama3.1:8b-instruct-q8_0:
+    backend: local
+    cutoff_date: '2023-12-01'
+    cutoff_source: https://github.com/meta-llama/llama-models/blob/main/models/llama3_1/MODEL_CARD.md
+    num_ctx: 8192
+    timeout: 90
+    temperature: 0
+    seed: 42
+    structured_output_mode: JSON
+    digest: llama3.1:8b-instruct-q8_0@sha256:b158ded76fa05be6bce8a682099ce5df8c5571340a04cf63a2923464679db576
+  llama3.1:8b-instruct-q4_K_M:
+    backend: local
+    cutoff_date: '2023-12-01'
+    cutoff_source: https://github.com/meta-llama/llama-models/blob/main/models/llama3_1/MODEL_CARD.md
+    num_ctx: 8192
+    timeout: 90
+    temperature: 0
+    seed: 42
+    structured_output_mode: JSON
+    digest: llama3.1:8b-instruct-q4_K_M@sha256:46e0c10c039e019119339687c3c1757cc81b9da49709a3b3924863ba87ca666e
+  phi3:14b-medium-128k-instruct-q4_K_M:
+    backend: local
+    cutoff_date: '2023-10-01'
+    cutoff_source: https://huggingface.co/microsoft/Phi-3-medium-128k-instruct
+    num_ctx: 8192
+    timeout: 150
+    temperature: 0
+    seed: 42
+    structured_output_mode: JSON
+    digest: phi3:14b-medium-128k-instruct-q4_K_M@sha256:1372226c9b0b61f3c693ef9dc54ec646d4cd75347eca849a76a04de22e350517

@@ -18,7 +18,7 @@ Verified current as of **2026-08-15**. Anything marked *resolve at install* must
 | MinIO | `cgr.dev/chainguard/minio@sha256:aea6c163749e1caca37f907976dcf337177ddf5f558808f2aa591618fd3a6eef` (MinIO RELEASE.2026-10-23T20-06-51Z) | The stack's object store. Chainguard's free tier serves only `latest`, so compose pins the digest; resolved 2026-11-06. quay.io answers 401 to anonymous MinIO pulls and MinIO left Docker Hub. Compose only: integration tests use LocalStack's S3 API instead. |
 | LocalStack (testcontainers) | `localstack/localstack:4.9.2` | Integration tests only; CI pulls it through `mirror.gcr.io` (`TESTCONTAINERS_HUB_IMAGE_NAME_PREFIX`). S3 stand-in for MinIO in integration tests only (minio/minio left Docker Hub; quay.io requires auth); the stack itself runs MinIO. **Do not move to calendar-versioned tags (`2026.x`)** — from 2026.03 the image exits with code 55 unless `LOCALSTACK_AUTH_TOKEN` is set. 4.9.2 is the last tag verified to start without a licence (2026-10-07). |
 | Airflow | `apache/airflow:3.3.1` | Orchestration (ingestion, price refresh, universe build DAGs). Python 3.14 compatible. |
-| Ollama (host, not a container) | *resolve at install* | Local extraction model server. Record `ollama --version` here when installed (`docs/local-model-runbook.md`). Model weights are pinned by digest in `config/models/registry.yaml`, not here. |
+| Ollama (host, not a container) | **0.40.11** | Installed 2026-10-26 with Homebrew on the stack machine. Local extraction model server. Record `ollama --version` here when installed (`docs/local-model-runbook.md`). Model weights are pinned by digest in `config/models/registry.yaml`, not here. |
 
 ## Java dependencies
 | Component | Pin | Notes |
