@@ -1819,3 +1819,22 @@ All 583 unpriced members have exited: of the gaps, 298 acquired, 250 delisted, 4
 
 ## 2026-11-06 — Point-in-time universe — CHOICE — archived spec path replaces its frozen path
 **What:** The first-run spec moves `specs/point-in-time-universe.md` to `specs/done/`, check J requires a done row to point there, and check A listed the old path in `frozen_paths`, so no layout passed both. `docs-check.toml` now freezes `specs/done/point-in-time-universe.md`; `docs/` links point to it. Citations of the old path in `specs/done/` and earlier entries here are history and stay as written (ENG-036, ENG-033). The same applies when `catalyst-date-panel.md` and `sec-ownership-datasets.md` are archived.
+
+## 2026-11-06 — Local model — CHOICE — phi3:14b-medium-128k-instruct-q4_K_M for extraction at prompt v1
+**What:** Under `## 2026-09-19 — Historical backfill — CHOICE — Option A: local model for backfill, API model forward-only`. Gate run on the stack machine (Ollama 0.40.11, context 8192, `OLLAMA_NUM_PARALLEL=1`, stack up, universe build finished), golden set of 50 documents, prompt `v1`, prefilter `v1`. Decision rule from `specs/first-run-on-stack-machine.md` step 5, fixed before any result.
+
+| | `llama3.1:8b-instruct-q8_0` | `phi3:14b-medium-128k-instruct-q4_K_M` | `llama3.1:8b-instruct-q4_K_M` |
+|---|---|---|---|
+| `is_signal` TP / FP / FN / TN | 13 / 0 / 22 / 15 | 35 / 6 / 0 / 9 | 14 / 0 / 21 / 15 |
+| Precision / recall / F1 | 1.000 / 0.371 / 0.541 | 0.854 / 1.000 / 0.921 | 1.000 / 0.400 / 0.571 |
+| Latency mean / p95 | 6.8 s / 10.9 s (recheck 6.2 / 10.0) | 16.0 s / 23.3 s | 5.3 s / 8.5 s |
+| 24-month backfill estimate | ~49 h | ~115 h | ~38 h |
+| Loaded size (`ollama ps`, 100% GPU) | 8.7 GB | 9.5 GB | 5.4 GB |
+| Swap delta | +0.7 GB (recheck; first run +4.9 GB) | −5.1 GB | −0.9 GB |
+| gene_targets / mechanisms / companies F1 | 0.333 / 0.148 / 0.229 | 0.533 / 0.178 / 0.229 | 0.390 / 0.114 / 0.229 |
+
+**Rule line that decided it:** 3, "Phi-3 replaces it only if Phi-3 is eligible and its F1 is at least 0.05 higher": all three passed the gate and fit, and Phi-3's F1 is 0.380 higher. The Q8's first swap reading (+4.9 GB) was taken while the whole Mac's swap moved by several GB in both directions (Phi-3, the larger model, ran with swap falling 5.1 GB); a rerun of the Q8 evaluation alone, sampling every 20 s, rose 1.2 GB at model load and ended 0.7 GB above the start, so the Q8 counts as fitting.
+**Watch:** Phi-3's precision is one golden document above 0.85; it labels all twelve EDGAR documents signal, nine of them with confidence 0.00; and its backfill takes over twice the Q8's time. The field-level numbers are reported because the golden set now carries `gene_targets`, `mechanisms` and `companies_mentioned` labels; the company-level fields are still unlabelled. Gate and latency records are in `config/models/scores/` and `config/models/latency/`.
+
+## 2026-11-06 — Company-level extraction — VERIFIED — gate record for prompt v1
+**What:** Closes `## 2026-10-07 — Company-level extraction — PENDING — gate record for prompt v1.1` (the company-level prompt is the single `v1`). Gate records at prompt `v1` and prefilter `v1` exist for all three candidates, each `passed: true`; see the Local model CHOICE above.

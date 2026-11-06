@@ -1,0 +1,6 @@
+{
+  "model_id": "phi3:14b-medium-128k-instruct-q4_K_M",
+  "mean_latency_s": 15.9842,
+  "p95_latency_s": 23.256,
+  "measured_at": "2026-11-06T13:57:59Z"
+}
