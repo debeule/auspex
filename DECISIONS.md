@@ -1781,3 +1781,10 @@ The `funnel/` and `risk/catalyst_holds.jsonl` keys of the `auspex-strategy` layo
 **What:** the owner keeps the living-docs rollout (`specs/done/living-docs-cutover.md`, Rollback: "The owner decides in `DECISIONS.md`, within the first two weeks, whether the rollout stands"). Problems found later are forward-fixed in `docs/`; there is no rollback.
 **Tag:** the `pre-living-docs` tag named in `## 2026-10-26 — Living docs — CHOICE — cutover complete` was never pushed, and the owner chose not to create it: the pre-cutover point stays reachable as `develop` @ `b7582c3`, the parent of the cutover range.
 **Action:** none; the cutover spec's Rollback section is history only.
+## 2026-11-06 — MinIO image — CHOICE — Chainguard's free MinIO image, pinned by digest
+
+**What:** The first `up` on the stack machine failed: `quay.io/minio/minio` answers 401 to anonymous pulls, and MinIO no longer publishes free images to Docker Hub. The owner asked to move off the paid image. LocalStack, which CI uses, does not persist data in its free edition, so it cannot hold the stack's archive and price history (OPS-017).
+
+**Choice:** `cgr.dev/chainguard/minio`, the same MinIO server (RELEASE.2026-10-23T20-06-51Z) with the same S3 API, health endpoints and metrics. Its free tier serves only `latest`, so compose pins the image index digest and `VERSIONS.md` records it (ENG-048 forbids a floating tag; the pin test now accepts a digest pin listed in `VERSIONS.md`). The image has no `curl`, so the healthcheck is `mc ready local`.
+
+**Risk:** Chainguard may stop serving an old free digest. When a pull fails, resolve the current `latest` digest, check it starts on the existing volume, and update compose and `VERSIONS.md` together.

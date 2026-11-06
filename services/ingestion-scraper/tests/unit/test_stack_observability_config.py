@@ -141,12 +141,26 @@ def test_every_new_image_is_pinned_to_an_exact_tag() -> None:
         if "build" in svc:
             continue
         image = _resolve(svc["image"])
+        if "@sha256:" in image:
+            # A registry that serves only a floating tag for free is pinned by digest instead.
+            digest = image.partition("@")[2]
+            versions = (REPO_ROOT / "VERSIONS.md").read_text(encoding="utf-8")
+            assert digest in versions, f"{name}: {image} missing from VERSIONS.md"
+            continue
         _, _, tag = image.rpartition(":")
         assert ":" in image and "@" not in tag, f"{name}: {image} has no tag"
         assert tag not in {"latest", "master", "main", "stable"}, f"{name}: {image} floats"
         assert _EXACT_TAG.search(tag), f"{name}: {image} is not an exact version"
         versions = (REPO_ROOT / "VERSIONS.md").read_text(encoding="utf-8")
         assert tag in versions, f"{name}: {image} missing from VERSIONS.md"
+
+
+def test_minio_image_pulls_without_a_registry_login() -> None:
+    minio = _services()["minio"]
+    # quay.io answers 401 to anonymous pulls of MinIO, and MinIO left Docker Hub.
+    assert not minio["image"].startswith("quay.io/")
+    # The Chainguard image ships the MinIO client but no curl.
+    assert minio["healthcheck"]["test"] == ["CMD", "mc", "ready", "local"]
 
 
 def _limit_var(name: str, svc: dict[str, Any]) -> str:
