@@ -17,6 +17,9 @@ log = logging.getLogger("auspex_backtesting.catalysts")
 DOCUMENTS_PREFIX = "catalyst-documents/"
 _BLOCKED_STATUSES = frozenset({403, 429})
 _MISSING_STATUSES = frozenset({404, 410})
+_SERVER_ERROR_STATUSES = frozenset({500, 502, 503, 504})
+# Waits before the second and third try of a request the source answered with a server error.
+_SERVER_ERROR_BACKOFF_S = (5.0, 30.0)
 
 
 class SourceBlockedError(Exception):
@@ -26,6 +29,11 @@ class SourceBlockedError(Exception):
 
 class DocumentNotFoundError(Exception):
     """The source has no document at the URL (HTTP 404 or 410)."""
+
+
+class DocumentUnavailableError(DocumentNotFoundError):
+    """The source answered a server error for the URL on every try. Callers count it as a missing
+    document, so one broken page does not stop a run that could never get past it."""
 
 
 def _urlopen(url: str, user_agent: str) -> bytes:
@@ -58,6 +66,18 @@ class HttpSource:
         self._last: float | None = None
 
     def get(self, url: str) -> bytes:
+        for backoff in (*_SERVER_ERROR_BACKOFF_S, None):
+            try:
+                return self._get_once(url)
+            except urllib.error.HTTPError as exc:
+                if exc.code not in _SERVER_ERROR_STATUSES:
+                    raise
+                if backoff is None:
+                    raise DocumentUnavailableError(f"{url}: HTTP {exc.code}") from exc
+                self._sleep(backoff)
+        raise AssertionError("unreachable")
+
+    def _get_once(self, url: str) -> bytes:
         if self._last is not None:
             wait = self._last + self._interval - self._clock()
             if wait > 0:

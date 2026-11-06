@@ -460,3 +460,42 @@ def test_catalyst_build_from_env_reads_urls_and_paces_sec_at_five_per_second(
     assert edgar._sec._interval == 0.2
     assert build._adcom_notices._api_url == "https://fr.example/documents.json"
     assert build._adcom_notices._fr._interval == 1.0
+
+
+def _failing(codes: list[int]):
+    import io
+    import urllib.error
+
+    calls: list[str] = []
+
+    def fetch(url: str, agent: str) -> bytes:
+        calls.append(url)
+        code = codes[len(calls) - 1] if len(calls) <= len(codes) else 200
+        if code != 200:
+            raise urllib.error.HTTPError(url, code, "error", {}, io.BytesIO(b""))  # type: ignore[arg-type]
+        return b"ok"
+
+    return fetch, calls
+
+
+def test_server_error_is_retried_and_a_later_success_is_returned() -> None:
+    fetch, calls = _failing([503, 502])
+    sleeps: list[float] = []
+    source = HttpSource(USER_AGENT, 0.2, fetch=fetch, clock=lambda: 0.0, sleep=sleeps.append)
+
+    assert source.get("https://a.example/doc") == b"ok"
+    assert len(calls) == 3
+    assert sum(sleeps) >= 5
+
+
+def test_document_the_source_keeps_failing_is_missing_and_the_run_goes_on() -> None:
+    # SEC answers 503 for some archived filing indexes every time (seen 2026-11-06).
+    from auspex_backtesting.catalysts.fetch import DocumentNotFoundError, DocumentUnavailableError
+
+    fetch, calls = _failing([503, 503, 503, 503])
+    source = HttpSource(USER_AGENT, 0.2, fetch=fetch, clock=lambda: 0.0, sleep=lambda s: None)
+
+    with pytest.raises(DocumentNotFoundError, match="HTTP 503") as caught:
+        source.get("https://a.example/doc")
+    assert isinstance(caught.value, DocumentUnavailableError)
+    assert len(calls) == 3
