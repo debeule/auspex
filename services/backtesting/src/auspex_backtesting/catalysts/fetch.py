@@ -32,7 +32,7 @@ class DocumentNotFoundError(Exception):
 
 
 class DocumentUnavailableError(DocumentNotFoundError):
-    """The source answered a server error for the URL on every try. Callers count it as a missing
+    """The source answered a server error, or timed out, for the URL on every try. Callers count it as a missing
     document, so one broken page does not stop a run that could never get past it."""
 
 
@@ -72,9 +72,16 @@ class HttpSource:
             except urllib.error.HTTPError as exc:
                 if exc.code not in _SERVER_ERROR_STATUSES:
                     raise
-                if backoff is None:
-                    raise DocumentUnavailableError(f"{url}: HTTP {exc.code}") from exc
-                self._sleep(backoff)
+                failure: Exception = exc
+                reason = f"HTTP {exc.code}"
+            except (TimeoutError, urllib.error.URLError) as exc:
+                timed_out = isinstance(exc, TimeoutError) or isinstance(exc.reason, TimeoutError)
+                if not timed_out:
+                    raise
+                failure, reason = exc, "timed out"
+            if backoff is None:
+                raise DocumentUnavailableError(f"{url}: {reason}") from failure
+            self._sleep(backoff)
         raise AssertionError("unreachable")
 
     def _get_once(self, url: str) -> bytes:
