@@ -663,3 +663,16 @@ def test_cadvisor_reaches_containerd_for_per_container_metrics() -> None:
     """With the containerd image store, cAdvisor's Docker factory needs containerd's socket."""
     cadvisor = _services()["cadvisor"]
     assert "/run/containerd/containerd.sock:/run/containerd/containerd.sock:ro" in cadvisor["volumes"]
+
+
+def test_grafana_go_heap_is_held_below_its_container_limit() -> None:
+    """Without a Go soft limit Grafana's heap grows into its cgroup limit and spends its CPU in
+    reclaim (seen twice at ~1,200% CPU on the stack machine, 2026-11-06)."""
+    env = _env_example()
+    grafana = _services()["grafana"]
+    soft = _resolve(grafana["environment"]["GOMEMLIMIT"])
+    m = re.fullmatch(r"(\d+)MiB", soft)
+    assert m, f"GOMEMLIMIT {soft!r} is not in MiB"
+    limit = _mib(env[_limit_var("grafana", grafana)])
+
+    assert int(m.group(1)) * 4 <= limit * 3
