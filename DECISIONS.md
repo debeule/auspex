@@ -1850,3 +1850,22 @@ The `funnel/` and `risk/catalyst_holds.jsonl` keys of the `auspex-strategy` layo
 ## 2026-11-10 — Ingestion HTTP — CHOICE — a timed-out GET is tried three times
 **What:** The 2026-11-10 bioRxiv run failed on all three Airflow tries with `httpcore.ReadTimeout` from `api.biorxiv.org`; the API answered in 3 s an hour later. `RateLimitedClient` passed a timeout straight to the pipeline, so one slow response failed the whole source run.
 **Choice:** `RateLimitedClient.get` tries a GET that timed out twice more (waits of 5 s and 30 s, each try paced through the host's bucket per ING-005) and then raises; POST (token requests) is not retried.
+## 2026-11-06 — Market simulation — VERIFIED — XBI and EURUSD=X snapshots in MinIO from 2013
+**What:** Closes `## 2026-10-07 — Market simulation — PENDING — EURUSD=X and XBI not yet in MinIO`. First `up` on the stack machine with `PRICE_HISTORY_START=2013-01-01`: `price-bootstrap` exited 0; `XBI` 3483 rows 2013-01-02..2026-11-05, `EURUSD=X` 3604 rows 2013-01-01..2026-11-05. Watched tickers start in January 2013 or at their listing (`SPRB` 2020-10-09, `BEAM` 2020-02-06, `CRSP` 2016-10-19, `ABVX` 2023-10-20, `RCKT` 2015-02-18, `QURE` 2014-02-05). `verify_pipeline.sh`: all checks passed.
+
+## 2026-11-06 — Point-in-time universe — VERIFIED — first build on the stack machine
+**What:** Closes `## 2026-10-08 — Point-in-time universe — PENDING — SEC bulk URLs and first build on the stack`. The `auspex_universe_build` DAG run of 2026-11-06 succeeded on its second attempt; the first was lost when the price service hit its 896 MB limit 34 seconds in (`PRICE_SERVICE_MEM_LIMIT` raised to 2560m in `.env`; peak seen 1.3 GB). Rules version 1, 155 months stored (2014-01..2026-11), no price failures, no "SEC refused" line. The configured URLs worked unchanged: `SEC_SUBMISSIONS_BULK_URL` `.../daily-index/bulkdata/submissions.zip`, `SEC_COMPANYFACTS_BULK_URL` `.../daily-index/xbrl/companyfacts.zip`, `SEC_ARCHIVES_URL` `.../Archives/edgar/data`.
+
+| | 2014–2018 | 2019 onward | All |
+|---|---|---|---|
+| Months | 60 | 95 | 155 |
+| Members per month (min / median / max) | 288 / 392 / 470 | 421 / 498 / 699 | 288 / 459 / 699 |
+| Distinct members | 691 | 1105 | 1245 |
+| Price coverage complete / partial / none | 225 / 53 / 413 | 520 / 139 / 446 | 520 / 142 / 583 |
+| Unresolved tickers | 136 | 157 | 191 |
+
+All 583 unpriced members have exited: of the gaps, 298 acquired, 250 delisted, 49 deregistered; the 128 still-listed members with a gap are partial (prices start a few days after listing). 83 unpriced members carry a ticker another issuer reused. Unpriced exits are 60% of 2014–2018 members and 40% of later ones: the survivorship kill criterion reads these numbers. `backfill_scope.yaml`: 770 companies from 2024-01. `test_universe.py`: 58 passed.
+**Note:** until `specs/research-input-archive.md` is done this build and every panel on it are disposable: no admissible result may be computed from them. The SEC bulk archives are deleted after the build; MinIO held 68 MB afterwards.
+
+## 2026-11-06 — Point-in-time universe — CHOICE — archived spec path replaces its frozen path
+**What:** The first-run spec moves `specs/point-in-time-universe.md` to `specs/done/`, check J requires a done row to point there, and check A listed the old path in `frozen_paths`, so no layout passed both. `docs-check.toml` now freezes `specs/done/point-in-time-universe.md`; `docs/` links point to it. Citations of the old path in `specs/done/` and earlier entries here are history and stay as written (ENG-036, ENG-033). The same applies when `catalyst-date-panel.md` and `sec-ownership-datasets.md` are archived.

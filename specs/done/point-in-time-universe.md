@@ -1,7 +1,9 @@
 # Point-in-Time Stock Universe
 
-**Status:** blocked
-**Blocked by:** the first universe build on the stack machine (Definition of done, second block). All code and all 23 required tests are in; what remains is recording the measured member counts and price coverage in `DECISIONS.md` and committing `config/universe/backfill_scope.yaml`, which needs SEC and Yahoo access from the stack (`DECISIONS.md` 2026-10-08 PENDING).
+> Archived. Not authoritative: current behaviour is in docs/ (see docs/README.md).
+
+**Status:** done
+**Blocked by:** —
 **Branch:** `feature/point-in-time-universe`
 **Docs impact:** None: behaviour approved in RES-013…RES-025 and RES-072…RES-073; the remaining work is acceptance on the stack machine.
 
