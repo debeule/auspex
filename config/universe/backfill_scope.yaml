@@ -1,0 +1,2315 @@
+rules_version: 1
+window:
+  start: 2024-01
+  end: 2026-11
+companies:
+- cik: 0000001800
+  ticker: ABT
+  name: ABBOTT LABORATORIES
+- cik: '0000014272'
+  ticker: BMY
+  name: BRISTOL MYERS SQUIBB CO
+- cik: 0000034956
+  ticker: TENX
+  name: TENAX THERAPEUTICS, INC.
+- cik: 0000059478
+  ticker: LLY
+  name: ELI LILLY & Co
+- cik: 0000070487
+  ticker: NRC
+  name: NRC HEALTH
+- cik: '0000072444'
+  ticker: VXRT
+  name: Vaxart, Inc.
+- cik: 0000078003
+  ticker: PFE
+  name: PFIZER INC
+- cik: '0000200406'
+  ticker: JNJ
+  name: JOHNSON & JOHNSON
+- cik: '0000275053'
+  ticker: NATR
+  name: NATURES SUNSHINE PRODUCTS INC
+- cik: 0000310158
+  ticker: MRK
+  name: Merck & Co., Inc.
+- cik: '0000316253'
+  ticker: null
+  name: ENZO BIOCHEM INC
+- cik: 0000318154
+  ticker: AMGN
+  name: AMGEN INC
+- cik: 0000318306
+  ticker: ABEO
+  name: ABEONA THERAPEUTICS INC.
+- cik: 0000353278
+  ticker: NVO
+  name: NOVO NORDISK A S
+- cik: '0000715446'
+  ticker: ANIX
+  name: Anixa Biosciences Inc
+- cik: '0000720154'
+  ticker: NOTV
+  name: Inotiv, Inc.
+- cik: '0000725363'
+  ticker: CVM
+  name: CEL SCI CORP
+- cik: 0000728387
+  ticker: CATX
+  name: Perspective Therapeutics, Inc.
+- cik: '0000730272'
+  ticker: RGEN
+  name: REPLIGEN CORP
+- cik: 0000764195
+  ticker: null
+  name: VBI Vaccines Inc/BC
+- cik: 0000771856
+  ticker: CSBR
+  name: CHAMPIONS ONCOLOGY, INC.
+- cik: 0000791908
+  ticker: null
+  name: XOMA Royalty Corp
+- cik: 0000793171
+  ticker: null
+  name: Vitro Biopharma, Inc.
+- cik: 0000818033
+  ticker: HRTX
+  name: HERON THERAPEUTICS, INC. /DE/
+- cik: 0000818686
+  ticker: TEVA
+  name: TEVA PHARMACEUTICAL INDUSTRIES LTD
+- cik: 0000827871
+  ticker: EGRX
+  name: EAGLE PHARMACEUTICALS, INC.
+- cik: 0000842023
+  ticker: TECH
+  name: BIO-TECHNE Corp
+- cik: 0000849146
+  ticker: LFVN
+  name: Lifevantage Corp
+- cik: 0000855654
+  ticker: null
+  name: ImmunoGen, Inc.
+- cik: 0000863894
+  ticker: VERU
+  name: VERU INC.
+- cik: 0000868278
+  ticker: PRPH
+  name: ProPhase Labs, Inc.
+- cik: 0000872589
+  ticker: REGN
+  name: REGENERON PHARMACEUTICALS, INC.
+- cik: 0000873303
+  ticker: SRPT
+  name: Sarepta Therapeutics, Inc.
+- cik: 0000874015
+  ticker: IONS
+  name: IONIS PHARMACEUTICALS INC
+- cik: 0000875045
+  ticker: BIIB
+  name: BIOGEN INC.
+- cik: 0000875320
+  ticker: VRTX
+  name: VERTEX PHARMACEUTICALS INC / MA
+- cik: 0000876343
+  ticker: LCTX
+  name: Lineage Cell Therapeutics, Inc.
+- cik: 0000879169
+  ticker: INCY
+  name: INCYTE CORP
+- cik: 0000879407
+  ticker: ARWR
+  name: ARROWHEAD PHARMACEUTICALS, INC.
+- cik: 0000882095
+  ticker: GILD
+  name: GILEAD SCIENCES, INC.
+- cik: 0000882361
+  ticker: NONE
+  name: Aptose Biosciences Inc.
+- cik: 0000882796
+  ticker: BCRX
+  name: BIOCRYST PHARMACEUTICALS INC
+- cik: 0000885590
+  ticker: BHC
+  name: Bausch Health Companies Inc.
+- cik: 0000886163
+  ticker: LGND
+  name: LIGAND PHARMACEUTICALS INC
+- cik: 0000886744
+  ticker: GERN
+  name: GERON CORP
+- cik: 0000887247
+  ticker: null
+  name: DMK PHARMACEUTICALS Corp
+- cik: 0000887359
+  ticker: VCEL
+  name: Vericel Corp
+- cik: 0000899460
+  ticker: MNKD
+  name: MANNKIND CORP
+- cik: 0000901832
+  ticker: AZN
+  name: ASTRAZENECA PLC
+- cik: 0000906338
+  ticker: TARO
+  name: TARO PHARMACEUTICAL INDUSTRIES LTD
+- cik: 0000906709
+  ticker: NKTR
+  name: NEKTAR THERAPEUTICS
+- cik: 0000907654
+  ticker: ORKA
+  name: Oruka Therapeutics, Inc.
+- cik: 0000910267
+  ticker: null
+  name: TITAN PHARMACEUTICALS INC
+- cik: 0000911216
+  ticker: PTN
+  name: PALATIN TECHNOLOGIES INC
+- cik: 0000914475
+  ticker: NBIX
+  name: NEUROCRINE BIOSCIENCES INC
+- cik: 0000921114
+  ticker: ARMP
+  name: Armata Pharmaceuticals, Inc.
+- cik: 0000921299
+  ticker: KYNB
+  name: KYNTRA BIO, INC.
+- cik: 0000922247
+  ticker: null
+  name: Cyclo Therapeutics, Inc.
+- cik: 0000939767
+  ticker: EXEL
+  name: EXELIXIS, INC.
+- cik: 0000944809
+  ticker: OPK
+  name: OPKO HEALTH, INC.
+- cik: 0000946486
+  ticker: null
+  name: WINDTREE THERAPEUTICS INC /DE/
+- cik: 0001000694
+  ticker: NVAX
+  name: NOVAVAX INC
+- cik: '0001001233'
+  ticker: SGMOQ
+  name: SANGAMO THERAPEUTICS, INC
+- cik: '0001001316'
+  ticker: TGTX
+  name: TG THERAPEUTICS, INC.
+- cik: 0001005286
+  ticker: LFCR
+  name: LIFECORE BIOMEDICAL, INC. \DE\
+- cik: 0001006281
+  ticker: PLX
+  name: Protalix BioTherapeutics, Inc.
+- cik: 0001008848
+  ticker: ACOR
+  name: Acorda Therapeutics, Inc.
+- cik: 0001010086
+  ticker: SIGA
+  name: SIGA TECHNOLOGIES INC
+- cik: '0001012477'
+  ticker: AVDL
+  name: AVADEL PHARMACEUTICALS PLC
+- cik: 0001015820
+  ticker: QGEN
+  name: QIAGEN N.V.
+- cik: 0001017491
+  ticker: null
+  name: SEELOS THERAPEUTICS, INC.
+- cik: 0001022899
+  ticker: PTIX
+  name: Protagenic Therapeutics, Inc.\new
+- cik: '0001023024'
+  ticker: ANIP
+  name: ANI PHARMACEUTICALS INC
+- cik: 0001029125
+  ticker: null
+  name: Panbela Therapeutics, Inc.
+- cik: 0001029142
+  ticker: DVAX
+  name: DYNAVAX TECHNOLOGIES CORP
+- cik: 0001034842
+  ticker: RIGL
+  name: RIGEL PHARMACEUTICALS INC
+- cik: '0001035354'
+  ticker: ELOX
+  name: Eloxx Pharmaceuticals, Inc.
+- cik: '0001041024'
+  ticker: RMTI
+  name: ROCKWELL MEDICAL, INC.
+- cik: '0001042074'
+  ticker: null
+  name: CymaBay Therapeutics, Inc.
+- cik: 0001048477
+  ticker: BMRN
+  name: BIOMARIN PHARMACEUTICAL INC
+- cik: 0001053691
+  ticker: CRVO
+  name: CervoMed Inc.
+- cik: '0001055726'
+  ticker: INO
+  name: INOVIO PHARMACEUTICALS, INC.
+- cik: 0001060955
+  ticker: ICLR
+  name: ICON PLC
+- cik: '0001061027'
+  ticker: VIRX
+  name: Viracta Therapeutics, Inc.
+- cik: 0001061983
+  ticker: CYTK
+  name: CYTOKINETICS INC
+- cik: 0001062822
+  ticker: LXRX
+  name: LEXICON PHARMACEUTICALS, INC.
+- cik: 0001069530
+  ticker: FLNA
+  name: FILANA THERAPEUTICS, INC.
+- cik: 0001069899
+  ticker: PAHC
+  name: PHIBRO ANIMAL HEALTH CORP
+- cik: 0001070081
+  ticker: PTCT
+  name: PTC THERAPEUTICS, INC.
+- cik: 0001070494
+  ticker: ACAD
+  name: ACADIA PHARMACEUTICALS INC
+- cik: 0001075880
+  ticker: KZIA
+  name: KAZIA THERAPEUTICS LTD
+- cik: 0001080014
+  ticker: INVA
+  name: Innoviva, Inc.
+- cik: 0001082038
+  ticker: DRRX
+  name: DURECT CORP
+- cik: 0001082554
+  ticker: UTHR
+  name: UNITED THERAPEUTICS Corp
+- cik: 0001084201
+  ticker: SVA
+  name: SINOVAC BIOTECH LTD
+- cik: 0001087294
+  ticker: CPIX
+  name: CUMBERLAND PHARMACEUTICALS INC
+- cik: 0001088856
+  ticker: CORT
+  name: CORCEPT THERAPEUTICS INC
+- cik: 0001098972
+  ticker: AGEN
+  name: AGENUS INC
+- cik: 0001100682
+  ticker: CRL
+  name: CHARLES RIVER LABORATORIES INTERNATIONAL, INC.
+- cik: '0001101026'
+  ticker: ZIVO
+  name: Zivo Bioscience, Inc.
+- cik: '0001104506'
+  ticker: INSM
+  name: INSMED Inc
+- cik: 0001108205
+  ticker: CRIS
+  name: CURIS INC
+- cik: 0001114448
+  ticker: NVS
+  name: NOVARTIS AG
+- cik: 0001117480
+  ticker: CMRX
+  name: CHIMERIX INC
+- cik: 0001119774
+  ticker: CGEN
+  name: COMPUGEN LTD
+- cik: '0001121404'
+  ticker: SNY
+  name: Sanofi
+- cik: '0001124105'
+  ticker: GYRE
+  name: GYRE THERAPEUTICS, INC.
+- cik: '0001124524'
+  ticker: CYRX
+  name: Cryoport, Inc.
+- cik: '0001125345'
+  ticker: MGNX
+  name: MACROGENICS INC
+- cik: '0001126234'
+  ticker: NLNK
+  name: LUMOS PHARMA, INC.
+- cik: 0001129928
+  ticker: ONCY
+  name: ONCOLYTICS BIOTECH INC
+- cik: 0001131399
+  ticker: GSK
+  name: GSK plc
+- cik: '0001133416'
+  ticker: GALT
+  name: GALECTIN THERAPEUTICS INC
+- cik: 0001133818
+  ticker: BPTH
+  name: BIO-PATH HOLDINGS, INC.
+- cik: 0001133869
+  ticker: CAPR
+  name: CAPRICOR THERAPEUTICS, INC.
+- cik: 0001135951
+  ticker: RDY
+  name: DR REDDYS LABORATORIES LTD
+- cik: 0001137883
+  ticker: BCLI
+  name: BRAINSTORM CELL THERAPEUTICS INC.
+- cik: '0001157601'
+  ticker: MDGL
+  name: MADRIGAL PHARMACEUTICALS, INC.
+- cik: 0001159036
+  ticker: HALO
+  name: HALOZYME THERAPEUTICS, INC.
+- cik: 0001160308
+  ticker: SVRA
+  name: Savara Inc
+- cik: 0001162194
+  ticker: LAB
+  name: STANDARD BIOTOOLS INC.
+- cik: '0001166272'
+  ticker: null
+  name: GENETIC TECHNOLOGIES LTD
+- cik: 0001173281
+  ticker: null
+  name: NeuBase Therapeutics, Inc.
+- cik: 0001176309
+  ticker: ORMP
+  name: ORAMED PHARMACEUTICALS INC.
+- cik: 0001177648
+  ticker: ENTA
+  name: ENANTA PHARMACEUTICALS INC
+- cik: 0001178253
+  ticker: SCYX
+  name: SCYNEXIS INC
+- cik: 0001178670
+  ticker: ALNY
+  name: ALNYLAM PHARMACEUTICALS, INC.
+- cik: 0001178879
+  ticker: FOLD
+  name: AMICUS THERAPEUTICS, INC.
+- cik: 0001183765
+  ticker: null
+  name: Molecular Templates, Inc.
+- cik: 0001205922
+  ticker: VCNX
+  name: VACCINEX, INC.
+- cik: 0001211583
+  ticker: FENC
+  name: FENNEC PHARMACEUTICALS INC.
+- cik: '0001213037'
+  ticker: CRDF
+  name: Cardiff Oncology, Inc.
+- cik: '0001224462'
+  ticker: null
+  name: GLAXOSMITHKLINE CAPITAL INC
+- cik: '0001224544'
+  ticker: null
+  name: GLAXOSMITHKLINE CAPITAL PLC
+- cik: '0001226616'
+  ticker: MNOV
+  name: MEDICINOVA INC
+- cik: 0001228627
+  ticker: IRD
+  name: Opus Genetics, Inc.
+- cik: '0001231457'
+  ticker: GNLX
+  name: GENELUX Corp
+- cik: '0001232524'
+  ticker: JAZZ
+  name: Jazz Pharmaceuticals plc
+- cik: 0001239819
+  ticker: LUNA
+  name: LUNA INNOVATIONS INC
+- cik: 0001253689
+  ticker: CBIO
+  name: CRESCENT BIOPHARMA, INC.
+- cik: 0001260990
+  ticker: ONCT
+  name: Oncternal Therapeutics, Inc.
+- cik: 0001261249
+  ticker: null
+  name: AGILE THERAPEUTICS INC
+- cik: '0001267565'
+  ticker: COLL
+  name: COLLEGIUM PHARMACEUTICAL, INC
+- cik: '0001267602'
+  ticker: null
+  name: ALIMERA SCIENCES INC
+- cik: 0001267813
+  ticker: null
+  name: MARINUS PHARMACEUTICALS, INC.
+- cik: 0001274792
+  ticker: MACK
+  name: MERRIMACK PHARMACEUTICALS INC
+- cik: 0001279704
+  ticker: CLRB
+  name: Cellectar Biosciences, Inc.
+- cik: 0001280776
+  ticker: IMUX
+  name: IMMUNIC, INC.
+- cik: 0001281895
+  ticker: RCKT
+  name: ROCKET PHARMACEUTICALS, INC.
+- cik: 0001285819
+  ticker: OMER
+  name: OMEROS CORP
+- cik: 0001287098
+  ticker: MXCT
+  name: MAXCYTE, INC.
+- cik: 0001293971
+  ticker: BLUE
+  name: bluebird bio, Inc.
+- cik: 0001295947
+  ticker: PBH
+  name: Prestige Consumer Healthcare Inc.
+- cik: 0001297184
+  ticker: AMPH
+  name: Amphastar Pharmaceuticals, Inc.
+- cik: '0001305253'
+  ticker: EIGR
+  name: Eiger BioPharmaceuticals, Inc.
+- cik: '0001314052'
+  ticker: AVXL
+  name: ANAVEX LIFE SCIENCES CORP.
+- cik: 0001323993
+  ticker: null
+  name: Perrigo Finance Unlimited Co
+- cik: '0001326110'
+  ticker: IBRX
+  name: ImmunityBio, Inc.
+- cik: 0001326190
+  ticker: ALT
+  name: Altimmune, Inc.
+- cik: '0001326732'
+  ticker: XNCR
+  name: Xencor Inc
+- cik: '0001335105'
+  ticker: NMAD
+  name: NOMAD POWER SOLUTIONS, INC.
+- cik: 0001339970
+  ticker: ATYR
+  name: aTYR PHARMA INC
+- cik: '0001340243'
+  ticker: MOR
+  name: MorphoSys AG
+- cik: '0001341235'
+  ticker: ALDX
+  name: Aldeyra Therapeutics, Inc.
+- cik: 0001345099
+  ticker: MESO
+  name: MESOBLAST LTD
+- cik: 0001346830
+  ticker: TVRD
+  name: Tvardi Therapeutics, Inc.
+- cik: 0001347178
+  ticker: VNDA
+  name: Vanda Pharmaceuticals Inc.
+- cik: '0001347242'
+  ticker: LIPO
+  name: LIPELLA PHARMACEUTICALS INC.
+- cik: 0001348362
+  ticker: LEXX
+  name: Lexaria Bioscience Corp.
+- cik: 0001348911
+  ticker: KALV
+  name: KalVista Pharmaceuticals, Inc.
+- cik: '0001355250'
+  ticker: null
+  name: Innovation Pharmaceuticals Inc.
+- cik: 0001356090
+  ticker: PGEN
+  name: PRECIGEN, INC.
+- cik: '0001356576'
+  ticker: SUPN
+  name: SUPERNUS PHARMACEUTICALS, INC.
+- cik: 0001357459
+  ticker: PALI
+  name: PALISADE BIO, INC.
+- cik: 0001357874
+  ticker: DTIL
+  name: PRECISION BIOSCIENCES INC
+- cik: 0001357878
+  ticker: null
+  name: REGENEREX PHARMA, INC.
+- cik: 0001359931
+  ticker: TARA
+  name: Protara Therapeutics, Inc.
+- cik: '0001360214'
+  ticker: HROW
+  name: HARROW, INC.
+- cik: '0001367644'
+  ticker: EBS
+  name: Emergent BioSolutions Inc.
+- cik: 0001368514
+  ticker: ADMA
+  name: ADMA BIOLOGICS, INC.
+- cik: 0001369568
+  ticker: CPRX
+  name: CATALYST PHARMACEUTICALS, INC.
+- cik: '0001370053'
+  ticker: ANAB
+  name: ANAPTYSBIO, INC
+- cik: 0001372299
+  ticker: OCGN
+  name: Ocugen, Inc.
+- cik: 0001374339
+  ticker: PMN
+  name: ProMIS Neurosciences Inc.
+- cik: 0001374690
+  ticker: LRMR
+  name: Larimar Therapeutics, Inc.
+- cik: '0001377121'
+  ticker: PTGX
+  name: Protagonist Therapeutics, Inc
+- cik: 0001382101
+  ticker: STRO
+  name: SUTRO BIOPHARMA, INC.
+- cik: 0001388320
+  ticker: ATNM
+  name: Actinium Pharmaceuticals, Inc.
+- cik: 0001390478
+  ticker: SLS
+  name: SELLAS Life Sciences Group, Inc.
+- cik: 0001393434
+  ticker: OCUL
+  name: OCULAR THERAPEUTIX, INC
+- cik: 0001394319
+  ticker: TCON
+  name: Tracon Pharmaceuticals, Inc.
+- cik: 0001395064
+  ticker: TAK
+  name: TAKEDA PHARMACEUTICAL CO LTD
+- cik: 0001395937
+  ticker: SNDX
+  name: Syndax Pharmaceuticals Inc
+- cik: 0001396814
+  ticker: PCRX
+  name: Pacira BioSciences, Inc.
+- cik: 0001398733
+  ticker: AQST
+  name: Aquestive Therapeutics, Inc.
+- cik: 0001400118
+  ticker: SGMT
+  name: Sagimet Biosciences Inc.
+- cik: '0001401040'
+  ticker: DMAC
+  name: DiaMedica Therapeutics Inc.
+- cik: 0001401395
+  ticker: NEPT
+  name: Neptune Wellness Solutions Inc.
+- cik: '0001401667'
+  ticker: PBYI
+  name: PUMA BIOTECHNOLOGY, INC.
+- cik: 0001401708
+  ticker: NSTG
+  name: NS Wind Down Co., Inc.
+- cik: 0001403708
+  ticker: EVOK
+  name: Evoke Pharma Inc
+- cik: 0001404281
+  ticker: ELDN
+  name: Eledon Pharmaceuticals, Inc.
+- cik: '0001404644'
+  ticker: NGNE
+  name: Neurogene Inc.
+- cik: 0001408443
+  ticker: MIST
+  name: Milestone Pharmaceuticals Inc.
+- cik: 0001410098
+  ticker: CRMD
+  name: CorMedix Inc.
+- cik: 0001411685
+  ticker: VTGN
+  name: Vistagen Therapeutics, Inc.
+- cik: 0001412558
+  ticker: EVO
+  name: Evotec SE
+- cik: 0001419041
+  ticker: FBRX
+  name: Forte Biosciences, Inc.
+- cik: '0001420565'
+  ticker: RNTX
+  name: Rein Therapeutics, Inc.
+- cik: '0001420720'
+  ticker: IBIO
+  name: iBio, Inc.
+- cik: '0001421642'
+  ticker: MSLE
+  name: Satellos Bioscience Inc.
+- cik: 0001421876
+  ticker: LKFT
+  name: Lakefront Biotherapeutics NV
+- cik: '0001422142'
+  ticker: WHWK
+  name: Whitehawk Therapeutics, Inc.
+- cik: '0001422143'
+  ticker: KURA
+  name: Kura Oncology, Inc.
+- cik: '0001425205'
+  ticker: IOVA
+  name: IOVANCE BIOTHERAPEUTICS, INC.
+- cik: '0001426332'
+  ticker: NGM
+  name: NGM BIOPHARMACEUTICALS INC
+- cik: 0001426800
+  ticker: ASMB
+  name: ASSEMBLY BIOSCIENCES, INC.
+- cik: 0001429560
+  ticker: null
+  name: TREVENA INC
+- cik: '0001430306'
+  ticker: TNXP
+  name: Tonix Pharmaceuticals Holding Corp.
+- cik: '0001434265'
+  ticker: GMAB
+  name: GENMAB A/S
+- cik: '0001434316'
+  ticker: FATE
+  name: FATE THERAPEUTICS INC
+- cik: '0001434647'
+  ticker: ZVRA
+  name: ZEVRA THERAPEUTICS, INC.
+- cik: 0001434868
+  ticker: ESPR
+  name: Esperion Therapeutics, Inc.
+- cik: '0001437402'
+  ticker: ARDX
+  name: ARDELYX, INC.
+- cik: 0001438533
+  ticker: TVTX
+  name: Travere Therapeutics, Inc.
+- cik: 0001438569
+  ticker: GRFS
+  name: Grifols SA
+- cik: 0001439222
+  ticker: AGIO
+  name: AGIOS PHARMACEUTICALS, INC.
+- cik: 0001442836
+  ticker: MRSN
+  name: Mersana Therapeutics, Inc.
+- cik: 0001444192
+  ticker: GRCE
+  name: Grace Therapeutics, Inc.
+- cik: 0001445283
+  ticker: KANT
+  name: KINETA, INC./DE
+- cik: 0001446847
+  ticker: IRWD
+  name: IRONWOOD PHARMACEUTICALS INC
+- cik: 0001447028
+  ticker: ABUS
+  name: Arbutus Biopharma Corp
+- cik: 0001453687
+  ticker: RNAC
+  name: Cartesian Therapeutics, Inc.
+- cik: 0001454789
+  ticker: null
+  name: Astria Therapeutics, Inc.
+- cik: '0001455365'
+  ticker: CGTX
+  name: COGNITION THERAPEUTICS INC
+- cik: '0001460602'
+  ticker: null
+  name: Orgenesis Inc.
+- cik: '0001463361'
+  ticker: UBX
+  name: Unity Biotechnology, Inc.
+- cik: 0001468748
+  ticker: KOD
+  name: Kodiak Sciences Inc.
+- cik: '0001472012'
+  ticker: IMNM
+  name: Immunome Inc.
+- cik: 0001472091
+  ticker: PDSB
+  name: PDS Biotechnology Corp
+- cik: 0001477845
+  ticker: ANVS
+  name: Annovis Bio, Inc.
+- cik: 0001478242
+  ticker: IQV
+  name: IQVIA HOLDINGS INC.
+- cik: 0001478320
+  ticker: ADPT
+  name: Adaptive Biotechnologies Corp
+- cik: 0001479290
+  ticker: RVNC
+  name: Revance Therapeutics, Inc.
+- cik: 0001479419
+  ticker: KALA
+  name: KALA BIO, Inc.
+- cik: 0001479615
+  ticker: SLN
+  name: Silence Therapeutics plc
+- cik: 0001485003
+  ticker: CARM
+  name: Carisma Therapeutics Inc.
+- cik: 0001488039
+  ticker: ATOS
+  name: ATOSSA THERAPEUTICS, INC.
+- cik: 0001490978
+  ticker: SDGR
+  name: Schrodinger, Inc.
+- cik: 0001492422
+  ticker: APLS
+  name: Apellis Pharmaceuticals, Inc.
+- cik: 0001494650
+  ticker: OPTN
+  name: OptiNose, Inc.
+- cik: 0001496323
+  ticker: IGMS
+  name: IGM Biosciences, Inc.
+- cik: 0001498382
+  ticker: HURA
+  name: TuHURA Biosciences, Inc./NV
+- cik: 0001498403
+  ticker: BLRX
+  name: BioLineRx Ltd.
+- cik: 0001501697
+  ticker: XFOR
+  name: X4 Pharmaceuticals, Inc
+- cik: '0001501756'
+  ticker: ADVM
+  name: Adverum Biotechnologies, Inc.
+- cik: 0001501796
+  ticker: AURA
+  name: Aura Biosciences, Inc.
+- cik: 0001501989
+  ticker: CTMX
+  name: CytomX Therapeutics, Inc.
+- cik: 0001503802
+  ticker: KPTI
+  name: Karyopharm Therapeutics Inc.
+- cik: '0001505512'
+  ticker: RGLS
+  name: Regulus Therapeutics Inc.
+- cik: 0001506184
+  ticker: IMMP
+  name: IMMUTEP Ltd
+- cik: '0001506251'
+  ticker: CTXR
+  name: Citius Pharmaceuticals, Inc.
+- cik: 0001509261
+  ticker: RZLT
+  name: Rezolute, Inc.
+- cik: 0001509745
+  ticker: CYPH
+  name: CYPHERPUNK TECHNOLOGIES INC.
+- cik: '0001512762'
+  ticker: CHRS
+  name: Coherus Oncology, Inc.
+- cik: 0001513818
+  ticker: null
+  name: Aravive, Inc.
+- cik: '0001515673'
+  ticker: RARE
+  name: Ultragenyx Pharmaceutical Inc.
+- cik: '0001516551'
+  ticker: SKYE
+  name: Skye Bioscience, Inc.
+- cik: '0001517022'
+  ticker: AKBA
+  name: Akebia Therapeutics, Inc.
+- cik: '0001520262'
+  ticker: ALKS
+  name: Alkermes plc.
+- cik: 0001526119
+  ticker: VSTM
+  name: Verastem, Inc.
+- cik: 0001527599
+  ticker: SYBX
+  name: SYNLOGIC, INC.
+- cik: 0001527728
+  ticker: LNAI
+  name: Lunai Bioworks Inc.
+- cik: 0001528115
+  ticker: ANNX
+  name: Annexon, Inc.
+- cik: '0001532346'
+  ticker: null
+  name: Atreca, Inc.
+- cik: '0001534120'
+  ticker: AVTX
+  name: Avalo Therapeutics, Inc.
+- cik: 0001534248
+  ticker: CMMB
+  name: Chemomab Therapeutics Ltd.
+- cik: 0001535955
+  ticker: LPCN
+  name: Lipocine Inc.
+- cik: 0001538210
+  ticker: NEXI
+  name: NexImmune, Inc.
+- cik: 0001539029
+  ticker: CLSD
+  name: Clearside Biomedical, Inc.
+- cik: 0001540159
+  ticker: EDSA
+  name: Edesa Biotech, Inc.
+- cik: '0001540171'
+  ticker: AVLN
+  name: Avalyn Pharma Inc.
+- cik: '0001541157'
+  ticker: AKTX
+  name: Akari Therapeutics Plc
+- cik: '0001544227'
+  ticker: TPST
+  name: Tempest Therapeutics, Inc.
+- cik: 0001549595
+  ticker: NRIX
+  name: Nurix Therapeutics, Inc.
+- cik: '0001551152'
+  ticker: ABBV
+  name: AbbVie Inc.
+- cik: '0001553643'
+  ticker: RLMD
+  name: RELMADA THERAPEUTICS, INC.
+- cik: 0001553846
+  ticker: RDHL
+  name: RedHill Biopharma Ltd.
+- cik: 0001555280
+  ticker: ZTS
+  name: Zoetis Inc.
+- cik: '0001556263'
+  ticker: SYRS
+  name: Syros Pharmaceuticals, Inc.
+- cik: '0001557746'
+  ticker: ACRS
+  name: Aclaris Therapeutics, Inc.
+- cik: 0001559053
+  ticker: PRTA
+  name: PROTHENA CORP PUBLIC LTD CO
+- cik: 0001559356
+  ticker: BTAX
+  name: Biostax Corp.
+- cik: '0001560241'
+  ticker: GTHX
+  name: G1 Therapeutics, Inc.
+- cik: '0001563577'
+  ticker: GRTX
+  name: Galera Therapeutics, Inc.
+- cik: 0001563880
+  ticker: TRVI
+  name: Trevi Therapeutics, Inc.
+- cik: 0001564824
+  ticker: ALLK
+  name: Allakos Inc.
+- cik: '0001566044'
+  ticker: YARW
+  name: Yarrow Bioscience, Inc.
+- cik: 0001566049
+  ticker: ARCT
+  name: Arcturus Therapeutics Ltd.
+- cik: '0001567264'
+  ticker: INTS
+  name: INTENSITY THERAPEUTICS, INC.
+- cik: '0001567514'
+  ticker: ITCI
+  name: Intra-Cellular Therapies, Inc.
+- cik: 0001567529
+  ticker: KMDA
+  name: KAMADA LTD
+- cik: '0001570562'
+  ticker: EOLS
+  name: Evolus, Inc.
+- cik: '0001576263'
+  ticker: MRTX
+  name: Mirati Therapeutics, Inc.
+- cik: 0001576885
+  ticker: ABOS
+  name: Acumen Pharmaceuticals, Inc.
+- cik: 0001579428
+  ticker: AXSM
+  name: Axsome Therapeutics, Inc.
+- cik: 0001580063
+  ticker: BIOR
+  name: BIORA THERAPEUTICS, INC.
+- cik: 0001581178
+  ticker: EPRX
+  name: EUPRAXIA PHARMACEUTICALS INC.
+- cik: 0001581280
+  ticker: TWST
+  name: Twist Bioscience Corp
+- cik: 0001582313
+  ticker: XENE
+  name: Xenon Pharmaceuticals Inc.
+- cik: 0001582636
+  ticker: null
+  name: ALZHEON, INC.
+- cik: 0001583107
+  ticker: null
+  name: Theravance Biopharma, Inc.
+- cik: 0001583648
+  ticker: PVLA
+  name: PALVELLA THERAPEUTICS, INC.
+- cik: 0001583771
+  ticker: HEPA
+  name: Hepion Pharmaceuticals, Inc.
+- cik: 0001585364
+  ticker: PRGO
+  name: PERRIGO Co plc
+- cik: 0001588972
+  ticker: SCTL
+  name: Societal CDMO, Inc.
+- cik: 0001590560
+  ticker: QURE
+  name: uniQure N.V.
+- cik: 0001590750
+  ticker: VRDN
+  name: Viridian Therapeutics, Inc.\DE
+- cik: 0001590877
+  ticker: RGNX
+  name: REGENXBIO Inc.
+- cik: 0001592052
+  ticker: null
+  name: Centrexion Therapeutics Corp
+- cik: 0001593899
+  ticker: AVIR
+  name: Atea Pharmaceuticals, Inc.
+- cik: 0001595097
+  ticker: CRBP
+  name: Corbus Pharmaceuticals Holdings, Inc.
+- cik: 0001596783
+  ticker: CTLT
+  name: Catalent, Inc.
+- cik: 0001597264
+  ticker: null
+  name: Blueprint Medicines Corp
+- cik: 0001597553
+  ticker: SAGE
+  name: Sage Therapeutics, Inc.
+- cik: 0001598646
+  ticker: NERV
+  name: Minerva Neurosciences, Inc.
+- cik: 0001599298
+  ticker: SMMT
+  name: Summit Therapeutics Inc.
+- cik: 0001599901
+  ticker: RNA
+  name: Avidity Biosciences, Inc.
+- cik: '0001600620'
+  ticker: AUPH
+  name: Aurinia Pharmaceuticals Inc.
+- cik: 0001600847
+  ticker: null
+  name: Gamida Cell Ltd.
+- cik: 0001601485
+  ticker: ELTX
+  name: Elicio Therapeutics, Inc.
+- cik: 0001601830
+  ticker: RXRX
+  name: RECURSION PHARMACEUTICALS, INC.
+- cik: 0001601936
+  ticker: CYTOF
+  name: Altamira Therapeutics Ltd.
+- cik: '0001603207'
+  ticker: null
+  name: Notable Labs, Ltd.
+- cik: '0001604464'
+  ticker: ATRA
+  name: Atara Biotherapeutics, Inc.
+- cik: 0001604950
+  ticker: SCPH
+  name: scPharmaceuticals Inc.
+- cik: 0001607678
+  ticker: VKTX
+  name: Viking Therapeutics, Inc.
+- cik: 0001608390
+  ticker: null
+  name: Affimed N.V.
+- cik: 0001609809
+  ticker: MCRB
+  name: Seres Therapeutics, Inc.
+- cik: 0001610618
+  ticker: CDTX
+  name: Cidara Therapeutics, Inc.
+- cik: 0001610820
+  ticker: BCTX
+  name: BriaCell Therapeutics Corp.
+- cik: '0001612042'
+  ticker: ASND
+  name: Ascendis Pharma A/S
+- cik: 0001612940
+  ticker: PRQR
+  name: ProQR Therapeutics N.V.
+- cik: 0001613780
+  ticker: DBVT
+  name: DBV Technologies S.A.
+- cik: '0001614744'
+  ticker: PPBT
+  name: PURPLE BIOTECH LTD.
+- cik: 0001619856
+  ticker: CRBU
+  name: Caribou Biosciences, Inc.
+- cik: '0001620463'
+  ticker: LONA
+  name: LeonaBio, Inc.
+- cik: '0001620737'
+  ticker: OGI
+  name: ORGANIGRAM GLOBAL INC.
+- cik: '0001621227'
+  ticker: ADAPY
+  name: Adaptimmune Therapeutics PLC
+- cik: 0001622229
+  ticker: COGT
+  name: Cogent Biosciences, Inc.
+- cik: '0001623526'
+  ticker: STOK
+  name: Stoke Therapeutics, Inc.
+- cik: '0001624422'
+  ticker: ERYP
+  name: PHAXIAM Therapeutics S.A.
+- cik: 0001625297
+  ticker: SUPN
+  name: Supernus, Inc.
+- cik: 0001626199
+  ticker: ALPN
+  name: ALPINE IMMUNE SCIENCES, INC.
+- cik: 0001626878
+  ticker: XBIT
+  name: XBiotech Inc.
+- cik: 0001626971
+  ticker: CRVS
+  name: Corvus Pharmaceuticals, Inc.
+- cik: 0001628171
+  ticker: RVMD
+  name: Revolution Medicines, Inc.
+- cik: '0001631574'
+  ticker: WVE
+  name: Wave Life Sciences, Inc.
+- cik: '0001633070'
+  ticker: AXLA
+  name: Axcella Health Inc.
+- cik: 0001633932
+  ticker: null
+  name: ESSA Pharma Inc.
+- cik: 0001635088
+  ticker: ROIV
+  name: Roivant Sciences Ltd.
+- cik: 0001636282
+  ticker: SYRE
+  name: Spyre Therapeutics, Inc.
+- cik: '0001636651'
+  ticker: OVID
+  name: Ovid Therapeutics Inc.
+- cik: '0001637715'
+  ticker: OKUR
+  name: OnKure Therapeutics, Inc.
+- cik: 0001638097
+  ticker: ENTX
+  name: Entera Bio Ltd.
+- cik: '0001640266'
+  ticker: VYGR
+  name: Voyager Therapeutics, Inc.
+- cik: 0001641489
+  ticker: VTVT
+  name: vTv Therapeutics Inc.
+- cik: '0001642375'
+  ticker: null
+  name: Guardion Health Sciences, Inc.
+- cik: 0001643918
+  ticker: BDRX
+  name: Biodexa Pharmaceuticals Plc
+- cik: 0001644963
+  ticker: ATXI
+  name: AVENUE THERAPEUTICS, INC.
+- cik: '0001645460'
+  ticker: CUE
+  name: Cue Biopharma, Inc.
+- cik: 0001645469
+  ticker: MNPR
+  name: Monopar Therapeutics
+- cik: '0001645666'
+  ticker: KZR
+  name: Kezar Life Sciences, Inc.
+- cik: 0001648257
+  ticker: HCM
+  name: HUTCHMED (China) Ltd
+- cik: 0001649094
+  ticker: PCVX
+  name: Vaxcyte, Inc.
+- cik: 0001649904
+  ticker: RYTM
+  name: RHYTHM PHARMACEUTICALS, INC.
+- cik: 0001649989
+  ticker: OTLK
+  name: Outlook Therapeutics, Inc.
+- cik: 0001650648
+  ticker: FDMT
+  name: 4D Molecular Therapeutics, Inc.
+- cik: '0001650664'
+  ticker: EDIT
+  name: Editas Medicine, Inc.
+- cik: 0001651308
+  ticker: ONC
+  name: BeOne Medicines Ltd.
+- cik: '0001651311'
+  ticker: MRUS
+  name: Merus N.V.
+- cik: '0001651407'
+  ticker: null
+  name: Checkpoint Therapeutics, Inc.
+- cik: '0001651625'
+  ticker: ACIU
+  name: AC Immune SA
+- cik: 0001652935
+  ticker: ACTU
+  name: ACTUATE THERAPEUTICS, INC.
+- cik: 0001653087
+  ticker: ALEC
+  name: Alector, Inc.
+- cik: '0001654151'
+  ticker: DCPH
+  name: Deciphera Pharmaceuticals, Inc.
+- cik: 0001655759
+  ticker: ARVN
+  name: ARVINAS, INC.
+- cik: 0001655923
+  ticker: ACOG
+  name: Alpha Cognition Inc.
+- cik: '0001656634'
+  ticker: GRTS
+  name: Gritstone bio, Inc.
+- cik: '0001657312'
+  ticker: VRNA
+  name: Verona Pharma plc
+- cik: '0001657677'
+  ticker: PBLS
+  name: Parabilis Medicines, Inc.
+- cik: 0001658247
+  ticker: CRNX
+  name: Crinetics Pharmaceuticals, Inc.
+- cik: 0001658551
+  ticker: AMLX
+  name: Amylyx Pharmaceuticals, Inc.
+- cik: 0001658678
+  ticker: BSEM
+  name: BioStem Technologies, Inc.
+- cik: 0001659323
+  ticker: ITRM
+  name: Iterum Therapeutics plc
+- cik: '0001660334'
+  ticker: VRCA
+  name: Verrica Pharmaceuticals Inc.
+- cik: 0001661059
+  ticker: NXTC
+  name: NextCure, Inc.
+- cik: 0001661181
+  ticker: ORGO
+  name: Organogenesis Holdings Inc.
+- cik: '0001661460'
+  ticker: PSTX
+  name: Poseida Therapeutics, Inc.
+- cik: 0001661998
+  ticker: QTTB
+  name: Q32 Bio Inc.
+- cik: '0001662244'
+  ticker: CYT
+  name: Cyteir Therapeutics, Inc.
+- cik: 0001662579
+  ticker: CCCC
+  name: C4 Therapeutics, Inc.
+- cik: '0001662774'
+  ticker: IRLA
+  name: IRulya Therapeutics Inc.
+- cik: '0001664710'
+  ticker: KROS
+  name: Keros Therapeutics, Inc.
+- cik: 0001668243
+  ticker: URGN
+  name: UroGen Pharma Ltd.
+- cik: 0001668397
+  ticker: MEDP
+  name: Medpace Holdings, Inc.
+- cik: 0001671858
+  ticker: SPRY
+  name: ARS Pharmaceuticals, Inc.
+- cik: 0001671927
+  ticker: IMCR
+  name: Immunocore Holdings plc
+- cik: 0001672619
+  ticker: ELVN
+  name: Enliven Therapeutics, Inc.
+- cik: 0001672688
+  ticker: ABSI
+  name: Absci Corp
+- cik: '0001673772'
+  ticker: RAPT
+  name: RAPT Therapeutics, Inc.
+- cik: '0001674416'
+  ticker: CRSP
+  name: CRISPR Therapeutics AG
+- cik: '0001676725'
+  ticker: IDYA
+  name: IDEAYA Biosciences, Inc.
+- cik: 0001677940
+  ticker: BYSI
+  name: BeyondSpring Inc.
+- cik: 0001678660
+  ticker: PRLD
+  name: Prelude Therapeutics Inc
+- cik: 0001679363
+  ticker: MORF
+  name: Morphic Holding, Inc.
+- cik: 0001679628
+  ticker: JUNS
+  name: JUPITER NEUROSCIENCES, INC.
+- cik: 0001680367
+  ticker: STTK
+  name: Shattuck Labs, Inc.
+- cik: 0001680581
+  ticker: FULC
+  name: Fulcrum Therapeutics, Inc.
+- cik: 0001681087
+  ticker: TECX
+  name: Tectonic Therapeutic, Inc.
+- cik: 0001682852
+  ticker: MRNA
+  name: Moderna, Inc.
+- cik: 0001683553
+  ticker: SPRB
+  name: SPRUCE BIOSCIENCES, INC.
+- cik: 0001684144
+  ticker: ZOMDF
+  name: Zomedica Corp.
+- cik: 0001684693
+  ticker: SLGL
+  name: Sol-Gel Technologies Ltd.
+- cik: 0001685428
+  ticker: LMDX
+  name: LumiraDx Ltd
+- cik: 0001689375
+  ticker: TRDA
+  name: Entrada Therapeutics, Inc.
+- cik: 0001689548
+  ticker: PRAX
+  name: Praxis Precision Medicines, Inc.
+- cik: 0001690585
+  ticker: DNTH
+  name: Dianthus Therapeutics, Inc. /DE/
+- cik: 0001691082
+  ticker: LBRX
+  name: LB PHARMACEUTICALS INC
+- cik: 0001693011
+  ticker: INZY
+  name: Inozyme Pharma, Inc.
+- cik: 0001697532
+  ticker: APLT
+  name: Applied Therapeutics, Inc.
+- cik: 0001697862
+  ticker: ARGX
+  name: ARGENX SE
+- cik: 0001699382
+  ticker: PMVP
+  name: PMV Pharmaceuticals, Inc.
+- cik: 0001701108
+  ticker: SPRO
+  name: Spero Therapeutics, Inc.
+- cik: '0001701541'
+  ticker: BDTX
+  name: Black Diamond Therapeutics, Inc.
+- cik: '0001702123'
+  ticker: CRDL
+  name: Cardiol Therapeutics Inc.
+- cik: '0001703057'
+  ticker: ABCL
+  name: AbCellera Biologics Inc.
+- cik: '0001703647'
+  ticker: KRRO
+  name: Korro Bio, Inc.
+- cik: 0001704292
+  ticker: ZLAB
+  name: Zai Lab Ltd
+- cik: '0001706431'
+  ticker: VIR
+  name: Vir Biotechnology, Inc.
+- cik: '0001707502'
+  ticker: SLDB
+  name: Solid Biosciences Inc.
+- cik: 0001708331
+  ticker: null
+  name: Virpax Pharmaceuticals, Inc.
+- cik: 0001708493
+  ticker: HARP
+  name: Harpoon Therapeutics, Inc.
+- cik: 0001708688
+  ticker: IFRX
+  name: InflaRx N.V.
+- cik: 0001709941
+  ticker: BIOA
+  name: BioAge Labs, Inc.
+- cik: '0001710072'
+  ticker: EWTX
+  name: Edgewise Therapeutics, Inc.
+- cik: '0001710340'
+  ticker: ETON
+  name: Eton Pharmaceuticals, Inc.
+- cik: 0001711279
+  ticker: KRYS
+  name: Krystal Biotech, Inc.
+- cik: '0001711754'
+  ticker: INMB
+  name: Inmune Bio, Inc.
+- cik: 0001714899
+  ticker: DNLI
+  name: Denali Therapeutics Inc.
+- cik: 0001715925
+  ticker: HYFT
+  name: MindWalk Holdings Corp.
+- cik: 0001719406
+  ticker: NRXP
+  name: NRX Pharmaceuticals, Inc.
+- cik: 0001719714
+  ticker: MREO
+  name: Mereo BioPharma Group plc
+- cik: 0001720580
+  ticker: ACET
+  name: Adicet Bio, Inc.
+- cik: 0001721484
+  ticker: LGVN
+  name: Longeveron Inc.
+- cik: 0001722926
+  ticker: ASLN
+  name: ASLAN Pharmaceuticals Ltd
+- cik: 0001722964
+  ticker: null
+  name: Y-mAbs Therapeutics, Inc.
+- cik: 0001723069
+  ticker: TLSA
+  name: Tiziana Life Sciences Ltd
+- cik: 0001723128
+  ticker: AMRX
+  name: Amneal Pharmaceuticals, Inc.
+- cik: '0001723464'
+  ticker: BHST
+  name: BIOHARVEST SCIENCES INC.
+- cik: '0001724521'
+  ticker: RCUS
+  name: Arcus Biosciences, Inc.
+- cik: 0001724979
+  ticker: null
+  name: Rain Oncology Inc.
+- cik: '0001725160'
+  ticker: ZNTL
+  name: Zentalis Pharmaceuticals, Inc.
+- cik: '0001726711'
+  ticker: ADTX
+  name: Aditxt, Inc.
+- cik: 0001727196
+  ticker: SRRK
+  name: Scholar Rock Holding Corp
+- cik: 0001728117
+  ticker: GOSS
+  name: Gossamer Bio, Inc.
+- cik: '0001730430'
+  ticker: KNSA
+  name: Kiniksa Pharmaceuticals International, plc
+- cik: '0001730463'
+  ticker: AUTL
+  name: Autolus Therapeutics plc
+- cik: '0001733257'
+  ticker: FNCH
+  name: Finch Therapeutics Group, Inc.
+- cik: 0001733294
+  ticker: null
+  name: Generation Bio Co.
+- cik: '0001733413'
+  ticker: null
+  name: TFF Pharmaceuticals, Inc.
+- cik: 0001735438
+  ticker: MGTX
+  name: MeiraGTx Holdings plc
+- cik: '0001736730'
+  ticker: CAMP
+  name: Camp4 Therapeutics Corp
+- cik: 0001737287
+  ticker: ALLO
+  name: Allogene Therapeutics, Inc.
+- cik: 0001737953
+  ticker: REPL
+  name: Replimune Group, Inc.
+- cik: 0001738021
+  ticker: CMPX
+  name: Compass Therapeutics, Inc.
+- cik: 0001739104
+  ticker: ELAN
+  name: Elanco Animal Health Inc
+- cik: 0001739410
+  ticker: RLYB
+  name: Rallybio Corp
+- cik: 0001739614
+  ticker: INBX
+  name: Inhibrx, Inc.
+- cik: 0001741830
+  ticker: KRON
+  name: Kronos Bio, Inc.
+- cik: 0001743881
+  ticker: BBIO
+  name: BridgeBio Pharma, Inc.
+- cik: 0001744659
+  ticker: AKRO
+  name: Akero Therapeutics, Inc.
+- cik: '0001745020'
+  ticker: THRX
+  name: Theseus Pharmaceuticals, Inc.
+- cik: 0001745648
+  ticker: APMD
+  name: Apnimed, Inc.
+- cik: 0001745999
+  ticker: BEAM
+  name: Beam Therapeutics Inc.
+- cik: '0001746466'
+  ticker: EQ
+  name: Equillium, Inc.
+- cik: '0001746473'
+  ticker: PLRX
+  name: PLIANT THERAPEUTICS, INC.
+- cik: 0001748907
+  ticker: ORTX
+  name: Orchard Therapeutics plc
+- cik: 0001750149
+  ticker: IKT
+  name: Inhibikase Therapeutics, Inc.
+- cik: 0001750284
+  ticker: OLMA
+  name: Olema Pharmaceuticals, Inc.
+- cik: 0001751912
+  ticker: NGEN
+  name: NERVGEN PHARMA CORP.
+- cik: 0001754068
+  ticker: KLRS
+  name: Kalaris Therapeutics, Inc.
+- cik: 0001756594
+  ticker: IVA
+  name: Inventiva S.A.
+- cik: '0001757064'
+  ticker: GNFT
+  name: Genfit S.A.
+- cik: 0001759138
+  ticker: CABA
+  name: Cabaletta Bio, Inc.
+- cik: 0001759425
+  ticker: MIRM
+  name: Mirum Pharmaceuticals, Inc.
+- cik: '0001760542'
+  ticker: null
+  name: HOOKIPA Pharma Inc.
+- cik: 0001760854
+  ticker: NBTX
+  name: Nanobiotix S.A.
+- cik: '0001761612'
+  ticker: BCYC
+  name: BICYCLE THERAPEUTICS PLC
+- cik: 0001761918
+  ticker: ERAS
+  name: Erasca, Inc.
+- cik: 0001763950
+  ticker: LTRN
+  name: Lantern Pharma Inc.
+- cik: '0001764013'
+  ticker: IMVT
+  name: Immunovant, Inc.
+- cik: 0001764974
+  ticker: TSBX
+  name: Turnstone Biologics Corp.
+- cik: '0001766140'
+  ticker: UNCY
+  name: Unicycive Therapeutics, Inc.
+- cik: 0001768224
+  ticker: ARCT
+  name: Arcturus Therapeutics Holdings Inc.
+- cik: 0001768446
+  ticker: CLYM
+  name: Climb Bio, Inc.
+- cik: 0001768946
+  ticker: null
+  name: Biophytis SA
+- cik: 0001770069
+  ticker: MPLT
+  name: MapLight Therapeutics, Inc.
+- cik: '0001770121'
+  ticker: SANA
+  name: Sana Biotechnology, Inc.
+- cik: 0001771910
+  ticker: ADCT
+  name: ADC Therapeutics SA
+- cik: 0001771917
+  ticker: KRTX
+  name: Karuna Therapeutics, Inc.
+- cik: '0001773427'
+  ticker: SWTX
+  name: SpringWorks Therapeutics, Inc.
+- cik: 0001774857
+  ticker: AARD
+  name: Aardvark Therapeutics, Inc.
+- cik: '0001776111'
+  ticker: MBX
+  name: MBX Biosciences, Inc.
+- cik: 0001776985
+  ticker: BNTX
+  name: BioNTech SE
+- cik: 0001778016
+  ticker: NBP
+  name: NovaBridge Biosciences
+- cik: 0001779578
+  ticker: BGM
+  name: BGM Group Ltd.
+- cik: 0001780097
+  ticker: BXRX
+  name: Baudax Bio, Inc.
+- cik: 0001781174
+  ticker: ACRV
+  name: Acrivon Therapeutics, Inc.
+- cik: 0001782223
+  ticker: PYXS
+  name: Pyxis Oncology, Inc.
+- cik: 0001782303
+  ticker: BOLD
+  name: Boundless Bio, Inc.
+- cik: 0001782999
+  ticker: PTCHF
+  name: PureTech Health plc
+- cik: 0001783032
+  ticker: null
+  name: Elevation Oncology, Inc.
+- cik: 0001783183
+  ticker: PHAT
+  name: Phathom Pharmaceuticals, Inc.
+- cik: 0001783328
+  ticker: TCRX
+  name: TScan Therapeutics, Inc.
+- cik: 0001785173
+  ticker: ETNB
+  name: 89bio, Inc.
+- cik: 0001785279
+  ticker: MGX
+  name: Metagenomi Therapeutics, Inc.
+- cik: 0001785345
+  ticker: LABP
+  name: Landos Biopharma, Inc.
+- cik: 0001785530
+  ticker: HOWL
+  name: Werewolf Therapeutics, Inc.
+- cik: 0001786205
+  ticker: ACLX
+  name: Arcellx, Inc.
+- cik: 0001786255
+  ticker: ICVX
+  name: Icosavax, Inc.
+- cik: 0001787306
+  ticker: ARQT
+  name: Arcutis Biotherapeutics, Inc.
+- cik: 0001787400
+  ticker: NKTX
+  name: Nkarta, Inc.
+- cik: 0001788028
+  ticker: JSPR
+  name: Jasper Therapeutics, Inc.
+- cik: 0001789769
+  ticker: TIL
+  name: Instil Bio, Inc.
+- cik: 0001789972
+  ticker: CGEM
+  name: Cullinan Therapeutics, Inc.
+- cik: 0001790340
+  ticker: IMRX
+  name: Immuneering Corp
+- cik: 0001792044
+  ticker: VTRS
+  name: Viatris Inc
+- cik: 0001795091
+  ticker: OSTX
+  name: OS Therapies Inc
+- cik: 0001795579
+  ticker: null
+  name: Calliditas Therapeutics AB
+- cik: 0001796280
+  ticker: ORIC
+  name: Oric Pharmaceuticals, Inc.
+- cik: 0001797768
+  ticker: null
+  name: Kinnate Biopharma Inc.
+- cik: 0001798749
+  ticker: JBIO
+  name: Jade Biosciences, Inc.
+- cik: 0001799448
+  ticker: ALGS
+  name: Aligos Therapeutics, Inc.
+- cik: 0001799788
+  ticker: GLSI
+  name: Greenwich LifeSciences, Inc.
+- cik: 0001800315
+  ticker: DMRA
+  name: Damora Therapeutics, Inc.
+- cik: 0001801198
+  ticker: LEGN
+  name: Legend Biotech Corp
+- cik: 0001802369
+  ticker: ADRX
+  name: ADARx Pharmaceuticals, Inc.
+- cik: 0001802665
+  ticker: HRMY
+  name: Harmony Biosciences Holdings, Inc.
+- cik: 0001802768
+  ticker: RPRX
+  name: Royalty Pharma plc
+- cik: 0001805890
+  ticker: FUSN
+  name: Fusion Pharmaceuticals Inc.
+- cik: 0001806310
+  ticker: TSHA
+  name: Taysha Gene Therapies, Inc.
+- cik: 0001806540
+  ticker: LYCA
+  name: Lycia Therapeutics, Inc.
+- cik: 0001806952
+  ticker: LYEL
+  name: Lyell Immunopharma, Inc.
+- cik: 0001807120
+  ticker: DSGN
+  name: Design Therapeutics, Inc.
+- cik: 0001808158
+  ticker: RPTX
+  name: Repare Therapeutics Inc.
+- cik: 0001808665
+  ticker: ASRT
+  name: Assertio Holdings, Inc.
+- cik: 0001808865
+  ticker: ITOS
+  name: iTeos Therapeutics, Inc.
+- cik: 0001808898
+  ticker: BNTC
+  name: Benitec Biopharma Inc.
+- cik: 0001809122
+  ticker: null
+  name: CureVac N.V.
+- cik: 0001809196
+  ticker: IMTX
+  name: Immatics N.V.
+- cik: 0001810031
+  ticker: FRLN
+  name: Freeline Therapeutics Holdings plc
+- cik: 0001810182
+  ticker: ALXO
+  name: ALX ONCOLOGY HOLDINGS INC
+- cik: 0001811063
+  ticker: NUVB
+  name: Nuvation Bio Inc.
+- cik: 0001811623
+  ticker: null
+  name: Kuvatris Therapeutics, Inc.
+- cik: 0001812364
+  ticker: RLAY
+  name: Relay Therapeutics, Inc.
+- cik: 0001815442
+  ticker: KYMR
+  name: Kymera Therapeutics, Inc.
+- cik: 0001815620
+  ticker: CKDXF
+  name: Opthea Ltd
+- cik: 0001815776
+  ticker: LENZ
+  name: LENZ Therapeutics, Inc.
+- cik: 0001815903
+  ticker: PTPI
+  name: Petros Pharmaceuticals, Inc.
+- cik: 0001815974
+  ticker: ANEB
+  name: Anebulo Pharmaceuticals, Inc.
+- cik: 0001816590
+  ticker: CMPS
+  name: COMPASS Pathways plc
+- cik: 0001816736
+  ticker: IRON
+  name: Disc Medicine, Inc.
+- cik: 0001817229
+  ticker: VOR
+  name: Vor Biopharma Inc.
+- cik: 0001817241
+  ticker: ARTV
+  name: Artiva Biotherapeutics, Inc.
+- cik: 0001817713
+  ticker: JANX
+  name: Janux Therapeutics, Inc.
+- cik: 0001818382
+  ticker: HUMA
+  name: Humacyte, Inc.
+- cik: 0001818794
+  ticker: DYN
+  name: Dyne Therapeutics, Inc.
+- cik: 0001818838
+  ticker: ADAG
+  name: Adagene Inc.
+- cik: 0001819113
+  ticker: SNCE
+  name: Science 37 Holdings, Inc.
+- cik: 0001819133
+  ticker: TNGX
+  name: Tango Therapeutics, Inc.
+- cik: 0001819411
+  ticker: GANX
+  name: Gain Therapeutics, Inc.
+- cik: 0001819576
+  ticker: LQDA
+  name: Liquidia Corp
+- cik: 0001819615
+  ticker: CLVR
+  name: Clever Leaves Holdings Inc.
+- cik: 0001819790
+  ticker: TARS
+  name: Tarsus Pharmaceuticals, Inc.
+- cik: 0001820190
+  ticker: SCLX
+  name: Scilex Holding Co
+- cik: 0001821586
+  ticker: MLTX
+  name: MoonLake Immunotherapeutics
+- cik: 0001821825
+  ticker: OGN
+  name: Organon & Co.
+- cik: 0001822462
+  ticker: FHTX
+  name: Foghorn Therapeutics Inc.
+- cik: 0001822791
+  ticker: CLNN
+  name: Clene Inc.
+- cik: 0001823239
+  ticker: MRVI
+  name: MARAVAI LIFESCIENCES HOLDINGS, INC.
+- cik: 0001824893
+  ticker: SRZN
+  name: Surrozen, Inc./DE
+- cik: 0001825367
+  ticker: RYZB
+  name: RayzeBio, Inc.
+- cik: 0001826457
+  ticker: GLUE
+  name: Monte Rosa Therapeutics, Inc.
+- cik: 0001826492
+  ticker: null
+  name: Gracell Biotechnologies Inc.
+- cik: 0001827087
+  ticker: VIGL
+  name: Vigil Neuroscience, Inc.
+- cik: 0001827401
+  ticker: DRUG
+  name: BRIGHT MINDS BIOSCIENCES INC.
+- cik: 0001827506
+  ticker: TRML
+  name: Tourmaline Bio, Inc.
+- cik: 0001827635
+  ticker: MANE
+  name: Veradermics, Inc
+- cik: 0001828185
+  ticker: BRNS
+  name: Barinthus Biotherapeutics plc.
+- cik: 0001828253
+  ticker: EVAX
+  name: Evaxion A/S
+- cik: 0001828316
+  ticker: PHAR
+  name: Pharming Group N.V.
+- cik: 0001829802
+  ticker: FTH
+  name: Faeth Therapeutics, Inc.
+- cik: 0001830214
+  ticker: DNA
+  name: Ginkgo Bioworks Holdings, Inc.
+- cik: 0001830487
+  ticker: PHVS
+  name: Pharvaris N.V.
+- cik: 0001830749
+  ticker: ACHL
+  name: Achilles Therapeutics plc
+- cik: 0001831283
+  ticker: LIANY
+  name: LianBio
+- cik: 0001831363
+  ticker: TERN
+  name: Terns Pharmaceuticals, Inc.
+- cik: 0001831828
+  ticker: VERA
+  name: Vera Therapeutics, Inc.
+- cik: 0001832038
+  ticker: IVVD
+  name: Invivyd, Inc.
+- cik: 0001832168
+  ticker: LBPH
+  name: Longboard Pharmaceuticals, Inc.
+- cik: 0001833141
+  ticker: HELP
+  name: Helus Pharma Inc.
+- cik: 0001833214
+  ticker: SABS
+  name: SAB Biotherapeutics, Inc.
+- cik: 0001834105
+  ticker: IBO
+  name: IMPACT BIOMEDICAL INC.
+- cik: 0001835022
+  ticker: COYA
+  name: Coya Therapeutics, Inc.
+- cik: 0001835268
+  ticker: CNTB
+  name: Connect Biopharma Holdings Ltd
+- cik: 0001835579
+  ticker: IMA
+  name: ImageneBio, Inc.
+- cik: 0001835597
+  ticker: PEPG
+  name: PepGen Inc.
+- cik: 0001836564
+  ticker: VALN
+  name: Valneva SE
+- cik: 0001837607
+  ticker: AEON
+  name: AEON Biopharma, Inc.
+- cik: 0001838716
+  ticker: GNTA
+  name: Genenta Science S.p.A.
+- cik: 0001839970
+  ticker: BLSM
+  name: BlossomHill Therapeutics, Inc.
+- cik: 0001840229
+  ticker: INKT
+  name: MiNK Therapeutics, Inc.
+- cik: 0001840439
+  ticker: BMEA
+  name: Biomea Fusion, Inc.
+- cik: 0001840574
+  ticker: VERV
+  name: Verve Therapeutics, Inc.
+- cik: 0001840748
+  ticker: null
+  name: LAVA Therapeutics NV
+- cik: 0001840904
+  ticker: ATAI
+  name: Atai Beckley N.V.
+- cik: 0001841387
+  ticker: CADL
+  name: Candel Therapeutics, Inc.
+- cik: 0001842295
+  ticker: MAZE
+  name: Maze Therapeutics, Inc.
+- cik: 0001842952
+  ticker: CNTX
+  name: Context Therapeutics Inc.
+- cik: 0001844417
+  ticker: ESLA
+  name: Estrella Immunopharma, Inc.
+- cik: 0001845337
+  ticker: DAWN
+  name: Day One Biopharmaceuticals, Inc.
+- cik: 0001845459
+  ticker: NKGN
+  name: NKGen Biotech, Inc.
+- cik: 0001846253
+  ticker: OABI
+  name: OmniAb, Inc.
+- cik: 0001847367
+  ticker: ALMS
+  name: ALUMIS INC.
+- cik: 0001847903
+  ticker: CNTA
+  name: Centessa Pharmaceuticals plc
+- cik: 0001849296
+  ticker: OKYO
+  name: OKYO Pharma Ltd
+- cik: 0001849380
+  ticker: ONMD
+  name: OneMedNet Corp
+- cik: 0001850119
+  ticker: IPSC
+  name: Century Therapeutics, Inc.
+- cik: 0001850270
+  ticker: PROK
+  name: PROKIDNEY CORP.
+- cik: 0001850838
+  ticker: OMGA
+  name: Omega Therapeutics, Inc.
+- cik: 0001851194
+  ticker: VTYX
+  name: Ventyx Biosciences, Inc.
+- cik: 0001851484
+  ticker: CTOR
+  name: CITIUS ONCOLOGY, INC.
+- cik: 0001851657
+  ticker: VAXX
+  name: Vaxxinity, Inc.
+- cik: 0001853921
+  ticker: SCTX
+  name: Scribe Therapeutics, Inc.
+- cik: 0001855129
+  ticker: GHRS
+  name: GH Research PLC
+- cik: 0001855175
+  ticker: CTNM
+  name: Contineum Therapeutics, Inc.
+- cik: 0001855644
+  ticker: ZURA
+  name: Zura Bio Ltd
+- cik: 0001856725
+  ticker: RANI
+  name: Rani Therapeutics Holdings, Inc.
+- cik: 0001857044
+  ticker: INDP
+  name: Indaptus Therapeutics, Inc.
+- cik: 0001858848
+  ticker: TNYA
+  name: Tenaya Therapeutics, Inc.
+- cik: 0001860782
+  ticker: TSVT
+  name: 2seventy bio, Inc.
+- cik: 0001860871
+  ticker: TVGN
+  name: Tevogen Inc.
+- cik: 0001861123
+  ticker: EIKN
+  name: Eikon Therapeutics, Inc.
+- cik: 0001861560
+  ticker: NUVL
+  name: Nuvalent, Inc.
+- cik: 0001862005
+  ticker: null
+  name: AstraZeneca Finance LLC
+- cik: 0001862150
+  ticker: CING
+  name: Cingulate Inc.
+- cik: 0001863127
+  ticker: TYRA
+  name: Tyra Biosciences, Inc.
+- cik: 0001863362
+  ticker: PGSA
+  name: Sofgen Pharma S.A.
+- cik: 0001865127
+  ticker: null
+  name: Lucy Scientific Discovery, Inc.
+- cik: 0001865408
+  ticker: EXAI
+  name: Exscientia plc
+- cik: 0001865494
+  ticker: IOBT
+  name: IO Biotech, Inc.
+- cik: 0001867066
+  ticker: DERM
+  name: Journey Medical Corp
+- cik: 0001867096
+  ticker: XERS
+  name: Xeris Biopharma Holdings, Inc.
+- cik: 0001868279
+  ticker: AVBP
+  name: ArriVent BioPharma, Inc.
+- cik: 0001869105
+  ticker: BBOT
+  name: BridgeBio Oncology Therapeutics, Inc.
+- cik: 0001870404
+  ticker: CERO
+  name: CERO THERAPEUTICS HOLDINGS, INC.
+- cik: 0001872812
+  ticker: null
+  name: TC BioPharm (Holdings) plc
+- cik: 0001873835
+  ticker: IMMX
+  name: Immix Biopharma, Inc.
+- cik: 0001873875
+  ticker: IXHL
+  name: Incannex Healthcare Inc.
+- cik: 0001874252
+  ticker: QUCY
+  name: Quantum Cyber N.V.
+- cik: 0001875558
+  ticker: NVCT
+  name: Nuvectis Pharma, Inc.
+- cik: 0001876431
+  ticker: PRE
+  name: Prenetics Global Ltd
+- cik: 0001878313
+  ticker: MAIA
+  name: MAIA Biotechnology, Inc.
+- cik: 0001880438
+  ticker: ANTX
+  name: AN2 Therapeutics, Inc.
+- cik: 0001880995
+  ticker: null
+  name: Alopexx, Inc.
+- cik: 0001882782
+  ticker: ODTX
+  name: Odyssey Therapeutics, Inc.
+- cik: 0001885522
+  ticker: NMRA
+  name: Neumora Therapeutics, Inc.
+- cik: 0001888012
+  ticker: HLVX
+  name: HilleVax, Inc.
+- cik: 0001888886
+  ticker: GPCR
+  name: Structure Therapeutics Inc.
+- cik: 0001889109
+  ticker: BLTE
+  name: BELITE BIO, INC
+- cik: 0001889450
+  ticker: null
+  name: FutureTech II Acquisition Corp.
+- cik: 0001893219
+  ticker: ABPO
+  name: Abpro Holdings, Inc.
+- cik: 0001894525
+  ticker: APUS
+  name: Apimeds Pharmaceuticals US, Inc.
+- cik: 0001894562
+  ticker: PRME
+  name: Prime Medicine, Inc.
+- cik: 0001896212
+  ticker: CDT
+  name: CDT Equity Inc.
+- cik: 0001898416
+  ticker: ALVO
+  name: Alvotech
+- cik: 0001903784
+  ticker: VOGX
+  name: Vogenx, Inc.
+- cik: 0001907108
+  ticker: LXEO
+  name: Lexeo Therapeutics, Inc.
+- cik: 0001907223
+  ticker: GRML
+  name: Greenland Mines Ltd
+- cik: 0001907685
+  ticker: CMRA
+  name: Comera Life Sciences Holdings, Inc.
+- cik: 0001913577
+  ticker: SMNR
+  name: Semnur Pharmaceuticals, Inc.
+- cik: 0001919246
+  ticker: PTHS
+  name: Pelthos Therapeutics Inc.
+- cik: 0001923840
+  ticker: THRD
+  name: Third Harmonic Bio, Inc.
+- cik: 0001933414
+  ticker: MLYS
+  name: Mineralys Therapeutics, Inc.
+- cik: 0001935979
+  ticker: BHVN
+  name: Biohaven Ltd.
+- cik: 0001936258
+  ticker: NAMS
+  name: NewAmsterdam Pharma Co N.V.
+- cik: 0001937653
+  ticker: ZYME
+  name: Zymeworks Inc.
+- cik: 0001944552
+  ticker: ANL
+  name: Adlai Nortye Group Ltd.
+- cik: 0001946399
+  ticker: null
+  name: LakeShore Biopharma Co., Ltd.
+- cik: 0001949257
+  ticker: RADX
+  name: Radiopharm Theranostics Ltd
+- cik: 0001953530
+  ticker: OCS
+  name: Oculis Holding AG
+- cik: 0001953926
+  ticker: ZBIO
+  name: Zenas BioPharma, Inc.
+- cik: 0001954488
+  ticker: MENS
+  name: Jyong Biotech Ltd.
+- cik: 0001956827
+  ticker: ABVX
+  name: Abivax S.A.
+- cik: 0001958777
+  ticker: FBLG
+  name: FibroBiologics, Inc.
+- cik: 0001962011
+  ticker: KAPA
+  name: Kairos Pharma, LTD.
+- cik: 0001962738
+  ticker: CASIF
+  name: CASI Pharmaceuticals, Inc.
+- cik: 0001962918
+  ticker: SLRN
+  name: ACELYRIN, Inc.
+- cik: 0001966494
+  ticker: CRGX
+  name: CARGO Therapeutics, Inc.
+- cik: 0001971387
+  ticker: LIMN
+  name: Liminatus Pharma, Inc.
+- cik: 0001971532
+  ticker: TELO
+  name: Telomir Pharmaceuticals, Inc.
+- cik: 0001971543
+  ticker: MURA
+  name: Mural Oncology plc
+- cik: 0001974640
+  ticker: APGE
+  name: Apogee Therapeutics, Inc.
+- cik: 0001975641
+  ticker: ZYBT
+  name: Zhengye Biotechnology Holding Ltd
+- cik: 0001979414
+  ticker: NTHI
+  name: NEONC TECHNOLOGIES HOLDINGS, INC.
+- cik: 0001980845
+  ticker: ENGN
+  name: enGene Therapeutics Inc.
+- cik: 0001984086
+  ticker: SEPN
+  name: Septerna, Inc.
+- cik: 0001985062
+  ticker: PBM
+  name: PSYENCE BIOMEDICAL LTD.
+- cik: 0001991792
+  ticker: CGON
+  name: CG Oncology, Inc.
+- cik: 0001994702
+  ticker: KYTX
+  name: Kyverna Therapeutics, Inc.
+- cik: 0001997038
+  ticker: IAM
+  name: Iambic Therapeutics, Inc.
+- cik: 0001998311
+  ticker: null
+  name: APRINOIA Therapeutics Inc.
+- cik: 0001998781
+  ticker: IBAC
+  name: IB Acquisition Corp.
+- cik: 0001999480
+  ticker: ANRO
+  name: Alto Neuroscience, Inc.
+- cik: '0002000775'
+  ticker: BKHA
+  name: Black Hawk Acquisition Corp
+- cik: 0002002988
+  ticker: RTSN
+  name: Retension Pharmaceuticals, Inc.
+- cik: 0002006815
+  ticker: null
+  name: Voyager Acquisition Corp./Cayman Islands
+- cik: 0002007191
+  ticker: TLX
+  name: Telix Pharmaceuticals Ltd
+- cik: 0002007919
+  ticker: INBX
+  name: Inhibrx Biosciences, Inc.
+- cik: 0002010788
+  ticker: EXOZ
+  name: EXOZYMES INC.
+- cik: 0002012593
+  ticker: RAPP
+  name: Rapport Therapeutics, Inc.
+- cik: 0002020932
+  ticker: AGMB
+  name: AgomAb Therapeutics NV
+- cik: '0002022416'
+  ticker: SLXN
+  name: Silexion Therapeutics Corp
+- cik: '0002022626'
+  ticker: UPB
+  name: Upstream Bio, Inc.
+- cik: '0002023016'
+  ticker: TTRX
+  name: Turn Therapeutics Inc.
+- cik: '0002023311'
+  ticker: AAPG
+  name: ASCENTAGE PHARMA GROUP INTERNATIONAL
+- cik: 0002023658
+  ticker: BCAX
+  name: Bicara Therapeutics Inc.
+- cik: 0002025942
+  ticker: CURX
+  name: Curanex Pharmaceuticals Inc
+- cik: 0002027329
+  ticker: OPTH
+  name: Optimi Health Corp.
+- cik: 0002029039
+  ticker: NSRX
+  name: Nasus Pharma Ltd
+- cik: 0002035832
+  ticker: AKTS
+  name: Aktis Oncology, Inc.
+- cik: '0002036042'
+  ticker: SION
+  name: Sionna Therapeutics, Inc.
+- cik: 0002040807
+  ticker: MTSR
+  name: Metsera, Inc.
+- cik: '0002042347'
+  ticker: SPTX
+  name: Seaport Therapeutics, Inc.
+- cik: '0002044725'
+  ticker: EVMN
+  name: Evommune, Inc.
+- cik: 0002044950
+  ticker: BBTX
+  name: Bambusa Therapeutics, Inc.
+- cik: '0002053365'
+  ticker: null
+  name: Biointra, Corp
+- cik: '0002056611'
+  ticker: LTGO
+  name: Latigo Biotherapeutics, Inc.
+- cik: 0002058707
+  ticker: ATTO
+  name: Attovia Therapeutics, Inc.
+- cik: '0002070534'
+  ticker: SLBT
+  name: SL Science Holding Ltd
+- cik: '0002075320'
+  ticker: PLYX
+  name: Polaryx Therapeutics, Inc.
+- cik: 0002079109
+  ticker: VRXA
+  name: Veraxa Biotech AG - Post de-SPAC
+- cik: 0002079272
+  ticker: LABT
+  name: Lakewood-Amedex Biotherapeutics Inc.
+- cik: 0002079364
+  ticker: null
+  name: Veraxa Biotech AG
+- cik: 0002081043
+  ticker: ATAI
+  name: AtaiBeckley Inc.
+- cik: 0002088082
+  ticker: ETRA
+  name: Electra Therapeutics, Inc.
+- cik: 0002091349
+  ticker: TRAX
+  name: First Tracks Biotherapeutics, Inc.
+- cik: 0002093101
+  ticker: RNA
+  name: Atrium Therapeutics, Inc.
+- cik: 0002096997
+  ticker: KLRA
+  name: Kailera Therapeutics, Inc.
+- cik: 0002100782
+  ticker: GENB
+  name: Generate Biomedicines, Inc.
+- cik: '0002114044'
+  ticker: COAG
+  name: Hemab Therapeutics Holdings, Inc.
+- cik: 0002118032
+  ticker: RACC
+  name: Research Alliance Corp III
+- cik: '0002123613'
+  ticker: KARD
+  name: Kardigan, Inc.
+- cik: 0002124080
+  ticker: ASPE
+  name: Aspen Neuroscience, Inc.
+- cik: '0002124403'
+  ticker: VCRE
+  name: Vicore Pharma Holding AB
+- cik: '0002130606'
+  ticker: OBX
+  name: Obsidian Therapeutics, Inc.
+- cik: '0002131524'
+  ticker: BRVE
+  name: Braveheart Bio, Inc.
+- cik: 0002139097
+  ticker: TRXB
+  name: TRex Bio, Inc.
+- cik: 0002143850
+  ticker: CTY
+  name: CITY THERAPEUTICS, INC.

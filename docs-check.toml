@@ -10,7 +10,7 @@ frozen_paths = [
   "SETUP.md", "VERSIONS.md", "README.md", "CLAUDE.md", "docker/README.md", "docker/CLAUDE.md",
   "docs/backup-restore.md", "docs/strategy-research.md", "docs/local-model-runbook.md",
   "specs/sec-ownership-datasets.md", "specs/clinicaltrials-version-diffs.md", "specs/catalyst-date-panel.md",
-  "specs/point-in-time-universe.md", "specs/first-run-on-stack-machine.md", "docs/requirements.md",
+  "specs/done/point-in-time-universe.md", "specs/first-run-on-stack-machine.md", "docs/requirements.md",
 ]
 
 # Living docs: where requirement IDs are defined (checks C, C2, E, K). non_normative files are read but define nothing.
