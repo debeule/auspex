@@ -1776,3 +1776,8 @@ The `funnel/` and `risk/catalyst_holds.jsonl` keys of the `auspex-strategy` layo
 **What:** `docs/` is the canonical authority from `develop` @ `d031f1c` (the cutover tip, PR #81), fast-forwarded from `b7582c3` on the owner's "merge" of 2026-10-26. The rollback point is the tag `pre-living-docs` at `b7582c3`.
 **Gate:** `python3 -m tools.docs_check --base origin/develop` on `d031f1c` prints `docs_check: clean`, exit 0. The post-activation block of `specs/done/living-docs-cutover.md` printed only `tag below develop`: no `continue-on-error` in `.github/workflows/docs.yml`, no archived spec changed beyond its banner, no file under `config/`, `services/*/src/` or the Flyway migrations changed.
 **Action:** the clean-revert window and the two-week decision on whether the rollout stands are in the cutover spec's Rollback section. Open PRs from before the cutover (#8, #60) add a `Docs impact` field or a `Docs unchanged:` line before `docs` passes.
+
+## 2026-11-06 — Living docs — CHOICE — rollout stands
+**What:** the owner keeps the living-docs rollout (`specs/done/living-docs-cutover.md`, Rollback: "The owner decides in `DECISIONS.md`, within the first two weeks, whether the rollout stands"). Problems found later are forward-fixed in `docs/`; there is no rollback.
+**Tag:** the `pre-living-docs` tag named in `## 2026-10-26 — Living docs — CHOICE — cutover complete` was never pushed, and the owner chose not to create it: the pre-cutover point stays reachable as `develop` @ `b7582c3`, the parent of the cutover range.
+**Action:** none; the cutover spec's Rollback section is history only.
