@@ -24,7 +24,6 @@ _REQUIRED_FIELDS = frozenset({
     "structured_output_mode",
 })
 _PROMPT_DIR = Path(__file__).parent.parent.parent / "prompts" / "extraction"
-_REPO_MODELS_DIR = Path(__file__).parents[4] / "config" / "models"
 DEFAULT_PROMPT_VERSION = "v1"
 _MAX_CONTENT_CHARS = 4_000
 # ~4 characters per token is a rough but consistent estimate; exact tokenisation
@@ -33,6 +32,11 @@ _CHARS_PER_TOKEN = 4
 _RESPONSE_BUDGET_TOKENS = 512
 
 log = logging.getLogger(__name__)
+
+
+def _repo_models_dir() -> Path:
+    # Only a repo checkout has config/models four levels up; the image sets both paths in env.
+    return Path(__file__).parents[4] / "config" / "models"
 
 
 class ConfigurationError(Exception):
@@ -377,9 +381,9 @@ def build_extractor_from_env(
     base_url = env.get("EXTRACTION_BASE_URL") or None
     api_key = env.get("EXTRACTION_API_KEY") or env.get("OPENAI_API_KEY") or None
     registry_path = Path(
-        env.get("EXTRACTION_REGISTRY_PATH") or _REPO_MODELS_DIR / "registry.yaml"
+        env.get("EXTRACTION_REGISTRY_PATH") or _repo_models_dir() / "registry.yaml"
     )
-    scores_dir = Path(env.get("EXTRACTION_SCORES_DIR") or _REPO_MODELS_DIR / "scores")
+    scores_dir = Path(env.get("EXTRACTION_SCORES_DIR") or _repo_models_dir() / "scores")
 
     if model_info_fn is None and base_url:
         model_info_fn = ollama_digest_lookup(base_url)

@@ -523,3 +523,22 @@ def test_committed_gate_records_match_the_active_prompt_and_prefilter():
     ]
 
     assert stale == []
+
+
+def test_module_imports_when_installed_shallower_than_the_repo_layout() -> None:
+    import importlib.util
+    from importlib.machinery import SourceFileLoader
+
+    import auspex_ingest.extraction_backend as installed
+
+    # The scraper image installs the package at /app/src/auspex_ingest, three levels below /.
+    name = "auspex_ingest._extraction_backend_in_image"
+    loader = SourceFileLoader(name, installed.__file__)
+    spec = importlib.util.spec_from_file_location(
+        name, "/app/src/auspex_ingest/extraction_backend.py", loader=loader
+    )
+    assert spec is not None
+    module = importlib.util.module_from_spec(spec)
+    loader.exec_module(module)
+
+    assert module.DEFAULT_PROMPT_VERSION == installed.DEFAULT_PROMPT_VERSION
