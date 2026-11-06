@@ -1,0 +1,8 @@
+{
+  "model_id": "phi3:14b-medium-128k-instruct-q4_K_M",
+  "prompt_version": "v1",
+  "prefilter_version": "v1",
+  "precision": 0.8537,
+  "passed": true,
+  "scored_at": "2026-11-06T14:10:46Z"
+}

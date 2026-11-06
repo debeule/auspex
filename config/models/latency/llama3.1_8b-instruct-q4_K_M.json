@@ -1,0 +1,6 @@
+{
+  "model_id": "llama3.1:8b-instruct-q4_K_M",
+  "mean_latency_s": 5.2518,
+  "p95_latency_s": 8.5309,
+  "measured_at": "2026-11-06T14:15:11Z"
+}
