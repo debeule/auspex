@@ -516,7 +516,19 @@ def test_neo4j_heap_and_page_cache_fit_within_its_limit() -> None:
     pagecache = _resolve(environment["NEO4J_server_memory_pagecache_size"])
     limit = _mib(env[_limit_var("neo4j", neo4j)])
 
-    assert (_mib(heap) + _mib(pagecache)) * 4 <= limit * 3
+    # Neo4j's JVM was OOM-killed on the stack machine at 75% (2026-11-06): off-heap needs ~40%.
+    assert (_mib(heap) + _mib(pagecache)) * 5 <= limit * 3
+
+
+def test_kafka_heap_leaves_room_for_the_jvm_within_its_limit() -> None:
+    env = _env_example()
+    opts = env["KAFKA_HEAP_OPTS"].strip("\"").split()
+    heap = _mib(next(o[4:] for o in opts if o.startswith("-Xmx")))
+    assert f"-Xms{heap}m" in opts
+    limit = _mib(env[_limit_var("kafka", _services()["kafka"])])
+
+    # Kafka was OOM-killed twice on the stack machine with a 384 MB heap in 576 MB (2026-11-06).
+    assert heap * 5 <= limit * 3
 
 
 def test_airflow_runs_one_api_worker_and_at_most_four_tasks() -> None:
