@@ -757,7 +757,8 @@ services:
   cadvisor:
     image: ghcr.io/google/cadvisor:0.57.0
     container_name: auspex-cadvisor
-    # Host cgroups and the Docker socket give per-container CPU, memory and start times.
+    # Host cgroups and the Docker socket give per-container CPU, memory and start times; with the
+    # containerd image store the Docker factory also needs containerd's socket.
     privileged: true
     cgroup: host
     devices:
@@ -769,6 +770,7 @@ services:
       - --whitelisted_container_labels=com.docker.compose.service
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /run/containerd/containerd.sock:/run/containerd/containerd.sock:ro
       - /var/lib/docker:/var/lib/docker:ro
     restart: unless-stopped
     mem_limit: ${CADVISOR_MEM_LIMIT}

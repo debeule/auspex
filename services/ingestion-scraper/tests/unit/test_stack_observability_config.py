@@ -645,3 +645,9 @@ def test_grafana_provisions_from_the_rendered_copy() -> None:
     )
     for p in provider["providers"]:
         assert p["options"]["path"].startswith("/tmp/provisioning/"), p["name"]
+
+
+def test_cadvisor_reaches_containerd_for_per_container_metrics() -> None:
+    """With the containerd image store, cAdvisor's Docker factory needs containerd's socket."""
+    cadvisor = _services()["cadvisor"]
+    assert "/run/containerd/containerd.sock:/run/containerd/containerd.sock:ro" in cadvisor["volumes"]
