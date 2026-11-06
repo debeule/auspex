@@ -83,7 +83,7 @@ echo "$response" | grep -q '"value":\[[0-9.]*,"[1-9]' || fail "no probe results 
 echo "   PASS"
 
 echo "9. Exporters reach their datastores..."
-for expr in 'pg_up' 'kafka_brokers' 'elasticsearch_cluster_health_up' 'count(container_memory_working_set_bytes)' 'count(auspex_volume_bytes)'; do
+for expr in 'pg_up' 'kafka_brokers' 'count(elasticsearch_cluster_health_status)' 'count(container_memory_working_set_bytes)' 'count(auspex_volume_bytes)'; do
   response=$(query "${expr}")
   echo "$response" | grep -q '"value":\[[0-9.]*,"[1-9]' || fail "${expr} is missing or zero: ${response}"
 done

@@ -640,3 +640,8 @@ def test_grafana_provisions_from_the_rendered_copy() -> None:
     assert grafana["entrypoint"][-1].endswith("render-alerting.sh")
     assert grafana["environment"]["GF_PATHS_PROVISIONING"] == "/tmp/provisioning"
     assert "./grafana/provisioning:/etc/grafana/provisioning-src:ro" in grafana["volumes"]
+    provider = yaml.safe_load(
+        (DOCKER / "grafana" / "provisioning" / "dashboards" / "provider.yaml").read_text(encoding="utf-8")
+    )
+    for p in provider["providers"]:
+        assert p["options"]["path"].startswith("/tmp/provisioning/"), p["name"]

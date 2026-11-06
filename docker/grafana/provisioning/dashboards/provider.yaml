@@ -4,5 +4,5 @@ providers:
     folder: Auspex
     type: file
     options:
-      path: /etc/grafana/provisioning/dashboards
+      path: /tmp/provisioning/dashboards
       foldersFromFilesStructure: false
