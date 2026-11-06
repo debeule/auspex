@@ -386,6 +386,8 @@ services:
     environment:
       GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD}
       GF_PATHS_PROVISIONING: /tmp/provisioning
+      # Go's soft heap limit, below GRAFANA_MEM_LIMIT, so the GC runs before the cgroup reclaims.
+      GOMEMLIMIT: ${GRAFANA_GOMEMLIMIT}
       GF_USERS_ALLOW_SIGN_UP: "false"
       GF_ANALYTICS_REPORTING_ENABLED: "false"
       GF_SMTP_ENABLED: "true"

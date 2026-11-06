@@ -1854,3 +1854,7 @@ All 583 unpriced members have exited: of the gaps, 298 acquired, 250 delisted, 4
 
 ## 2026-11-06 — SEC document fetching — CHOICE — a read timeout is retried like a server error
 **What:** After the 503 fix, the catalyst panel on the stack machine stopped on `TimeoutError: The read operation timed out`, which `HttpSource` also let escape. A timeout (read or connect) now gets the same three tries and then counts as a missing document with reason "timed out", as in `## 2026-11-06 — SEC document fetching — CHOICE — a document SEC keeps failing on is missing, not fatal`.
+
+## 2026-11-06 — Grafana memory — CHOICE — Go soft heap limit below the container limit
+**What:** At 384 MB Grafana stalled again at about 1,200% CPU (22:19 UTC): anonymous memory 226 MB plus 170 MB page cache against 384 MB, `memory.max` hit 3.7 million times, health probe timing out. The Go runtime does not see the cgroup limit, so its heap grew until the kernel reclaimed on every allocation. With `GOMEMLIMIT=288MiB` (about 75% of the limit) anonymous memory held at 146–155 MB, CPU at 1–53%, and every health probe answered 200 over eight minutes.
+**Choice:** compose passes `GOMEMLIMIT` from `GRAFANA_GOMEMLIMIT` in `.env.example`; a test holds it to 75% of `GRAFANA_MEM_LIMIT`.
