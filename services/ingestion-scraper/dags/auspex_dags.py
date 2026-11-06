@@ -30,7 +30,7 @@ def _load_sources() -> list[dict]:
 
 
 def _make_http_task(source_type: str, initial_lookback: int) -> None:
-    cursor = Variable.get(f"cursor:{source_type}", default_var=None)
+    cursor = Variable.get(f"cursor:{source_type}", default=None)
     if cursor is None:
         cursor = (datetime.now(UTC) - timedelta(days=initial_lookback)).isoformat()
     resp = requests.post(

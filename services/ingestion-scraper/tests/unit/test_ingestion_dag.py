@@ -33,9 +33,10 @@ class _Variables:
         self.reads: list[str] = []
         self.writes: list[tuple[str, str]] = []
 
-    def get(self, key: str, default_var: str | None = None) -> str | None:
+    # Same signature as Airflow 3's `airflow.sdk.Variable.get`, which has no `default_var`.
+    def get(self, key: str, default: str | None = None, deserialize_json: bool = False) -> str | None:
         self.reads.append(key)
-        return self.store.get(key, default_var)
+        return self.store.get(key, default)
 
     def set(self, key: str, value: str) -> None:
         self.writes.append((key, value))
