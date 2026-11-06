@@ -140,7 +140,7 @@ Metrics named by a third-party exporter or library keep their upstream names and
 
 ## Known traps
 
-- Grafana expands `$VAR` in provisioned alerting files (rules, annotations, contact points) after splitting on `$$`. A literal `$`, as in `{{ $labels.x }}` or a PromQL `$1`, must be written `$$`, or it silently becomes empty (OPS-057). (from `CLAUDE.md`, Known traps; `docker/CLAUDE.md`; `## 2026-10-09 — Infrastructure observability — VERIFIED — Grafana expands environment variables in alert provisioning`)
+- `$VAR` in the provisioned alerting files (rules, annotations, contact points) is expanded after splitting on `$$`: Grafana 13 no longer does this for alert rules, so `docker/grafana/render-alerting.sh` renders the files from Grafana's environment at container start. A literal `$`, as in `{{ $labels.x }}` or a PromQL `$1`, must be written `$$`, or it silently becomes empty (OPS-057). (from `CLAUDE.md`, Known traps; `docker/CLAUDE.md`; `## 2026-10-09 — Infrastructure observability — VERIFIED — Grafana expands environment variables in alert provisioning`)
 - `make_metrics()` in the scraper is cached per registry: the API builds a pipeline per request, and registering the collectors twice on one registry raises `DuplicateTimeseries`. Other docs link this item. (from `CLAUDE.md`, Known traps)
 - The scraper's run gauge lives only in the scraper process and vanishes on a restart, so an alert or summary that reads it directly forgets every source that has not run since. Source Silence and the summary read it over a lookback window (OPS-058, OPS-059).
 

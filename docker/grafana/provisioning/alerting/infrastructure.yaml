@@ -1,4 +1,4 @@
-# Grafana expands $VAR and ${VAR} in this file from its environment (the ALERT_* thresholds in
+# render-alerting.sh expands $VAR and ${VAR} in this file from Grafana's environment (the ALERT_* thresholds in
 # docker-compose.yml); a literal $, as in {{ $$labels.x }}, is written $$.
 apiVersion: 1
 groups:

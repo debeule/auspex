@@ -376,6 +376,8 @@ services:
   grafana:
     image: grafana/grafana-oss:${GRAFANA_VERSION}
     container_name: auspex-grafana
+    # Renders the alerting files from the environment into GF_PATHS_PROVISIONING, then starts Grafana.
+    entrypoint: ["/bin/sh", "/etc/grafana/render-alerting.sh"]
     depends_on:
       elasticsearch:
         condition: service_healthy
@@ -383,6 +385,7 @@ services:
         condition: service_healthy
     environment:
       GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD}
+      GF_PATHS_PROVISIONING: /tmp/provisioning
       GF_USERS_ALLOW_SIGN_UP: "false"
       GF_ANALYTICS_REPORTING_ENABLED: "false"
       GF_SMTP_ENABLED: "true"
@@ -404,7 +407,8 @@ services:
       ALERT_SOURCE_QUIET_DAYS: ${ALERT_SOURCE_QUIET_DAYS}
       ALERT_EXTRACTION_P95_SECONDS: ${ALERT_EXTRACTION_P95_SECONDS}
     volumes:
-      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./grafana/provisioning:/etc/grafana/provisioning-src:ro
+      - ./grafana/render-alerting.sh:/etc/grafana/render-alerting.sh:ro
       - grafana_data:/var/lib/grafana
     ports:
       - "127.0.0.1:3000:3000"

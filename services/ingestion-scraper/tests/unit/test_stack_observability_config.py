@@ -606,3 +606,37 @@ def test_pipeline_dashboard_shows_signal_age_dead_letters_and_scan_failures() ->
         "Corroboration scan failures per hour": "auspex_corroboration_scan_failures_total",
     }.items():
         assert metric in _panel_exprs(panels[title]), f"{title} does not query {metric}"
+
+
+def _render_alerting(src: Path, out: Path, env: dict[str, str]) -> None:
+    subprocess.run(
+        ["sh", str(DOCKER / "grafana" / "render-alerting.sh"), str(src), str(out)],
+        check=True,
+        env={"PATH": "/usr/bin:/bin", **env},
+    )
+
+
+def test_alerting_render_expands_env_vars_and_keeps_doubled_dollars_literal(tmp_path: Path) -> None:
+    """Grafana 13 provisions alert rules without expanding them, so the stack renders them first."""
+    src = tmp_path / "src"
+    (src / "alerting").mkdir(parents=True)
+    (src / "dashboards").mkdir()
+    (src / "dashboards" / "d.json").write_text('{"expr": "$1"}', encoding="utf-8")
+    (src / "alerting" / "r.yaml").write_text(
+        'expr: up < ${MIN_PCT} and $MAX\nsummary: "{{ $$labels.job }} over $$1 ${UNSET}"\n',
+        encoding="utf-8",
+    )
+
+    _render_alerting(src, tmp_path / "out", {"MIN_PCT": "15", "MAX": "90"})
+
+    rendered = (tmp_path / "out" / "alerting" / "r.yaml").read_text(encoding="utf-8")
+    assert rendered == 'expr: up < 15 and 90\nsummary: "{{ $labels.job }} over $1 "\n'
+    # Only alerting files are rendered; dashboards are copied byte for byte.
+    assert (tmp_path / "out" / "dashboards" / "d.json").read_text(encoding="utf-8") == '{"expr": "$1"}'
+
+
+def test_grafana_provisions_from_the_rendered_copy() -> None:
+    grafana = _services()["grafana"]
+    assert grafana["entrypoint"][-1].endswith("render-alerting.sh")
+    assert grafana["environment"]["GF_PATHS_PROVISIONING"] == "/tmp/provisioning"
+    assert "./grafana/provisioning:/etc/grafana/provisioning-src:ro" in grafana["volumes"]
