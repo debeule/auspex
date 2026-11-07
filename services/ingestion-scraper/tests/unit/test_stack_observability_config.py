@@ -516,7 +516,19 @@ def test_neo4j_heap_and_page_cache_fit_within_its_limit() -> None:
     pagecache = _resolve(environment["NEO4J_server_memory_pagecache_size"])
     limit = _mib(env[_limit_var("neo4j", neo4j)])
 
-    assert (_mib(heap) + _mib(pagecache)) * 4 <= limit * 3
+    # Neo4j's JVM was OOM-killed on the stack machine at 75% (2026-11-06): off-heap needs ~40%.
+    assert (_mib(heap) + _mib(pagecache)) * 5 <= limit * 3
+
+
+def test_kafka_heap_leaves_room_for_the_jvm_within_its_limit() -> None:
+    env = _env_example()
+    opts = env["KAFKA_HEAP_OPTS"].strip("\"").split()
+    heap = _mib(next(o[4:] for o in opts if o.startswith("-Xmx")))
+    assert f"-Xms{heap}m" in opts
+    limit = _mib(env[_limit_var("kafka", _services()["kafka"])])
+
+    # Kafka was OOM-killed twice on the stack machine with a 384 MB heap in 576 MB (2026-11-06).
+    assert heap * 5 <= limit * 3
 
 
 def test_airflow_runs_one_api_worker_and_at_most_four_tasks() -> None:
@@ -651,3 +663,30 @@ def test_cadvisor_reaches_containerd_for_per_container_metrics() -> None:
     """With the containerd image store, cAdvisor's Docker factory needs containerd's socket."""
     cadvisor = _services()["cadvisor"]
     assert "/run/containerd/containerd.sock:/run/containerd/containerd.sock:ro" in cadvisor["volumes"]
+
+
+def test_grafana_go_heap_is_held_below_its_container_limit() -> None:
+    """Without a Go soft limit Grafana's heap grows into its cgroup limit and spends its CPU in
+    reclaim (seen twice at ~1,200% CPU on the stack machine, 2026-11-06)."""
+    env = _env_example()
+    grafana = _services()["grafana"]
+    soft = _resolve(grafana["environment"]["GOMEMLIMIT"])
+    m = re.fullmatch(r"(\d+)MiB", soft)
+    assert m, f"GOMEMLIMIT {soft!r} is not in MiB"
+    limit = _mib(env[_limit_var("grafana", grafana)])
+
+    assert int(m.group(1)) * 4 <= limit * 3
+
+
+def test_neo4j_direct_memory_is_capped_inside_its_limit() -> None:
+    """Without a cap the JVM allows direct buffers up to the heap size; with heap, page cache and
+    metaspace that ran Neo4j into its cgroup limit six times in one night (2026-11-07)."""
+    env = _env_example()
+    neo4j = _services()["neo4j"]
+    opts = _resolve(neo4j["environment"]["JAVA_TOOL_OPTIONS"]).strip('"').split()
+    direct = next(o.split("=", 1)[1] for o in opts if o.startswith("-XX:MaxDirectMemorySize="))
+    heap = _mib(env["NEO4J_HEAP_SIZE"])
+    pagecache = _mib(env["NEO4J_PAGECACHE_SIZE"])
+    limit = _mib(env[_limit_var("neo4j", neo4j)])
+
+    assert (heap + pagecache + _mib(direct)) * 5 <= limit * 4

@@ -499,3 +499,26 @@ def test_document_the_source_keeps_failing_is_missing_and_the_run_goes_on() -> N
         source.get("https://a.example/doc")
     assert isinstance(caught.value, DocumentUnavailableError)
     assert len(calls) == 3
+
+
+def test_read_timeout_is_retried_like_a_server_error() -> None:
+    # A read timeout stopped the catalyst panel on the stack machine (2026-11-06).
+    from auspex_backtesting.catalysts.fetch import DocumentUnavailableError
+
+    calls: list[str] = []
+
+    def fetch(url: str, agent: str) -> bytes:
+        calls.append(url)
+        if len(calls) < 3:
+            raise TimeoutError("The read operation timed out")
+        return b"ok"
+
+    source = HttpSource(USER_AGENT, 0.2, fetch=fetch, clock=lambda: 0.0, sleep=lambda s: None)
+    assert source.get("https://a.example/doc") == b"ok"
+
+    def always(url: str, agent: str) -> bytes:
+        raise TimeoutError("The read operation timed out")
+
+    stuck = HttpSource(USER_AGENT, 0.2, fetch=always, clock=lambda: 0.0, sleep=lambda s: None)
+    with pytest.raises(DocumentUnavailableError, match="timed out"):
+        stuck.get("https://a.example/doc")

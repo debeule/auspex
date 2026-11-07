@@ -1,3 +1,4 @@
+import logging
 import os
 import threading
 from collections.abc import Callable
@@ -13,6 +14,8 @@ from .pipeline import RunResult
 from .pipeline_factory import make_env_pipeline_factory
 from .reextract import ReextractionRunner
 from .sources import SourceEntry, SourcesConfig
+
+log = logging.getLogger(__name__)
 
 
 def create_app(
@@ -63,7 +66,8 @@ def create_app(
         try:
             pipeline = _pipeline_for(source_type)
             result: RunResult = pipeline.run(source_type, cursor)
-        except Exception as exc:  # noqa: BLE001
+        except Exception as exc:
+            log.exception("ingest run for %s failed", source_type)
             return jsonify({"error": str(exc)}), 500
         finally:
             lock.release()

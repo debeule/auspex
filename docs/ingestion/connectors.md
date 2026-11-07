@@ -75,6 +75,7 @@ Sources: requirements §6.5, §6.7, §6.8, §6.9; `CLAUDE.md:210-214` (Known tra
 - **The accession number's prefix is the filing agent's CIK** for most large filers, not the company's; the company is `ciks[0]`. Protects ING-017.
 - **Both PatentsView URLs are superseded and Lens.org is not free for this use.** `api.patentsview.org` was discontinued on 2025-05-01 and `search.patentsview.org` moved to USPTO ODP, which requires a government ID; Lens.org classes investment research as commercial use. EPO OPS has neither restriction. Protects ING-018.
 - **An EPO OPS access token expires after 20 minutes** and is refreshed before it expires, including between a search page and its bibliographic fetch; a 429 carries `Retry-After`. Protects ING-018.
+- **EPO OPS serves at most the first 2,000 results of a search** and answers 400 for a `Range` past it; a 30-day window of the four CPC classes matched 10,025 patents. The connector searches one publication day at a time and logs a warning when a single day passes the limit.
 - **A patent's `filed_date` looks like the look-ahead guard and is the opposite.** A US application is not public at filing; it publishes about 18 months later. `filed_date` is the priority date and never feeds alignment. Protects ING-009 and ING-012.
 - **A trial's `first_submitted_date` is private**; the post date is public. Protects ING-009 and ING-013.
 - **ClinicalTrials.gov v2 filters by date only through `filter.advanced`** with the range syntax `AREA[LastUpdatePostDate]RANGE[start,end]`. Protects ING-013.

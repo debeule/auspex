@@ -101,6 +101,8 @@ services:
       NEO4J_server_memory_heap_initial__size: ${NEO4J_HEAP_SIZE}
       NEO4J_server_memory_heap_max__size: ${NEO4J_HEAP_SIZE}
       NEO4J_server_memory_pagecache_size: ${NEO4J_PAGECACHE_SIZE}
+      # Caps direct buffers, which the JVM otherwise allows up to the heap size.
+      JAVA_TOOL_OPTIONS: ${NEO4J_JAVA_TOOL_OPTIONS}
     ports:
       - "127.0.0.1:7474:7474"
       - "127.0.0.1:7687:7687"
@@ -386,6 +388,8 @@ services:
     environment:
       GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD}
       GF_PATHS_PROVISIONING: /tmp/provisioning
+      # Go's soft heap limit, below GRAFANA_MEM_LIMIT, so the GC runs before the cgroup reclaims.
+      GOMEMLIMIT: ${GRAFANA_GOMEMLIMIT}
       GF_USERS_ALLOW_SIGN_UP: "false"
       GF_ANALYTICS_REPORTING_ENABLED: "false"
       GF_SMTP_ENABLED: "true"
