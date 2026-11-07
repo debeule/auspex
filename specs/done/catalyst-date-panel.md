@@ -1,7 +1,9 @@
 # Catalyst Date Panel
 
-**Status:** blocked
-**Blocked by:** the first panel build on the stack machine (Definition of done, second block; `specs/first-run-on-stack-machine.md` step 3a). All code and all 10 required tests are in (`auspex_backtesting.catalysts`, `scripts/build_catalyst_panel.py`); neither SEC nor the Federal Register is reachable from cloud sessions (`DECISIONS.md` 2026-10-09 PENDING).
+> Archived. Not authoritative: current behaviour is in docs/ (see docs/README.md).
+
+**Status:** done
+**Blocked by:** —
 **Branch:** `feature/catalyst-date-panel`
 **Docs impact:** None: behaviour approved in RES-041…RES-044; the remaining work is acceptance on the stack machine.
 
