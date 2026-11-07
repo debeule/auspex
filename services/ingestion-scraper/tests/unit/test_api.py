@@ -122,6 +122,15 @@ def test_ingest_pipeline_exception_returns_500_with_error_message(client, mock_p
     assert "error" in data
 
 
+def test_ingest_pipeline_exception_is_logged_with_its_traceback(client, mock_pipeline, caplog):
+    # On the stack machine EPO runs answered 500 and the scraper logged nothing (2026-11-07).
+    mock_pipeline.run.side_effect = RuntimeError("connector down")
+    with caplog.at_level("ERROR", logger="auspex_ingest.api"):
+        client.post("/ingest/biorxiv", json={"cursor": "2023-01-10T12:00:00+00:00"})
+    failures = [r for r in caplog.records if r.name == "auspex_ingest.api" and r.exc_info]
+    assert failures and "biorxiv" in failures[0].getMessage()
+
+
 def test_reextract_dry_run_returns_estimated_count_without_publishing(sources):
     runner = MagicMock()
     runner.run.return_value = {"estimated_count": 42, "published": 0}
