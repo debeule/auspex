@@ -20,7 +20,7 @@ DOCKER = REPO_ROOT / "docker"
 ALERTING = DOCKER / "grafana" / "provisioning" / "alerting"
 
 # Docker Desktop's VM allocation (SETUP.md step 2), less what the VM's own kernel and daemons use.
-_DOCKER_DESKTOP_MIB = 8 * 1024
+_DOCKER_DESKTOP_MIB = 10 * 1024
 _VM_RESERVE_MIB = 512
 
 # A bare `${VAR}`: the value lives only in `.env.example`, never as a second copy in compose.

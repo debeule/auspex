@@ -19,7 +19,7 @@ How to run extraction on a local model through Ollama instead of the OpenAI API.
 
 **Speed (estimate).** The M4 Pro's memory bandwidth (~273 GB/s) should give roughly 25–30 tokens/s for the 8B at Q8, or about 10–15 s per document. If the backfill is ~26,000 documents after the prefilter, that is roughly 3–5 days of machine time. Q4_K_M is about 1.5x faster. `evaluate_model.py` measures the real latency, so trust its numbers over these. If the 8B model fails the 0.85 gate, the documented fallback is `gpt-4o-mini-2024-07-18` for the backfill (about $65, DECISIONS.md).
 
-**Docker Desktop:** set its memory limit to **8 GB** (Settings → Resources). The stack's 14 GB default leaves no room for a model on 24 GB.
+**Docker Desktop:** set its memory limit to **10 GB** (Settings → Resources). The stack's 14 GB default leaves no room for a model on 24 GB.
 
 ## 1. Install and configure Ollama
 
@@ -95,12 +95,12 @@ Commit `config/models/registry.yaml`, `config/models/scores/<tag>.json` and `con
 
 ## Memory budget (24 GB M4 Pro, Docker running)
 
-| Component | 8B Q8 | 8B Q4 | 24B Q4 |
-|---|---|---|---|
-| Model weights | ~8.5 GB | ~4.9 GB | ~14 GB |
-| KV cache at 8192 ctx | ~1 GB | ~1 GB | ~1.3 GB |
-| Docker Desktop limit | 8 GB | 8 GB | 8 GB |
-| macOS + other apps | ~4–5 GB | ~4–5 GB | ~4–5 GB |
-| **Total** | **~22 GB (fits)** | **~19 GB (comfortable)** | **~28 GB (does not fit)** |
+| Component | Phi-3 14B Q4 | 8B Q8 | 8B Q4 | 24B Q4 |
+|---|---|---|---|---|
+| Model weights | ~8.6 GB | ~8.5 GB | ~4.9 GB | ~14 GB |
+| KV cache at 8192 ctx | ~0.9 GB | ~1 GB | ~1 GB | ~1.3 GB |
+| Docker Desktop limit | 10 GB | 10 GB | 10 GB | 10 GB |
+| macOS + other apps | ~4–5 GB | ~4–5 GB | ~4–5 GB | ~4–5 GB |
+| **Total** | **~24 GB (tight, swaps under load)** | **~24 GB (tight)** | **~21 GB (comfortable)** | **~30 GB (does not fit)** |
 
 Keep other heavy apps (browsers with many tabs, IDEs) closed during the backfill. If macOS starts swapping (Activity Monitor → Memory Pressure turns yellow), switch to Q4_K_M.

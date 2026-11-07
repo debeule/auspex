@@ -60,7 +60,7 @@ Fill in what only you have, group by group as `.env.example` lists them, and che
 
 ## 2. Host settings (once)
 
-- **macOS:** Docker Desktop → Settings → Resources → Memory: **8 GB**, so a local model fits next to the stack on 24 GB.
+- **macOS:** Docker Desktop → Settings → Resources → Memory: **10 GB**, so a local model fits next to the stack on 24 GB.
 - **macOS:** `brew install node_exporter && brew services start node_exporter`. Prometheus reads the Mac's own CPU, memory and disk from it at `host.docker.internal:9100`; inside Docker only the VM is visible, not Ollama's memory or the Mac's disk. Optional: without it the Mac panels on the Auspex Infrastructure dashboard stay empty and one info alert fires.
 - **Docker Hub (optional):** `docker login` with a free Docker Hub account. The first `up` pulls about ten images, and Docker Hub limits anonymous pulls per IP.
 - **Claude Code (each checkout):** run `claude` once in the checkout and accept the "external imports" prompt. Each `CLAUDE.md` imports the `AGENTS.md` beside it, and a session started in a subfolder such as `services/core-hub` loads the parent folders' `AGENTS.md` only after this approval; without it those rules are skipped silently. A `git worktree` is a separate checkout and needs it again.
