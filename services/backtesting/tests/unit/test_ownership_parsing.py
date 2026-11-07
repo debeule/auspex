@@ -564,6 +564,21 @@ def test_form_index_parses_sec_files_whose_header_does_not_line_up_with_the_rows
     )
 
 
+def test_daily_form_index_header_wrapped_onto_a_second_line_is_skipped():
+    # SEC's daily form.YYYYMMDD.idx wraps "Date Filed  File Name" onto its own line.
+    text = (
+        "Description:           Daily Index of EDGAR Dissemination Feed by Form Type\n"
+        "Form Type   Company Name                                                  CIK\n"
+        "      Date Filed  File Name\n"
+        + "-" * 140 + "\n"
+        "1-SA             PRC Equity Fund I, LLC                                        2033295     20261106    edgar/data/2033295/0001829126-26-012000.txt\n"
+    )
+
+    [entry] = parse_form_index(text)
+
+    assert (entry.form, entry.cik, entry.filing_date) == ("1-SA", "0002033295", date(2026, 11, 6))
+
+
 _FORM4 = """<SEC-DOCUMENT>
 <ACCEPTANCE-DATETIME>20240110171500
 ACCESSION NUMBER:\t\t0001001001-24-000009

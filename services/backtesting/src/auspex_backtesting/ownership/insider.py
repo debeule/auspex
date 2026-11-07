@@ -83,7 +83,8 @@ def parse_form_index(text: str) -> list[IndexEntry]:
         raise ValueError("not an EDGAR form index: no 'Form Type' header")
     entries = []
     for line in lines[header_at + 1:]:
-        if not line.strip() or set(line.strip()) == {"-"}:
+        # Daily indexes wrap the header's "Date Filed  File Name" onto a line of its own.
+        if not line.strip() or set(line.strip()) == {"-"} or "Date Filed" in line:
             continue
         rest, cik, filed, path = line.rsplit(None, 3)
         form, _, company = rest.strip().partition("  ")
