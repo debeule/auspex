@@ -1,7 +1,9 @@
 # SEC Ownership Datasets (13F Holdings and Insider Transactions)
 
-**Status:** blocked
-**Blocked by:** the first backfill on the stack machine (Definition of done, second block). All code and the 15 required tests are in `auspex_backtesting.ownership`; what remains is running `scripts/fetch_ownership.py` against SEC and recording coverage, which cloud sessions cannot reach (`specs/first-run-on-stack-machine.md` step 3b, `DECISIONS.md` 2026-10-09 PENDING).
+> Archived. Not authoritative: current behaviour is in docs/ (see docs/README.md).
+
+**Status:** done
+**Blocked by:** —
 **Branch:** `feature/sec-ownership-datasets`
 **Docs impact:** None: behaviour approved in RES-026…RES-036; the remaining work is acceptance on the stack machine.
 
