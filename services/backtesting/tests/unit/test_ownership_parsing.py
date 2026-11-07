@@ -656,6 +656,35 @@ def _insider_store(minio: FakeMinio, sec: FakeSec) -> InsiderTransactionStore:
                                    full_index_url=_FULL, archives_url=_ARCHIVES)
 
 
+def test_day_missing_from_the_quarter_listing_is_not_requested() -> None:
+    # SEC answers 403, not 404, for a daily index that does not exist (a Saturday, 2026-11-07), and
+    # a 403 stops the run as a block; the quarter's index.json lists the days that exist.
+    minio = FakeMinio()
+    saturday = f"{_DAILY}/2026/QTR4/form.20261003.idx"
+    listing = json.dumps({"directory": {"item": [
+        {"name": "form.20261002.idx", "type": "file"},
+        {"name": "company.20261003.idx", "type": "file"},
+    ]}}).encode()
+
+    class Sec(FakeSec):
+        def get(self, url: str) -> bytes:
+            if url == saturday:
+                self.requested.append(url)
+                raise SecBlockedError(url)
+            return super().get(url)
+
+    sec = Sec({
+        f"{_DAILY}/2026/QTR4/index.json": listing,
+        f"{_DAILY}/2026/QTR4/form.20261002.idx": _index(),
+    })
+    store = _insider_store(minio, sec)
+
+    assert store.fetch_day(date(2026, 10, 3)) is None
+    assert store.fetch_day(date(2026, 10, 2)) == 0
+    assert saturday not in sec.requested
+    assert sec.requested.count(f"{_DAILY}/2026/QTR4/index.json") == 1
+
+
 def test_day_without_index_is_not_stored_and_missing_form4_is_skipped() -> None:
     minio = FakeMinio()
     day = date(2024, 1, 10)
@@ -902,7 +931,7 @@ def test_backfill_stores_every_panel_once_and_reports_coverage(tmp_path: Path) -
     ).run()
     assert set(again.requested) == {
         _CONFIG.form13f_page_url, _CONFIG.insider_page_url, _CONFIG.companyfacts_bulk_url,
-        f"{_DAILY}/2024/QTR4/form.20241002.idx",
+        f"{_DAILY}/2024/QTR4/index.json", f"{_DAILY}/2024/QTR4/form.20241002.idx",
     }
 
 

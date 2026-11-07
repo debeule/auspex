@@ -18,6 +18,7 @@ a filing by several reporting owners (a fund and its affiliates) is one set of t
 attributed to the lowest owner CIK with the union of their roles.
 """
 
+import json
 import logging
 import re
 import tempfile
@@ -283,6 +284,7 @@ class InsiderTransactionStore:
         self._sec = sec
         self._universe = frozenset(universe_ciks)
         self._daily_index_url = daily_index_url.rstrip("/")
+        self._daily_listings: dict[tuple[int, int], frozenset[str] | None] = {}
         self._full_index_url = full_index_url.rstrip("/")
         self._archives_url = archives_url.rstrip("/")
 
@@ -314,6 +316,19 @@ class InsiderTransactionStore:
         self._store.write(key, rows, {"source_url": url})
         return len(rows)
 
+    def _daily_listing(self, year: int, quarter: int) -> frozenset[str] | None:
+        """The daily index files SEC lists for a quarter. SEC answers 403, which reads as a
+        block, for a day it published no index for, so days are checked against this first.
+        None when the quarter has no listing."""
+        if (year, quarter) not in self._daily_listings:
+            url = f"{self._daily_index_url}/{year}/QTR{quarter}/index.json"
+            try:
+                items = json.loads(self._sec.get(url))["directory"]["item"]
+                self._daily_listings[year, quarter] = frozenset(i["name"] for i in items)
+            except SecNotFoundError:
+                self._daily_listings[year, quarter] = None
+        return self._daily_listings[year, quarter]
+
     def fetch_day(self, day: date) -> int | None:
         """Stores one day's Form 4 transactions and offerings of universe issuers from the
         daily form index; returns the transaction count, or None when SEC published no index
@@ -323,6 +338,9 @@ class InsiderTransactionStore:
         if stored is not None:
             return len(stored[0])
         year, quarter = quarter_of(day)
+        listed = self._daily_listing(year, quarter)
+        if listed is not None and f"form.{day:%Y%m%d}.idx" not in listed:
+            return None
         url = f"{self._daily_index_url}/{year}/QTR{quarter}/form.{day:%Y%m%d}.idx"
         try:
             index = parse_form_index(self._sec.get(url).decode("latin-1"))
