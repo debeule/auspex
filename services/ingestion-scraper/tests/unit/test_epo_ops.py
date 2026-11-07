@@ -23,7 +23,8 @@ _BIBLIO_PAGE1 = (_FIXTURES / "epo_ops_biblio_page1.xml").read_bytes()
 _SEARCH_EMPTY = (_FIXTURES / "epo_ops_search_empty.xml").read_bytes()
 _TOKEN_JSON = json.loads((_FIXTURES / "epo_ops_token.json").read_text())
 
-_CURSOR = datetime(2024, 9, 1, tzinfo=UTC)
+# The same day as _NOW, so each fetch is one day-window search against the one mocked response.
+_CURSOR = datetime(2024, 9, 10, tzinfo=UTC)
 _NOW = datetime(2024, 9, 10, tzinfo=UTC)
 
 
@@ -453,3 +454,40 @@ def test_connector_runs_through_the_ingestion_pipeline_unchanged():
     assert result.fetched == 2
     assert result.failed == 0
     assert result.published == 2
+
+
+@respx.mock
+def test_search_runs_one_day_at_a_time_because_ops_serves_at_most_2000_results():
+    # OPS answers 400 for a Range past 2000; a 30-day window matched 10,025 patents (2026-11-07).
+    _mock_token()
+    search_route = _mock_empty_search()
+    connector = _make_connector(now=lambda: datetime(2024, 9, 3, 12, tzinfo=UTC))
+
+    list(connector.fetch_since(datetime(2024, 9, 1, tzinfo=UTC)))
+
+    queries = [call.request.url.params["q"] for call in search_route.calls]
+    assert [q[q.index("pd within"):] for q in queries] == [
+        'pd within "20240901,20240901"',
+        'pd within "20240902,20240902"',
+        'pd within "20240903,20240903"',
+    ]
+
+
+@respx.mock
+def test_a_day_with_more_than_2000_results_stops_at_the_ops_limit(caplog):
+    _mock_token()
+    refs = [("EP", str(1000000 + i), "A1") for i in range(100)]
+    page = _search_refs_xml(refs).replace(b'total-result-count="100"', b'total-result-count="2500"')
+    search_route = respx.get(url__regex=r"published-data/search").mock(
+        return_value=Response(200, content=page)
+    )
+    respx.get(url__regex=r"/biblio").mock(return_value=Response(200, content=_BIBLIO_PAGE1))
+    connector = _make_connector(now=lambda: datetime(2024, 9, 1, 12, tzinfo=UTC))
+
+    with caplog.at_level("WARNING"):
+        list(connector.fetch_since(datetime(2024, 9, 1, tzinfo=UTC)))
+
+    ranges = [call.request.headers["Range"] for call in search_route.calls]
+    assert ranges[-1] == "1901-2000"
+    assert len(ranges) == 20
+    assert any("2500" in r.getMessage() for r in caplog.records)

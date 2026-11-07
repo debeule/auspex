@@ -6,10 +6,11 @@ from __future__ import annotations
 
 import base64
 import hashlib
+import logging
 import time
 from collections.abc import Callable, Iterator
 from dataclasses import dataclass
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from typing import Any
 from xml.etree import ElementTree
 
@@ -20,9 +21,13 @@ from .base import SourceConnector
 from .rate_limited_client import RateLimitedClient
 from .registry import REGISTRY, BuildContext
 
+log = logging.getLogger(__name__)
+
 _DEFAULT_BASE_URL = "https://ops.epo.org/3.2/rest-services"
 _DEFAULT_TOKEN_URL = "https://ops.epo.org/3.2/auth/accesstoken"
 _PAGE_SIZE = 100
+# OPS answers 400 for a search Range past its 2000th result.
+_MAX_SEARCH_RESULTS = 2000
 _TOKEN_REFRESH_BUFFER = 60.0  # seconds before expiry to trigger refresh
 _DEFAULT_BACKOFF = 30.0
 
@@ -75,13 +80,19 @@ class EpoOpsConnector(SourceConnector):
         self._token: _Token | None = None
 
     def fetch_since(self, cursor: datetime) -> Iterator[RawDocument]:
-        start = cursor.strftime("%Y%m%d")
-        end = self._now().strftime("%Y%m%d")
         retrieved_at = self._now()
-
         cpc_filter = " or ".join(f"cpc = {c}" for c in self._cpc_classes)
-        query = f'({cpc_filter}) and pd within "{start},{end}"'
 
+        # One search per publication day keeps each query under OPS's result limit.
+        day = cursor.date()
+        while day <= self._now().date():
+            stamp = day.strftime("%Y%m%d")
+            yield from self._fetch_query(
+                f'({cpc_filter}) and pd within "{stamp},{stamp}"', retrieved_at
+            )
+            day += timedelta(days=1)
+
+    def _fetch_query(self, query: str, retrieved_at: datetime) -> Iterator[RawDocument]:
         range_begin = 1
         total: int | None = None
 
@@ -92,6 +103,11 @@ class EpoOpsConnector(SourceConnector):
             refs, page_total = self._search_page(query, range_begin, range_end, token)
             if total is None:
                 total = page_total
+                if total > _MAX_SEARCH_RESULTS:
+                    log.warning(
+                        "OPS search matched %d results, only the first %d are served: %s",
+                        total, _MAX_SEARCH_RESULTS, query,
+                    )
             if not refs:
                 break
 
@@ -99,7 +115,7 @@ class EpoOpsConnector(SourceConnector):
             biblio_xml = self._fetch_biblio(refs, token)
             yield from self._parse_biblio(biblio_xml, retrieved_at)
 
-            if range_end >= total:
+            if range_end >= min(total, _MAX_SEARCH_RESULTS):
                 break
             range_begin = range_end + 1
 
