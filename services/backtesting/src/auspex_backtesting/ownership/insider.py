@@ -74,21 +74,20 @@ class IndexEntry:
 
 
 def parse_form_index(text: str) -> list[IndexEntry]:
-    """Rows of an EDGAR `form.idx` (daily or quarterly). Columns are fixed-width and form
-    types and company names contain spaces, so fields are cut at the header's positions."""
+    """Rows of an EDGAR `form.idx` (daily or quarterly). SEC's header does not line up with its
+    rows, so CIK, date and file name are the last three fields, and the form type ends at the
+    first run of two spaces (form types and company names contain single spaces)."""
     lines = text.splitlines()
     header_at = next((i for i, line in enumerate(lines) if line.startswith("Form Type")), None)
     if header_at is None:
         raise ValueError("not an EDGAR form index: no 'Form Type' header")
-    header = lines[header_at]
-    starts = [header.index(h) for h in ("Form Type", "Company Name", "CIK", "Date Filed", "File Name")]
     entries = []
     for line in lines[header_at + 1:]:
         if not line.strip() or set(line.strip()) == {"-"}:
             continue
-        form, company, cik, filed, path = (
-            line[a:b].strip() for a, b in zip(starts, [*starts[1:], None], strict=True)
-        )
+        rest, cik, filed, path = line.rsplit(None, 3)
+        form, _, company = rest.strip().partition("  ")
+        company = company.strip()
         filed_on = (
             datetime.strptime(filed, "%Y%m%d").replace(tzinfo=UTC).date() if "-" not in filed
             else date.fromisoformat(filed)

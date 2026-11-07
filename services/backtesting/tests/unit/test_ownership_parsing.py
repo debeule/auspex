@@ -518,7 +518,7 @@ def test_insider_data_set_keeps_original_forms_4_and_5_of_universe_issuers(tmp_p
     assert pd.isna(rows.iloc[2]["price"])
 
 
-def test_form_index_is_cut_at_header_positions_in_daily_and_quarterly_layouts() -> None:
+def test_form_index_reads_daily_and_quarterly_layouts() -> None:
     header = (
         "Description:           Master Index\n\n"
         "Form Type   Company Name                                                  CIK         "
@@ -540,6 +540,28 @@ def test_form_index_is_cut_at_header_positions_in_daily_and_quarterly_layouts() 
     )
     with pytest.raises(ValueError, match="Form Type"):
         parse_form_index("<html>Access denied</html>")
+
+
+def test_form_index_parses_sec_files_whose_header_does_not_line_up_with_the_rows():
+    # Lines as SEC serves them in full-index/2013/QTR1/form.idx: the header puts "Date Filed" at
+    # column 86, the rows put the date at column 92 (the first stack-machine run, 2026-11-07).
+    text = (
+        "Description:           Master Index of EDGAR Dissemination Feed by Form Type\n"
+        "\n"
+        "Form Type   Company Name                                                  CIK         Date Filed  File Name\n"
+        + "-" * 133 + "\n"
+        "SC 13G           1 800 FLOWERS COM INC                                         1084869     2013-02-11  edgar/data/1084869/0001167674-13-000572.txt         \n"
+        "424B1            China BCT Pharmacy Group, Inc.                                1399356     2013-01-03  edgar/data/1399356/0001213900-13-000008.txt         \n"
+    )
+
+    first, second = parse_form_index(text)
+
+    assert (first.form, first.company, first.cik, first.filing_date, first.accession_number) == (
+        "SC 13G", "1 800 FLOWERS COM INC", "0001084869", date(2013, 2, 11), "0001167674-13-000572"
+    )
+    assert (second.form, second.company, second.filing_date) == (
+        "424B1", "China BCT Pharmacy Group, Inc.", date(2013, 1, 3)
+    )
 
 
 _FORM4 = """<SEC-DOCUMENT>
