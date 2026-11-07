@@ -676,3 +676,17 @@ def test_grafana_go_heap_is_held_below_its_container_limit() -> None:
     limit = _mib(env[_limit_var("grafana", grafana)])
 
     assert int(m.group(1)) * 4 <= limit * 3
+
+
+def test_neo4j_direct_memory_is_capped_inside_its_limit() -> None:
+    """Without a cap the JVM allows direct buffers up to the heap size; with heap, page cache and
+    metaspace that ran Neo4j into its cgroup limit six times in one night (2026-11-07)."""
+    env = _env_example()
+    neo4j = _services()["neo4j"]
+    opts = _resolve(neo4j["environment"]["JAVA_TOOL_OPTIONS"]).strip('"').split()
+    direct = next(o.split("=", 1)[1] for o in opts if o.startswith("-XX:MaxDirectMemorySize="))
+    heap = _mib(env["NEO4J_HEAP_SIZE"])
+    pagecache = _mib(env["NEO4J_PAGECACHE_SIZE"])
+    limit = _mib(env[_limit_var("neo4j", neo4j)])
+
+    assert (heap + pagecache + _mib(direct)) * 5 <= limit * 4
