@@ -1842,3 +1842,7 @@ The `funnel/` and `risk/catalyst_holds.jsonl` keys of the `auspex-strategy` layo
 ## 2026-11-08 — Container memory — CHOICE — backup service 384 MB
 **What:** The catch-up backup on 2026-11-08 had its worker OOM-killed at the 128 MB limit after MinIO grew to 193,773 objects in `auspex-prices` (the catalyst and filing panels) and 142,872 in `auspex-raw`. At 384 MB it finished at 10:31 UTC with a working-set peak of 337 MB; the backup folder holds 6.3 GB.
 **Choice:** `BACKUP_MEM_LIMIT` 384 MB, inside the 10 GB budget.
+
+## 2026-11-08 — cAdvisor and volume usage — CHOICE — only the metrics the stack reads; du gets 64 MB
+**What:** On the stack machine cAdvisor averaged 369% CPU over an hour and was OOM-killed at its 192 MB limit (2026-11-08 ~20:20 UTC); with every collector on it walks each container's cgroups and page tables. The stack reads only `container_start_time_seconds`, `container_memory_working_set_bytes` and CPU usage. The volume-usage sidecar's `du` was OOM-killed at 32 MB walking MinIO's ~336,000 objects.
+**Choice:** cAdvisor runs with `--enable_metrics=cpu,memory`; measured after the change: 1.2% CPU and 32 MB, with all three series still present for 23–24 containers. `VOLUME_USAGE_MEM_LIMIT` 64 MB.

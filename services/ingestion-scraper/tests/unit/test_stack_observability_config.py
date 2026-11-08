@@ -711,3 +711,11 @@ def test_postgres_runs_under_an_init_process() -> None:
     """With postgres as PID 1, a process started by `docker exec` that dies on a signal is reaped
     by the postmaster as an unknown child and restarts every backend (2026-11-07 15:01 UTC)."""
     assert _services()["postgres"].get("init") is True
+
+
+def test_cadvisor_collects_only_the_metrics_the_stack_reads() -> None:
+    """With every collector on, cAdvisor averaged 369% CPU and was OOM-killed at 192 MB on the
+    stack machine (2026-11-08). Dashboards, alerts and the daily summary read only start times,
+    working-set memory and CPU usage."""
+    command = _services()["cadvisor"]["command"]
+    assert "--enable_metrics=cpu,memory" in command
