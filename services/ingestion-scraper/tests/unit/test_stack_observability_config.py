@@ -690,3 +690,24 @@ def test_neo4j_direct_memory_is_capped_inside_its_limit() -> None:
     limit = _mib(env[_limit_var("neo4j", neo4j)])
 
     assert (heap + pagecache + _mib(direct)) * 5 <= limit * 4
+
+
+def test_airflow_is_unhealthy_and_probed_down_when_any_component_stops() -> None:
+    """Airflow standalone does not restart a crashed scheduler; its health page still answers 200
+    with the scheduler "unhealthy". On the stack machine nothing ran for 18 hours (2026-11-08)."""
+    airflow = _services()["airflow"]
+    check = " ".join(airflow["healthcheck"]["test"])
+    for component in ("metadatabase", "scheduler", "triggerer", "dag_processor"):
+        assert component in check
+
+    job = _jobs()["blackbox-airflow"]
+    assert _targets(job) == ["http://airflow:8080/api/v2/monitor/health"]
+    module = yaml.safe_load((DOCKER / "blackbox-exporter" / "blackbox.yml").read_text(encoding="utf-8"))[
+        "modules"][job["params"]["module"][0]]
+    assert '"unhealthy"' in module["http"]["fail_if_body_matches_regexp"]
+
+
+def test_postgres_runs_under_an_init_process() -> None:
+    """With postgres as PID 1, a process started by `docker exec` that dies on a signal is reaped
+    by the postmaster as an unknown child and restarts every backend (2026-11-07 15:01 UTC)."""
+    assert _services()["postgres"].get("init") is True

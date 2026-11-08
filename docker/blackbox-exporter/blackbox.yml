@@ -4,6 +4,13 @@ modules:
     timeout: 5s
     http:
       preferred_ip_protocol: ip4
+  # Airflow's health page answers 200 while a component reports "unhealthy".
+  http_2xx_all_healthy:
+    prober: http
+    timeout: 5s
+    http:
+      preferred_ip_protocol: ip4
+      fail_if_body_matches_regexp: ['"unhealthy"']
   tcp_connect:
     prober: tcp
     timeout: 5s

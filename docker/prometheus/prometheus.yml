@@ -83,7 +83,6 @@ scrape_configs:
           - http://price-service:8001/health
           - http://strategy-runtime:8003/health
           - http://backup:8002/health
-          - http://airflow:8080/api/v2/monitor/health
           - http://neo4j:7474/
           - http://minio:9000/minio/health/live
           - http://elasticsearch:9200/_cluster/health
@@ -97,6 +96,15 @@ scrape_configs:
         target_label: instance
       - target_label: __address__
         replacement: blackbox-exporter:9115
+
+  - job_name: blackbox-airflow
+    metrics_path: /probe
+    params:
+      module: [http_2xx_all_healthy]
+    static_configs:
+      - targets:
+          - http://airflow:8080/api/v2/monitor/health
+    relabel_configs: *probe_relabel
 
   - job_name: blackbox-tcp
     metrics_path: /probe
