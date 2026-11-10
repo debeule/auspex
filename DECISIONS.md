@@ -1942,3 +1942,9 @@ Values are min / median / max over each year's months; the other years sit betwe
 
 ## 2026-11-10 — Short interest snapshots — PENDING — first fetch not run on the stack machine
 **What:** First-run step 3c was not run: `.env` has no FINRA API credential (`FINRA_API_CLIENT_ID`, `FINRA_API_CLIENT_SECRET`), which is the owner's to obtain (`docs/PREREQUISITES.md`). H9 therefore runs its two-component variant everywhere.
+
+## 2026-11-10 — First run on the stack machine — VERIFIED — extraction with the chosen model and live ingestion
+**What:** Step 6 of `specs/first-run-on-stack-machine.md`. With `EXTRACTION_MODEL=phi3:14b-medium-128k-instruct-q4_K_M` on host Ollama the scraper started healthy; a one-source bioRxiv ingest on 2026-11-06 fetched 1,580 documents and made 101 extraction calls, all successful, with no gate or digest error. The owner unpaused live ingestion on 2026-11-06. First scheduled runs: every source failed at first on `Variable.get(default_var=...)` (fixed in #88), then on the placeholder Fernet key (replaced), then bioRxiv, PubMed, ClinicalTrials and EDGAR succeeded; EPO failed until the one-search-per-day fix (#92). Since then all five sources have run daily; by 2026-11-10 core-hub holds 743 signals, 268 naming a company. A bioRxiv run on 2026-11-10 failed on three API read timeouts (retry fix in #93).
+
+## 2026-11-10 — First run on the stack machine — CHOICE — steps 7 and 8 not run in this pass
+**What:** Step 7 (backfill dry run) needs PR #8 merged; it is still open and `services/ingestion-scraper/scripts/run_backfill.py` is not on `develop`. Step 8 (stack checks other done specs left for this machine) found 20 done specs naming the stack machine; five are closed by this run (point-in-time universe, catalyst panel, SEC ownership, filing text, holdings score) and the rest are left for a follow-up pass, which the spec allows ("steps 7–8 may be recorded as skipped").

@@ -16,7 +16,7 @@ Machine-readable authorities, named here and never copied:
 | `services/ingestion-scraper/prompts/extraction/` | The prompt files, one per `prompt_version` |
 | `services/ingestion-scraper/config/sources.yaml` | Each source's `min_confidence_to_publish` and `prefilter_vocabulary` |
 
-Whether a passing gate record exists today is readiness, not a requirement: see `SETUP.md` and `specs/first-run-on-stack-machine.md`. Installing, registering and switching to a local model is the runbook `docs/local-model-runbook.md`.
+Whether a passing gate record exists today is readiness, not a requirement: see `SETUP.md` and `specs/done/first-run-on-stack-machine.md`. Installing, registering and switching to a local model is the runbook `docs/local-model-runbook.md`.
 
 Not in this file:
 - where extraction sits in a run, the pre-filter, the cap and the counters: [pipeline.md](pipeline.md);

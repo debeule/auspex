@@ -33,7 +33,7 @@ Before editing under a directory that has its own `AGENTS.md`, open that file: i
 - No plan-step names (`step_3_2`, `phase_2`) in files, functions, tests, variables, branches or commit messages (ENG-049).
 - Never commit `.env`, `target/`, `.venv/`, `__pycache__/` or Docker volumes.
 - A behaviour change updates its owning doc in the same PR; otherwise the PR body says `Docs unchanged: <domain> — <reason>` (`## 2026-10-17 — Living docs — CHOICE — docs impact field and Docs unchanged line`).
-- Cloud sessions have no Docker, sec.gov or Yahoo: container tests are proven in CI, and the PR says so. They cannot delete GitHub branches, so push none you will want gone. Work that only the owner's Mac can run goes in a spec the owner runs there (`specs/first-run-on-stack-machine.md`).
+- Cloud sessions have no Docker, sec.gov or Yahoo: container tests are proven in CI, and the PR says so. They cannot delete GitHub branches, so push none you will want gone. Work that only the owner's Mac can run goes in a spec the owner runs there (`specs/done/first-run-on-stack-machine.md`).
 - There are no hand-run setup or data scripts: startup data is a compose one-shot that is a no-op when the data exists, current data an Airflow DAG calling a service API (OPS-009). A step that cannot be automated (a secret, a host install, a sign-off) goes in `SETUP.md`.
 
 ## Where things are

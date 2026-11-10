@@ -1,7 +1,9 @@
 # First Run on the Stack Machine
 
-**Status:** blocked
-**Blocked by:** the stack machine. This spec runs only on the user's MacBook Pro (Apple M4 Pro, 24 GB), started there by name. Cloud sessions and CI cannot run any of it: they have no Docker stack, no Ollama, and their network blocks `sec.gov` and model downloads, so a session anywhere else skips it. On the Mac nothing else blocks it; each step names its own precondition, and a step whose precondition is not met is skipped and reported, never worked around.
+> Archived. Not authoritative: current behaviour is in docs/ (see docs/README.md).
+
+**Status:** done
+**Blocked by:** —
 **Branch:** `feature/first-run-on-stack-machine`
 **Docs impact:** none — operational acceptance only; cites OPS IDs
 
