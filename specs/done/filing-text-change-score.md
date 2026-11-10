@@ -1,7 +1,9 @@
 # Filing Text Change Score
 
-**Status:** blocked
-**Blocked by:** the first panel build on the stack machine (`specs/first-run-on-stack-machine.md` step 3d: both universes' panels, coverage and a 20-filing hand check in `DECISIONS.md`). The code and its tests are done; the earlier blockers (point-in-time universe, H10 registered in `specs/done/slow-signal-preregistration.md`) are met. Score snapshots use `ScoreSnapshot` from `specs/done/cross-sectional-portfolio-backtest.md`.
+> Archived. Not authoritative: current behaviour is in docs/ (see docs/README.md).
+
+**Status:** done
+**Blocked by:** —
 **Branch:** `feature/filing-text-change-score`
 **Docs impact:** None: behaviour approved in RES-045…RES-049 and RES-013; the remaining work is acceptance on the stack machine.
 

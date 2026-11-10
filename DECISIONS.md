@@ -1905,3 +1905,22 @@ All 583 unpriced members have exited: of the gaps, 298 acquired, 250 delisted, 4
 
 ## 2026-11-07 — SEC ownership datasets — FLAG — 13F holder mapping weak from 2014 to 2017
 **What:** 16 13F data sets, `2014q1` through `2017q4`, have `universe_value_without_holder_share` above 0.10 (0.12–0.28): up to a quarter of the universe's held value sits with filers the specialist rule cannot place. From 2018 on it is below 0.10 (under 0.05 from 2019q3). Per the first-run spec, H9 must not be run on these data sets until the mapping is checked.
+
+## 2026-11-10 — Filing text change score — VERIFIED — first panels on the stack machine
+**What:** First-run step 3d. Both `build_filing_panel.py` runs completed (`complete: true`, exit 0; the broad run's first attempt lost MinIO during the Docker Desktop restart and the second resumed from the archived sections). `test_filing_text_change.py`: 13 passed.
+
+| | Biotech (`rules.yaml`) | Broad (`us_small_mid.yaml`) |
+|---|---|---|
+| Filings found / amendments not cut | 26,869 / 1,433 | 180,391 / 9,068 |
+| Sections cut / no-change statement / missing | 20,956 / 3,355 / 1,125 | 110,592 / 45,588 / 15,143 |
+| Missing: no Item 1A heading / not provided / document not found / no end heading | 666 / 448 / 10 / 1 | 9,575 / 5,520 / 30 / 18 |
+| Scores / unscored (no comparison, comparison without text) | 19,483 / 3,752, 1,076 | 124,733 / 21,680, 9,767 |
+| Snapshots written | 155 | 155 |
+| Scored share of members per year, median (min–max over years) | 0.58 (2014) to 0.80 (2026) | 0.45 (2020) to 0.63 (2026) |
+
+- Broad universe (`us_small_mid.yaml`, rules version 1, built 2026-11-08): 155 months, 11,590 distinct members. 2014–2018: 4,084 / 4,315 / 4,779 members a month (min / median / max), 7,107 distinct, price coverage complete 1,571, partial 328, none 5,208. 2019 onward: 2,390 / 3,830 / 4,658, 9,102 distinct, complete 3,146, partial 1,153, none 4,803.
+- Hand check (seed 20261110; 10 `cut` and 10 other biotech sections, one random filing each from shuffled universe CIKs): 20 of 20 correct, rate 1.00. Every cut starts at the filing's own Item 1A heading and ends in risk-factor text; the seven no-change statements say only that (two add the usual "carefully consider" boilerplate); the three missing reasons were checked on EDGAR: CIK 1971387 (not provided: a smaller reporting company, Q1 2025 10-Q), Johnson & Johnson 2025 and Abbott 2019 10-Qs (no Item 1A heading of their own, only a reference to the 10-K). Where each cut ends was judged from its text, not compared with the next item on EDGAR.
+**Note:** until `specs/research-input-archive.md` is done these panels are disposable like the universes they read.
+
+## 2026-11-10 — Filing text change score — FLAG — broad universe is mostly unpriced before 2019
+**What:** In `us_small_mid` 73% of the 2014–2018 members (5,208 of 7,107) and 53% of the 2019-onward members (4,803 of 9,102) have no price history from the free source. H10 on the broad universe would trade a survivor-heavy subset, most of all in 2014–2018; the protocol's survivorship kill criterion reads these numbers. The biotech universe's split is in `## 2026-11-06 — Point-in-time universe — VERIFIED — first build on the stack machine`.
