@@ -1846,3 +1846,7 @@ The `funnel/` and `risk/catalyst_holds.jsonl` keys of the `auspex-strategy` layo
 ## 2026-11-08 — cAdvisor and volume usage — CHOICE — only the metrics the stack reads; du gets 64 MB
 **What:** On the stack machine cAdvisor averaged 369% CPU over an hour and was OOM-killed at its 192 MB limit (2026-11-08 ~20:20 UTC); with every collector on it walks each container's cgroups and page tables. The stack reads only `container_start_time_seconds`, `container_memory_working_set_bytes` and CPU usage. The volume-usage sidecar's `du` was OOM-killed at 32 MB walking MinIO's ~336,000 objects.
 **Choice:** cAdvisor runs with `--enable_metrics=cpu,memory`; measured after the change: 1.2% CPU and 32 MB, with all three series still present for 23–24 containers. `VOLUME_USAGE_MEM_LIMIT` 64 MB.
+
+## 2026-11-10 — Ingestion HTTP — CHOICE — a timed-out GET is tried three times
+**What:** The 2026-11-10 bioRxiv run failed on all three Airflow tries with `httpcore.ReadTimeout` from `api.biorxiv.org`; the API answered in 3 s an hour later. `RateLimitedClient` passed a timeout straight to the pipeline, so one slow response failed the whole source run.
+**Choice:** `RateLimitedClient.get` tries a GET that timed out twice more (waits of 5 s and 30 s, each try paced through the host's bucket per ING-005) and then raises; POST (token requests) is not retried.

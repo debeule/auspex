@@ -8,6 +8,9 @@ from urllib.parse import urlparse
 
 import httpx
 
+# Waits before the second and third try of a GET that timed out.
+_TIMEOUT_BACKOFF_S = (5.0, 30.0)
+
 
 class _TokenBucket:
     """Spaces requests `1 / rate` seconds apart, with no burst: any one-second window holds at
@@ -66,8 +69,16 @@ class RateLimitedClient:
                 self._sleep(wait)
 
     def get(self, url: str, **kwargs: Any) -> httpx.Response:
-        self._acquire(url)
-        return self._http.get(url, **kwargs)
+        # A GET is safe to repeat; a source that times out once often answers the next try.
+        for backoff in (*_TIMEOUT_BACKOFF_S, None):
+            self._acquire(url)
+            try:
+                return self._http.get(url, **kwargs)
+            except httpx.TimeoutException:
+                if backoff is None:
+                    raise
+                self._sleep(backoff)
+        raise AssertionError("unreachable")
 
     def post(self, url: str, **kwargs: Any) -> httpx.Response:
         self._acquire(url)

@@ -105,3 +105,36 @@ def test_rate_limited_client_never_exceeds_the_rate_across_threads() -> None:
     for i in range(int(rate), len(sent)):
         window = sent[i] - sent[i - int(rate)]
         assert window >= 1.0 - 0.02, f"{int(rate) + 1} requests within {window:.3f} s"
+
+
+def test_get_retries_a_read_timeout_before_giving_up() -> None:
+    # bioRxiv's API timed out on three Airflow tries in a row on the stack machine (2026-11-10).
+    import httpx
+    import pytest
+
+    fake = _FakeTime()
+    client, http = _client({"api.example": 100.0}, fake)
+    ok = MagicMock(status_code=200)
+    http.get.side_effect = [httpx.ReadTimeout("slow"), httpx.ReadTimeout("slow"), ok]
+
+    assert client.get("https://api.example/x") is ok
+    assert http.get.call_count == 3
+    assert sum(fake.slept) >= 5
+
+    http.get.side_effect = httpx.ReadTimeout("slow")
+    http.get.reset_mock()
+    with pytest.raises(httpx.ReadTimeout):
+        client.get("https://api.example/x")
+    assert http.get.call_count == 3
+
+
+def test_post_is_not_retried() -> None:
+    import httpx
+    import pytest
+
+    fake = _FakeTime()
+    client, http = _client({"api.example": 100.0}, fake)
+    http.post.side_effect = httpx.ReadTimeout("slow")
+    with pytest.raises(httpx.ReadTimeout):
+        client.post("https://api.example/token")
+    assert http.post.call_count == 1
