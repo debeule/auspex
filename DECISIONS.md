@@ -1924,3 +1924,21 @@ All 583 unpriced members have exited: of the gaps, 298 acquired, 250 delisted, 4
 
 ## 2026-11-10 — Filing text change score — FLAG — broad universe is mostly unpriced before 2019
 **What:** In `us_small_mid` 73% of the 2014–2018 members (5,208 of 7,107) and 53% of the 2019-onward members (4,803 of 9,102) have no price history from the free source. H10 on the broad universe would trade a survivor-heavy subset, most of all in 2014–2018; the protocol's survivorship kill criterion reads these numbers. The biotech universe's split is in `## 2026-11-06 — Point-in-time universe — VERIFIED — first build on the stack machine`.
+
+## 2026-11-10 — Holdings composite score — VERIFIED — first run on the stack machine
+**What:** First-run step 3e. `compute_holdings_scores.py` and its `--no-floor` run both exited 0, variant `two_component` (short interest is not stored: step 3c did not run, see below), 155 snapshots each for score `h9` versions `1` and `1-no_floor`, none stored before. `test_holdings_composite.py`: 15 passed.
+
+| Year | Members | Below floor | Scored | Left out |
+|---|---|---|---|---|
+| 2014 | 288 / 320 / 343 | 249 / 274 / 298 | 11 / 40 / 46 | 2 / 4 / 32 |
+| 2016 | 381 / 393 / 397 | 336 / 344 / 349 | 40 / 44 / 50 | 3 / 5 / 7 |
+| 2018 | 427 / 447 / 470 | 344 / 357 / 380 | 64 / 79 / 86 | 8 / 12 / 16 |
+| 2020 | 485 / 526 / 588 | 370 / 391 / 430 | 93 / 113 / 134 | 14 / 19 / 27 |
+| 2022 | 557 / 608 / 688 | 407 / 465 / 506 | 116 / 128 / 151 | 21 / 25 / 31 |
+| 2024 | 473 / 497 / 520 | 294 / 321 / 353 | 131 / 142 / 152 | 28 / 33 / 40 |
+| 2026 | 421 / 448 / 456 | 188 / 221 / 234 | 174 / 184 / 209 | 35 / 39 / 55 |
+
+Values are min / median / max over each year's months; the other years sit between their neighbours. From 2015 every month scores at least 40 names, above the basket's 15. Left out with a reason across all months: ticker history uncertain 2,290, multiple share classes 743. The one component pair (specialist 13F ownership with net insider buying) correlates between −0.21 and 0.06 by year, so the composite is not one signal twice. Note `## 2026-11-07 — SEC ownership datasets — FLAG — 13F holder mapping weak from 2014 to 2017`: these snapshots exist for 2014–2017, but H9 must not be evaluated on them until the mapping is checked.
+
+## 2026-11-10 — Short interest snapshots — PENDING — first fetch not run on the stack machine
+**What:** First-run step 3c was not run: `.env` has no FINRA API credential (`FINRA_API_CLIENT_ID`, `FINRA_API_CLIENT_SECRET`), which is the owner's to obtain (`docs/PREREQUISITES.md`). H9 therefore runs its two-component variant everywhere.

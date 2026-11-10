@@ -1,7 +1,9 @@
 # Holdings Composite Score
 
-**Status:** blocked
-**Blocked by:** the first score run on the stack machine (Definition of done, second block, `specs/first-run-on-stack-machine.md` step 3e). All code and the 12 required tests are in `auspex_backtesting.scores`; the run needs the universe build (step 3) and the ownership backfill (step 3b), which cloud sessions cannot reach (no `sec.gov`).
+> Archived. Not authoritative: current behaviour is in docs/ (see docs/README.md).
+
+**Status:** done
+**Blocked by:** —
 - Met in code: `specs/sec-ownership-datasets.md` (readers), `specs/done/ownership-share-basis.md` (one split basis, missing with a reason), `specs/short-interest-snapshots.md` (`ShortInterestStore`), `specs/point-in-time-universe.md` (monthly snapshots with market cap and dollar volume), `specs/done/slow-signal-preregistration.md` (H9 registered).
 **Branch:** `feature/holdings-composite-score`
 **Docs impact:** None: behaviour approved in RES-050…RES-054; the remaining work is acceptance on the stack machine.
