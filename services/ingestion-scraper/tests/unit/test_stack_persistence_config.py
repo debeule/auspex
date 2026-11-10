@@ -3,7 +3,7 @@ volumes, Airflow's secrets from `.env`, Kafka offsets and cluster ID, the projec
 that never offer `down -v` as a fix.
 
 Parses `docker/docker-compose.yml`, `.env.example`, the role script and the docs; no container is
-started. The recreate itself is checked on the stack machine (`specs/first-run-on-stack-machine.md`).
+started. The recreate itself is checked on the stack machine (`specs/done/first-run-on-stack-machine.md`).
 """
 
 import re
@@ -179,7 +179,7 @@ def test_new_secrets_are_documented_in_setup() -> None:
     setup = (REPO_ROOT / "SETUP.md").read_text(encoding="utf-8")
     preflight = next(
         line
-        for line in (REPO_ROOT / "specs" / "first-run-on-stack-machine.md")
+        for line in (REPO_ROOT / "specs" / "done" / "first-run-on-stack-machine.md")
         .read_text(encoding="utf-8")
         .splitlines()
         if line.startswith("test -f .env && for k in")
