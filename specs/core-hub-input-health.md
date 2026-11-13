@@ -62,9 +62,12 @@ core-hub, unit (`src/test/java/dev/auspex/corehub/health/InputHealthServiceTest.
 - `test_a_check_failing_on_every_poll_is_logged_once_until_it_recovers` — input health
 
 core-hub, integration (`src/integrationTest/java/dev/auspex/corehub/rest/InputHealthIT.java`, WireMock for the price service):
-- `test_inputs_route_answers_exactly_the_four_input_sources` — STR-023 (keys and values pinned to the runtime's wire form)
+- `test_inputs_route_answers_exactly_the_four_input_sources` — STR-023 (keys and values pinned to the runtime's wire form; the answer equals `input-health-sample.json` for the same stubbed checks)
 - `test_inputs_route_needs_no_write_token` — HUB-041, input health
 - `test_unknown_route_answers_404_json_not_500` — unknown route, HUB-049
+
+strategy runtime (`services/strategy/tests/unit/test_runtime_components.py`):
+- `test_runtime_reads_core_hub_input_health_fixture` — the JSON answer the core-hub IT asserts against (`services/core-hub/src/integrationTest/resources/input-health-sample.json`, read by path) parsed by `HttpInputHealthClient` gives each input's `UP` or `DOWN` as written, so both services agree on the shape — STR-022, STR-023
 
 price service (`services/backtesting/tests/unit/test_price_freshness.py`):
 - `test_freshness_counts_settled_sessions_after_the_benchmark_last_bar` — price freshness
@@ -78,10 +81,11 @@ Mutation check (ENG-011), each on a disposable copy, each turning a named test r
 ```bash
 cd services/backtesting && uv run ruff check . && uv run pytest tests/unit/test_price_freshness.py -q
 cd ../core-hub && ./gradlew test --tests '*InputHealthServiceTest' --rerun-tasks && ./gradlew integrationTest --tests '*InputHealthIT' --rerun-tasks
+cd ../strategy && uv run pytest tests/unit/test_runtime_components.py -q -k input_health_fixture
 cd ../.. && python3 -m tools.docs_check --base origin/develop
 ```
 
-Expected: 3 passed (price service); 9 unit and 3 integration tests passed in core-hub (CI proves the Gradle lines; cloud sessions have no Maven Central or Docker); `docs_check: clean`. STR-023 reads `tested` with the IT named. On the stack machine after deploy, `curl -s localhost:8080/api/v1/health/inputs` lists four inputs, and the error lines from the runtime's input poll stop.
+Expected: 3 passed (price service); 1 passed (strategy); 9 unit and 3 integration tests passed in core-hub (CI proves the Gradle lines; cloud sessions have no Maven Central or Docker); `docs_check: clean`. STR-023 reads `tested` with the IT named. On the stack machine after deploy, `curl -s localhost:8080/api/v1/health/inputs` lists four inputs, and the error lines from the runtime's input poll stop.
 
 ## Compatibility
 
