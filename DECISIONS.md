@@ -2008,3 +2008,9 @@ Values are min / median / max over each year's months; the other years sit betwe
 **Why it matters:** the 2026-09-13 review took 30 gene-target rows, which cannot separate 0.75 from 0.95, and never looked at mechanisms, repeats or tickers. 50 at 0.85 is also the bar of the protocol's `mapping_quality` criterion.
 **Options considered:** A) ticker records, 50 per label; B) entity records too; C) the current pooled 30.
 **Action:** needs the owner's answer. Recommended: A. If a stratum cannot reach 50 rows before the backfill, the spec stays blocked on it or the owner decides.
+
+## 2026-11-14 — Corroboration quality — CHOICE — the eight amendments approved as recommended
+**Answers:** the eight `2026-11-14 — Corroboration quality — PENDING` entries above: broad entities and synonyms from one rules file; independent sources, not source types; one record per episode; a ticker attaches through two independent sources; no corroboration dated in the future; records rebuilt when the rules change; rules file locked for event evaluations; stratified hand review of ticker records.
+**Choice:** the recommended option of each, with the seed list as written in `specs/corroboration-quality.md`. That includes emptying the `corroboration` table in the migration and rebuilding it from the graph, and carrying STR-024 in this spec. The episode rule supersedes `## 2026-10-07 — Backtest look-ahead fix — CHOICE — one backtest event per corroboration, not per superseding record` from the build's merge on.
+**Takes effect:** with the build PR, which edits the owner docs first and cites this entry; until it merges, `docs/` states current behaviour.
+**Source:** the owner, in the project chat on 2026-11-14, after reading the eight decisions with their recommendations: "all recommended".

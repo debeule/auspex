@@ -1,7 +1,6 @@
 # Corroboration quality
 
-**Status:** blocked
-**Blocked by:** the owner's answer to each `PENDING` entry this spec logged in `DECISIONS.md` on 2026-11-14 (topic `Corroboration quality`, eight entries, listed under Docs amendment below). Every required test here contradicts an approved requirement until its amendment is approved, so none may be written before then (the rule that matters most, root `AGENTS.md`).
+**Status:** ready
 **Branch:** `feature/corroboration-quality`
 **Docs impact:** adds six `COR-new`, one each of `HUB-new`, `CON-new`, `RES-new`, `EVA-new`, `ING-new`, `EXT-new`, `STR-new` and `DSH-new`; retires COR-003, COR-005, COR-007, HUB-046, CON-025, RES-071, ING-011 and EXT-018; changes the IDs listed below.
 - `COR-new` ([docs/core-hub/corroboration.md](../docs/core-hub/corroboration.md)), six: the entity rules file and canonical keys, called *entity rules* below; a broad entity's record, called *exclusion*; what makes two participants independent, called *independence*; the episode and its record, called *episode*; records scoped to a ticker, called *ticker record*; the rules sync at startup, called *rules sync*.
@@ -87,7 +86,7 @@ same_finding:
   title_token_jaccard_min: 0.8
 ```
 
-The first six excluded names are the ones the live data showed (Context); the rest are modality and delivery classes listed by judgment, for the owner to strike or extend before approval. A name is *broad* when, and only when, its canonical key is in `excluded` for its label.
+The first six excluded names are the ones the live data showed (Context); the rest are modality and delivery classes listed by judgment. The owner approved the list as written. A name is *broad* when, and only when, its canonical key is in `excluded` for its label.
 
 - **Canonical key.** For a `GeneTarget`: Unicode NFKC, upper-cased, every character that is not a letter or digit removed (`IL-2`, `il2` and `IL 2` are `IL2`). For a `Mechanism`: NFKC, lower-cased, every run of characters that are not letters or digits turned into one space, trimmed (`CRISPR-Cas9` and `CRISPR/Cas9` are `crispr cas9`). A key listed as a variant is then replaced by its canonical key. `entity_key` is the canonical key, a colon and the label; existing examples keep their form (`BCL11A:GeneTarget`, `base editing:Mechanism`).
 - **Loading.** core-hub reads the file at start from `corroboration.rules-file` in `application.yml` (compose mounts `config/corroboration` read-only and sets the path) and refuses to start when the file is missing or invalid. Invalid means: a name not already in canonical form, a variant listed under two canonical keys, a canonical key that is also a variant, an excluded name that is a variant, a `source_type_pairs` value outside the source types of CON-017, or a threshold outside (0, 1].
@@ -195,7 +194,7 @@ The Flyway migration for this spec (the next free version) empties `corroboratio
 - Trap: Neo4j does not index nulls, so "nodes without a key" is found through the pending signals' own entity nodes, never by a label scan per scan.
 - Trap: the two existing unit tests that assert one group per trigger (`CorroborationScannerTest`) describe the retired COR-005; rewrite them against the reconciler and list them in the PR body.
 
-**Docs amendment (do this first, in the same PR as the code).** Edit the owner docs as Docs impact lists, with IDs from `python3 -m tools.docs_check --next <NS>`, retired IDs moved to `Retired requirements` (ENG-021), and verification rows naming the tests below. Each edit cites the `CHOICE` that answers its `PENDING` entry:
+**Docs amendment (do this first, in the same PR as the code).** Edit the owner docs as Docs impact lists, with IDs from `python3 -m tools.docs_check --next <NS>`, retired IDs moved to `Retired requirements` (ENG-021), and verification rows naming the tests below. Each edit cites `## 2026-11-14 — Corroboration quality — CHOICE — the eight amendments approved as recommended`, which answers these `PENDING` entries:
 
 | Amendment | `PENDING` entry |
 |---|---|
@@ -208,7 +207,7 @@ The Flyway migration for this spec (the next free version) empties `corroboratio
 | *rules lock* | `## 2026-11-14 — Corroboration quality — PENDING — rules file locked for event evaluations` |
 | *stratified review*, EXT-018 | `## 2026-11-14 — Corroboration quality — PENDING — stratified hand review of ticker records` |
 
-When the owner's answer changes a rule, change this spec first, then build. The approved episode rule supersedes `## 2026-10-07 — Backtest look-ahead fix — CHOICE — one backtest event per corroboration, not per superseding record`; the `CHOICE` that approves it says so, and the old entry is not edited (ENG-033).
+The approved episode rule supersedes `## 2026-10-07 — Backtest look-ahead fix — CHOICE — one backtest event per corroboration, not per superseding record`; the approving `CHOICE` says so, and the old entry is not edited (ENG-033).
 
 ## Required tests
 
