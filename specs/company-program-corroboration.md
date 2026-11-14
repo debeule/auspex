@@ -4,11 +4,12 @@
 **Blocked by:**
 1. Met: company-level event extraction (`specs/done/company-level-extraction.md`) — `ResearchSignalEvent` must carry the event type and the company and program identifiers (company CIK or ticker where known, lead sponsor, NCT ID, drug code such as `SRP-9001`) before signals can be matched on them. Use the field names that spec lands; this spec does not add extraction fields.
 2. User approval of the amendment in this spec's Docs impact: changes to COR-003, COR-004 and COR-013 (`docs/core-hub/corroboration.md`) and HUB-030 and HUB-031 (`docs/core-hub/storage.md`). Logged in `DECISIONS.md` 2026-10-07 FLAG "corroboration is matched on gene target, not company".
+3. Corroboration quality (`specs/corroboration-quality.md`) merged: it replaces the record this spec extends (one row per episode, keyed `(entity_key, ticker, participants_hash)`, with `episode_opened_at`, `excluded_reason` and `published_at`), adds ticker records and the entity rules file, and puts `ticker` and `source_types` on `CorroboratedSignalEvent`. Before starting, re-read `docs/core-hub/corroboration.md` and rewrite this spec's parts 2 and 4 and its tests against the record that spec lands.
 
 **Priority (2026-10-07 edge research):** off the alpha path. Corroborated events at 50 to 150 per year cannot reach the promotion t at a realistic 20-day σ of about 22.5%, so this spec serves the research tool and the negative-event veto's company mapping, not a trading trigger. Still valid as written; build it after the slow-signal specs unless the user says otherwise.
 
 **Branch:** `feature/company-program-corroboration`
-**Docs impact:** changes COR-003 (the definition, stated per kind, with a configurable window), COR-004 (adds the `COMPANY_PROGRAM` kind and its `program:` entity key), COR-013 (recency measured against `as_of`), HUB-030 (adds the `Program` node) and HUB-031 (adds `ABOUT_PROGRAM` and `SPONSORED_BY`); adds COR IDs for the `kind`, `tickers`, `window_days` and `mechanism_only` fields and the degree-cap report, and HUB IDs for the `as_of` parameter and the skipped-entities endpoint (`docs/core-hub/corroboration.md`, `docs/core-hub/storage.md`, `docs/core-hub/http-api.md`). Retires nothing.
+**Docs impact:** changes COR-003 (the definition, stated per kind, with a configurable window), COR-004 (adds the `COMPANY_PROGRAM` kind and its `program:` entity key), COR-013 (recency measured against `as_of`), HUB-030 (adds the `Program` node) and HUB-031 (adds `ABOUT_PROGRAM` and `SPONSORED_BY`); adds COR IDs for the `kind` and `window_days` fields and the degree-cap report, and HUB IDs for the `as_of` parameter and the skipped-entities endpoint (`docs/core-hub/corroboration.md`, `docs/core-hub/storage.md`, `docs/core-hub/http-api.md`). Retires nothing.
 
 ---
 
@@ -32,9 +33,9 @@ Audit rows covered here: 4 (core-hub side), 11 and 13.
 2. **A second corroboration kind.** The scheduled run executes two scans and writes both into the existing `corroboration` table:
    - `GENE_TARGET` — today's scan, unchanged. Kept as context; not a trading trigger.
    - `COMPANY_PROGRAM` — signals sharing a `Program` node, distinct `source_type`s, within the window. `entity_key` is `program:<Program.key>`, so the natural key `(entity_key, participants_hash)` and supersession are unchanged.
-   A `kind` column (the next free Flyway version; `NOT NULL`, no default) and a `tickers` array are added. `CorroboratedSignalEvent` gains `kind` and `tickers` (additive; consumers already ignore unknown fields). Both scans stay behind `CorroborationService` — this is a second scanner inside the existing implementation, not a new implementation, so the contract test runs unmodified.
+   A `kind` column (the next free Flyway version; `NOT NULL`, no default) is added, and `CorroboratedSignalEvent` gains `kind` (additive; consumers already ignore unknown fields). The ticker of a `COMPANY_PROGRAM` record goes in the record's existing `ticker` column, one record per ticker. Both scans stay behind `CorroborationService` — this is a second scanner inside the existing implementation, not a new implementation, so the contract test runs unmodified.
 3. **Configurable window.** `corroboration.window-days` (default 90) replaces the hard-coded constant, so 7- and 30-day variants can be run as pre-registered alternatives (row 11). The Python side records which window produced a corroboration through a `window_days` column.
-4. **Mechanism-only matches flagged.** A `GENE_TARGET` corroboration whose only shared entity is a `Mechanism` (AAV, CRISPR) carries `mechanism_only = true`. Trading consumers exclude these (row 11).
+4. **Mechanism records told apart.** Broad mechanisms (AAV, CRISPR) are already excluded by the entity rules file (blocker 3). Whether the remaining `Mechanism` records need a flag for trading consumers is decided when this spec is rewritten against that record (row 11).
 5. **Degree-cap report.** Each scan logs and counts (`auspex.corroboration.entities.skipped.total`, tagged by label) the entities skipped by the degree cap, and `GET /api/v1/corroborations/skipped-entities` lists them with their degree. The audit asks whether core targets such as DMD are silently skipped (row 11).
 6. **Point-in-time score.** `CorroborationScorer.score(distinctSourceCount, corroboratedAt, asOf)` measures recency against `asOf`, never the wall clock, and the `Clock` dependency moves out of the scorer. `SignalQueryService` (the only caller, which scores at read time) passes an explicit `asOf`: the new optional `as_of` query parameter on the corroboration endpoints, defaulting to now for live reads. A backtest querying with `as_of` gets the same score on any run date (row 13).
 
@@ -42,7 +43,7 @@ Audit rows covered here: 4 (core-hub side), 11 and 13.
 
 - New extraction fields or prompt changes (company-level event extraction spec).
 - Typed-event hypotheses and their registration (pre-registration work, first wave).
-- Changes to how the backtesting module builds events from corroborations (backtest look-ahead fix, first wave). This spec only adds `kind`, `tickers`, `window_days` and `mechanism_only` for it to filter on.
+- Changes to how the backtesting module builds events from corroborations (backtest look-ahead fix, first wave). This spec only adds `kind` and `window_days` for it to filter on.
 - A Kafka Streams implementation (`specs/kafka-streams-correlation.md`).
 - Dropping `GENE_TARGET` corroboration.
 
@@ -73,8 +74,7 @@ Integration (`./gradlew integrationTest`):
 - `CompanyProgramCorroborationIT.twoSourcesOnTheSameProgramProduceOneCompanyProgramCorroboration`
 - `CompanyProgramCorroborationIT.sameGeneTargetDifferentCompaniesProducesNoCompanyProgramCorroboration` — DMD paper + DMD trial sponsored by an unrelated company → `GENE_TARGET` row only
 - `CompanyProgramCorroborationIT.sameCompanyDifferentProgramsDoNotCorroborate`
-- `CompanyProgramCorroborationIT.corroborationEventCarriesKindAndResolvedTickers`
-- `CompanyProgramCorroborationIT.mechanismOnlyGeneTargetCorroborationIsFlagged`
+- `CompanyProgramCorroborationIT.corroborationEventCarriesKindAndItsTicker`
 - `CompanyProgramCorroborationIT.degreeCapSkipsAreCountedAndListed`
 - `CompanyProgramCorroborationIT.corroborationRecordsTheWindowDaysThatProducedIt`
 - `CompanyProgramCorroborationIT.companyNodesWithNullCikAreNotMerged` — two unrelated companies without CIK stay two nodes
@@ -87,7 +87,7 @@ Integration (`./gradlew integrationTest`):
 cd services/core-hub && ./gradlew test --rerun-tasks && ./gradlew integrationTest --rerun-tasks
 ```
 
-Expected: 6 new unit tests and 9 new integration tests pass alongside the existing suite; `build/reports/tests/` shows a non-zero count for both tasks; the contract test file is unchanged in the diff.
+Expected: 6 new unit tests and 8 new integration tests pass alongside the existing suite; `build/reports/tests/` shows a non-zero count for both tasks; the contract test file is unchanged in the diff.
 
 Then: the IDs listed under Docs impact amended in `docs/core-hub/`; `services/core-hub/README.md` corroboration section updated; the degree-cap report run against the stack and its result (which watched targets exceed the cap) recorded in `DECISIONS.md`.
 

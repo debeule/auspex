@@ -1948,3 +1948,63 @@ Values are min / median / max over each year's months; the other years sit betwe
 
 ## 2026-11-10 — First run on the stack machine — CHOICE — steps 7 and 8 not run in this pass
 **What:** Step 7 (backfill dry run) needs PR #8 merged; it is still open and `services/ingestion-scraper/scripts/run_backfill.py` is not on `develop`. Step 8 (stack checks other done specs left for this machine) found 20 done specs naming the stack machine; five are closed by this run (point-in-time universe, catalyst panel, SEC ownership, filing text, holdings score) and the rest are left for a follow-up pass, which the spec allows ("steps 7–8 may be recorded as skipped").
+
+## 2026-11-14 — Corroboration quality — CHOICE — scope of the corroboration-quality spec
+**What:** `specs/corroboration-quality.md` covers broad entities and synonyms, independent sources, episode records, ticker records, the future-date gate, the rebuild when the rules change, the backtest's replay, a hash lock on the rules file and the stratified hand review. It carries STR-024 (ticker and source types on the corroborated event), because the ticker becomes part of the record key. It leaves out company-node identity (HUB-034, HUB-035), any change to the score (COR-013), extraction emitting fewer mechanisms, and the degree cap, which is not a cause: the busiest entity has 107 signals against a cap of 500.
+**Why it matters:** the pieces kept together define one thing, the corroboration event; landing them apart would leave core-hub and the backtest disagreeing between merges.
+**Options considered:** A) one spec for the event definition, with the Mac gates; B) a core-hub spec and a research spec; C) fold company identity and a score term in as well.
+**Action:** A. `specs/company-program-corroboration.md` is edited in the same PR: it is blocked by this spec and no longer proposes its own `tickers` array or `mechanism_only` flag.
+
+## 2026-11-14 — Corroboration quality — CHOICE — no hypothesis version and no trial is spent
+**What:** The spec changes what a corroboration event is for `h1` to `h7` (each joins on `corroborated_at`). It edits none of their files. On `develop` @ `0063179` no backtest has read a corroboration: `config/hypotheses/trials/` does not exist, so no cell was ever reserved (EVA-011); `config/hypotheses/registry.jsonl` has one line per hypothesis, all from 2026-10-09; `h1`, `h4` and `h6` are `suspended` and refused before returns are read (EVA-009).
+**Why it matters:** thresholds fixed after returns were read would spend trials and make the later edge test unfalsifiable.
+**Options considered:** A) treat the change as a new version of each hypothesis; B) no new version, since nothing has been evaluated and EVA-003 keeps one version until the first evaluation.
+**Action:** B. The spec's stack-machine steps check that the ledger is still absent before the rules are signed off, and the rules file is locked by hash from then on (see the PENDING entry on the rules lock).
+
+## 2026-11-14 — Corroboration quality — PENDING — broad entities and synonyms from one rules file
+**What:** Amends COR-004 and adds two COR requirements. `config/corroboration/entity-rules.yaml` holds a synonym map and an excluded list per node label. An entity's key is its canonical name: gene targets upper-cased with separators removed, mechanisms lower-cased with punctuation as one space, variants mapped to their canonical key. A record on an excluded entity is stored with `excluded_reason = broad_entity`, shown in REST and the dashboard with that reason, and left out of the score, the published topic, ticker records and backtest events. The list is curated; a measured report on the stack machine only flags candidates and is run again after the backfill.
+**Why it matters:** `gene therapy:Mechanism` alone is 101 of 375 live rows, and spelling variants split real agreement. Nine days of data from 30-day look-backs cannot support a measured frequency threshold that would still hold after the backfill.
+**Options considered:** A) curated list and map in one file; B) a measured document-frequency threshold; C) drop `Mechanism` as a corroboration entity.
+**Action:** needs the owner's answer. Recommended: A, with the seed list in the spec (six names seen in live data, fourteen by judgment, for the owner to strike or extend).
+
+## 2026-11-14 — Corroboration quality — PENDING — independent sources, not source types
+**What:** Retires COR-003's "different `source_type`s" and changes what `distinct_source_count` counts (COR-005, and through it the diversity term of COR-013, whose formula stays). Two participants are independent when their source types differ and they are not the same finding. Same finding: the two source types are a pair the rules file lists (`biorxiv` with `pubmed`) and their titles' token sets overlap at a Jaccard of 0.8 or more. A patent family already counts once, since its members share a source type.
+**Why it matters:** 60 of 375 live rows are bioRxiv + PubMed only, and the score rewards a preprint and its paper as two sources.
+**Options considered:** A) title overlap across listed pairs; B) carry bioRxiv's link to the published DOI and the authors on the event (a wire and schema change); C) count bioRxiv and PubMed as one source type.
+**Action:** needs the owner's answer. Recommended: A now, B as a later improvement if the hand review shows misses.
+
+## 2026-11-14 — Corroboration quality — PENDING — one record per episode
+**What:** Retires COR-005, COR-007, CON-025 and RES-071 and replaces them; changes COR-009, COR-012, CON-032, CON-033 and CON-034; rewords RES-067. An episode opens when the signals of the trailing 90 days hold two independent sources, takes joiners for 90 days after that opening, then closes; every signal is in at most one episode per scope. There is one live record per episode, with `episode_opened_at` beside `corroborated_at` (still the latest participant's `published_date`). A scan recomputes the episodes of each entity its pending signals touch and makes the table agree; a joining signal supersedes and is published once, as today. The record key becomes `(entity_key, ticker, participants_hash)`. The backtest drops its own replay rule for a port of the same function, checked against one shared case file, and fires at the opening. Once approved this supersedes `## 2026-10-07 — Backtest look-ahead fix — CHOICE — one backtest event per corroboration, not per superseding record`: a joiner's evidence is no longer reused to open the next event.
+**Why it matters:** each pending signal writes its own group today, so groups overlap without nesting and one entity holds 101 live rows, each published.
+**Options considered:** A) open on the completing signal, close one window later; B) a chain of signals each within the window of the next (never closes on a busy entity); C) keep core-hub's rows and collapse only in REST and the dashboard.
+**Action:** needs the owner's answer. Recommended: A. It changes what is published: one event per episode record, not one per pending signal.
+
+## 2026-11-14 — Corroboration quality — PENDING — a ticker attaches through two independent sources
+**What:** Adds a COR requirement, retires HUB-046 for a new one, closes STR-024 and adds one STR and one DSH requirement. A ticker record is an episode built only from the entity's signals that mention a company carrying that ticker, so it exists only when two independent sources on the same entity both name the company, and it opens when the second of them was published. `GET /api/v1/signals/{ticker}` returns ticker records as `corroborated_signals`, and the entity records that merely touch one of the ticker's signals as `context_corroborations` with a reason and no score. The corroborated event carries `ticker` and `source_types`; the runtime skips an event with no ticker.
+**Why it matters:** 305 of 375 live rows reach a ticker through a single participant, so a gene-therapy row lands on every company with one gene-therapy signal.
+**Options considered:** A) ticker scopes as records; B) a ticker list on the entity record (dates the ticker before its second source was public); C) wait for company-program corroboration.
+**Action:** needs the owner's answer. Recommended: A, and STR-024 carried here rather than left to company-program corroboration.
+
+## 2026-11-14 — Corroboration quality — PENDING — no corroboration dated in the future
+**What:** Changes COR-011 and retires ING-011 for a new requirement. A scan reads and groups only signals whose `published_date` is not after the service clock; a future-dated signal stays pending until its date. The table refuses a record whose `corroborated_at` is after its `first_detected_at` or before its `episode_opened_at`. PubMed's `published_date` becomes the earliest of the electronic article date and the date the record entered PubMed, never the journal issue date and never after retrieval.
+**Why it matters:** three PubMed signals are dated up to 2027-10-20 and three live rows carry a `corroborated_at` after today, which breaks the recency score, point-in-time alignment and any live trigger. COR-011 says no clock decides what a scan sees; this is the one exception.
+**Options considered:** A) hold in core-hub and fix the connector; B) reject future-dated signals at consumption; C) fix the connector only.
+**Action:** needs the owner's answer. Recommended: A. The three stored signals stay held until their date.
+
+## 2026-11-14 — Corroboration quality — PENDING — records rebuilt when the rules change
+**What:** Adds a COR requirement and changes COR-008, HUB-030 and HUB-032. core-hub stores the hash of the rules file it last applied. On a start where the file's hash differs, it sets `corroboration_key` on every entity node and marks every signal pending, then stores the hash; scans do nothing until it has. Ordinary scans then bring every record under the new rules. The migration for this change empties the `corroboration` table (495 rows on 2026-11-15) instead of converting them; the first sync rebuilds them from the graph.
+**Why it matters:** existing records must come under the new rules without a hand-run script (OPS-009), and the old rows have no ticker, opening time or publication mark.
+**Options considered:** A) empty and rebuild: the rows are derived data that no backtest and no `paper` strategy has used; B) keep the old rows, marked superseded, with defaults in the new columns.
+**Action:** needs the owner's answer. Recommended: A. It deletes rows, so it waits for an explicit yes; the nightly backup holds them.
+
+## 2026-11-14 — Corroboration quality — PENDING — rules file locked for event evaluations
+**What:** Adds an EVA requirement. The rules file is registered in `config/hypotheses/registry.jsonl` under `corroboration_rules`. Every event evaluation refuses a rules file that is unregistered or changed since its registration, and records the hash in its result. A change is a new registry line with a `DECISIONS.md` entry.
+**Why it matters:** the list, the synonym map and the title threshold define the event. Without a lock they could be edited after returns were read and nothing would notice.
+**Options considered:** A) lock by hash through the existing registry; B) record the hash in `DECISIONS.md` only.
+**Action:** needs the owner's answer. Recommended: A.
+
+## 2026-11-14 — Corroboration quality — PENDING — stratified hand review of ticker records
+**What:** Retires EXT-018 for a new requirement. The review samples live ticker records, 50 per entity label, with a recorded seed; each is judged on "these signals report the same specific finding about the same entity, and the attached ticker is that finding's company"; it passes at 0.85 or more in each stratum, and a stratum with fewer than 50 rows is `insufficient`. A session on the stack machine labels with the evidence; the owner signs off in a `CHOICE`.
+**Why it matters:** the 2026-09-13 review took 30 gene-target rows, which cannot separate 0.75 from 0.95, and never looked at mechanisms, repeats or tickers. 50 at 0.85 is also the bar of the protocol's `mapping_quality` criterion.
+**Options considered:** A) ticker records, 50 per label; B) entity records too; C) the current pooled 30.
+**Action:** needs the owner's answer. Recommended: A. If a stratum cannot reach 50 rows before the backfill, the spec stays blocked on it or the owner decides.
