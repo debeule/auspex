@@ -1,19 +1,20 @@
 #!/usr/bin/env python
-"""Sample corroboration records for manual quality review.
+"""Sample live ticker records for the corroboration hand review (EXT-022).
 
-Connects to the live Postgres + Neo4j instances (from .env), draws a
-deterministic sample of N corroboration records, enriches each with signal
-titles/summaries from Neo4j, and writes a JSONL review file.
+Reads the live Postgres + Neo4j instances (from .env), draws a deterministic
+sample of up to --per-label live ticker records per entity label, enriches each
+with its participants' titles, snippets and sources, and writes a JSONL file.
 
 Usage:
     uv run python scripts/sample_corroborations.py \\
-        [--seed 42] [--n 30] [--output review.jsonl]
+        [--seed 42] [--per-label 50] [--output review.jsonl]
 
-The output file has one JSON object per line. Open it in any text editor,
-add a "verdict" field to each line ("genuine", "coincidental", or
-"extraction_error"), then run:
+Label each line's "verdict" against the statement "these signals report the
+same specific finding about the same entity, and the attached ticker is that
+finding's company": "genuine" when it holds, otherwise "coincidental",
+"wrong_ticker" or "extraction_error". Then run:
 
-    uv run python scripts/score_corroboration_review.py review.jsonl
+    uv run python scripts/score_corroboration_review.py review.jsonl --minimum 50
 
 Never run this in CI — it hits live infrastructure.
 """
@@ -25,7 +26,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
-from auspex_ingest.sampling import sample_corroborations
+from auspex_ingest.sampling import sample_ticker_records
 
 
 def _load_env() -> dict[str, str]:
@@ -56,14 +57,15 @@ def _fetch_corroborations(env: dict[str, str]) -> list[dict]:
         with conn.cursor() as cur:
             cur.execute("""
                 SELECT entity_key,
+                       ticker,
                        participants_hash,
                        participant_event_ids::text[],
                        distinct_source_count,
-                       corroborated_at,
-                       first_detected_at
+                       episode_opened_at,
+                       corroborated_at
                 FROM corroboration
-                WHERE superseded_by IS NULL
-                ORDER BY corroborated_at DESC
+                WHERE superseded_by IS NULL AND excluded_reason IS NULL AND ticker <> ''
+                ORDER BY entity_key, ticker, participants_hash
             """)
             rows = cur.fetchall()
     finally:
@@ -72,11 +74,12 @@ def _fetch_corroborations(env: dict[str, str]) -> list[dict]:
     return [
         {
             "entity_key": r[0],
-            "participants_hash": r[1],
-            "participant_event_ids": list(r[2]),
-            "distinct_source_count": r[3],
-            "corroborated_at": r[4].isoformat(),
-            "first_detected_at": r[5].isoformat(),
+            "ticker": r[1],
+            "participants_hash": r[2],
+            "participant_event_ids": list(r[3]),
+            "distinct_source_count": r[4],
+            "episode_opened_at": r[5].isoformat(),
+            "corroborated_at": r[6].isoformat(),
         }
         for r in rows
     ]
@@ -98,6 +101,7 @@ def _enrich_with_signals(records: list[dict], env: dict[str, str]) -> list[dict]
                     MATCH (s:Signal) WHERE s.event_id IN $eventIds
                     RETURN s.event_id AS eventId,
                            s.source_type AS sourceType,
+                           s.source_url AS sourceUrl,
                            s.title AS title,
                            s.summary AS summary,
                            s.published_date.epochSeconds AS publishedDateEpoch,
@@ -109,6 +113,7 @@ def _enrich_with_signals(records: list[dict], env: dict[str, str]) -> list[dict]
                     {
                         "event_id": r["eventId"],
                         "source_type": r["sourceType"],
+                        "source_url": r["sourceUrl"],
                         "title": r["title"],
                         "summary": r["summary"],
                         "published_date_epoch": r["publishedDateEpoch"],
@@ -126,7 +131,7 @@ def _enrich_with_signals(records: list[dict], env: dict[str, str]) -> list[dict]
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--seed", type=int, default=42, help="RNG seed for deterministic sampling")
-    parser.add_argument("--n", type=int, default=30, help="Number of records to sample")
+    parser.add_argument("--per-label", type=int, default=50, help="Records to sample per entity label")
     parser.add_argument("--output", default="review.jsonl", help="Output JSONL file path")
     args = parser.parse_args()
 
@@ -134,13 +139,13 @@ def main() -> None:
 
     print("Fetching corroboration records from Postgres…", flush=True)
     all_records = _fetch_corroborations(env)
-    print(f"  Found {len(all_records)} non-superseded corroborations.", flush=True)
+    print(f"  Found {len(all_records)} live ticker records.", flush=True)
 
     if not all_records:
-        print("No corroborations found. Run the pipeline with real data first.", file=sys.stderr)
+        print("No live ticker records found.", file=sys.stderr)
         sys.exit(1)
 
-    sample = sample_corroborations(all_records, args.n, seed=args.seed)
+    sample = sample_ticker_records(all_records, args.per_label, seed=args.seed)
     print(f"  Sampled {len(sample)} records (seed={args.seed}).", flush=True)
 
     print("Enriching with signal details from Neo4j…", flush=True)
@@ -152,9 +157,8 @@ def main() -> None:
             f.write(json.dumps(record, default=str) + "\n")
 
     print(f"\nWrote {len(enriched)} records to {out}")
-    print("Next: open the file, add a 'verdict' field to each line")
-    print("      (\"genuine\", \"coincidental\", or \"extraction_error\")")
-    print("Then: uv run python scripts/score_corroboration_review.py", out)
+    print("Next: set each line's 'verdict' (see this script's docstring), then run")
+    print(f"      uv run python scripts/score_corroboration_review.py {out} --minimum {args.per_label}")
 
 
 if __name__ == "__main__":

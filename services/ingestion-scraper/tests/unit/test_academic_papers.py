@@ -240,3 +240,64 @@ def test_connector_runs_through_the_unchanged_ingestion_pipeline():
     result = pipeline.run("biorxiv", _CURSOR)
     assert result.fetched == 2
     assert result.failed == 0
+
+
+def _pubmed_article(
+    *,
+    issue: str | None = None,
+    electronic: str | None = None,
+    history: dict[str, str] | None = None,
+) -> str:
+    def date_xml(tag: str, iso: str, attrs: str = "") -> str:
+        year, month, day = iso.split("-")
+        return f"<{tag}{attrs}><Year>{year}</Year><Month>{month}</Month><Day>{day}</Day></{tag}>"
+
+    issue_xml = date_xml("PubDate", issue) if issue else ""
+    electronic_xml = date_xml("ArticleDate", electronic, ' DateType="Electronic"') if electronic else ""
+    history_xml = "".join(
+        date_xml("PubMedPubDate", iso, f' PubStatus="{status}"') for status, iso in (history or {}).items()
+    )
+    return f"""<?xml version="1.0" encoding="UTF-8"?>
+<PubmedArticleSet><PubmedArticle>
+  <MedlineCitation><PMID>40000001</PMID><Article>
+    <Journal><JournalIssue>{issue_xml}</JournalIssue></Journal>
+    <ArticleTitle>BCL11A enhancer editing</ArticleTitle>
+    <Abstract><AbstractText>Text.</AbstractText></Abstract>
+    {electronic_xml}
+  </Article></MedlineCitation>
+  <PubmedData><History>{history_xml}</History></PubmedData>
+</PubmedArticle></PubmedArticleSet>"""
+
+
+def _pubmed_published(xml: str) -> datetime:
+    respx.get(url__regex=r"eutils\.ncbi\.nlm\.nih\.gov/entrez/eutils/esearch").mock(
+        return_value=Response(200, json=_PUBMED_ESEARCH)
+    )
+    respx.get(url__regex=r"eutils\.ncbi\.nlm\.nih\.gov/entrez/eutils/efetch").mock(
+        return_value=Response(200, text=xml)
+    )
+    (doc,) = list(_pubmed().fetch_since(_CURSOR))
+    return doc.published_date
+
+
+@respx.mock
+def test_pubmed_published_date_is_never_the_journal_issue_date():
+    xml = _pubmed_article(issue="2024-03-01", electronic="2024-05-20", history={"pubmed": "2024-05-22"})
+
+    assert _pubmed_published(xml) == datetime(2024, 5, 20, tzinfo=UTC)
+
+
+@respx.mock
+def test_pubmed_without_an_electronic_date_uses_the_date_it_entered_pubmed():
+    xml = _pubmed_article(issue="2024-01-01", history={"entrez": "2024-05-03", "pubmed": "2024-05-02"})
+
+    assert _pubmed_published(xml) == datetime(2024, 5, 2, tzinfo=UTC)
+
+
+@respx.mock
+def test_pubmed_published_date_is_never_after_retrieval():
+    future_issue = _pubmed_article(issue="2024-09-01", electronic="2024-07-01", history={"pubmed": "2024-08-01"})
+    no_dates = _pubmed_article(issue="2024-09-01")
+
+    assert _pubmed_published(future_issue) == _NOW
+    assert _pubmed_published(no_dates) == _NOW

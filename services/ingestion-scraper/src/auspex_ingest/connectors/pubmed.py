@@ -118,7 +118,7 @@ class PubmedConnector(SourceConnector):
                 doi = aid.text.strip()
                 break
 
-        published_date = self._parse_date(article)
+        published_date = self._parse_date(article, retrieved_at)
 
         return RawDocument(
             schema_version="1.0",
@@ -132,20 +132,36 @@ class PubmedConnector(SourceConnector):
             retrieved_at=retrieved_at,
         )
 
-    def _parse_date(self, article: ElementTree.Element) -> datetime:
-        for path in [".//ArticleDate[@DateType='Electronic']", ".//JournalIssue/PubDate"]:
-            el = article.find(path)
-            if el is not None:
-                year_el = el.find("Year")
-                month_el = el.find("Month")
-                day_el = el.find("Day")
-                if year_el is not None and year_el.text:
-                    year = int(year_el.text)
-                    raw_month = month_el.text if month_el is not None and month_el.text else "1"
-                    month = self._parse_month(raw_month)
-                    day = int(day_el.text) if day_el is not None and day_el.text else 1
-                    return datetime(year, month, day, tzinfo=UTC)
-        return self._now()
+    def _parse_date(self, article: ElementTree.Element, retrieved_at: datetime) -> datetime:
+        """ING-042: the earliest of the electronic article date and the date the record entered
+        PubMed (`pubmed`, else `entrez`), never the journal issue date and never after
+        `retrieved_at`; with neither date, `retrieved_at`."""
+        dates: list[datetime] = []
+        electronic = self._date(article.find(".//ArticleDate[@DateType='Electronic']"))
+        if electronic is not None:
+            dates.append(electronic)
+        for status in ("pubmed", "entrez"):
+            entered = self._date(
+                article.find(f".//PubmedData/History/PubMedPubDate[@PubStatus='{status}']")
+            )
+            if entered is not None:
+                dates.append(entered)
+                break
+        if not dates:
+            return retrieved_at
+        return min(min(dates), retrieved_at)
+
+    def _date(self, el: ElementTree.Element | None) -> datetime | None:
+        if el is None:
+            return None
+        year_el = el.find("Year")
+        if year_el is None or not year_el.text:
+            return None
+        month_el = el.find("Month")
+        day_el = el.find("Day")
+        month = self._parse_month(month_el.text) if month_el is not None and month_el.text else 1
+        day = int(day_el.text) if day_el is not None and day_el.text else 1
+        return datetime(int(year_el.text), month, day, tzinfo=UTC)
 
     @staticmethod
     def _parse_month(value: str) -> int:
