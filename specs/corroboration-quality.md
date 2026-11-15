@@ -1,7 +1,7 @@
 # Corroboration quality
 
 **Status:** blocked
-**Blocked by:** part 2 of the definition of done (rebuild, structural gates, hand review), run on the stack machine after the merge
+**Blocked by:** the hand review of part 2: no live ticker records yet (rebuild and structural gates passed 2026-11-15); needs the historical backfill and company-program corroboration
 **Branch:** `feature/corroboration-quality`
 **Docs impact:** adds COR-015 to COR-020, HUB-053, CON-038, RES-083, EVA-029, ING-042, EXT-022, STR-062 and DSH-019; retires eight IDs, each listed under its owner doc's `Retired requirements` with its replacement; changes the IDs listed below. The names in italics are the ones this spec used before the IDs were assigned.
 - [docs/core-hub/corroboration.md](../docs/core-hub/corroboration.md): COR-015 *entity rules* (the rules file and canonical keys), COR-016 *exclusion* (a broad entity's record), COR-017 *independence*, COR-018 *episode* (the episode and its record), COR-019 *ticker record*, COR-020 *rules sync*. The former window rule, one-record-per-group rule and supersession rule are retired, replaced by COR-017 and COR-018.
@@ -393,3 +393,7 @@ Revert the PR and add one migration that restores the old table shape (an applie
 - **Known limits kept**: a ticker is today's SEC mapping; a same-finding match needs titles and catches only the pairs the file lists; authors and bioRxiv's own link to the published paper are not on the event (a wire change, left for later).
 - **Extraction specificity** deserves its own spec: fewer, more specific mechanisms would shrink the excluded list.
 - `specs/core-hub-input-health.md` is not affected.
+
+## Handoff
+
+2026-11-15, part 2 on the stack machine: the rebuild and the structural gates passed and are recorded in `DECISIONS.md` (`## 2026-11-15 — Corroboration quality — VERIFIED — rebuild and structural gates on the stack machine`). Steps 5 and 6 of part 2 remain: the hand review found 0 live ticker records, so both strata are `insufficient`, and the owner kept the spec blocked until ticker records exist (after the historical backfill and company-program corroboration). To resume: run `sample_corroborations.py --per-label 50` with a new seed once live ticker records reach 50 per label, label and score them, then write the `VERIFIED` entry with the per-stratum result and the owner's sign-off.
