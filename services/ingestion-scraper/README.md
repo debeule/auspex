@@ -64,7 +64,7 @@ What each connector fetches and how it dates a document is in [connectors.md](..
 | `scripts/check_leakage.py` | Leakage canary for a model's claimed cutoff |
 | `scripts/compare_models.py` | Cross-model agreement: Jaccard, directionality, confidence correlation |
 | `scripts/register_local_model.py` | Add a pulled Ollama model to `config/models/registry.yaml` with its live digest (fields from `config/models/local_candidates.yaml`) |
-| `scripts/sample_corroborations.py` | Pull a sample of corroborations from the live stores for review |
+| `scripts/sample_corroborations.py` | Pull a per-label sample of live ticker records from the stores for the hand review |
 | `scripts/score_corroboration_review.py` | Score a completed corroboration review |
 
 What the evaluation scripts gate on is in [extraction.md](../../docs/ingestion/extraction.md).
