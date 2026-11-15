@@ -283,6 +283,7 @@ public class WatchlistService {
                     SELECT entity_key, corroborated_at, distinct_source_count
                     FROM corroboration
                     WHERE superseded_by IS NULL
+                      AND ticker = ''
                       AND SPLIT_PART(entity_key, ' | ', 1) = ANY(?)
                     ORDER BY corroborated_at DESC
                     """);

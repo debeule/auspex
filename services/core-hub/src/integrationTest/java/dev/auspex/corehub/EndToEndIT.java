@@ -162,12 +162,16 @@ class EndToEndIT extends AbstractIT {
         assertThat(body.at("/direct_signals").size()).isEqualTo(1);
         assertThat(body.at("/direct_signals/0/source_type").asText()).isEqualTo("biorxiv");
 
-        // BCL11A is shared between both sources → exactly one corroboration
-        assertThat(body.at("/corroborated_signals").size()).isEqualTo(1);
-        assertThat(body.at("/corroborated_signals/0/entity_key").asText())
+        // BCL11A is shared between both sources → one entity corroboration. Only SIGNAL_1 names
+        // Beam, so BEAM gets no ticker record: the corroboration is context for the ticker.
+        assertThat(body.at("/corroborated_signals").size()).isZero();
+        assertThat(body.at("/context_corroborations").size()).isEqualTo(1);
+        assertThat(body.at("/context_corroborations/0/entity_key").asText())
                 .isEqualTo("BCL11A:GeneTarget");
+        assertThat(body.at("/context_corroborations/0/reason").asText())
+                .isEqualTo("no_independent_pair_for_ticker");
 
-        var participants = body.at("/corroborated_signals/0/participant_event_ids");
+        var participants = body.at("/context_corroborations/0/participant_event_ids");
         assertThat(participants.size()).isEqualTo(2);
         assertThat(participants.toString()).contains(EID1).contains(EID2);
     }

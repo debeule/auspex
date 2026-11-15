@@ -510,6 +510,9 @@ services:
       CORE_HUB_WRITE_TOKEN: ${CORE_HUB_WRITE_TOKEN}
       # The JVM's default heap is a quarter of the container limit, too little for this service.
       JAVA_TOOL_OPTIONS: ${CORE_HUB_JAVA_TOOL_OPTIONS}
+      CORROBORATION_RULES_FILE: file:/app/config/corroboration/entity-rules.yaml
+    volumes:
+      - ../config/corroboration:/app/config/corroboration:ro
     ports:
       - "127.0.0.1:8080:8080"
     healthcheck:

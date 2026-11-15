@@ -1,0 +1,33 @@
+# Which entity names are one entity, which entities are too broad to corroborate, and which
+# participants report one finding. Read by core-hub at start and by the backtest; locked by the
+# evaluation protocol under the registry id `corroboration_rules`. Names are canonical keys.
+synonyms:            # canonical key: [variant keys], per node label
+  Mechanism:
+    gene editing: [genome editing]
+  GeneTarget: {}
+excluded:            # canonical keys, per node label
+  Mechanism:
+    - gene therapy
+    - aav gene therapy
+    - aav
+    - gene editing
+    - crispr cas9
+    - crispr cas12a
+    - crispr
+    - cell therapy
+    - gene replacement therapy
+    - viral vector
+    - lentiviral vector
+    - lipid nanoparticle
+    - mrna
+    - sirna
+    - rnai
+    - antisense oligonucleotide
+    - immunotherapy
+    - car t
+    - monoclonal antibody
+    - small molecule
+  GeneTarget: []
+same_finding:
+  source_type_pairs: [[biorxiv, pubmed]]
+  title_token_jaccard_min: 0.8

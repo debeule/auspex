@@ -75,22 +75,24 @@ class SignalRestIT extends AbstractIT {
         }
     }
 
-    private void insertCorroboration(String entityKey, String participantsHash, String[] participantIds,
+    private void insertCorroboration(String entityKey, String ticker, String participantsHash, String[] participantIds,
                                       int distinctSourceCount, Instant corroboratedAt, String supersededBy) {
         jdbcTemplate.update(con -> {
             PreparedStatement ps = con.prepareStatement("""
                     INSERT INTO corroboration
-                        (entity_key, participants_hash, participant_event_ids,
-                         distinct_source_count, corroborated_at, first_detected_at, superseded_by)
-                    VALUES (?, ?, ?, ?, ?, now(), ?)
+                        (entity_key, ticker, participants_hash, participant_event_ids, distinct_source_count,
+                         corroborated_at, episode_opened_at, first_detected_at, superseded_by)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, now(), ?)
                     """);
             ps.setString(1, entityKey);
-            ps.setString(2, participantsHash);
+            ps.setString(2, ticker);
+            ps.setString(3, participantsHash);
             Array arr = con.createArrayOf("uuid", participantIds);
-            ps.setArray(3, arr);
-            ps.setInt(4, distinctSourceCount);
-            ps.setTimestamp(5, Timestamp.from(corroboratedAt));
-            ps.setString(6, supersededBy);
+            ps.setArray(4, arr);
+            ps.setInt(5, distinctSourceCount);
+            ps.setTimestamp(6, Timestamp.from(corroboratedAt));
+            ps.setTimestamp(7, Timestamp.from(corroboratedAt));
+            ps.setString(8, supersededBy);
             return ps;
         });
     }
@@ -121,8 +123,8 @@ class SignalRestIT extends AbstractIT {
         insertSignal(R4, "fda", "2024-01-12T00:00:00Z", 0.65);
         addCompanyMention(R4, "Pfizer Inc", "PFE");
 
-        // Corroboration for {R1, R2} on BCL11A:GeneTarget
-        insertCorroboration("BCL11A:GeneTarget", "hash-r1-r2",
+        // MRNA ticker record for {R1, R2} on BCL11A:GeneTarget
+        insertCorroboration("BCL11A:GeneTarget", "MRNA", "hash-r1-r2",
                 new String[]{R1, R2}, 2,
                 Instant.parse("2024-01-20T00:00:00Z"), null);
 
@@ -132,11 +134,10 @@ class SignalRestIT extends AbstractIT {
                 // Direct: R1 and R3 mention MRNA
                 .andExpect(jsonPath("$.direct_signals").isArray())
                 .andExpect(jsonPath("$.direct_signals.length()").value(2))
-                // Corroborated: one record involving BCL11A:GeneTarget (includes R2 — the product claim)
+                // Corroborated: the MRNA ticker record on BCL11A:GeneTarget
                 .andExpect(jsonPath("$.corroborated_signals").isArray())
                 .andExpect(jsonPath("$.corroborated_signals.length()").value(1))
                 .andExpect(jsonPath("$.corroborated_signals[0].entity_key").value("BCL11A:GeneTarget"))
-                // Participant list includes R2 which does not mention MRNA — the product claim
                 .andExpect(jsonPath("$.corroborated_signals[0].participant_event_ids",
                         Matchers.hasItems(R1, R2)));
     }
@@ -151,7 +152,7 @@ class SignalRestIT extends AbstractIT {
         addGeneTarget(R2, "BCL11A");
 
         // Superseded corroboration: superseded_by is non-null
-        insertCorroboration("BCL11A:GeneTarget", "old-hash",
+        insertCorroboration("BCL11A:GeneTarget", "MRNA", "old-hash",
                 new String[]{R1, R2}, 2,
                 Instant.parse("2024-01-20T00:00:00Z"), "newer-hash");
 
@@ -214,7 +215,7 @@ class SignalRestIT extends AbstractIT {
         insertSignal(R1, "biorxiv", "2024-01-15T00:00:00Z", 0.80);
         addCompanyMention(R1, "Moderna Inc", "MRNA");
         insertSignal(R2, "sec_edgar", "2024-01-20T00:00:00Z", 0.70);
-        insertCorroboration("TEST:GeneTarget", "hash-test",
+        insertCorroboration("TEST:GeneTarget", "MRNA", "hash-test",
                 new String[]{R1, R2}, 2,
                 Instant.parse("2024-01-20T00:00:00Z"), null);
 
@@ -229,7 +230,7 @@ class SignalRestIT extends AbstractIT {
         insertSignal(R1, "biorxiv", "2024-01-15T00:00:00Z", 0.80);
         addCompanyMention(R1, "Moderna Inc", "MRNA");
         insertSignal(R2, "sec_edgar", "2024-01-20T00:00:00Z", 0.70);
-        insertCorroboration("BCL11A:GeneTarget", "hash-ts",
+        insertCorroboration("BCL11A:GeneTarget", "MRNA", "hash-ts",
                 new String[]{R1, R2}, 2,
                 Instant.parse("2024-01-20T00:00:00Z"), null);
 

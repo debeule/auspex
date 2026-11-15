@@ -3,6 +3,7 @@ package dev.auspex.corehub;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Primary;
 import org.testcontainers.containers.Neo4jContainer;
 import org.testcontainers.containers.PostgreSQLContainer;
 
@@ -13,6 +14,13 @@ import org.testcontainers.containers.PostgreSQLContainer;
  */
 @TestConfiguration(proxyBeanMethods = false)
 class TestContainersConfig {
+
+    /** Replaces the system clock so a test can move time instead of sleeping. */
+    @Bean
+    @Primary
+    MutableClock mutableClock() {
+        return new MutableClock();
+    }
 
     @Bean
     @ServiceConnection

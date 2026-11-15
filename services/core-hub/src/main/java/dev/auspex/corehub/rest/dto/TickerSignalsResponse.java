@@ -5,5 +5,6 @@ import java.util.List;
 public record TickerSignalsResponse(
         String ticker,
         List<DirectSignalDto> directSignals,
-        List<CorroboratedSignalDto> corroboratedSignals
+        List<CorroboratedSignalDto> corroboratedSignals,
+        List<ContextCorroborationDto> contextCorroborations
 ) {}

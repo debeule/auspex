@@ -54,6 +54,9 @@ public abstract class AbstractIT {
     @Autowired
     protected TestCorroboratedListener testCorroboratedListener;
 
+    @Autowired
+    protected MutableClock clock;
+
     @BeforeEach
     protected void cleanState() throws Exception {
         jdbcTemplate.execute(
@@ -63,6 +66,7 @@ public abstract class AbstractIT {
         }
         testDltListener.clear();
         testCorroboratedListener.clear();
+        clock.reset();
     }
 
     protected void publish(String topic, String payload) throws ExecutionException, InterruptedException {

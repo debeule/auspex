@@ -38,6 +38,10 @@ class Neo4jSchemaInitializer {
                     "FOR (s:Signal) ON (s.source_type)");
             session.run("CREATE INDEX signal_corroboration_pending IF NOT EXISTS " +
                     "FOR (s:Signal) ON (s.corroboration_pending)");
+            session.run("CREATE INDEX gene_target_corroboration_key IF NOT EXISTS " +
+                    "FOR (g:GeneTarget) ON (g.corroboration_key)");
+            session.run("CREATE INDEX mechanism_corroboration_key IF NOT EXISTS " +
+                    "FOR (m:Mechanism) ON (m.corroboration_key)");
             session.run("CREATE INDEX company_ticker IF NOT EXISTS " +
                     "FOR (c:Company) ON (c.ticker)");
             session.run("""

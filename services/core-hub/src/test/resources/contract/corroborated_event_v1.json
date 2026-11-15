@@ -1,0 +1,12 @@
+{
+  "entity_key" : "SMN1:GeneTarget",
+  "ticker" : "SRPT",
+  "participants_hash" : "abc",
+  "participant_event_ids" : [ "00000000-0000-0000-0000-000000000001", "00000000-0000-0000-0000-000000000002" ],
+  "distinct_source_count" : 2,
+  "source_types" : [ "biorxiv", "edgar" ],
+  "corroborated_at" : "2026-03-05T14:00:00Z",
+  "episode_opened_at" : "2026-03-01T09:30:00Z",
+  "first_detected_at" : "2026-03-05T20:00:00.250Z",
+  "schema_version" : "1.0"
+}

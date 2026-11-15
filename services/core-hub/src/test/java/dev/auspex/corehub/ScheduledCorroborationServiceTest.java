@@ -49,11 +49,15 @@ class ScheduledCorroborationServiceTest {
     private static CorroboratedSignalEvent event(String entityKey) {
         return new CorroboratedSignalEvent(
                 entityKey,
+                "",
                 "abc123",
                 List.of(UUID.randomUUID()),
                 2,
+                List.of("biorxiv", "edgar"),
                 Instant.now(),
-                Instant.now()
+                Instant.now(),
+                Instant.now(),
+                CorroboratedSignalEvent.SCHEMA_VERSION
         );
     }
 

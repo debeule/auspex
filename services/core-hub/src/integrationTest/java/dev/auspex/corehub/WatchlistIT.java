@@ -100,10 +100,10 @@ class WatchlistIT extends AbstractIT {
 
         // Seed Postgres corroboration with matching gene target key
         jdbcTemplate.update("""
-                INSERT INTO corroboration (entity_key, participants_hash, participant_event_ids,
-                                           distinct_source_count, corroborated_at)
-                VALUES ('BCL11A | GeneTarget', 'testhash001',
-                        ARRAY['00000000-0000-0000-0000-000000000001']::uuid[], 2, NOW())
+                INSERT INTO corroboration (entity_key, ticker, participants_hash, participant_event_ids,
+                                           distinct_source_count, corroborated_at, episode_opened_at)
+                VALUES ('BCL11A | GeneTarget', '', 'testhash001',
+                        ARRAY['00000000-0000-0000-0000-000000000001']::uuid[], 2, NOW(), NOW())
                 """);
 
         mockMvc.perform(get("/api/v1/watchlist/BEAM/summary"))

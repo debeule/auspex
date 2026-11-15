@@ -7,6 +7,10 @@ corroboration:
   degree-cap: 4
   # Effectively disables the scheduler; tests call runCorroboration() directly.
   interval-ms: 3600000
+  # The integration tests' own rules file.
+  rules-file: classpath:corroboration/entity-rules.yaml
+  # Small, so a rules sync over a handful of nodes writes several batches.
+  rules-sync-batch-size: 2
 
 # Prevent real SEC HTTP call at startup; SecTickerCache logs a warning and leaves cache empty.
 auspex:

@@ -1,0 +1,12 @@
+# Integration tests' own rules, so an edit to the production list cannot break them.
+synonyms:
+  Mechanism:
+    gene editing: [genome editing]
+  GeneTarget: {}
+excluded:
+  Mechanism:
+    - gene therapy
+  GeneTarget: []
+same_finding:
+  source_type_pairs: [[biorxiv, pubmed]]
+  title_token_jaccard_min: 0.8

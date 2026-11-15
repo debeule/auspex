@@ -1,0 +1,114 @@
+{
+  "about": "Shared by core-hub (EntityRulesTest, EpisodeBuilderTest) and the backtest (test_backtest_episodes.py). The window is 90 days, both ends included. Expected episodes list each participant set sorted by event id.",
+  "rules": {
+    "synonyms": {"Mechanism": {"gene editing": ["genome editing"]}, "GeneTarget": {}},
+    "excluded": {"Mechanism": ["gene therapy"], "GeneTarget": []},
+    "same_finding": {"source_type_pairs": [["biorxiv", "pubmed"]], "title_token_jaccard_min": 0.8}
+  },
+  "key_cases": [
+    {"label": "GeneTarget", "name": "IL-2", "key": "IL2"},
+    {"label": "GeneTarget", "name": "il2", "key": "IL2"},
+    {"label": "GeneTarget", "name": "IL 2", "key": "IL2"},
+    {"label": "GeneTarget", "name": "bcl11a", "key": "BCL11A"},
+    {"label": "GeneTarget", "name": "ＢＣＬ１１Ａ", "key": "BCL11A"},
+    {"label": "Mechanism", "name": "CRISPR-Cas9", "key": "crispr cas9"},
+    {"label": "Mechanism", "name": "CRISPR/Cas9", "key": "crispr cas9"},
+    {"label": "Mechanism", "name": "  Base   Editing ", "key": "base editing"},
+    {"label": "Mechanism", "name": "Genome-Editing", "key": "gene editing"},
+    {"label": "Mechanism", "name": "gene editing", "key": "gene editing"}
+  ],
+  "episode_cases": [
+    {
+      "name": "two sources open one episode at the second",
+      "signals": [
+        {"event_id": "a", "source_type": "biorxiv", "published_date": "2024-01-01T00:00:00Z", "title": null},
+        {"event_id": "b", "source_type": "edgar", "published_date": "2024-01-20T00:00:00Z", "title": null}
+      ],
+      "episodes": [{"episode_opened_at": "2024-01-20T00:00:00Z", "participants": ["a", "b"], "distinct_source_count": 2}]
+    },
+    {
+      "name": "one source type opens nothing",
+      "signals": [
+        {"event_id": "a", "source_type": "biorxiv", "published_date": "2024-01-01T00:00:00Z", "title": null},
+        {"event_id": "b", "source_type": "biorxiv", "published_date": "2024-01-05T00:00:00Z", "title": null}
+      ],
+      "episodes": []
+    },
+    {
+      "name": "91 days apart opens nothing",
+      "signals": [
+        {"event_id": "a", "source_type": "biorxiv", "published_date": "2024-01-01T00:00:00Z", "title": null},
+        {"event_id": "b", "source_type": "edgar", "published_date": "2024-04-01T00:00:00Z", "title": null}
+      ],
+      "episodes": []
+    },
+    {
+      "name": "exactly 90 days apart opens",
+      "signals": [
+        {"event_id": "a", "source_type": "biorxiv", "published_date": "2023-01-01T00:00:00Z", "title": null},
+        {"event_id": "b", "source_type": "edgar", "published_date": "2023-04-01T00:00:00Z", "title": null}
+      ],
+      "episodes": [{"episode_opened_at": "2023-04-01T00:00:00Z", "participants": ["a", "b"], "distinct_source_count": 2}]
+    },
+    {
+      "name": "joiners up to one window after the opening, then a new episode from two fresh sources",
+      "signals": [
+        {"event_id": "a", "source_type": "biorxiv", "published_date": "2024-01-01T00:00:00Z", "title": null},
+        {"event_id": "b", "source_type": "edgar", "published_date": "2024-01-10T00:00:00Z", "title": null},
+        {"event_id": "c", "source_type": "clinicaltrials", "published_date": "2024-03-01T00:00:00Z", "title": null},
+        {"event_id": "d", "source_type": "pubmed", "published_date": "2024-04-09T00:00:00Z", "title": null},
+        {"event_id": "e", "source_type": "edgar", "published_date": "2024-04-10T00:00:00Z", "title": null},
+        {"event_id": "f", "source_type": "biorxiv", "published_date": "2024-05-01T00:00:00Z", "title": null}
+      ],
+      "episodes": [
+        {"episode_opened_at": "2024-01-10T00:00:00Z", "participants": ["a", "b", "c", "d"], "distinct_source_count": 4},
+        {"episode_opened_at": "2024-05-01T00:00:00Z", "participants": ["e", "f"], "distinct_source_count": 2}
+      ]
+    },
+    {
+      "name": "a joiner is never a candidate for the next episode",
+      "signals": [
+        {"event_id": "a", "source_type": "biorxiv", "published_date": "2024-01-01T00:00:00Z", "title": null},
+        {"event_id": "b", "source_type": "edgar", "published_date": "2024-01-10T00:00:00Z", "title": null},
+        {"event_id": "c", "source_type": "clinicaltrials", "published_date": "2024-03-01T00:00:00Z", "title": null},
+        {"event_id": "g", "source_type": "biorxiv", "published_date": "2024-05-01T00:00:00Z", "title": null}
+      ],
+      "episodes": [{"episode_opened_at": "2024-01-10T00:00:00Z", "participants": ["a", "b", "c"], "distinct_source_count": 3}]
+    },
+    {
+      "name": "a candidate older than the window is dropped before the opening",
+      "signals": [
+        {"event_id": "a", "source_type": "biorxiv", "published_date": "2024-01-01T00:00:00Z", "title": null},
+        {"event_id": "b", "source_type": "biorxiv", "published_date": "2024-03-01T00:00:00Z", "title": null},
+        {"event_id": "c", "source_type": "edgar", "published_date": "2024-05-15T00:00:00Z", "title": null}
+      ],
+      "episodes": [{"episode_opened_at": "2024-05-15T00:00:00Z", "participants": ["b", "c"], "distinct_source_count": 2}]
+    },
+    {
+      "name": "the opening is the signal that completed the first independent pair",
+      "signals": [
+        {"event_id": "a", "source_type": "edgar", "published_date": "2024-01-01T00:00:00Z", "title": null},
+        {"event_id": "b", "source_type": "edgar", "published_date": "2024-01-05T00:00:00Z", "title": null},
+        {"event_id": "c", "source_type": "biorxiv", "published_date": "2024-02-01T00:00:00Z", "title": null}
+      ],
+      "episodes": [{"episode_opened_at": "2024-02-01T00:00:00Z", "participants": ["a", "b", "c"], "distinct_source_count": 2}]
+    },
+    {
+      "name": "a preprint and its paper alone open nothing",
+      "signals": [
+        {"event_id": "a", "source_type": "biorxiv", "published_date": "2024-01-01T00:00:00Z", "title": "CRISPR base editing restores HBB expression in mice"},
+        {"event_id": "b", "source_type": "pubmed", "published_date": "2024-01-15T00:00:00Z", "title": "CRISPR Base-Editing Restores HBB Expression in Mice."}
+      ],
+      "episodes": []
+    },
+    {
+      "name": "an unrelated paper beside a preprint and its paper opens at the unrelated paper",
+      "signals": [
+        {"event_id": "a", "source_type": "biorxiv", "published_date": "2024-01-01T00:00:00Z", "title": "CRISPR base editing restores HBB expression in mice"},
+        {"event_id": "b", "source_type": "pubmed", "published_date": "2024-01-15T00:00:00Z", "title": "CRISPR Base-Editing Restores HBB Expression in Mice."},
+        {"event_id": "c", "source_type": "pubmed", "published_date": "2024-01-20T00:00:00Z", "title": "Phase 2 outcomes of an HBB inducer in adults"}
+      ],
+      "episodes": [{"episode_opened_at": "2024-01-20T00:00:00Z", "participants": ["a", "b", "c"], "distinct_source_count": 2}]
+    }
+  ]
+}

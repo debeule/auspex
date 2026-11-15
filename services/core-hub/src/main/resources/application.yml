@@ -68,3 +68,9 @@ auspex:
 corroboration:
   # Pending signals read per scan; the rest wait for the next scan.
   scan-batch-size: 500
+  # Entity rules file (synonyms, broad entities, same-finding pairs); compose mounts config/corroboration.
+  rules-file: ${CORROBORATION_RULES_FILE}
+  # Entity nodes keyed, and signals marked pending, per write when the rules change.
+  rules-sync-batch-size: 1000
+  # The source_type names of services/ingestion-scraper/config/sources.yaml; the rules file may pair only these.
+  source-types: mock,biorxiv,clinicaltrials,pubmed,edgar,epo_ops
