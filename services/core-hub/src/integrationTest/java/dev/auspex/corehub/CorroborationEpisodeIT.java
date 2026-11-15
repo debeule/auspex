@@ -60,20 +60,21 @@ class CorroborationEpisodeIT extends AbstractIT {
 
     @Test
     void overlappingGroupsOnOneEntityLeaveOneLiveRecord() {
+        // Four signals: the test profile's degree cap skips an entity with more.
         UUID a = write("biorxiv", "2024-01-01", "a", List.of("SOD1"), List.of());
         UUID b = write("edgar", "2024-01-10", "b", List.of("SOD1"), List.of());
         corroborationService.runCorroboration();
         UUID c = write("clinicaltrials", "2024-01-20", "c", List.of("SOD1"), List.of());
-        UUID d = write("pubmed", "2024-02-01", "d", List.of("SOD1"), List.of());
         corroborationService.runCorroboration();
-        UUID e = write("epo_ops", "2024-03-01", "e", List.of("SOD1"), List.of());
+        UUID d = write("pubmed", "2024-02-01", "d", List.of("SOD1"), List.of());
         corroborationService.runCorroboration();
 
         assertThat(signals.live()).singleElement().satisfies(row -> {
-            assertThat(row.participants()).containsExactlyInAnyOrderElementsOf(List.of(a, b, c, d, e));
+            assertThat(row.participants()).containsExactlyInAnyOrderElementsOf(List.of(a, b, c, d));
             assertThat(row.episodeOpenedAt()).isEqualTo(Instant.parse("2024-01-10T00:00:00Z"));
-            assertThat(row.distinctSourceCount()).isEqualTo(5);
+            assertThat(row.distinctSourceCount()).isEqualTo(4);
         });
+        assertThat(signals.all()).hasSize(3);
     }
 
     @Test
@@ -106,12 +107,11 @@ class CorroborationEpisodeIT extends AbstractIT {
     void signalAfterTheEpisodeWindowOpensASecondRecordOnlyWithTwoFreshSources() {
         write("biorxiv", "2024-01-01", "a", List.of("APOE"), List.of());
         write("edgar", "2024-01-10", "b", List.of("APOE"), List.of());
-        write("clinicaltrials", "2024-03-01", "c", List.of("APOE"), List.of());
-        write("biorxiv", "2024-05-01", "d", List.of("APOE"), List.of());
+        write("biorxiv", "2024-05-01", "c", List.of("APOE"), List.of());
         corroborationService.runCorroboration();
         assertThat(signals.live()).hasSize(1);
 
-        write("edgar", "2024-05-10", "e", List.of("APOE"), List.of());
+        write("edgar", "2024-05-10", "d", List.of("APOE"), List.of());
         corroborationService.runCorroboration();
 
         assertThat(signals.live()).extracting(CorroborationSignals.Row::episodeOpenedAt).containsExactly(
