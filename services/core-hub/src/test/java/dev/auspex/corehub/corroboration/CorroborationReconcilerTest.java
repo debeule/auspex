@@ -89,6 +89,23 @@ class CorroborationReconcilerTest {
     }
 
     @Test
+    void tickerRecordWithTheEntityRecordsParticipantsIsARecordOfItsOwn() {
+        graph.add(1, "biorxiv", "2024-01-01", "GeneTarget", "BCL11A");
+        graph.add(2, "edgar", "2024-01-10", "GeneTarget", "BCL11A");
+        assertThat(scan(NOW).events()).extracting(CorroboratedSignalEvent::ticker).containsExactly("");
+
+        // The company both signals name resolves to a ticker later; the participants are the same.
+        graph.add(1, "biorxiv", "2024-01-01", "GeneTarget", "BCL11A", "BEAM");
+        graph.add(2, "edgar", "2024-01-10", "GeneTarget", "BCL11A", "BEAM");
+        CorroborationScanner.ScanResult later = scan(NOW.plusSeconds(60));
+
+        assertThat(later.events()).extracting(CorroboratedSignalEvent::ticker).containsExactly("BEAM");
+        assertThat(store.live()).extracting(CorroborationRow::ticker).containsExactlyInAnyOrder("", "BEAM");
+        assertThat(store.live()).extracting(CorroborationRow::participantsHash).hasSize(2).containsOnly(
+                store.live().getFirst().participantsHash());
+    }
+
+    @Test
     void recordAlreadyPublishedIsNotSentAgain() {
         graph.add(1, "biorxiv", "2024-01-01", "GeneTarget", "BCL11A");
         graph.add(2, "edgar", "2024-01-10", "GeneTarget", "BCL11A");
