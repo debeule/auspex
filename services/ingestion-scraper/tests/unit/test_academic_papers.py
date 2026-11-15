@@ -282,16 +282,20 @@ def _pubmed_published(xml: str) -> datetime:
 
 @respx.mock
 def test_pubmed_published_date_is_never_the_journal_issue_date():
-    xml = _pubmed_article(issue="2024-03-01", electronic="2024-05-20", history={"pubmed": "2024-05-22"})
+    earlier_issue = _pubmed_article(issue="2024-03-01", history={"pubmed": "2024-05-22"})
+    later_issue = _pubmed_article(issue="2024-06-01", electronic="2024-05-20", history={"pubmed": "2024-05-22"})
 
-    assert _pubmed_published(xml) == datetime(2024, 5, 20, tzinfo=UTC)
+    assert _pubmed_published(earlier_issue) == datetime(2024, 5, 22, tzinfo=UTC)
+    assert _pubmed_published(later_issue) == datetime(2024, 5, 20, tzinfo=UTC)
 
 
 @respx.mock
 def test_pubmed_without_an_electronic_date_uses_the_date_it_entered_pubmed():
-    xml = _pubmed_article(issue="2024-01-01", history={"entrez": "2024-05-03", "pubmed": "2024-05-02"})
+    pubmed = _pubmed_article(issue="2024-01-01", history={"entrez": "2024-05-03", "pubmed": "2024-05-02"})
+    entrez_only = _pubmed_article(issue="2024-01-01", history={"entrez": "2024-05-03"})
 
-    assert _pubmed_published(xml) == datetime(2024, 5, 2, tzinfo=UTC)
+    assert _pubmed_published(pubmed) == datetime(2024, 5, 2, tzinfo=UTC)
+    assert _pubmed_published(entrez_only) == datetime(2024, 5, 3, tzinfo=UTC)
 
 
 @respx.mock
