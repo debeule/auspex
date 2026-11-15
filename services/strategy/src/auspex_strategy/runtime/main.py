@@ -148,8 +148,6 @@ def main(env: Mapping[str, str] = os.environ) -> None:
         slots,
         broker=broker,
         risk=PassThroughRiskManager(float(env["PASS_THROUGH_POSITION_EUR"])),
-        # No core-hub endpoint maps a corroboration's entity to a ticker yet (DECISIONS.md).
-        ticker_for=lambda entity_key: None,
         clock=clock,
         timeout_seconds=float(env["STRATEGY_TIMEOUT_SECONDS"]),
         health=monitor,

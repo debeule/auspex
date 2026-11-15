@@ -58,7 +58,6 @@ def _streaming(slots, objects, snapshots=_SNAPSHOTS, clock=None, **kwargs):
         slots,
         broker=broker(objects, snapshots),
         risk=_RISK,
-        ticker_for=lambda entity_key: "SRPT",
         clock=clock or FixedClock(utc(2026, 3, 10, 22, 0)),
         timeout_seconds=kwargs.pop("timeout_seconds", 5.0),
         **kwargs,
@@ -196,7 +195,6 @@ def test_funnel_counts_decisions_intents_and_approvals_per_version() -> None:
         slots,
         broker=broker(objects, _SNAPSHOTS),
         risk=ApprovesNone(),
-        ticker_for=lambda entity_key: "SRPT",
         clock=FixedClock(utc(2026, 3, 10, 22, 0)),
         timeout_seconds=5.0,
         funnel=funnel,
@@ -212,30 +210,85 @@ def test_funnel_counts_decisions_intents_and_approvals_per_version() -> None:
 def test_corroborated_signal_reads_core_hub_wire_format() -> None:
     # The shape core-hub's CorroboratedWireFormatTest pins: snake_case, ISO-8601 instants.
     payload = json.dumps({
-        "entity_key": "SMN1:Gene",
+        "entity_key": "SMN1:GeneTarget",
+        "ticker": "SRPT",
         "participants_hash": "abc",
         "participant_event_ids": ["e1", "e2"],
         "distinct_source_count": 2,
+        "source_types": ["biorxiv", "edgar"],
         "corroborated_at": "2026-03-05T14:00:00Z",
+        "episode_opened_at": "2026-03-01T09:30:00Z",
         "first_detected_at": "2026-03-05T20:00:00.250Z",
     }).encode()
 
     assert CorroboratedSignal.from_json(payload) == CorroboratedSignal(
-        entity_key="SMN1:Gene",
+        entity_key="SMN1:GeneTarget",
+        ticker="SRPT",
         participants_hash="abc",
         participant_event_ids=("e1", "e2"),
         distinct_source_count=2,
+        source_types=("biorxiv", "edgar"),
         corroborated_at=utc(2026, 3, 5, 14, 0),
+        episode_opened_at=utc(2026, 3, 1, 9, 30),
         first_detected_at=utc(2026, 3, 5, 20, 0, 0, 250_000),
     )
+
+
+def test_runtime_reads_ticker_and_source_types_from_the_corroborated_fixture() -> None:
+    fixture = _REPO_ROOT / "services/core-hub/src/test/resources/contract/corroborated_event_v1.json"
+    seen = []
+
+    def remember(self, context, trigger):
+        seen.append(trigger.payload)
+        return []
+
+    signal_ = CorroboratedSignal.from_json(fixture.read_bytes())
+    _streaming([slot("reads", "paper", remember)], InMemoryObjectStore()).process(signal_)
+
+    (record_,) = seen
+    assert record_.ticker == "SRPT"
+    assert record_.source_types == frozenset({"biorxiv", "edgar"})
+    assert record_.participants_hash == "abc"
+    assert signal_.episode_opened_at == utc(2026, 3, 1, 9, 30)
+
+
+def test_runtime_skips_a_ticker_less_event_without_counting_a_strategy_failure() -> None:
+    calls = []
+
+    def remember(self, context, trigger):
+        calls.append(trigger)
+        return []
+
+    runtime = _streaming([slot("reads", "paper", remember)], InMemoryObjectStore())
+
+    produced = runtime.process(signal("gene therapy:Mechanism", _CORROBORATED_AT, ticker=""))
+
+    assert produced == {}
+    assert calls == []
+    assert runtime.skipped_events == 1
+    assert runtime.failure_counts == {"reads": 0}
+    assert runtime.rejected_events == 0
+
+
+def test_same_participants_under_two_tickers_are_two_events() -> None:
+    objects = InMemoryObjectStore()
+    runtime = _streaming([slot("trades", "paper", long_on_trigger())], objects)
+
+    first = runtime.process(signal("SMN1:GeneTarget", _CORROBORATED_AT, ticker="SRPT"))
+    second = runtime.process(signal("SMN1:GeneTarget", _CORROBORATED_AT, ticker="BEAM"))
+
+    (a,) = first["trades"]
+    (b,) = second["trades"]
+    assert a.intent_id != b.intent_id
 
 
 def test_corroborated_signal_refuses_camel_case_and_epoch_timestamps() -> None:
     camel = b'{"entityKey": "SMN1:Gene", "participantsHash": "abc", "participantEventIds": [],' \
         b' "distinctSourceCount": 2, "corroboratedAt": 1772719200.0, "firstDetectedAt": 1772719200.0}'
     epoch = json.dumps({
-        "entity_key": "SMN1:Gene", "participants_hash": "abc", "participant_event_ids": [],
-        "distinct_source_count": 2, "corroborated_at": 1772719200.0,
+        "entity_key": "SMN1:Gene", "ticker": "SRPT", "participants_hash": "abc",
+        "participant_event_ids": [], "distinct_source_count": 2, "source_types": ["biorxiv"],
+        "corroborated_at": 1772719200.0, "episode_opened_at": 1772719200.0,
         "first_detected_at": 1772719200.0,
     }).encode()
 
@@ -249,9 +302,10 @@ def test_consume_checkpoints_each_event_and_skips_unreadable_ones() -> None:
     objects = InMemoryObjectStore()
     runtime = _streaming([slot("live", "paper", long_on_trigger())], objects)
     good = json.dumps({
-        "entity_key": "SMN1", "participants_hash": "h", "participant_event_ids": ["a", "b"],
-        "distinct_source_count": 2, "corroborated_at": "2026-03-05T14:00:00Z",
-        "first_detected_at": "2026-03-05T14:00:00Z",
+        "entity_key": "SMN1", "ticker": "SRPT", "participants_hash": "h",
+        "participant_event_ids": ["a", "b"], "distinct_source_count": 2,
+        "source_types": ["biorxiv", "edgar"], "corroborated_at": "2026-03-05T14:00:00Z",
+        "episode_opened_at": "2026-03-05T14:00:00Z", "first_detected_at": "2026-03-05T14:00:00Z",
     }).encode()
     messages = [
         SourceMessage("auspex.signals.corroborated", 3, 41, good),

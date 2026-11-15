@@ -111,6 +111,7 @@ def name_intents(
             slot.name,
             slot.entry.version,
             record.entity_key,
+            record.ticker,
             record.participants_hash,
             record.corroborated_at.isoformat(),
             as_of.isoformat(),

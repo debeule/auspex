@@ -192,13 +192,17 @@ def signal(
     entity_key: str,
     corroborated_at: datetime,
     first_detected_at: datetime | None = None,
+    ticker: str = "SRPT",
 ) -> CorroboratedSignal:
     return CorroboratedSignal(
         entity_key=entity_key,
+        ticker=ticker,
         participants_hash=f"hash-{entity_key}",
         participant_event_ids=(f"{entity_key}-a", f"{entity_key}-b"),
         distinct_source_count=2,
+        source_types=("biorxiv", "clinicaltrials"),
         corroborated_at=corroborated_at,
+        episode_opened_at=corroborated_at,
         first_detected_at=first_detected_at or corroborated_at,
     )
 

@@ -24,9 +24,6 @@ log = logging.getLogger(__name__)
 
 CONSUMER_GROUP = "auspex-strategy-runtime"
 
-TickerResolver = Callable[[str], str | None]
-
-
 @dataclass(frozen=True)
 class SourceMessage:
     topic: str
@@ -70,7 +67,9 @@ class StreamingRuntime:
     `research` strategies never run here. Each `decide()` is isolated (`IsolatedDecider`);
     paused strategies are skipped; intents from the same event are checked for overlap, passed
     to risk together, and approved ones go to the strategy's forward book. While a kill switch
-    covers a strategy, its intents are dropped before risk sees them.
+    covers a strategy, its intents are dropped before risk sees them. An event with no ticker
+    (an entity record) reaches no strategy and is counted in `skipped_events`, never as a
+    strategy failure.
     """
 
     def __init__(
@@ -79,7 +78,6 @@ class StreamingRuntime:
         *,
         broker: PaperBroker,
         risk: RiskManager,
-        ticker_for: TickerResolver,
         clock: Callable[[], datetime],
         timeout_seconds: float,
         health: InputHealthMonitor | None = None,
@@ -93,7 +91,6 @@ class StreamingRuntime:
         self.slots = [s for s in slots if s.at_least("paper")]
         self._broker = broker
         self._risk = risk
-        self._ticker_for = ticker_for
         self._clock = clock
         self._health = health
         self._latency = latency
@@ -107,6 +104,7 @@ class StreamingRuntime:
         self._overlap = OverlapDetector()
         self._history: list[CorroborationRecord] = []
         self.rejected_events = 0
+        self.skipped_events = 0
         for slot in self.slots:
             mode = slot.live_mode
             if mode is not None:
@@ -120,12 +118,15 @@ class StreamingRuntime:
         return self._health is not None and self._health.is_paused(strategy_name)
 
     def process(self, signal: CorroboratedSignal) -> dict[str, list[TradeIntent]]:
+        if not signal.ticker:
+            self.skipped_events += 1
+            return {}
         record = CorroborationRecord(
             entity_key=signal.entity_key,
-            ticker=self._ticker_for(signal.entity_key) or "",
+            ticker=signal.ticker,
             corroborated_at=signal.corroborated_at,
             source_count=signal.distinct_source_count,
-            source_types=frozenset(),
+            source_types=frozenset(signal.source_types),
             participant_event_ids=signal.participant_event_ids,
             participants_hash=signal.participants_hash,
         )

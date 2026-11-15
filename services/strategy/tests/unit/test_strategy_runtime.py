@@ -47,7 +47,6 @@ def _streaming(slots, objects, **kwargs):
         slots,
         broker=broker(objects, _SNAPSHOTS),
         risk=_RISK,
-        ticker_for=lambda entity_key: "SRPT",
         clock=kwargs.pop("clock", _AFTER_ENTRY),
         timeout_seconds=5.0,
         **kwargs,

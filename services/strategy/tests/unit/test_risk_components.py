@@ -520,7 +520,6 @@ def test_streaming_runtime_drops_intents_of_a_killed_strategy() -> None:
         [slot("killed", "paper", long_on_trigger()), slot("running", "paper", long_on_trigger())],
         broker=paper,
         risk=PassThroughRiskManager(10_000.0),
-        ticker_for=lambda entity_key: "SRPT",
         clock=FixedClock(utc(2026, 3, 10, 22, 0)),
         timeout_seconds=5.0,
         kill_switch=switch,
