@@ -2,6 +2,7 @@ import json
 from pathlib import Path
 
 import pytest
+from evaluation_support import register_copied_corroboration_rules
 
 from auspex_backtesting.evaluation import TrialBudgetExhaustedError
 from auspex_backtesting.hypothesis import (
@@ -62,6 +63,7 @@ def _dirs(tmp_path: Path) -> tuple[Path, Path, Path]:
     register_hypothesis(
         "protocol", _PROTOCOL_YAML, config_dir=config_dir, registry_path=registry_path
     )
+    register_copied_corroboration_rules(tmp_path, registry_path)
     return config_dir, registry_path, trials_dir
 
 

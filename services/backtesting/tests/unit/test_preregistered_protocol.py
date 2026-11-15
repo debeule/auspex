@@ -11,7 +11,9 @@ import yaml
 from auspex_backtesting.hypothesis import (
     HypothesisInvalidError,
     HypothesisModifiedError,
+    corroboration_rules_path,
     register_hypothesis,
+    verify_corroboration_rules,
     verify_hypothesis,
 )
 from auspex_backtesting.market_sim.calendar import MarketCalendar
@@ -190,10 +192,11 @@ def _forward_record(**overrides: Any) -> PortfolioForwardRecord:
 def test_registry_holds_one_registration_per_file() -> None:
     entries = [json.loads(line) for line in _REGISTRY.read_text(encoding="utf-8").splitlines()]
     registered = [entry["hypothesis_id"] for entry in entries]
-    assert sorted(registered) == sorted(["protocol", *_HYPOTHESIS_IDS])
+    assert sorted(registered) == sorted(["protocol", "corroboration_rules", *_HYPOTHESIS_IDS])
     for file_id in ["protocol", *_HYPOTHESIS_IDS]:
         assert _load(file_id)["version"] == 1
         verify_hypothesis(file_id, config_dir=_CONFIG_DIR, registry_path=_REGISTRY)
+    verify_corroboration_rules(corroboration_rules_path(_CONFIG_DIR), registry_path=_REGISTRY)
 
 
 def test_trial_budget_is_counted_per_family_not_across_families() -> None:

@@ -41,9 +41,11 @@ from auspex_backtesting.evaluation import (
 )
 from auspex_backtesting.evaluation.results import is_primary_cell
 from auspex_backtesting.hypothesis import (
+    corroboration_rules_path,
     hypothesis_views,
     load_hypothesis,
     validate_hypothesis,
+    verify_corroboration_rules,
     verify_hypothesis,
 )
 from auspex_backtesting.market_sim._snapshots import price_on
@@ -283,7 +285,9 @@ class EvaluationProtocol:
     every registered hypothesis is counted, a role the family does not hold, or a short or
     options position above the instrument ceilings.
 
-    `run` needs `prices` and `costs`; admission alone does not.
+    `run` needs `prices` and `costs`; admission alone does not. `run` also refuses a
+    corroboration rules file (default `config/corroboration/entity-rules.yaml`) that does not
+    match its registration (EVA-029); nothing else here reads that file.
     """
 
     def __init__(
@@ -295,8 +299,12 @@ class EvaluationProtocol:
         costs: TradeCosts | None = None,
         calendar: MarketCalendar | None = None,
         walk_forward: WalkForwardSettings | None = None,
+        corroboration_rules: Path | None = None,
     ) -> None:
         self._config_dir = config_dir if config_dir is not None else Path("config/hypotheses")
+        self._corroboration_rules = corroboration_rules or corroboration_rules_path(
+            self._config_dir
+        )
         self._registry_path = registry_path
         self._verify_protocol()
         self.protocol: dict[str, Any] = load_hypothesis(_PROTOCOL_ID, self._config_dir)
@@ -366,6 +374,9 @@ class EvaluationProtocol:
             )
         if hypothesis.get("evaluation", "event") != "event":
             raise ValueError(f"{hypothesis_id} is not an event hypothesis")
+        rules_hash = verify_corroboration_rules(
+            self._corroboration_rules, registry_path=self._registry_path
+        )
         windows = _windows(hypothesis, holding_period_days)
         delays = _requested(hypothesis, "known_at_delay_days", known_at_delay_days)
         _requested(hypothesis, "variants", [variant])
@@ -435,6 +446,7 @@ class EvaluationProtocol:
             run_id=run_id,
             trades=headline.trades,
             cells=tuple(results),
+            corroboration_rules_hash=rules_hash,
         )
         return replace(result, holdout_sealed=HoldoutGuard(self.protocol).is_sealed(result))
 

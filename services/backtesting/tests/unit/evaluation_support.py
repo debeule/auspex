@@ -15,7 +15,7 @@ from auspex_backtesting.evaluation import (
     TradeCosts,
     TrialLedger,
 )
-from auspex_backtesting.hypothesis import register_hypothesis
+from auspex_backtesting.hypothesis import register_corroboration_rules, register_hypothesis
 from auspex_backtesting.market_sim import (
     CostModel,
     CostParameters,
@@ -25,6 +25,7 @@ from auspex_backtesting.market_sim import (
 from auspex_backtesting.protocol import EvaluationProtocol
 
 CONFIG_DIR = Path(__file__).resolve().parents[4] / "config" / "hypotheses"
+CORROBORATION_RULES = CONFIG_DIR.parent / "corroboration" / "entity-rules.yaml"
 PROTOCOL: dict[str, Any] = yaml.safe_load(
     (CONFIG_DIR / "protocol.yaml").read_text(encoding="utf-8")
 )
@@ -171,7 +172,17 @@ def registered_config(tmp_path: Path, hypothesis_yaml: str = TEST_HYPOTHESIS) ->
         registry_path=registry,
     )
     register_hypothesis("h1", hypothesis_yaml, config_dir=config_dir, registry_path=registry)
+    register_copied_corroboration_rules(tmp_path, registry)
     return config_dir, registry
+
+
+def register_copied_corroboration_rules(tmp_path: Path, registry: Path) -> Path:
+    """The repository's rules file, copied beside `tmp_path / "hypotheses"` and registered."""
+    rules = tmp_path / "corroboration" / "entity-rules.yaml"
+    rules.parent.mkdir(exist_ok=True)
+    rules.write_bytes(CORROBORATION_RULES.read_bytes())
+    register_corroboration_rules(rules, registry_path=registry)
+    return rules
 
 
 def evaluation_protocol(

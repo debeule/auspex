@@ -108,6 +108,8 @@ class EvaluationResult:
     run_id: str
     trades: tuple[TradeRecord, ...]
     cells: tuple[CellResult, ...]
+    corroboration_rules_hash: str | None = None
+    """The hash of the corroboration rules file the events were built under (EVA-029)."""
 
     def to_report(self) -> dict[str, Any]:
         """The evaluation report as plain data, for `DECISIONS.md` and the strategy metrics."""

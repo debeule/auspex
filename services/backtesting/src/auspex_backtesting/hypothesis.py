@@ -3,10 +3,12 @@ from __future__ import annotations
 import hashlib
 import json
 import uuid
+from dataclasses import replace
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
+from auspex_backtesting.backtest.episodes import EntityRules
 from auspex_backtesting.backtest.membership import UniverseMembership
 from auspex_backtesting.backtest.runner import BacktestEvent, BacktestReport, BacktestRunner
 
@@ -38,6 +40,7 @@ PORTFOLIO_ONLY_FIELDS = frozenset(
     }
 )
 _PROTOCOL_ID = "protocol"
+CORROBORATION_RULES_ID = "corroboration_rules"
 
 
 def _sha256_bytes(data: bytes) -> str:
@@ -187,6 +190,42 @@ def register_hypothesis(
         fh.write(json.dumps(entry) + "\n")
 
 
+def corroboration_rules_path(config_dir: Path | None) -> Path:
+    """`config/corroboration/entity-rules.yaml`, beside the hypotheses directory."""
+    base = config_dir if config_dir is not None else Path("config/hypotheses")
+    return base.parent / "corroboration" / "entity-rules.yaml"
+
+
+def register_corroboration_rules(rules_path: Path, *, registry_path: Path | None = None) -> None:
+    """Append the rules file's hash under `corroboration_rules` unless it is the latest one."""
+    new_hash = _sha256_bytes(rules_path.read_bytes())
+    reg = _resolve_registry(registry_path)
+    last = _last_entry(CORROBORATION_RULES_ID, reg)
+    if last is not None and last["file_hash"] == new_hash:
+        return
+    entry = {
+        "hypothesis_id": CORROBORATION_RULES_ID,
+        "file_hash": new_hash,
+        "registered_at": datetime.now(UTC).isoformat(),
+    }
+    with reg.open("a", encoding="utf-8") as fh:
+        fh.write(json.dumps(entry) + "\n")
+
+
+def verify_corroboration_rules(rules_path: Path, *, registry_path: Path | None = None) -> str:
+    """The rules file's hash, after refusing a file never registered or changed since (EVA-029)."""
+    entry = _last_entry(CORROBORATION_RULES_ID, _resolve_registry(registry_path))
+    if entry is None:
+        raise HypothesisNotRegisteredError(CORROBORATION_RULES_ID)
+    current = _sha256_bytes(rules_path.read_bytes()) if rules_path.is_file() else None
+    if current is None or current != entry["file_hash"]:
+        raise HypothesisModifiedError(
+            f"{CORROBORATION_RULES_ID}: registered hash {entry['file_hash']!r} != current"
+            f" {current!r} ({rules_path})"
+        )
+    return current
+
+
 def run_backtest(
     hypothesis_id: str,
     events: list[BacktestEvent],
@@ -197,16 +236,22 @@ def run_backtest(
     trials_dir: Path | None = None,
     windows: tuple[int, ...] = (5, 20, 60),
     universe: UniverseMembership | None = None,
+    corroboration_rules: Path | None = None,
 ) -> BacktestReport:
     """Raw window returns per corroboration group, after reserving them as trial cells.
 
     Each window of each variant is one cell in the trial ledger, reserved before any return is
-    read, so a look at raw returns spends the family's budget like an evaluation does.
+    read, so a look at raw returns spends the family's budget like an evaluation does. The
+    corroboration rules file (default beside `config_dir`) must match its registration; its
+    rules build the groups and its hash is on the report.
     """
     from auspex_backtesting.evaluation.ledger import TrialLedger
 
     verify_hypothesis(_PROTOCOL_ID, config_dir=config_dir, registry_path=registry_path)
     verify_hypothesis(hypothesis_id, config_dir=config_dir, registry_path=registry_path)
+    rules_path = corroboration_rules or corroboration_rules_path(config_dir)
+    rules_hash = verify_corroboration_rules(rules_path, registry_path=registry_path)
+    rules = EntityRules.load(rules_path.read_bytes())
     protocol = load_hypothesis(_PROTOCOL_ID, config_dir)
     hypothesis = load_hypothesis(hypothesis_id, config_dir)
     base = config_dir if config_dir is not None else Path("config/hypotheses")
@@ -227,7 +272,8 @@ def run_backtest(
     TrialLedger(_resolve_trials_dir(trials_dir), protocol, registered).reserve(
         hypothesis_id, cells, run_id=str(uuid.uuid4())
     )
-    return BacktestRunner(windows=windows).run(events, price_data, universe)
+    report = BacktestRunner(windows=windows, rules=rules).run(events, price_data, universe)
+    return replace(report, corroboration_rules_hash=rules_hash)
 
 
 def _hypothesis_path(hypothesis_id: str, config_dir: Path | None) -> Path:

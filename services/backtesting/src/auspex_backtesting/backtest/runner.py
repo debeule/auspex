@@ -9,14 +9,23 @@ from typing import Final
 import pandas as pd
 
 from auspex_backtesting.alignment.aligner import entry_session
+from auspex_backtesting.backtest.episodes import (
+    GENE_TARGET,
+    EntityRules,
+    IndependentSources,
+    SameFinding,
+    build_episodes,
+)
 from auspex_backtesting.backtest.membership import UniverseMembership
 from auspex_backtesting.market_sim.calendar import MarketCalendar
 from auspex_backtesting.market_sim.errors import PriceDataAbsentError
 from auspex_backtesting.universe.model import UniverseMember
 
 DEFAULT_WINDOWS: Final = (5, 20, 60)
-_CORROBORATION_WINDOW_DAYS: Final = 90
 _CALENDAR: Final = MarketCalendar()
+_NO_RULES: Final = EntityRules(
+    "", {GENE_TARGET: {}}, {}, SameFinding(frozenset(), 1.0)
+)
 
 
 @dataclass(frozen=True)
@@ -35,6 +44,7 @@ class BacktestEvent:
     source_type: str = ""
     directionality: str = ""
     confidence_score: float = 0.0
+    title: str | None = None
 
 
 @dataclass(frozen=True)
@@ -68,11 +78,13 @@ class BacktestResult:
 
 @dataclass(frozen=True)
 class CorroborationGroup:
-    """One tradeable corroboration: the moment a gene target first had two distinct sources for a
-    ticker within the window, with the participant set known at that moment.
+    """One tradeable corroboration: an episode of one canonical gene-target key and ticker
+    (RES-083), with the participants published by its opening.
 
-    `corroborated_at` is the latest participant's `published_date` (requirements §4.1), and returns
-    run from the session after it. Participants that predate it contribute no return of their own.
+    `corroborated_at` is the episode's `episode_opened_at`, the `published_date` of the participant
+    that completed its first independent pair, and returns run from the session after it. Joiners
+    add no event, and participants contribute no return of their own. `gene_target` is the
+    canonical key.
     """
 
     gene_target: str
@@ -100,11 +112,18 @@ class BacktestReport:
     entity_only: VariantReport | None = None
     full: VariantReport | None = None
     outside_universe: int = 0
+    corroboration_rules_hash: str | None = None
 
 
 class BacktestRunner:
-    def __init__(self, windows: tuple[int, ...] = DEFAULT_WINDOWS) -> None:
+    def __init__(
+        self, windows: tuple[int, ...] = DEFAULT_WINDOWS, rules: EntityRules | None = None
+    ) -> None:
+        """`rules` are the corroboration entity rules; an evaluation passes the registered file's
+        (EVA-029). Without them no name is a synonym, nothing is excluded and no two participants
+        are one finding."""
         self._windows = windows
+        self._rules = rules if rules is not None else _NO_RULES
         self._universe: UniverseMembership | None = None
 
     def run(
@@ -174,14 +193,21 @@ class BacktestRunner:
     ) -> tuple[VariantReport, VariantReport]:
         by_key: dict[tuple[str, str], list[BacktestEvent]] = defaultdict(list)
         for e in events:
-            if e.gene_target:
-                by_key[(e.gene_target, e.ticker)].append(e)
+            if not e.gene_target:
+                continue
+            key = self._rules.canonical_key(GENE_TARGET, e.gene_target)
+            if key and not self._rules.is_excluded(GENE_TARGET, key):
+                by_key[(key, e.ticker)].append(e)
 
+        independence = IndependentSources(self._rules.same_finding)
         entity_groups: list[CorroborationGroup] = []
         full_groups: list[CorroborationGroup] = []
         for (gene_target, ticker), members in sorted(by_key.items()):
-            for participants in _corroborations(members):
-                corroborated_at = participants[-1].published_date
+            for episode in build_episodes(members, independence):
+                known = {p.event_id for p in episode.published_by_opening()}
+                participants = [m for m in members if m.event_id in known]
+                participants.sort(key=lambda p: (p.published_date, p.event_id))
+                corroborated_at = episode.opened_at
                 entry = entry_session(corroborated_at)
                 entity_group = CorroborationGroup(
                     gene_target=gene_target,
@@ -202,30 +228,6 @@ class BacktestRunner:
             VariantReport(variant="entity-only", groups=tuple(entity_groups)),
             VariantReport(variant="full", groups=tuple(full_groups)),
         )
-
-
-def _corroborations(members: list[BacktestEvent]) -> list[list[BacktestEvent]]:
-    """Participant sets, in time order, of the corroborations one entity and ticker produced.
-
-    Signals are replayed in publication order. A signal forms a corroboration when the signals
-    published in the preceding window, itself included, span at least two source types. A set that
-    shares a participant with the previous corroboration only extends that evidence (it would
-    supersede it in core-hub) and is not a new event.
-    """
-    ordered = sorted(members, key=lambda e: (e.published_date, e.event_id))
-    found: list[list[BacktestEvent]] = []
-    previous: set[str] = set()
-    for i, signal in enumerate(ordered):
-        window_start = signal.published_date.date() - timedelta(days=_CORROBORATION_WINDOW_DAYS)
-        participants = [e for e in ordered[: i + 1] if e.published_date.date() >= window_start]
-        if len({e.source_type for e in participants}) < 2:
-            continue
-        ids = {e.event_id for e in participants}
-        if ids & previous:
-            continue
-        found.append(participants)
-        previous = ids
-    return found
 
 
 def _with_full_weight(group: CorroborationGroup, participants: list[BacktestEvent]) -> CorroborationGroup:
