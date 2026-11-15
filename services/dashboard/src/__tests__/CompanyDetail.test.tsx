@@ -39,13 +39,22 @@ function ok(body: unknown) {
   return Promise.resolve({ ok: true, status: 200, json: async () => body });
 }
 
+const noSignals = { ticker: 'SRPT', direct_signals: [], corroborated_signals: [], context_corroborations: [] };
+
+/** Answers the signals request the page makes for its context list; `rest` answers the others. */
+function withSignals(rest: (url: string, init?: RequestInit) => unknown, signals: unknown = noSignals) {
+  return vi.fn((url: string, init?: RequestInit) =>
+    url.includes('/v1/signals/') ? ok(signals) : rest(url, init),
+  );
+}
+
 beforeEach(() => {
   vi.restoreAllMocks();
 });
 
 describe('CompanyDetail', () => {
   it('test_company_detail_lists_direct_signals', async () => {
-    vi.stubGlobal('fetch', vi.fn().mockImplementation(() => ok(summaryFixture)));
+    vi.stubGlobal('fetch', withSignals(vi.fn().mockImplementation(() => ok(summaryFixture))));
 
     render(<CompanyDetail ticker="SRPT" />);
 
@@ -61,7 +70,7 @@ describe('CompanyDetail', () => {
   });
 
   it('test_company_detail_shows_empty_signals_state', async () => {
-    vi.stubGlobal('fetch', vi.fn().mockImplementation(() => ok({ ...summaryFixture, direct_signals: [] })));
+    vi.stubGlobal('fetch', withSignals(vi.fn().mockImplementation(() => ok({ ...summaryFixture, direct_signals: [] }))));
 
     render(<CompanyDetail ticker="SRPT" />);
 
@@ -78,7 +87,7 @@ describe('CompanyDetail', () => {
         ],
         next_cursor: null,
       }));
-    vi.stubGlobal('fetch', fetchMock);
+    vi.stubGlobal('fetch', withSignals(fetchMock));
 
     render(<CompanyDetail ticker="SRPT" />);
     await screen.findByText('DMD');
@@ -105,7 +114,7 @@ describe('CompanyDetail', () => {
         status: 404,
         json: async () => ({ error: { code: 'not_found', message: 'Ticker not in watchlist: SRPT', upstream_status: 404 } }),
       }));
-    vi.stubGlobal('fetch', fetchMock);
+    vi.stubGlobal('fetch', withSignals(fetchMock));
 
     render(<CompanyDetail ticker="SRPT" />);
     await screen.findByText('DMD');
@@ -114,5 +123,40 @@ describe('CompanyDetail', () => {
 
     expect(await screen.findByRole('alert')).toHaveTextContent('Ticker not in watchlist: SRPT');
     await waitFor(() => expect(screen.getByText('DMD')).toBeInTheDocument());
+  });
+
+  it('lists context corroborations with their reason', async () => {
+    const signals = {
+      ...noSignals,
+      context_corroborations: [
+        {
+          entity_key: 'gene therapy:Mechanism',
+          reason: 'broad_entity',
+          distinct_source_types: ['biorxiv', 'edgar'],
+          episode_opened_at: '2026-09-10T00:00:00Z',
+          corroborated_at: '2026-09-12T00:00:00Z',
+          participant_event_ids: ['evt-101', 'evt-201'],
+        },
+        {
+          entity_key: 'DMD:GeneTarget',
+          reason: 'no_independent_pair_for_ticker',
+          distinct_source_types: ['clinicaltrials', 'pubmed'],
+          episode_opened_at: '2026-09-01T00:00:00Z',
+          corroborated_at: '2026-09-01T00:00:00Z',
+          participant_event_ids: ['evt-102', 'evt-301'],
+        },
+      ],
+    };
+    vi.stubGlobal('fetch', withSignals(vi.fn().mockImplementation(() => ok(summaryFixture)), signals));
+
+    render(<CompanyDetail ticker="SRPT" />);
+
+    const table = await screen.findByRole('table', { name: /context corroborations/i });
+    const rows = within(table).getAllByRole('row').slice(1);
+    expect(rows).toHaveLength(2);
+    expect(rows[0]).toHaveTextContent('gene therapy:Mechanism');
+    expect(rows[0]).toHaveTextContent('Broad entity');
+    expect(rows[1]).toHaveTextContent('DMD:GeneTarget');
+    expect(rows[1]).toHaveTextContent('No independent pair for this ticker');
   });
 });

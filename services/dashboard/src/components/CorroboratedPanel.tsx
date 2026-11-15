@@ -6,7 +6,7 @@ export default function CorroboratedPanel({ signals }: { signals: CorroboratedSi
   return (
     <Table caption="Corroborated signals" headers={['Entity', 'Sources', 'Confidence', 'Corroborated']}>
       {signals.map((s) => (
-        <tr key={s.entity_key}>
+        <tr key={s.entity_key + s.episode_opened_at}>
           <td className="px-2 py-1.5">{s.entity_key}</td>
           <td className="px-2 py-1.5">
             <span className="flex flex-wrap gap-1">

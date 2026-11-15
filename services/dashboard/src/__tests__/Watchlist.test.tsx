@@ -332,7 +332,11 @@ describe('CompanyDetail', () => {
         { gene_target: 'AAV9', source: 'clinicaltrials' },
       ])}));
 
-    vi.stubGlobal('fetch', fetchMock);
+    // The page also loads the ticker's signals for its context list.
+    vi.stubGlobal('fetch', vi.fn((url: string, init?: RequestInit) =>
+      url.includes('/v1/signals/')
+        ? Promise.resolve({ ok: true, json: async () => ({ context_corroborations: [] }) })
+        : fetchMock(url, init)));
 
     render(<CompanyDetail ticker="SRPT" />);
 

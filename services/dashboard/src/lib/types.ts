@@ -7,11 +7,24 @@ export interface DirectSignal {
   published_at: string;
 }
 
+/** A live ticker record: two independent sources naming this ticker's company (COR-019). */
 export interface CorroboratedSignal {
   entity_key: string;
+  ticker: string;
   distinct_source_types: string[];
+  episode_opened_at: string;
   corroborated_at: string;
   confidence: number;
+  participant_event_ids: string[];
+}
+
+/** An entity record listing one of the ticker's signals with no ticker record; no score. */
+export interface ContextCorroboration {
+  entity_key: string;
+  reason: 'broad_entity' | 'no_independent_pair_for_ticker';
+  distinct_source_types: string[];
+  episode_opened_at: string;
+  corroborated_at: string;
   participant_event_ids: string[];
 }
 
@@ -19,6 +32,7 @@ export interface TickerSignalsResponse {
   ticker: string;
   direct_signals: DirectSignal[];
   corroborated_signals: CorroboratedSignal[];
+  context_corroborations: ContextCorroboration[];
 }
 
 export interface WatchlistGeneTarget {

@@ -1,4 +1,4 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor, within } from '@testing-library/react';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 import SignalsDashboard from '@/components/SignalsDashboard';
 
@@ -13,7 +13,9 @@ const directSignalFixture = {
 
 const corroboratedFixture = {
   entity_key: 'BCL11A:GeneTarget',
+  ticker: 'BEAM',
   distinct_source_types: ['ACADEMIC_PAPER', 'PATENT'],
+  episode_opened_at: '2026-01-18T12:00:00Z',
   corroborated_at: '2026-01-20T12:00:00Z',
   confidence: 0.92,
   participant_event_ids: ['evt-001', 'evt-002'],
@@ -23,12 +25,14 @@ const fullResponse = {
   ticker: 'BEAM',
   direct_signals: [directSignalFixture],
   corroborated_signals: [corroboratedFixture],
+  context_corroborations: [],
 };
 
 const emptyResponse = {
   ticker: 'BEAM',
   direct_signals: [],
   corroborated_signals: [],
+  context_corroborations: [],
 };
 
 beforeEach(() => {
@@ -100,6 +104,36 @@ describe('SignalsDashboard', () => {
     await waitFor(() => {
       expect(screen.getByText(/failed to fetch signals/i)).toBeInTheDocument();
     });
+  });
+
+  it('lists context corroborations with their reason', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        ...emptyResponse,
+        context_corroborations: [
+          {
+            entity_key: 'gene therapy:Mechanism',
+            reason: 'broad_entity',
+            distinct_source_types: ['biorxiv', 'edgar'],
+            episode_opened_at: '2026-01-10T00:00:00Z',
+            corroborated_at: '2026-01-12T00:00:00Z',
+            participant_event_ids: ['evt-001', 'evt-003'],
+          },
+        ],
+      }),
+    }));
+
+    render(<SignalsDashboard />);
+    fireEvent.change(screen.getByRole('textbox'), { target: { value: 'BEAM' } });
+    fireEvent.submit(screen.getByRole('form'));
+
+    const table = await screen.findByRole('table', { name: /context corroborations/i });
+    const rows = within(table).getAllByRole('row').slice(1);
+    expect(rows).toHaveLength(1);
+    expect(rows[0]).toHaveTextContent('gene therapy:Mechanism');
+    expect(rows[0]).toHaveTextContent('Broad entity');
+    expect(screen.queryByText(/no signals found/i)).not.toBeInTheDocument();
   });
 
   it('test_ticker_input_rejects_lowercase_and_invalid_characters_before_fetch', async () => {

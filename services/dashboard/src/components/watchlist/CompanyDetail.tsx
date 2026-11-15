@@ -4,7 +4,13 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { api, errorMessage } from '@/lib/api';
 import { formatConfidence, formatUtc } from '@/lib/ticker';
-import { WatchlistGeneTarget, WatchlistGeneTargetStat, WatchlistSummary } from '@/lib/types';
+import {
+  ContextCorroboration,
+  WatchlistGeneTarget,
+  WatchlistGeneTargetStat,
+  WatchlistSummary,
+} from '@/lib/types';
+import ContextCorroborationsTable from '../ContextCorroborationsTable';
 import DirectSignalsTable from '../DirectSignalsTable';
 import Button from '../ui/Button';
 import Card from '../ui/Card';
@@ -39,6 +45,23 @@ export default function CompanyDetail({ ticker }: Props) {
   const [actionError, setActionError] = useState<string | null>(null);
   const [newTarget, setNewTarget] = useState('');
   const [saving, setSaving] = useState(false);
+  const [context, setContext] = useState<ContextCorroboration[]>([]);
+  const [contextError, setContextError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    api.signals
+      .forTicker(ticker)
+      .then((data) => {
+        if (!cancelled) setContext(data.context_corroborations ?? []);
+      })
+      .catch((err) => {
+        if (!cancelled) setContextError(`Context corroborations unavailable: ${errorMessage(err)}`);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [ticker]);
 
   useEffect(() => {
     let cancelled = false;
@@ -172,6 +195,13 @@ export default function CompanyDetail({ ticker }: Props) {
           </Table>
         )}
       </Card>
+
+      {(context.length > 0 || contextError) && (
+        <Card title="Context">
+          {contextError && <ErrorMessage>{contextError}</ErrorMessage>}
+          {context.length > 0 && <ContextCorroborationsTable items={context} />}
+        </Card>
+      )}
     </div>
   );
 }

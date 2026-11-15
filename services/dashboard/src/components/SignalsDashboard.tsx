@@ -6,6 +6,7 @@ import { isValidTicker } from '@/lib/ticker';
 import { TickerSignalsResponse } from '@/lib/types';
 import DirectSignalsTable from './DirectSignalsTable';
 import CorroboratedPanel from './CorroboratedPanel';
+import ContextCorroborationsTable from './ContextCorroborationsTable';
 import Button from './ui/Button';
 import Card from './ui/Card';
 import { EmptyState, ErrorMessage, Loading } from './ui/Status';
@@ -38,8 +39,12 @@ export default function SignalsDashboard() {
     }
   }
 
+  const context = data?.context_corroborations ?? [];
   const isEmpty =
-    data !== null && data.direct_signals.length === 0 && data.corroborated_signals.length === 0;
+    data !== null &&
+    data.direct_signals.length === 0 &&
+    data.corroborated_signals.length === 0 &&
+    context.length === 0;
 
   return (
     <div className="space-y-4">
@@ -69,6 +74,11 @@ export default function SignalsDashboard() {
           <Card title="Corroborated">
             <CorroboratedPanel signals={data.corroborated_signals} />
           </Card>
+          {context.length > 0 && (
+            <Card title="Context">
+              <ContextCorroborationsTable items={context} />
+            </Card>
+          )}
         </>
       )}
     </div>
