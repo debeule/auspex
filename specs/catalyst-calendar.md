@@ -39,7 +39,7 @@ What exists or is specified:
 ## Constraints
 
 - INV-7, CON-008, CON-009, CON-031: Python model, Java record and the generated fixture change together; CON-029 keeps older consumers working.
-- INV-10: the declared natural key above, added beside CON-021…CON-025.
+- INV-10: the declared natural key above, added beside CON-021…CON-024 and CON-038.
 - INV-12: parameterized queries; injection tests on the new endpoint.
 - INV-14, CON-018, CON-019: `event_id` unchanged by the schema bump; re-extraction creates new `extraction_id`s only.
 - Point-in-time: a catalyst is known from its disclosing document's `published_date`, never from the catalyst date and never from a later revision.

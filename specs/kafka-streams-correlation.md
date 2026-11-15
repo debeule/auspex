@@ -3,7 +3,7 @@
 **Status:** draft
 **Blocked by:** conditional — do not build unless the scheduled corroboration query is measurably inadequate
 **Branch:** `feature/kafka-streams-correlation`
-**Docs impact:** changes COR-002 (`docs/core-hub/corroboration.md`: the implementation behind `CorroborationService`); COR-001 and COR-003 to COR-013 stay as they are, since the new implementation must meet them unchanged.
+**Docs impact:** changes COR-002 (`docs/core-hub/corroboration.md`: the implementation behind `CorroborationService`); COR-001 and COR-004 to COR-020 stay as they are, since the new implementation must meet them unchanged.
 
 ---
 
@@ -24,7 +24,7 @@ Changes to the REST API, signal ingestion, or any non-corroboration logic.
 ## Constraints
 
 - COR-001: the abstract contract test passes unmodified. Any test requiring an edit indicates a leaked implementation detail.
-- The REST suite behind HUB-044 to HUB-046 (`docs/core-hub/http-api.md`, `SignalRestIT`) must pass unmodified under the Streams profile.
+- The REST suite behind HUB-044, HUB-045 and HUB-053 (`docs/core-hub/http-api.md`, `SignalRestIT`) must pass unmodified under the Streams profile.
 - Two open risks must be resolved before starting implementation (see Notes).
 
 ## Required tests
@@ -49,6 +49,6 @@ All above tests pass. REST suite passes with `--spring.profiles.active=streams`.
 
 Two open risks to verify before starting implementation:
 
-1. **Stream time vs. historical replay**: Streams windows advance on stream time. Replaying historical records interleaves with live records — the pairwise semantics of COR-003 are straightforward in Cypher but not in a windowed store. Verify behaviour before committing.
+1. **Stream time vs. historical replay**: Streams windows advance on stream time. Replaying historical records interleaves with live records — the pairwise semantics of COR-018 are straightforward in Cypher but not in a windowed store. Verify behaviour before committing.
 
-2. **Supersession semantics**: supersession (COR-007) has no natural expression in a windowed aggregation. Resolve the design before writing code.
+2. **Supersession semantics**: supersession (COR-018) has no natural expression in a windowed aggregation. Resolve the design before writing code.

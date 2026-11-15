@@ -239,6 +239,11 @@ glob = "config/hypotheses/**"
 domains = ["research"]
 
 [[ownership.rules]]
+# corroboration entity rules: read by core-hub, locked by the evaluation protocol
+glob = "config/corroboration/**"
+domains = ["core-hub", "research"]
+
+[[ownership.rules]]
 glob = "config/universe/**"
 domains = ["research"]
 

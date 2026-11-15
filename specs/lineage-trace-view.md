@@ -44,9 +44,9 @@ What is missing:
 
 - Invariant 2: core-hub writes the evidence tables; the scraper's `/raw` only reads MinIO.
 - Invariant 5: evidence is written inside the existing `CorroborationService` implementation; `CorroborationServiceContractTest` passes unmodified.
-- INV-10 and CON-025: evidence is keyed by the corroboration's natural key `(entity_key, participants_hash)`, `DO NOTHING` on conflict.
+- INV-10 and CON-038: evidence is keyed by the corroboration's natural key `(entity_key, participants_hash)`, `DO NOTHING` on conflict.
 - Invariant 12: lineage endpoints bind every parameter; `event_id` must parse as a UUID; `entity_key` and `participants_hash` are validated against their formats; the raw key against the archive pattern (no path traversal).
-- COR-007: the trace may show superseded corroborations, labelled as superseded, because it explains history. The browse views still exclude them.
+- COR-018: the trace may show superseded corroborations, labelled as superseded, because it explains history. The browse views still exclude them.
 - Invariant 9: all times UTC.
 
 ## Required tests

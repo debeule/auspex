@@ -17,7 +17,7 @@ The data exists:
 - Neo4j: `Signal` linked to `GeneTarget`, `Mechanism` and `Company`.
 - `CorroborationScorer` computes a confidence at read time.
 
-COR-007 and HUB-046: a superseded corroboration is excluded from REST responses. INV-12 and HUB-044: bind parameters everywhere and validation at the controller boundary.
+COR-018 and HUB-053: a superseded corroboration is excluded from REST responses. INV-12 and HUB-044: bind parameters everywhere and validation at the controller boundary.
 
 ## What this builds
 
@@ -38,7 +38,7 @@ COR-007 and HUB-046: a superseded corroboration is excluded from REST responses.
 ## Constraints
 
 - INV-12 and HUB-044: every filter is a bind parameter. Enum filters (`source_type`, `event_type`, `directionality`, entity `label`) are validated against allowlists; `q` is escaped for `LIKE`; dates parse as ISO-8601 UTC or return 400.
-- COR-007 and HUB-046: superseded corroborations never appear in these responses.
+- COR-018 and HUB-053: superseded corroborations never appear in these responses.
 - Invariant 9: all timestamps in responses are UTC ISO-8601.
 - Keyset pagination is stable under concurrent inserts: a row inserted while paging never duplicates or skips an already-returned row.
 

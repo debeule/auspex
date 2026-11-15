@@ -3,7 +3,7 @@
 **Status:** hold
 **Blocked by:** the backtest must show a real repeatable signal before notifications are worth building.
 **Branch:** `feature/watchlist-alerts`
-**Docs impact:** adds HUB IDs for the notification transport and the watchlist notification (`docs/core-hub/http-api.md`, next to the health reporter HUB-052, which gains emission through the transport); COR-007 and COR-012 stay unchanged. Retires nothing.
+**Docs impact:** adds HUB IDs for the notification transport and the watchlist notification (`docs/core-hub/http-api.md`, next to the health reporter HUB-052, which gains emission through the transport); COR-018 and COR-012 stay unchanged. Retires nothing.
 
 ---
 
@@ -46,7 +46,7 @@ Rate-of-change alerts, price alerts.
 
 - Invariant 2 holds: `core-hub` is still the sole writer. No new service.
 - Transport failure never blocks the corroboration pipeline. Exceptions from `NotificationTransport` are caught inside `WatchlistNotificationService`; the caller (`runCorroboration()`) does not see them.
-- Deduplication on `participants_hash`, not `entity_key` alone (the record of COR-005 and COR-007, published at least once per COR-012) — a new evidence set (new hash) for the same entity must notify; a re-processed identical evidence set must not.
+- Deduplication on `participants_hash`, not `entity_key` alone (the record of COR-018, published at least once per COR-012) — a new evidence set (new hash) for the same entity must notify; a re-processed identical evidence set must not.
 - Every `@Transactional` stays qualified. The notification insert uses `jpaTransactionManager`.
 - `DISCORD_WEBHOOK_URL` is required. If absent, `WatchlistNotificationService` logs a startup warning and becomes a no-op — it does not prevent the application from starting.
 

@@ -3,23 +3,23 @@
 **Status:** blocked
 **Blocked by:**
 1. Met: company-level event extraction (`specs/done/company-level-extraction.md`) — `ResearchSignalEvent` must carry the event type and the company and program identifiers (company CIK or ticker where known, lead sponsor, NCT ID, drug code such as `SRP-9001`) before signals can be matched on them. Use the field names that spec lands; this spec does not add extraction fields.
-2. User approval of the amendment in this spec's Docs impact: changes to COR-003, COR-004 and COR-013 (`docs/core-hub/corroboration.md`) and HUB-030 and HUB-031 (`docs/core-hub/storage.md`). Logged in `DECISIONS.md` 2026-10-07 FLAG "corroboration is matched on gene target, not company".
+2. User approval of the amendment in this spec's Docs impact: changes to COR-018, COR-004 and COR-013 (`docs/core-hub/corroboration.md`) and HUB-030 and HUB-031 (`docs/core-hub/storage.md`). Logged in `DECISIONS.md` 2026-10-07 FLAG "corroboration is matched on gene target, not company".
 3. Corroboration quality (`specs/corroboration-quality.md`) merged: it replaces the record this spec extends (one row per episode, keyed `(entity_key, ticker, participants_hash)`, with `episode_opened_at`, `excluded_reason` and `published_at`), adds ticker records and the entity rules file, and puts `ticker` and `source_types` on `CorroboratedSignalEvent`. Before starting, re-read `docs/core-hub/corroboration.md` and rewrite this spec's parts 2 and 4 and its tests against the record that spec lands.
 
 **Priority (2026-10-07 edge research):** off the alpha path. Corroborated events at 50 to 150 per year cannot reach the promotion t at a realistic 20-day σ of about 22.5%, so this spec serves the research tool and the negative-event veto's company mapping, not a trading trigger. Still valid as written; build it after the slow-signal specs unless the user says otherwise.
 
 **Branch:** `feature/company-program-corroboration`
-**Docs impact:** changes COR-003 (the definition, stated per kind, with a configurable window), COR-004 (adds the `COMPANY_PROGRAM` kind and its `program:` entity key), COR-013 (recency measured against `as_of`), HUB-030 (adds the `Program` node) and HUB-031 (adds `ABOUT_PROGRAM` and `SPONSORED_BY`); adds COR IDs for the `kind` and `window_days` fields and the degree-cap report, and HUB IDs for the `as_of` parameter and the skipped-entities endpoint (`docs/core-hub/corroboration.md`, `docs/core-hub/storage.md`, `docs/core-hub/http-api.md`). Retires nothing.
+**Docs impact:** changes COR-018 (the definition, stated per kind, with a configurable window), COR-004 (adds the `COMPANY_PROGRAM` kind and its `program:` entity key), COR-013 (recency measured against `as_of`), HUB-030 (adds the `Program` node) and HUB-031 (adds `ABOUT_PROGRAM` and `SPONSORED_BY`); adds COR IDs for the `kind` and `window_days` fields and the degree-cap report, and HUB IDs for the `as_of` parameter and the skipped-entities endpoint (`docs/core-hub/corroboration.md`, `docs/core-hub/storage.md`, `docs/core-hub/http-api.md`). Retires nothing.
 
 ---
 
 ## Context
 
-Corroboration today (COR-003) links two signals when they share a `GeneTarget` or `Mechanism` node, come from distinct `source_type`s, and are published within 90 days of each other. The 2026-10-07 edge feasibility audit rated this event definition fatal for trading: a bioRxiv paper and a trial on DMD are not Sarepta news, and nothing maps a gene target to the stock it moves. It also found two point-in-time defects in the same component.
+Corroboration today (COR-018) links two signals when they share a `GeneTarget` or `Mechanism` node, come from distinct `source_type`s, and are published within 90 days of each other. The 2026-10-07 edge feasibility audit rated this event definition fatal for trading: a bioRxiv paper and a trial on DMD are not Sarepta news, and nothing maps a gene target to the stock it moves. It also found two point-in-time defects in the same component.
 
 What exists in `services/core-hub`:
 - `corroboration/CorroborationService` (interface) with one implementation, `ScheduledCorroborationService`, which delegates to `CorroborationScanner` and publishes `CorroboratedSignalEvent` to `auspex.signals.corroborated`.
-- `CorroborationScanner` — the definition, kind and window (COR-003, COR-004, with the window as the constant `WINDOW_SECONDS`), the pending-signal scan and degree cap (COR-008 to COR-011), and the record with supersession (COR-005, COR-007; key CON-025).
+- `CorroborationScanner` — the definition, kind and window (COR-018, COR-004, with the window as the constant `WINDOW_SECONDS`), the pending-signal scan and degree cap (COR-008 to COR-011), and the record with supersession (COR-018; key CON-038).
 - `CorroborationScorer` — the score (COR-013), whose recency is measured against `clock.instant()` and computed at read time by `query/SignalQueryService`. Recomputing a historical corroboration's score therefore depends on the day the code runs (audit row 13).
 - `watchlist/SecTickerCache` — SEC `company_tickers.json` lookup (ticker ↔ CIK ↔ name).
 - `CorroborationServiceContractTest` (abstract, `src/integrationTest`) — any `CorroborationService` implementation must pass it unmodified.
@@ -51,14 +51,14 @@ Audit rows covered here: 4 (core-hub side), 11 and 13.
 
 - INV-2: core-hub remains the sole writer to Postgres and Neo4j.
 - INV-5 and COR-001: both kinds sit behind `CorroborationService`, and the contract test passes unmodified.
-- INV-10: the natural key stays `(entity_key, participants_hash)` (CON-025).
+- INV-10: the natural key stays `(entity_key, participants_hash)` (CON-038).
 - INV-12: all new Cypher and SQL use bind parameters; the ArchUnit rule covers the new classes (HUB-027).
-- COR-003: the window is between the two signals, not against today; the configurable window keeps that.
+- COR-018: the window is between the two signals, not against today; the configurable window keeps that.
 - HUB-024 and HUB-026: write ordering Neo4j → Postgres → ack is unchanged; every new `@Transactional` is qualified.
 - `MERGE (c:Company {ticker: null})` trap: never MERGE on ticker or CIK.
 - Ticker resolution must be point-in-time where the data allows: a ticker reassigned after `published_date` must not attach. `SecTickerCache` only knows today's mapping, so a CIK that resolved through it is stamped `ticker_source = 'current'` and the backtest treats it as a known limitation, recorded in `DECISIONS.md`.
 
-**Docs amendment (do this first, in the same PR):** the changes listed under Docs impact. COR-004 gains the company-program kind and the `kind` field; COR-003 states the typed corroboration pattern per kind; HUB-030 and HUB-031 gain the `Program` node and the `ABOUT_PROGRAM`/`SPONSORED_BY` relationships. Without this amendment the tests below would contradict COR-003 and COR-004 and must not be written.
+**Docs amendment (do this first, in the same PR):** the changes listed under Docs impact. COR-004 gains the company-program kind and the `kind` field; COR-018 states the typed corroboration pattern per kind; HUB-030 and HUB-031 gain the `Program` node and the `ABOUT_PROGRAM`/`SPONSORED_BY` relationships. Without this amendment the tests below would contradict COR-018 and COR-004 and must not be written.
 
 ## Required tests
 

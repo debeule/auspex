@@ -45,6 +45,7 @@ Not in this file: the dashboard container, its port and memory limit ([topology.
 
 *Views.*
 - <a id="DSH-018"></a>**DSH-018** — The dashboard ships four views: the signals dashboard with ticker search (`/`), the watchlist (`/watchlist`), company detail (`/watchlist/[ticker]`) and login (`/login`), with a navigation bar offering sign-out on every page but login.
+- <a id="DSH-019"></a>**DSH-019** — The signals dashboard and the company detail page list the ticker's context corroborations (HUB-053) under its corroborations, each row with its reason.
 
 ## Verification
 
@@ -68,6 +69,7 @@ Not in this file: the dashboard container, its port and memory limit ([topology.
 | DSH-016 | `## 2026-10-23 — Living docs — PENDING — strategy-and-dashboard ratification batch`, approved by `## 2026-10-24 — Living docs — CHOICE — strategy-and-dashboard ratification batch` [`lib/credentials.ts`]: no approved source states the timing rule | — | `untested` |
 | DSH-017 | `## 2026-10-23 — Living docs — PENDING — strategy-and-dashboard ratification batch`, approved by `## 2026-10-24 — Living docs — CHOICE — strategy-and-dashboard ratification batch`; archived `specs/done/dashboard-foundation.md` (Out of scope) [`services/dashboard/README.md`, `services/dashboard/src/lib/bff.ts`] | — | `untested` |
 | DSH-018 | archived `specs/done/dashboard.md`, `specs/done/watchlist-ui.md`, `specs/done/dashboard-foundation.md` | `services/dashboard/src/__tests__/SignalsDashboard.test.tsx::test_direct_signals_table_renders_title_source_confidence_date_from_fixture`, `services/dashboard/src/__tests__/Watchlist.test.tsx::test_watchlist_page_renders_existing_entries`, `services/dashboard/src/__tests__/CompanyDetail.test.tsx::test_company_detail_lists_direct_signals`, `services/dashboard/src/__tests__/NavBar.test.tsx::test_login_page_shows_no_navigation` | `tested` |
+| DSH-019 | `2026-11-14 — Corroboration quality — PENDING — a ticker attaches through two independent sources`, approved by `2026-11-14 — Corroboration quality — CHOICE — the eight amendments approved as recommended` | `services/dashboard/src/__tests__/SignalsDashboard.test.tsx::lists context corroborations with their reason`; `services/dashboard/src/__tests__/CompanyDetail.test.tsx::lists context corroborations with their reason` | `tested` |
 
 ## Known traps
 
