@@ -1,16 +1,16 @@
 # Corroboration quality
 
-**Status:** ready
+**Status:** blocked
+**Blocked by:** part 2 of the definition of done (rebuild, structural gates, hand review), run on the stack machine after the merge
 **Branch:** `feature/corroboration-quality`
-**Docs impact:** adds six `COR-new`, one each of `HUB-new`, `CON-new`, `RES-new`, `EVA-new`, `ING-new`, `EXT-new`, `STR-new` and `DSH-new`; retires COR-003, COR-005, COR-007, HUB-046, CON-025, RES-071, ING-011 and EXT-018; changes the IDs listed below.
-- `COR-new` ([docs/core-hub/corroboration.md](../docs/core-hub/corroboration.md)), six: the entity rules file and canonical keys, called *entity rules* below; a broad entity's record, called *exclusion*; what makes two participants independent, called *independence*; the episode and its record, called *episode*; records scoped to a ticker, called *ticker record*; the rules sync at startup, called *rules sync*.
-- retired and replaced in the same file: COR-003 (by *independence* and *episode*), COR-005 (by *episode*), COR-007 (by the supersession part of *episode*).
-- changed in the same file: COR-004 (the key's name part is the canonical key of *entity rules*), COR-008 (the rules sync also marks signals pending), COR-009 (a scan reads only signals published by now and reconciles every entity a pending signal touches), COR-011 (a future `published_date` is the one clock gate), COR-012 (an excluded record is not published; `published_at` records the send). COR-013 keeps its text; its `distinct_source_count` input becomes the count of *independence*.
-- [docs/core-hub/storage.md](../docs/core-hub/storage.md): changed HUB-030 (entity nodes carry `corroboration_key`) and HUB-032 (two indexes on it). [docs/core-hub/http-api.md](../docs/core-hub/http-api.md): HUB-046 retired and replaced by `HUB-new`, called *ticker response*.
-- [docs/system/contracts.md](../docs/system/contracts.md): CON-025 retired and replaced by `CON-new`, called *record key*; changed CON-032 (four new fields), CON-033 (identity includes `ticker`), CON-034 (`divergent` to `tested`).
-- [docs/research/backtesting.md](../docs/research/backtesting.md): RES-071 retired and replaced by `RES-new`, called *backtest episode*; RES-067 reworded (the event time is the episode's opening). [docs/research/evaluation-protocol.md](../docs/research/evaluation-protocol.md): `EVA-new`, called *rules lock*.
-- [docs/ingestion/connectors.md](../docs/ingestion/connectors.md): ING-011 retired and replaced by `ING-new`, called *PubMed date*. [docs/ingestion/extraction.md](../docs/ingestion/extraction.md): EXT-018 retired and replaced by `EXT-new`, called *stratified review*.
-- [docs/strategy/runtime.md](../docs/strategy/runtime.md): STR-024 (`divergent` to `tested`); `STR-new`, called *ticker-less event*. [docs/dashboard.md](../docs/dashboard.md): `DSH-new`, called *context list*.
+**Docs impact:** adds COR-015 to COR-020, HUB-053, CON-038, RES-083, EVA-029, ING-042, EXT-022, STR-062 and DSH-019; retires eight IDs, each listed under its owner doc's `Retired requirements` with its replacement; changes the IDs listed below. The names in italics are the ones this spec used before the IDs were assigned.
+- [docs/core-hub/corroboration.md](../docs/core-hub/corroboration.md): COR-015 *entity rules* (the rules file and canonical keys), COR-016 *exclusion* (a broad entity's record), COR-017 *independence*, COR-018 *episode* (the episode and its record), COR-019 *ticker record*, COR-020 *rules sync*. The former window rule, one-record-per-group rule and supersession rule are retired, replaced by COR-017 and COR-018.
+- changed in the same file: COR-004 (the key's name part is the canonical key of COR-015), COR-008 (the rules sync also marks signals pending), COR-009 (a scan reads only signals published by now and reconciles every entity a pending signal touches), COR-011 (a future `published_date` is the one clock gate), COR-012 (an excluded record is not published; `published_at` records the send). COR-013 keeps its text; its `distinct_source_count` input becomes the count of COR-017.
+- [docs/core-hub/storage.md](../docs/core-hub/storage.md): changed HUB-030 (entity nodes carry `corroboration_key`) and HUB-032 (two indexes on it). [docs/core-hub/http-api.md](../docs/core-hub/http-api.md): HUB-053 *ticker response* replaces the former ticker response rule.
+- [docs/system/contracts.md](../docs/system/contracts.md): CON-038 *record key* replaces the former record key; changed CON-032 (four new fields), CON-033 (identity includes `ticker`), CON-034 (`divergent` to `tested`).
+- [docs/research/backtesting.md](../docs/research/backtesting.md): RES-083 *backtest episode* replaces the former one-event-per-corroboration rule; RES-067 reworded (the event time is the episode's opening). [docs/research/evaluation-protocol.md](../docs/research/evaluation-protocol.md): EVA-029 *rules lock*.
+- [docs/ingestion/connectors.md](../docs/ingestion/connectors.md): ING-042 *PubMed date* replaces the former PubMed date rule. [docs/ingestion/extraction.md](../docs/ingestion/extraction.md): EXT-022 *stratified review* replaces the former pooled review rule.
+- [docs/strategy/runtime.md](../docs/strategy/runtime.md): STR-024 (`divergent` to `tested`); STR-062 *ticker-less event*. [docs/dashboard.md](../docs/dashboard.md): DSH-019 *context list*.
 
 ---
 
@@ -18,7 +18,7 @@
 
 Written against `develop` @ `0063179`. Live figures were read from the stack machine's Postgres on 2026-11-15 and will have grown; the stack-machine steps below measure them again.
 
-**What exists.** core-hub finds corroborations in `services/core-hub/src/main/java/dev/auspex/corehub/corroboration/`: `ScheduledCorroborationService` (the only `CorroborationService`, INV-5) runs `CorroborationScanner` every `corroboration.interval-ms`. The scanner reads one batch of pending signals from Neo4j (COR-008, COR-009) and, for each pending signal and each `GeneTarget` or `Mechanism` node it links to, forms one group: that signal plus every signal on the same node from another `source_type` published within 90 days of it. Each group becomes a row of the Postgres table `corroboration`, keyed `(entity_key, participants_hash)` (CON-025), and is published to `auspex.signals.corroborated`. A row is superseded only when a later group holds all of its participants (COR-007). `EntityNormalizer` has one implementation, `IdentityEntityNormalizer`, which returns the name unchanged. `query/SignalQueryService` answers `GET /api/v1/signals/{ticker}` with every live row that lists any signal mentioning that ticker's company (HUB-046). The score is `CorroborationScorer` (COR-013). The backtest never reads that table: `services/backtesting/src/auspex_backtesting/backtest/runner.py` replays signals itself, per gene target and ticker (`_corroborations`, RES-071). The strategy runtime builds its record with an empty ticker and no source types (STR-024, `divergent`).
+**What exists.** core-hub finds corroborations in `services/core-hub/src/main/java/dev/auspex/corehub/corroboration/`: `ScheduledCorroborationService` (the only `CorroborationService`, INV-5) runs `CorroborationScanner` every `corroboration.interval-ms`. The scanner reads one batch of pending signals from Neo4j (COR-008, COR-009) and, for each pending signal and each `GeneTarget` or `Mechanism` node it links to, forms one group: that signal plus every signal on the same node from another `source_type` published within 90 days of it. Each group becomes a row of the Postgres table `corroboration`, keyed `(entity_key, participants_hash)` (the former record key), and is published to `auspex.signals.corroborated`. A row is superseded only when a later group holds all of its participants (the former supersession rule). `EntityNormalizer` has one implementation, `IdentityEntityNormalizer`, which returns the name unchanged. `query/SignalQueryService` answers `GET /api/v1/signals/{ticker}` with every live row that lists any signal mentioning that ticker's company (the former ticker response rule). The score is `CorroborationScorer` (COR-013). The backtest never reads that table: `services/backtesting/src/auspex_backtesting/backtest/runner.py` replays signals itself, per gene target and ticker (`_corroborations`, the former backtest rule). The strategy runtime builds its record with an empty ticker and no source types (STR-024, `divergent`).
 
 **Why this spec.** The question it answers is whether a corroboration can become a point-in-time, per-ticker event whose edge the evaluation protocol can falsify. Today it cannot:
 
@@ -47,7 +47,7 @@ The hand review of 2026-09-13 (`## 2026-09-13 — Step 3.2 — VERIFIED — Corr
 
 ## What this builds
 
-Definitions used below. The *window* is 90 days, both ends included, between two `published_date`s (the constant of today's COR-003). *Now* is the service clock at the start of a scan. A signal is *eligible* when its `published_date` is not after now.
+Definitions used below. The *window* is 90 days, both ends included, between two `published_date`s (the constant of the former window rule). *Now* is the service clock at the start of a scan. A signal is *eligible* when its `published_date` is not after now.
 
 ### 1. Entity rules, one file
 
@@ -192,20 +192,20 @@ The Flyway migration for this spec (the next free version) empties `corroboratio
 - `docs-check.toml` gets an ownership rule for `config/corroboration/**` (domains `core-hub` and `research`).
 - No name carries this spec's title or a plan step (ENG-049): classes are `EntityRules`, `IndependentSources`, `EpisodeBuilder`, `CorroborationReconciler`, `CorroborationRulesSync`.
 - Trap: Neo4j does not index nulls, so "nodes without a key" is found through the pending signals' own entity nodes, never by a label scan per scan.
-- Trap: the two existing unit tests that assert one group per trigger (`CorroborationScannerTest`) describe the retired COR-005; rewrite them against the reconciler and list them in the PR body.
+- Trap: the two existing unit tests that assert one group per trigger (`CorroborationScannerTest`) describe the retired one-record-per-group rule; rewrite them against the reconciler and list them in the PR body.
 
 **Docs amendment (do this first, in the same PR as the code).** Edit the owner docs as Docs impact lists, with IDs from `python3 -m tools.docs_check --next <NS>`, retired IDs moved to `Retired requirements` (ENG-021), and verification rows naming the tests below. Each edit cites `## 2026-11-14 — Corroboration quality — CHOICE — the eight amendments approved as recommended`, which answers these `PENDING` entries:
 
 | Amendment | `PENDING` entry |
 |---|---|
-| *entity rules*, *exclusion*, COR-004 | `## 2026-11-14 — Corroboration quality — PENDING — broad entities and synonyms from one rules file` |
-| *independence*, COR-003, COR-013's input | `## 2026-11-14 — Corroboration quality — PENDING — independent sources, not source types` |
-| *episode*, *record key*, *backtest episode*, COR-005, COR-007, COR-009, COR-012, CON-025, CON-032 to CON-034, RES-067, RES-071 | `## 2026-11-14 — Corroboration quality — PENDING — one record per episode` |
-| *ticker record*, *ticker response*, *context list*, *ticker-less event*, HUB-046, STR-024 | `## 2026-11-14 — Corroboration quality — PENDING — a ticker attaches through two independent sources` |
-| COR-011, *PubMed date*, ING-011 | `## 2026-11-14 — Corroboration quality — PENDING — no corroboration dated in the future` |
-| *rules sync*, COR-008, HUB-030, HUB-032, the emptied table | `## 2026-11-14 — Corroboration quality — PENDING — records rebuilt when the rules change` |
-| *rules lock* | `## 2026-11-14 — Corroboration quality — PENDING — rules file locked for event evaluations` |
-| *stratified review*, EXT-018 | `## 2026-11-14 — Corroboration quality — PENDING — stratified hand review of ticker records` |
+| COR-015, COR-016, COR-004 | `## 2026-11-14 — Corroboration quality — PENDING — broad entities and synonyms from one rules file` |
+| COR-017, COR-013's input | `## 2026-11-14 — Corroboration quality — PENDING — independent sources, not source types` |
+| COR-018, CON-038, RES-083, COR-009, COR-012, CON-032 to CON-034, RES-067 | `## 2026-11-14 — Corroboration quality — PENDING — one record per episode` |
+| COR-019, HUB-053, DSH-019, STR-062, STR-024 | `## 2026-11-14 — Corroboration quality — PENDING — a ticker attaches through two independent sources` |
+| COR-011, ING-042 | `## 2026-11-14 — Corroboration quality — PENDING — no corroboration dated in the future` |
+| COR-020, COR-008, HUB-030, HUB-032, the emptied table | `## 2026-11-14 — Corroboration quality — PENDING — records rebuilt when the rules change` |
+| EVA-029 | `## 2026-11-14 — Corroboration quality — PENDING — rules file locked for event evaluations` |
+| EXT-022 | `## 2026-11-14 — Corroboration quality — PENDING — stratified hand review of ticker records` |
 
 The approved episode rule supersedes `## 2026-10-07 — Backtest look-ahead fix — CHOICE — one backtest event per corroboration, not per superseding record`; the approving `CHOICE` says so, and the old entry is not edited (ENG-033).
 

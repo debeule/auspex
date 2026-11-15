@@ -22,6 +22,8 @@ Commands: [AGENTS.md](AGENTS.md).
 
 **Postgres tables:** `raw_fetch_audit`, `signal_current`, `signal_extraction_history`, `source_observation`, `corroboration`, plus the watchlist tables. What each holds and its natural key: [storage.md](../../docs/core-hub/storage.md).
 
+**Corroboration record:** one row of `corroboration` per episode of an entity (COR-018), keyed `(entity_key, ticker, participants_hash)` (CON-038). `ticker` is empty on the entity record and holds a ticker on a ticker record, which exists only when two independent sources name that company (COR-019). A broad entity's record carries `excluded_reason` and is never published (COR-016); `published_at` records the send. Entity names are keyed by the rules file `config/corroboration/entity-rules.yaml` (COR-015, mounted at `CORROBORATION_RULES_FILE`), and `corroboration_rules_state` holds the hash of the rules last applied by the startup sync (COR-020).
+
 **Neo4j:** `(:Signal)` nodes and the entity nodes `(:GeneTarget)`, `(:Mechanism)`, `(:Company)`, joined by `TARGETS`, `USES_MECHANISM` and `MENTIONS`; the model is in [storage.md](../../docs/core-hub/storage.md).
 
 ---
