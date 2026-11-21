@@ -2014,3 +2014,10 @@ Values are min / median / max over each year's months; the other years sit betwe
 **Choice:** the recommended option of each, with the seed list as written in `specs/corroboration-quality.md`. That includes emptying the `corroboration` table in the migration and rebuilding it from the graph, and carrying STR-024 in this spec. The episode rule supersedes `## 2026-10-07 — Backtest look-ahead fix — CHOICE — one backtest event per corroboration, not per superseding record` from the build's merge on.
 **Takes effect:** with the build PR, which edits the owner docs first and cites this entry; until it merges, `docs/` states current behaviour.
 **Source:** the owner, in the project chat on 2026-11-14, after reading the eight decisions with their recommendations: "all recommended".
+
+## 2026-11-21 — Local model — CHOICE — model server context checked before extraction
+**What:** EXT-023. Before extracting with a local model, the scraper loads it through Ollama's native API with no options and reads the running `context_length` from `/api/ps`; below the registry's `num_ctx` it refuses, as a digest mismatch does. The runbook makes the setting survive reboots with a LaunchAgent that sets `OLLAMA_CONTEXT_LENGTH` and `OLLAMA_NUM_PARALLEL` at login and then opens Ollama.
+**Why:** `launchctl setenv` does not survive a reboot. After a restart Ollama falls back to its default context and silently truncates prompts longer than that, which EXT-011 cannot see because it only compares the prompt with the registry.
+**Options considered:** A) pass `num_ctx` per request: Ollama's `/v1` endpoint ignores it, and moving to the native chat API would change the extraction call the gate records were scored with; B) a persistent setting only: still silent when it is missed; C) a check of the running context plus the persistent setting.
+**Choice:** C. A failed check fails the ingestion run without moving its cursor (ING cursor rules), so a missed setting delays documents instead of truncating them.
+**Source:** the owner, in the project chat on 2026-11-21: "make ollama setting survive reboot".

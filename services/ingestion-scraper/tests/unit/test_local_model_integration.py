@@ -17,7 +17,9 @@ from auspex_ingest.extraction_backend import (
     LLMExtractorFactory,
     _load_registry,
     build_extractor_from_env,
+    make_evaluation_extractor,
     make_instructor_client,
+    ollama_context_lookup,
     ollama_digest_lookup,
     register_local_model,
     score_file_name,
@@ -160,7 +162,9 @@ def test_extractor_from_env_targets_configured_model_and_base_url(tmp_path):
         "EXTRACTION_REGISTRY_PATH": str(registry),
         "EXTRACTION_SCORES_DIR": str(scores),
     }
-    extractor = build_extractor_from_env(env, model_info_fn=lambda tag: _DIGEST)
+    extractor = build_extractor_from_env(
+        env, model_info_fn=lambda tag: _DIGEST, context_fn=lambda tag: 8192
+    )
     assert extractor._model_id == _TAG
     assert extractor._prompt_version == DEFAULT_PROMPT_VERSION
     assert str(extractor._client.client.base_url).rstrip("/") == _BASE_URL
@@ -177,7 +181,9 @@ def test_extractor_from_env_refuses_gate_record_for_other_prompt_version(tmp_pat
         "EXTRACTION_SCORES_DIR": str(scores),
     }
     with pytest.raises(GateNotPassedError, match=_TAG):
-        build_extractor_from_env(env, model_info_fn=lambda tag: _DIGEST)
+        build_extractor_from_env(
+            env, model_info_fn=lambda tag: _DIGEST, context_fn=lambda tag: 8192
+        )
 
 
 def test_gate_record_passes_at_documented_precision_threshold():
@@ -245,3 +251,118 @@ def test_gated_local_candidate_registers_into_a_loadable_registry(tmp_path, tag)
     entry = _load_registry(registry)[tag]
     assert entry["backend"] == "local"
     assert entry["num_ctx"] >= 8192
+
+
+def _ps_payload(context_length: int | None, name: str = _TAG) -> dict:
+    model: dict = {"name": name, "model": name, "digest": _HEX}
+    if context_length is not None:
+        model["context_length"] = context_length
+    return {"models": [model]}
+
+
+def _local_factory(tmp_path: Path, context_fn) -> LLMExtractorFactory:
+    registry = _write_registry(tmp_path, {_TAG: {**_LOCAL_ENTRY, "digest": _DIGEST}})
+    scores = tmp_path / "scores"
+    _write_score(scores, _TAG, "v1", "v1")
+    return LLMExtractorFactory(
+        registry_path=registry,
+        scores_dir=scores,
+        model_id=_TAG,
+        base_url=_BASE_URL,
+        api_key="ollama",
+        prompt_version="v1",
+        prefilter_version="v1",
+        model_info_fn=lambda tag: _DIGEST,
+        context_fn=context_fn,
+    )
+
+
+@respx.mock
+def test_ollama_context_lookup_loads_model_with_server_defaults_then_reads_its_context():
+    load = respx.post("http://ollama.test:11434/api/generate").mock(
+        return_value=httpx.Response(200, json={"model": _TAG, "done": True})
+    )
+    respx.get("http://ollama.test:11434/api/ps").mock(
+        return_value=httpx.Response(200, json=_ps_payload(4096))
+    )
+    lookup = ollama_context_lookup(_BASE_URL)
+    assert lookup(_TAG) == 4096
+    body = json.loads(load.calls.last.request.content)
+    assert body["model"] == _TAG
+    # Per-request options would load a runner /v1 requests never get, hiding the server default.
+    assert "options" not in body
+
+
+@respx.mock
+def test_ollama_context_lookup_fails_when_server_reports_no_context_length():
+    respx.post("http://ollama.test:11434/api/generate").mock(
+        return_value=httpx.Response(200, json={"done": True})
+    )
+    respx.get("http://ollama.test:11434/api/ps").mock(
+        return_value=httpx.Response(200, json=_ps_payload(None))
+    )
+    with pytest.raises(ConfigurationError, match="context_length"):
+        ollama_context_lookup(_BASE_URL)(_TAG)
+
+
+def test_server_context_below_registry_num_ctx_refuses_to_start(tmp_path):
+    with pytest.raises(ConfigurationError, match="OLLAMA_CONTEXT_LENGTH"):
+        _local_factory(tmp_path, context_fn=lambda tag: 4096)
+
+
+def test_server_context_at_or_above_registry_num_ctx_starts(tmp_path):
+    seen: list[str] = []
+
+    def context(tag: str) -> int:
+        seen.append(tag)
+        return _LOCAL_ENTRY["num_ctx"]
+
+    _local_factory(tmp_path, context_fn=context)
+    assert seen == [_TAG]
+
+
+def test_unreachable_server_checks_context_before_first_extraction(tmp_path, mocker):
+    calls = {"n": 0}
+
+    def context(tag: str) -> int:
+        calls["n"] += 1
+        if calls["n"] == 1:
+            raise httpx.ConnectError("connection refused")
+        return 4096  # came back after a reboot without the context setting
+
+    factory = _local_factory(tmp_path, context_fn=context)
+    extractor = factory.make_extractor(schema_version="1.0", prompt_version="v1")
+    extractor._client = mocker.MagicMock()
+    with pytest.raises(ConfigurationError, match="OLLAMA_CONTEXT_LENGTH"):
+        extractor.extract(_doc(), prefilter_version="v1", raw_object_key="k")
+    extractor._client.chat.completions.create.assert_not_called()
+
+
+def test_extractor_from_env_checks_server_context(tmp_path):
+    registry = _write_registry(tmp_path, {_TAG: {**_LOCAL_ENTRY, "digest": _DIGEST}})
+    scores = tmp_path / "scores"
+    _write_score(scores, _TAG, DEFAULT_PROMPT_VERSION, PREFILTER_VERSION)
+    env = {
+        "EXTRACTION_MODEL": _TAG,
+        "EXTRACTION_BASE_URL": _BASE_URL,
+        "EXTRACTION_REGISTRY_PATH": str(registry),
+        "EXTRACTION_SCORES_DIR": str(scores),
+    }
+    with pytest.raises(ConfigurationError, match="OLLAMA_CONTEXT_LENGTH"):
+        build_extractor_from_env(
+            env, model_info_fn=lambda tag: _DIGEST, context_fn=lambda tag: 4096
+        )
+
+
+def test_evaluation_extractor_refuses_server_context_below_num_ctx(tmp_path):
+    registry = _write_registry(tmp_path, {_TAG: {**_LOCAL_ENTRY, "digest": _DIGEST}})
+    with pytest.raises(ConfigurationError, match="OLLAMA_CONTEXT_LENGTH"):
+        make_evaluation_extractor(
+            registry_path=registry,
+            model_id=_TAG,
+            prompt_version=DEFAULT_PROMPT_VERSION,
+            base_url=_BASE_URL,
+            api_key="ollama",
+            model_info_fn=lambda tag: _DIGEST,
+            context_fn=lambda tag: 4096,
+        )
