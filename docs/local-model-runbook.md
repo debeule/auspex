@@ -28,16 +28,34 @@ brew install ollama            # or the macOS app from ollama.com
 ollama --version               # record it in VERSIONS.md (Infrastructure, "Ollama (host)")
 ```
 
-Ollama's OpenAI-compatible endpoint ignores a per-request context size. The server default is 4096 tokens, and longer prompts are **silently truncated**. Raise it to the registry's `num_ctx` (8192):
+Ollama's OpenAI-compatible endpoint ignores a per-request context size. The server default is 4096 tokens, and longer prompts are **silently truncated**. Raise it to the registry's `num_ctx` (8192), in a way that survives a reboot: `launchctl setenv` on its own is forgotten at every restart.
+
+**macOS app.** Install a LaunchAgent that sets both variables at login and only then opens Ollama, so the app always starts with them:
 
 ```bash
-# macOS app: set once, then quit and reopen Ollama
-launchctl setenv OLLAMA_CONTEXT_LENGTH 8192
-launchctl setenv OLLAMA_NUM_PARALLEL 1      # one request at a time keeps memory predictable
-
-# or, running the server in a terminal instead of the app
-OLLAMA_CONTEXT_LENGTH=8192 OLLAMA_NUM_PARALLEL=1 ollama serve
+cat > ~/Library/LaunchAgents/dev.auspex.ollama-env.plist <<'PLIST'
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key><string>dev.auspex.ollama-env</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/bin/sh</string><string>-c</string>
+    <string>launchctl setenv OLLAMA_CONTEXT_LENGTH 8192; launchctl setenv OLLAMA_NUM_PARALLEL 1; open -a Ollama</string>
+  </array>
+  <key>RunAtLoad</key><true/>
+</dict>
+</plist>
+PLIST
+launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/dev.auspex.ollama-env.plist
 ```
+
+Then remove Ollama from System Settings → General → Login Items, so the app is opened only by the agent, after the variables are set. Quit Ollama once and run `launchctl kickstart gui/$(id -u)/dev.auspex.ollama-env` to restart it with them now.
+
+**Terminal server instead of the app.** Start it with the variables (`OLLAMA_CONTEXT_LENGTH=8192 OLLAMA_NUM_PARALLEL=1 ollama serve`), and make whatever starts it at boot set them too.
+
+**Check.** `curl -s localhost:11434/api/ps` lists `"context_length": 8192` for the loaded model. The scraper makes the same check before it extracts (EXT-023 in `docs/ingestion/extraction.md`): with a shorter context the ingestion run fails with an error naming `OLLAMA_CONTEXT_LENGTH`, keeps its cursor, and catches up on the next run once the setting is fixed.
 
 ## 2. Pull and register the candidates
 

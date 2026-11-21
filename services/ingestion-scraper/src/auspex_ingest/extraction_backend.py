@@ -121,6 +121,63 @@ def ollama_digest_lookup(
     return lookup
 
 
+def ollama_context_lookup(
+    base_url: str, http_client: Any | None = None
+) -> Callable[[str], int]:
+    """Returns the context length the server gives a request that sets none, as `/v1` requests do.
+
+    Loading the model through the native API without options starts the same runner a `/v1`
+    request gets; `/api/ps` then reports its `context_length`. The load can take minutes for a
+    large model, hence the long timeout.
+    """
+    import httpx
+
+    root = _ollama_root(base_url)
+
+    def lookup(tag: str) -> int:
+        client = http_client or httpx.Client(timeout=600.0)
+        load = client.post(f"{root}/api/generate", json={"model": tag, "prompt": ""})
+        load.raise_for_status()
+        response = client.get(f"{root}/api/ps")
+        response.raise_for_status()
+        for model in response.json().get("models", []):
+            if tag in (model.get("name"), model.get("model")):
+                if "context_length" not in model:
+                    raise ConfigurationError(
+                        f"the Ollama server at {root} reports no context_length for {tag!r} "
+                        "in /api/ps; upgrade Ollama so the context can be checked"
+                    )
+                return int(model["context_length"])
+        raise ConfigurationError(f"model {tag!r} is not running on the Ollama server at {root}")
+
+    return lookup
+
+
+def _verify_context(
+    model_id: str, tag: str, num_ctx: int, context_fn: Callable[[str], int]
+) -> None:
+    live = context_fn(tag)
+    if live < num_ctx:
+        raise ConfigurationError(
+            f"model {model_id!r} runs with a {live}-token context on the model server, below "
+            f"the registry's num_ctx={num_ctx}, so longer prompts would be silently truncated; "
+            f"set OLLAMA_CONTEXT_LENGTH to at least {num_ctx} and restart Ollama "
+            "(docs/local-model-runbook.md)"
+        )
+
+
+def _verify_local_server(
+    model_id: str,
+    entry: Mapping[str, Any],
+    model_info_fn: Callable[[str], str],
+    context_fn: Callable[[str], int] | None,
+) -> None:
+    registered_digest: str = entry["digest"]
+    _verify_digest(model_id, registered_digest, model_info_fn)
+    if context_fn is not None:
+        _verify_context(model_id, registered_digest.split("@")[0], entry["num_ctx"], context_fn)
+
+
 def _verify_digest(
     model_id: str, registered_digest: str, model_info_fn: Callable[[str], str]
 ) -> None:
@@ -285,6 +342,7 @@ class LLMExtractorFactory:
         prefilter_version: str,
         model_info_fn: Callable[[str], str] | None = None,
         prompt_dir: Path | None = None,
+        context_fn: Callable[[str], int] | None = None,
     ) -> None:
         self.base_url = base_url
         self._api_key = api_key
@@ -304,17 +362,18 @@ class LLMExtractorFactory:
 
         self._pending_check: Callable[[], None] | None = None
         if entry["backend"] == "local" and model_info_fn is not None:
-            registered_digest: str = entry["digest"]
             try:
-                _verify_digest(model_id, registered_digest, model_info_fn)
+                _verify_local_server(model_id, entry, model_info_fn, context_fn)
             except (OSError, _transport_errors()) as exc:
                 log.warning(
                     "local model server unreachable at startup; "
-                    "digest will be verified before the first extraction",
+                    "digest and context will be verified before the first extraction",
                     extra={"model_id": model_id, "error": str(exc)},
                 )
                 info_fn = model_info_fn
-                self._pending_check = lambda: _verify_digest(model_id, registered_digest, info_fn)
+                self._pending_check = lambda: _verify_local_server(
+                    model_id, entry, info_fn, context_fn
+                )
 
         _check_gate(scores_dir, model_id, prompt_version, prefilter_version)
 
@@ -368,6 +427,7 @@ def build_extractor_from_env(
     gene_vocab: frozenset[str] | None = None,
     now: Callable[[], datetime] | None = None,
     model_info_fn: Callable[[str], str] | None = None,
+    context_fn: Callable[[str], int] | None = None,
 ) -> BackendLLMExtractor:
     from .prefilter import PREFILTER_VERSION
 
@@ -387,6 +447,8 @@ def build_extractor_from_env(
 
     if model_info_fn is None and base_url:
         model_info_fn = ollama_digest_lookup(base_url)
+    if context_fn is None and base_url:
+        context_fn = ollama_context_lookup(base_url)
 
     factory = LLMExtractorFactory(
         registry_path=registry_path,
@@ -397,6 +459,7 @@ def build_extractor_from_env(
         prompt_version=resolved_prompt,
         prefilter_version=PREFILTER_VERSION,
         model_info_fn=model_info_fn,
+        context_fn=context_fn,
     )
     return factory.make_extractor(
         schema_version=schema_version,
@@ -415,6 +478,7 @@ def make_evaluation_extractor(
     api_key: str | None,
     schema_version: str = EVENT_SCHEMA_VERSION,
     model_info_fn: Callable[[str], str] | None = None,
+    context_fn: Callable[[str], int] | None = None,
 ) -> BackendLLMExtractor:
     # Same configuration as production minus the gate check: these scripts write the gate.
     registry = _load_registry(registry_path)
@@ -430,7 +494,8 @@ def make_evaluation_extractor(
             raise ConfigurationError(
                 f"model {model_id!r} is local; set EXTRACTION_BASE_URL to the Ollama server"
             )
-        _verify_digest(model_id, entry["digest"], info_fn)
+        context = context_fn or (ollama_context_lookup(base_url) if base_url else None)
+        _verify_local_server(model_id, entry, info_fn, context)
     return BackendLLMExtractor(
         client=make_instructor_client(entry, base_url, api_key),
         model_id=model_id,
